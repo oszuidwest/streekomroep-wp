@@ -1,0 +1,75 @@
+{
+    "key": "group_5f21a05a18b57",
+    "title": "Kabelkrant",
+    "fields": [
+        {
+            "key": "field_5f74740c7f912",
+            "label": "Toon in kabelkrant",
+            "name": "artikel_in_kabelkrant",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_5f21a06d22c58",
+            "label": "Versie voor TV",
+            "name": "artikel_kabelkrant_content",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "75",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Vul de versie voor op teksttv in (regio wordt automatisch toegevoegd).",
+            "maxlength": "",
+            "rows": 4,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 1,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "discussion",
+        "comments",
+        "author",
+        "send-trackbacks"
+    ],
+    "active": true,
+    "description": "",
+    "modified": 1607357457
+}
