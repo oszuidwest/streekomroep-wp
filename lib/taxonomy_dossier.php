@@ -23,4 +23,4 @@
 		'show_in_rest'               => true,
 		'rest_base'                  => 'dossier',
 	);
-	register_taxonomy( 'dossier', array( 'post', ' fragment' ), $args );
+	register_taxonomy( 'dossier', array( 'post', 'fragment' ), $args );
