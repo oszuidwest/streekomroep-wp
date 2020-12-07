@@ -27,8 +27,8 @@
                             "label": "Selecteer artikelen",
                             "name": "top_stories_artikelen",
                             "type": "post_object",
-                            "instructions": "",
-                            "required": 0,
+                            "instructions": "Selecteer drie artikelen. Indien er meer dan drie artikelen zijn, wordt een willekeurige selectie in de top stories getoond.",
+                            "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
@@ -68,7 +68,7 @@
                                 "id": ""
                             },
                             "default_value": "",
-                            "placeholder": "",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond.",
                             "prepend": "",
                             "append": "",
                             "maxlength": ""
@@ -86,7 +86,7 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 6,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
@@ -105,7 +105,7 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 0,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
@@ -127,7 +127,7 @@
                             "name": "selecteer_dossier",
                             "type": "taxonomy",
                             "instructions": "",
-                            "required": 0,
+                            "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
@@ -197,5 +197,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607362920
+    "modified": 1607369113
 }
