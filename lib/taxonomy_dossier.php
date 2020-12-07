@@ -1,7 +1,5 @@
 <?php
 // Register Dossier Taxonomy
-function taxonomy_dossier() {
-
 	$labels = array(
 		'name'                       => 'Dossiers',
 		'singular_name'              => 'Dossier',
@@ -26,6 +24,3 @@ function taxonomy_dossier() {
 		'rest_base'                  => 'dossier',
 	);
 	register_taxonomy( 'dossier', array( 'post', ' fragment' ), $args );
-
-}
-add_action( 'init', 'taxonomy_dossier', 0 );
