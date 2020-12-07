@@ -1,3 +1,4 @@
+<?php
 // Register Fragment Post Type
 function post_type_fragment() {
 
