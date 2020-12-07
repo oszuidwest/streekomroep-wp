@@ -74,8 +74,8 @@
             "maxlength": ""
         },
         {
-            "key": "field_5fb5610178288",
-            "label": "",
+            "key": "field_5fce7fa8d0ef6",
+            "label": "Let op! Vereist StereoTool",
             "name": "",
             "type": "message",
             "instructions": "",
@@ -87,7 +87,7 @@
                 "id": ""
             },
             "message": "Velden worden alleen gebruikt voor koppeling met StereoTool. Indien er geen koppeling is, heeft het geen zin om deze in te vullen.",
-            "new_lines": "wpautop",
+            "new_lines": "",
             "esc_html": 0
         }
     ],
@@ -108,5 +108,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607366213
+    "modified": 1607368682
 }

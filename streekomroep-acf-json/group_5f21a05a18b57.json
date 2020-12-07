@@ -5,7 +5,7 @@
         {
             "key": "field_5f74740c7f912",
             "label": "Toon in kabelkrant",
-            "name": "artikel_in_kabelkrant",
+            "name": "post_in_kabelkrant",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -24,7 +24,7 @@
         {
             "key": "field_5f21a06d22c58",
             "label": "Versie voor TV",
-            "name": "artikel_kabelkrant_content",
+            "name": "post_kabelkrant_content",
             "type": "textarea",
             "instructions": "",
             "required": 0,
@@ -71,5 +71,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1607357457
+    "modified": 1607368520
 }
