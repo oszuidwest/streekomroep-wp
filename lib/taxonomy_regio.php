@@ -1,3 +1,4 @@
+<?php
 // Register Regio Taxonomy
 function taxonomy_regio() {
 
