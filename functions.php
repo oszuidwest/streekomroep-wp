@@ -165,3 +165,38 @@ class StarterSite extends Timber\Site {
 }
 
 new StarterSite();
+
+/**
+ * Include ACF Fields. These are saved as local JSON 
+ * This is not a function of Timber so we declare them afer the Timber specific functions
+ */
+if (function_exists('get_field')) {
+
+  add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
+
+  function streekomroep_acf_json_save_point( $path ) {
+
+      // update path
+      $path = get_stylesheet_directory() . '/streekomroep-acf-json';
+
+      // return
+      return $path;
+
+  }
+
+  add_filter('acf/settings/load_json', 'streekomroep_acf_json_load_point');
+
+  function streekomroep_acf_json_load_point( $paths ) {
+
+      // remove original path (optional)
+      unset($paths[0]);
+
+      // append path
+      $paths[] = get_stylesheet_directory() . '/streekomroep-acf-json';
+
+
+      // return
+      return $paths;
+
+  }
+}
