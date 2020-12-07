@@ -1,3 +1,4 @@
+<?php
 // Register Dossier Taxonomy
 function taxonomy_dossier() {
 
