@@ -1,0 +1,78 @@
+[
+    {
+        "key": "group_5f5b7fcbae7dc",
+        "title": "Fragment koppelen",
+        "fields": [
+            {
+                "key": "field_5f5b7fe48aca3",
+                "label": "Uitgelicht fragment",
+                "name": "post_fragment_is_featured",
+                "type": "true_false",
+                "instructions": "Vervang de afbeelding bovenaan dit artikel door het fragment. Fragment wordt normaal onder laatste alinea getoond.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "message": "",
+                "default_value": 0,
+                "ui": 1,
+                "ui_on_text": "",
+                "ui_off_text": ""
+            },
+            {
+                "key": "field_5f7504c564d85",
+                "label": "Selecteer fragment",
+                "name": "post_gekoppeld_fragment",
+                "type": "relationship",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "post_type": [
+                    "fragment"
+                ],
+                "taxonomy": "",
+                "filters": [
+                    "search"
+                ],
+                "elements": [
+                    "featured_image"
+                ],
+                "min": "",
+                "max": "",
+                "return_format": "object"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_format",
+                    "operator": "==",
+                    "value": "video"
+                }
+            ],
+            [
+                {
+                    "param": "post_format",
+                    "operator": "==",
+                    "value": "audio"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": ""
+    }
+]

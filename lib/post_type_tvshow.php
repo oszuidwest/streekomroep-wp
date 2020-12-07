@@ -37,4 +37,4 @@
 		'rest_base'             => 'tv',
 		'rewrite'               => [ 'slug' => 'tv', 'with_front' => true ],
 	);
-	register_post_type( 'tvshows', $args );
+	register_post_type( 'tv', $args );

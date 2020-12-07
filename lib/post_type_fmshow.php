@@ -37,4 +37,4 @@
 		'rest_base'             => 'tv',
 		'rewrite'               => [ 'slug' => 'fm', 'with_front' => true ],
 	);
-	register_post_type( 'fmshows', $args );
+	register_post_type( 'fm', $args );

@@ -1,0 +1,155 @@
+[
+    {
+        "key": "group_5fba8f2f25001",
+        "title": "TV Show eigenschappen",
+        "fields": [
+            {
+                "key": "field_5fba8f2f27aec",
+                "label": "Actief",
+                "name": "tv_show_actief",
+                "type": "true_false",
+                "instructions": "Wordt in programmatie getoond.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "50",
+                    "class": "",
+                    "id": ""
+                },
+                "message": "",
+                "default_value": 0,
+                "ui": 1,
+                "ui_on_text": "",
+                "ui_off_text": ""
+            },
+            {
+                "key": "field_5fba8f630fd86",
+                "label": "Gemist locatie",
+                "name": "tv_show_gemist_locatie",
+                "type": "number",
+                "instructions": "Vul het ID van de Vimeo-map waar de uitzendingen in staan in.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "50",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": "",
+                "min": "",
+                "max": "",
+                "step": ""
+            },
+            {
+                "key": "field_5fba8f2f27b2c",
+                "label": "Presentator(en)",
+                "name": "tv_show_presentator",
+                "type": "user",
+                "instructions": "Presentator moet in WordPress bestaan als users.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "role": "",
+                "allow_null": 0,
+                "multiple": 1,
+                "return_format": "id"
+            },
+            {
+                "key": "field_5fba8f2f27b6a",
+                "label": "Dag(en)",
+                "name": "tv_show_dagen",
+                "type": "select",
+                "instructions": "Kies een of meerdere dag(en)",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "33.33",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "maandag": "maandag",
+                    "dinsdag": "dinsdag",
+                    "woensdag": "woensdag",
+                    "donderdag": "donderdag",
+                    "vrijdag": "vrijdag",
+                    "zaterdag": "zaterdag",
+                    "zondag": "zondag"
+                },
+                "default_value": [],
+                "allow_null": 0,
+                "multiple": 1,
+                "ui": 1,
+                "ajax": 0,
+                "return_format": "value",
+                "placeholder": ""
+            },
+            {
+                "key": "field_5fba8f2f27ba7",
+                "label": "Starttijd",
+                "name": "tv_show_starttijd",
+                "type": "time_picker",
+                "instructions": "Kies altijd een heel uur (xx:00:00)",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "33.33",
+                    "class": "",
+                    "id": ""
+                },
+                "display_format": "H:i:s",
+                "return_format": "H:i:s"
+            },
+            {
+                "key": "field_5fba8f2f27be4",
+                "label": "Eindtijd",
+                "name": "tv_show_eindtijd",
+                "type": "time_picker",
+                "instructions": "Kies altijd een heel uur (xx:00:00)",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "33.33",
+                    "class": "",
+                    "id": ""
+                },
+                "display_format": "H:i:s",
+                "return_format": "H:i:s"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "tv"
+                }
+            ]
+        ],
+        "menu_order": -1,
+        "position": "acf_after_title",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": [
+            "discussion",
+            "comments",
+            "revisions",
+            "author",
+            "format",
+            "page_attributes",
+            "categories",
+            "tags",
+            "send-trackbacks"
+        ],
+        "active": true,
+        "description": ""
+    }
+]
