@@ -1,7 +1,5 @@
 <?php
 // Register Fragment Post Type
-function post_type_fragment() {
-
 	$labels = array(
 		'name'                  => 'Fragmenten',
 		'singular_name'         => 'Fragment',
@@ -54,6 +52,3 @@ function post_type_fragment() {
 		'rest_base'             => 'fragmenten',
 	);
 	register_post_type( 'fragment', $args );
-
-}
-add_action( 'init', 'post_type_fragment', 0 );
