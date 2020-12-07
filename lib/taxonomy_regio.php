@@ -23,4 +23,4 @@
 		'show_in_rest'               => true,
 		'rest_base'                  => 'regio',
 	);
-	register_taxonomy( 'regio', array( 'post', ' fragment', ' agenda' ), $args );
+	register_taxonomy( 'regio', array( 'post', 'fragment', 'agenda' ), $args );
