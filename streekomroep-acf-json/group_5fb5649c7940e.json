@@ -1,0 +1,106 @@
+{
+    "key": "group_5fb5649c7940e",
+    "title": "Callout - Breaking",
+    "fields": [
+        {
+            "key": "field_5fb5649c7e0c9",
+            "label": "Toon breaking callout",
+            "name": "callout_breaking_toon",
+            "type": "true_false",
+            "instructions": "Zet deze callout neer wanneer er breaking nieuws is.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_5fb564d8d8c8b",
+            "label": "Breaking bericht",
+            "name": "callout_breaking_bericht",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5fb5649c7e0c9",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "post"
+            ],
+            "taxonomy": "",
+            "allow_null": 0,
+            "multiple": 0,
+            "return_format": "id",
+            "ui": 1
+        },
+        {
+            "key": "field_5fb56525e51c1",
+            "label": "Breaking positionering",
+            "name": "callout_breaking_positie",
+            "type": "radio",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5fb5649c7e0c9",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "Toon breaking callout site-breed": "Toon breaking callout site-breed",
+                "Toon breaking callout alleen op voorpagina": "Toon breaking callout alleen op voorpagina",
+                "Toon breaking callout alleen op voorpagina en nieuwsartikelen": "Toon breaking callout alleen op voorpagina en nieuwsartikelen"
+            },
+            "allow_null": 0,
+            "other_choice": 0,
+            "default_value": "",
+            "layout": "vertical",
+            "return_format": "value",
+            "save_other_choice": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "nieuws-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1607362920
+}

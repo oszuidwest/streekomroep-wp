@@ -1,0 +1,42 @@
+{
+    "key": "group_5f99e99a53c6f",
+    "title": "Colofon",
+    "fields": [
+        {
+            "key": "field_5f99e9a496ebd",
+            "label": "Toon deze gebruikers in colofon",
+            "name": "colofon_users",
+            "type": "user",
+            "instructions": "Vul biografie etc in bij profielen van gebruikers.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "role": "",
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "id"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "nieuws-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1607362920
+}
