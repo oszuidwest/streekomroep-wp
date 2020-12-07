@@ -1,7 +1,5 @@
 <?php
 // Register Regio Taxonomy
-function taxonomy_regio() {
-
 	$labels = array(
 		'name'                       => 'Regio\'s',
 		'singular_name'              => 'Regio',
@@ -26,6 +24,3 @@ function taxonomy_regio() {
 		'rest_base'                  => 'regio',
 	);
 	register_taxonomy( 'regio', array( 'post', ' fragment', ' agenda' ), $args );
-
-}
-add_action( 'init', 'taxonomy_regio', 0 );
