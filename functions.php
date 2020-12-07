@@ -200,3 +200,36 @@ if (function_exists('get_field')) {
 
   }
 }
+
+if( function_exists('acf_add_options_page') ) {
+	
+	acf_add_options_page(array(
+		'page_title' 	=> 'Radio Instellingen',
+		'menu_title'	=> 'Radio Instellingen',
+		'menu_slug' 	=> 'radio-instellingen',
+		'capability'	=> 'edit_posts',
+		'redirect'	=> false
+	));	
+}
+
+if( function_exists('acf_add_options_page') ) {
+	
+	acf_add_options_page(array(
+		'page_title' 	=> 'TV Instellingen',
+		'menu_title'	=> 'TV Instellingen',
+		'menu_slug' 	=> 'tv-instellingen',
+		'capability'	=> 'edit_posts',
+		'redirect'	=> false
+	));	
+}
+
+if( function_exists('acf_add_options_page') ) {
+	
+	acf_add_options_page(array(
+		'page_title' 	=> 'Nieuws Instellingen',
+		'menu_title'	=> 'Nieuws Instellingen',
+		'menu_slug' 	=> 'nieuws-instellingen',
+		'capability'	=> 'edit_posts',
+		'redirect'	=> false
+	));	
+}
