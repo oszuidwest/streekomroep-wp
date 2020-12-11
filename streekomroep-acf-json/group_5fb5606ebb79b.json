@@ -1,6 +1,6 @@
 {
     "key": "group_5fb5606ebb79b",
-    "title": "Programmering",
+    "title": "TV - Programmering",
     "fields": [
         {
             "key": "field_5fb5607c6bcbe",
@@ -37,5 +37,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607366213
+    "modified": 1607697682
 }

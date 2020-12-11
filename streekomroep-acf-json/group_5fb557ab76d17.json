@@ -1,6 +1,6 @@
 {
     "key": "group_5fb557ab76d17",
-    "title": "Webplayer",
+    "title": "Radio - Webplayer",
     "fields": [
         {
             "key": "field_5fb557b1cf55e",
@@ -68,5 +68,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607366213
+    "modified": 1607697388
 }

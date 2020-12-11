@@ -1,0 +1,52 @@
+{
+    "key": "group_5fd3836c0be4a",
+    "title": "Post - Ranking",
+    "fields": [
+        {
+            "key": "field_5fd383807cf4b",
+            "label": "",
+            "name": "post_ranking",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "1": "Breaking",
+                "2": "Top story",
+                "3": "Leestip",
+                "5": "Nieuws (standaard)",
+                "6": "Achterkant"
+            },
+            "default_value": 5,
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value",
+            "ajax": 0,
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1607697409
+}

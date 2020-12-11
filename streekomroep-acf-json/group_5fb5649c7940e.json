@@ -1,6 +1,6 @@
 {
     "key": "group_5fb5649c7940e",
-    "title": "Callout - Breaking",
+    "title": "Desking - Callout - Breaking",
     "fields": [
         {
             "key": "field_5fb5649c7e0c9",
@@ -20,36 +20,6 @@
             "ui": 1,
             "ui_on_text": "",
             "ui_off_text": ""
-        },
-        {
-            "key": "field_5fb564d8d8c8b",
-            "label": "Breaking bericht",
-            "name": "callout_breaking_bericht",
-            "type": "post_object",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5fb5649c7e0c9",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "post_type": [
-                "post"
-            ],
-            "taxonomy": "",
-            "allow_null": 0,
-            "multiple": 0,
-            "return_format": "id",
-            "ui": 1
         },
         {
             "key": "field_5fb56525e51c1",
@@ -102,5 +72,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607362920
+    "modified": 1607697643
 }

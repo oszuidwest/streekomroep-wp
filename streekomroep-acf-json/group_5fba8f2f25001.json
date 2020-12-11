@@ -1,6 +1,6 @@
 {
     "key": "group_5fba8f2f25001",
-    "title": "TV Show eigenschappen",
+    "title": "TV - TV Show eigenschappen",
     "fields": [
         {
             "key": "field_5fba8f2f27aec",
@@ -150,5 +150,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1607356730
+    "modified": 1607697570
 }

@@ -1,6 +1,6 @@
 {
     "key": "group_5f75031ebb507",
-    "title": "Eigenschappen fragment",
+    "title": "Fragment - Eigenschappen",
     "fields": [
         {
             "key": "field_5f75032710141",
@@ -81,5 +81,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607356725
+    "modified": 1607697429
 }

@@ -1,6 +1,6 @@
 {
     "key": "group_5fc50483c0a4c",
-    "title": "Desking",
+    "title": "Desking - Voorpagina",
     "fields": [
         {
             "key": "field_5fc504a29fd00",
@@ -21,30 +21,7 @@
                     "name": "blok_top_stories",
                     "label": "Top stories",
                     "display": "block",
-                    "sub_fields": [
-                        {
-                            "key": "field_5fc507163e4e0",
-                            "label": "Selecteer artikelen",
-                            "name": "top_stories_artikelen",
-                            "type": "post_object",
-                            "instructions": "Selecteer drie artikelen. Indien er meer dan drie artikelen zijn, wordt een willekeurige selectie in de top stories getoond.",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "",
-                                "id": ""
-                            },
-                            "post_type": [
-                                "post"
-                            ],
-                            "taxonomy": "",
-                            "allow_null": 0,
-                            "multiple": 1,
-                            "return_format": "id",
-                            "ui": 1
-                        }
-                    ],
+                    "sub_fields": [],
                     "min": "",
                     "max": ""
                 },
@@ -197,5 +174,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607369113
+    "modified": 1607697611
 }
