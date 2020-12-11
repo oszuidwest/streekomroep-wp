@@ -162,7 +162,7 @@
             {
                 "param": "options_page",
                 "operator": "==",
-                "value": "nieuws-instellingen"
+                "value": "desking"
             }
         ]
     ],
@@ -174,5 +174,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697611
+    "modified": 1607701691
 }
