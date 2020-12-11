@@ -226,9 +226,9 @@ if( function_exists('acf_add_options_page') ) {
 if( function_exists('acf_add_options_page') ) {
 	
 	acf_add_options_page(array(
-		'page_title' 	=> 'Nieuws Instellingen',
-		'menu_title'	=> 'Nieuws Instellingen',
-		'menu_slug' 	=> 'nieuws-instellingen',
+		'page_title' 	=> 'Desking',
+		'menu_title'	=> 'Desking',
+		'menu_slug' 	=> 'desking',
 		'capability'	=> 'edit_posts',
 		'redirect'	=> false
 	));	
