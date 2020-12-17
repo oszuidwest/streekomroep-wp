@@ -208,6 +208,7 @@ if( function_exists('acf_add_options_page') ) {
 		'menu_title'	=> 'Radio Instellingen',
 		'menu_slug' 	=> 'radio-instellingen',
 		'capability'	=> 'edit_posts',
+		'icon_url' => 'dashicons-playlist-audio',
 		'redirect'	=> false
 	));	
 }
@@ -219,6 +220,7 @@ if( function_exists('acf_add_options_page') ) {
 		'menu_title'	=> 'TV Instellingen',
 		'menu_slug' 	=> 'tv-instellingen',
 		'capability'	=> 'edit_posts',
+		'icon_url' => 'dashicons-format-video',
 		'redirect'	=> false
 	));	
 }
@@ -230,6 +232,7 @@ if( function_exists('acf_add_options_page') ) {
 		'menu_title'	=> 'Desking',
 		'menu_slug' 	=> 'desking',
 		'capability'	=> 'edit_posts',
+		'icon_url' => 'dashicons-layout',
 		'redirect'	=> false
 	));	
 }
