@@ -43,9 +43,9 @@
                 "id": ""
             },
             "choices": {
-                "sitewide": "Toon breaking callout site-breed",
-                "frontpage": "Toon breaking callout alleen op voorpagina",
-                "frontpagenews": "Toon breaking callout alleen op voorpagina en nieuwsartikelen"
+                "overal": "Toon breaking callout site-breed",
+                "voorpagina": "Toon breaking callout alleen op voorpagina",
+                "voorpaginanieuws": "Toon breaking callout alleen op voorpagina en nieuwsartikelen"
             },
             "allow_null": 0,
             "other_choice": 0,
@@ -61,7 +61,15 @@
             "type": "number",
             "instructions": "Toont breaking nieuws voor een bepaald aantal uur na publicatie.",
             "required": 0,
-            "conditional_logic": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5fb5649c7e0c9",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
             "wrapper": {
                 "width": "30",
                 "class": "",
@@ -93,5 +101,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608238565
+    "modified": 1608244175
 }
