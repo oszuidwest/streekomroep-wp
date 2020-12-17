@@ -7,7 +7,7 @@
             "label": "Toon breaking callout",
             "name": "callout_breaking_toon",
             "type": "true_false",
-            "instructions": "Zet deze callout neer wanneer er breaking nieuws is.",
+            "instructions": "Zet een callout neer wanneer er breaking nieuws is.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -38,14 +38,14 @@
                 ]
             ],
             "wrapper": {
-                "width": "",
+                "width": "70",
                 "class": "",
                 "id": ""
             },
             "choices": {
-                "Toon breaking callout site-breed": "Toon breaking callout site-breed",
-                "Toon breaking callout alleen op voorpagina": "Toon breaking callout alleen op voorpagina",
-                "Toon breaking callout alleen op voorpagina en nieuwsartikelen": "Toon breaking callout alleen op voorpagina en nieuwsartikelen"
+                "sitewide": "Toon breaking callout site-breed",
+                "frontpage": "Toon breaking callout alleen op voorpagina",
+                "frontpagenews": "Toon breaking callout alleen op voorpagina en nieuwsartikelen"
             },
             "allow_null": 0,
             "other_choice": 0,
@@ -53,6 +53,27 @@
             "layout": "vertical",
             "return_format": "value",
             "save_other_choice": 0
+        },
+        {
+            "key": "field_5fdbc4adfa0c7",
+            "label": "Tijd breaking nieuws",
+            "name": "callout_breaking_tijd",
+            "type": "number",
+            "instructions": "Toont breaking nieuws voor een bepaald aantal uur na publicatie.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 12,
+            "placeholder": "",
+            "prepend": "",
+            "append": "uur",
+            "min": "",
+            "max": "",
+            "step": ""
         }
     ],
     "location": [
@@ -64,7 +85,7 @@
             }
         ]
     ],
-    "menu_order": 0,
+    "menu_order": -2,
     "position": "normal",
     "style": "default",
     "label_placement": "top",
@@ -72,5 +93,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607701702
+    "modified": 1608238565
 }
