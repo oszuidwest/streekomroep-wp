@@ -72,7 +72,7 @@ class StarterSite extends Timber\Site {
 		include( get_template_directory() . '/lib/post_type_fragment.php' );
 		include( get_template_directory() . '/lib/post_type_tvshow.php' );
 		include( get_template_directory() . '/lib/post_type_fmshow.php' );
-
+		include( get_template_directory() . '/lib/post_type_agenda.php' );
 	}
 	/** This is where you can register custom taxonomies. */
 	public function register_taxonomies() {

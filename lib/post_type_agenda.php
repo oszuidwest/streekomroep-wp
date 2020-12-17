@@ -1,0 +1,40 @@
+<?php
+// Register Agenda Post Type
+	$labels = array(
+		'name'                  => 'Agenda',
+		'singular_name'         => 'Agenda',
+		'menu_name'             => 'Agenda',
+		'name_admin_bar'        => 'Agenda',
+		'all_items'             => 'Alle agenda-items',
+		'add_new_item'          => 'Nieuw agenda-item',
+		'add_new'               => 'Voeg agenda-item toe',
+		'new_item'              => 'Nieuw agenda-item',
+		'edit_item'             => 'Bewerk agenda-item',
+		'update_item'           => 'Update agenda-item',
+		'view_item'             => 'Bekijk agenda-item',
+		'view_items'            => 'Bekijk agenda-item',
+		'search_items'          => 'Zoek agenda-items',
+	);
+	$args = array(
+		'label'                 => 'Agenda',
+		'description'           => 'Agenda-items',
+		'labels'                => $labels,
+		'supports'              => [ 'title', 'editor', 'thumbnail' ],
+		'hierarchical'          => false,
+		'public'                => true,
+		'show_ui'               => true,
+		'show_in_menu'          => true,
+		'menu_position'         => 5,
+		'menu_icon'             => 'dashicons-beer',
+		'show_in_admin_bar'     => true,
+		'show_in_nav_menus'     => true,
+		'can_export'            => true,
+		'has_archive'           => true,
+		'exclude_from_search'   => false,
+		'publicly_queryable'    => true,
+		'capability_type'       => 'post',
+		'show_in_rest'          => true,
+		'rest_base'             => 'agenda',
+		'rewrite'               => [ 'slug' => 'agenda', 'with_front' => true ],
+	);
+	register_post_type( 'agenda', $args );
