@@ -49,6 +49,22 @@
             },
             "default_value": "",
             "placeholder": ""
+        },
+        {
+            "key": "field_5fdcf4f399b6d",
+            "label": "HLS Stream",
+            "name": "radio_webplayer_hls_stream",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
         }
     ],
     "location": [
@@ -68,5 +84,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697388
+    "modified": 1608316168
 }
