@@ -145,9 +145,9 @@
         },
         {
             "key": "field_5fc4f7e642694",
-            "label": "Tickets",
+            "label": "Tickets en info",
             "name": "agenda_item_tickets",
-            "type": "text",
+            "type": "link",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -156,11 +156,7 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "return_format": "url"
         }
     ],
     "location": [
@@ -180,5 +176,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608244060
+    "modified": 1608315729
 }
