@@ -27,7 +27,7 @@
             "name": "post_kabelkrant_content",
             "type": "textarea",
             "instructions": "",
-            "required": 0,
+            "required": 1,
             "conditional_logic": [
                 [
                     {
@@ -71,5 +71,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1608468640
+    "modified": 1608483577
 }

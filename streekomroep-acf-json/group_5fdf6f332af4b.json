@@ -46,7 +46,7 @@
                             "name": "blok_advertentie_grafisch_afbeelding",
                             "type": "image",
                             "instructions": "",
-                            "required": 0,
+                            "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
@@ -55,7 +55,7 @@
                             },
                             "return_format": "id",
                             "preview_size": "medium",
-                            "library": "",
+                            "library": "all",
                             "min_width": "",
                             "min_height": "",
                             "min_size": "",
@@ -70,7 +70,7 @@
                             "name": "blok_advertentie_link",
                             "type": "link",
                             "instructions": "",
-                            "required": 0,
+                            "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
@@ -91,11 +91,11 @@
                     "sub_fields": [
                         {
                             "key": "field_5fdf705e2a2c6",
-                            "label": "Link",
+                            "label": "HTML",
                             "name": "blok_advertentie_code_html",
                             "type": "textarea",
                             "instructions": "",
-                            "required": 0,
+                            "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
@@ -153,5 +153,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608479383
+    "modified": 1608483680
 }
