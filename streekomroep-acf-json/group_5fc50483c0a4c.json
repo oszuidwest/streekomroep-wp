@@ -7,7 +7,7 @@
             "label": "Blokken voorpagina",
             "name": "blokken_voorpagina",
             "type": "flexible_content",
-            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken.",
+            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder de top stories.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -16,15 +16,6 @@
                 "id": ""
             },
             "layouts": {
-                "layout_5fc505431edf7": {
-                    "key": "layout_5fc505431edf7",
-                    "name": "blok_top_stories",
-                    "label": "Top stories",
-                    "display": "block",
-                    "sub_fields": [],
-                    "min": "",
-                    "max": ""
-                },
                 "layout_5fc5066a6b485": {
                     "key": "layout_5fc5066a6b485",
                     "name": "blok_artikelen_lijst",
@@ -174,5 +165,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608483645
+    "modified": 1608558498
 }

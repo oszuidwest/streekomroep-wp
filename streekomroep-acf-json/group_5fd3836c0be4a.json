@@ -22,9 +22,11 @@
                 "5": "Nieuws (standaard)",
                 "6": "Achterkant"
             },
-            "default_value": 5,
+            "default_value": [
+                5
+            ],
             "allow_null": 0,
-            "multiple": 0,
+            "multiple": 1,
             "ui": 0,
             "return_format": "value",
             "ajax": 0,
@@ -40,7 +42,7 @@
             }
         ]
     ],
-    "menu_order": -1,
+    "menu_order": -5,
     "position": "side",
     "style": "default",
     "label_placement": "top",
@@ -48,5 +50,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607702521
+    "modified": 1608557890
 }
