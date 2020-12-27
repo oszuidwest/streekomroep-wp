@@ -5,6 +5,9 @@ module.exports = {
     extend: {
       fontFamily: {
         round: ['Nunito', 'sans-serif'],
+      },
+      maxWidth: {
+        '960': '60rem',
       }
     },
   },

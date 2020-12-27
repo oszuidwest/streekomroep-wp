@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.grid-stories {
+    @apply grid-cols-2;
+}
+
+.grid-stories .main {
+    @apply col-span-2;
+    height: 66vw;
+    max-height: 400px;
+}
+
+@screen sm {
+    .grid-stories {
+        grid-template-columns: 47.35043% 1fr 1fr;
+    }
+    .grid-stories .main {
+        @apply col-span-1 h-96;
+    }
+}
