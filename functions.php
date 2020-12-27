@@ -63,10 +63,18 @@ class StarterSite extends Timber\Site {
 		add_action( 'after_setup_theme', array( $this, 'theme_supports' ) );
 		add_filter( 'timber/context', array( $this, 'add_to_context' ) );
 		add_filter( 'timber/twig', array( $this, 'add_to_twig' ) );
+        add_action('init', array($this, 'register_menus'));
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		parent::__construct();
 	}
+
+    public function register_menus()
+    {
+        register_nav_menu('main', 'Hoofdmenu');
+        register_nav_menu('sub', 'Submenu');
+    }
+
 	/** This is where you can register custom post types. */
 	public function register_post_types() {
 		include( get_template_directory() . '/lib/post_type_fragment.php' );
@@ -89,7 +97,8 @@ class StarterSite extends Timber\Site {
 		$context['foo']   = 'bar';
 		$context['stuff'] = 'I am a value set in your functions.php file';
 		$context['notes'] = 'These values are available everytime you call Timber::context();';
-		$context['menu']  = new Timber\Menu();
+        $context['menu'] = new Timber\Menu('main');
+        $context['submenu'] = new Timber\Menu('sub');
 		$context['site']  = $this;
 		return $context;
 	}
