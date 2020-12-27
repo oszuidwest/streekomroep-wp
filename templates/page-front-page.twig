@@ -1,5 +1,11 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <h1>Voorpagina</h1>
+    {% for block in options.blokken_voorpagina %}
+        <pre>{{ dump(block) }}</pre>
+    {% endfor %}
+    <hr>
+    {% for block in options.blokken_sidebar %}
+        <pre>{{ dump(block) }}</pre>
+    {% endfor %}
 {% endblock %}
