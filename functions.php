@@ -73,6 +73,7 @@ class StarterSite extends Timber\Site {
     {
         register_nav_menu('main', 'Hoofdmenu');
         register_nav_menu('sub', 'Submenu');
+        register_nav_menu('social', 'Social menu');
     }
 
 	/** This is where you can register custom post types. */
@@ -99,6 +100,7 @@ class StarterSite extends Timber\Site {
 		$context['notes'] = 'These values are available everytime you call Timber::context();';
         $context['menu'] = new Timber\Menu('main');
         $context['submenu'] = new Timber\Menu('sub');
+        $context['socialmenu'] = new Timber\Menu('social');
 		$context['site']  = $this;
 		return $context;
 	}

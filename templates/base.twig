@@ -20,6 +20,13 @@
                     <a class="flex-none flex px-4 border-b-2 border-green-500 items-center h-12"
                        href="{{ item.link }}">{{ item.title }}</a>
                 {% endfor %}
+
+				<div class="flex-grow"></div>
+
+				{% for item in socialmenu.items %}
+					<a class="flex-none flex px-4 border-b-2 border-green-500 items-center h-12"
+					   href="{{ item.link }}">{{ item.title }}</a>
+				{% endfor %}
             </div>
         </div>
 
