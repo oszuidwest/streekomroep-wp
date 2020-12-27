@@ -12,4 +12,19 @@ foreach ($context['options']['blokken_sidebar'] as &$block) {
             break;
     }
 }
+
+$args = [
+    'post_type' => 'post',
+    'post_status' => 'publish',
+    'posts_per_page' => 3,
+    'meta_query' => [
+        [
+            'key' => 'post_ranking',
+            'value' => '2',
+            'compare' => 'LIKE',
+        ]
+    ]
+];
+$context['topstories'] = Timber::get_posts($args);
+
 Timber::render(array('page-' . $timber_post->post_name . '.twig', 'page.twig'), $context);

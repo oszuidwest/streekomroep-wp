@@ -1,6 +1,14 @@
 {% extends "base.twig" %}
 
 {% block content %}
+    <div class="grid grid-cols-2">
+        {% for post in topstories %}
+            <a class="block bg-yellow-500 {{ loop.first? 'col-span-2' }}" href="{{ post.link }}">
+                <h1>{{ post.title }}</h1>
+            </a>
+        {% endfor %}
+    </div>
+
     <div class="grid grid-cols-3 gap-4">
         <div class="col-span-2">
             {% for block in options.blokken_voorpagina %}
