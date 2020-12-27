@@ -1,11 +1,16 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    {% for block in options.blokken_voorpagina %}
-        {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
-    {% endfor %}
-    <hr>
-    {% for block in options.blokken_sidebar %}
-        {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
-    {% endfor %}
+    <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-2">
+            {% for block in options.blokken_voorpagina %}
+                {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
+            {% endfor %}
+        </div>
+        <div>
+            {% for block in options.blokken_sidebar %}
+                {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
