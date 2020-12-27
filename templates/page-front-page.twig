@@ -2,10 +2,10 @@
 
 {% block content %}
     {% for block in options.blokken_voorpagina %}
-        <pre>{{ dump(block) }}</pre>
+        {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
     {% endfor %}
     <hr>
     {% for block in options.blokken_sidebar %}
-        <pre>{{ dump(block) }}</pre>
+        {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
     {% endfor %}
 {% endblock %}
