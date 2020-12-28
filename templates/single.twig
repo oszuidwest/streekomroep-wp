@@ -21,4 +21,8 @@
             {{ post.content }}
         </div>
     </div>
+
+    {% for item in Post(post.post_gekoppeld_fragment) %}
+        <pre>{{ dump(item) }}</pre>
+    {% endfor %}
 {% endblock %}
