@@ -1,0 +1,4 @@
+<h2>{{ block.tekst_boven_artikelen }}</h2>
+{% for post in block.posts %}
+    <a class="block" href="{{ post.link }}">{{ post.title }}</a>
+{% endfor %}
