@@ -14,7 +14,12 @@ $timber_post     = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
-    $context['embed'] = wp_oembed_get($timber_post->fragment_url);
+    $context['embed'] = wp_oembed_get($timber_post->fragment_url, ['width' => 960]);
+}
+
+if ($timber_post->post_gekoppeld_fragment) {
+    $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
+    $context['embed'] = wp_oembed_get($fragment->fragment_url, ['width' => 960]);
 }
 
 if ( post_password_required( $timber_post->ID ) ) {
