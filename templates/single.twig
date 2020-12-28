@@ -8,22 +8,17 @@
         <img src="{{ post.thumbnail.src|resize(1280, 720) }}" class="w-full">
     </div>
     <div class="px-6 md:px-12 max-w-3xl mx-auto mt-8">
-        <article class="post-type-{{ post.post_type }}" id="post-{{ post.ID }}">
-            <p class="flex">
-                <a href="{{ post.author.path }}"> {{ post.author.name }} </a>
-                <span>&bull;</span>
-                <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
-                <span>&bull;</span>
-                <span>{{ post.region.title }}</span>
-            </p>
+        <p class="flex  items-center text-lg mb-8">
+            <a href="{{ post.author.path }}"> {{ post.author.name }} </a>
+            <span class="text-base font-normal mx-2">·</span>
+            <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
+            <span class="text-base font-normal mx-2">·</span>
+            <span>{{ post.region.title }}</span>
+        </p>
 
-            <section class="article-content">
 
-                <div class="prose prose-md md:prose-lg max-w-none">
-                    {{ post.content }}
-                </div>
-            </section>
-
-        </article>
+        <div class="prose md:prose-lg max-w-none">
+            {{ post.content }}
+        </div>
     </div>
 {% endblock %}
