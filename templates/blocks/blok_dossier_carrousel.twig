@@ -1,9 +1,9 @@
 <div class="grid grid-cols-3 gap-4">
-    {% for i in 0..2 %}
+    {% for term in block.terms %}
         <div class="bg-pink-600 relative" style="height: 384px;">
             <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
             <div class="block absolute left-0 right-0 bottom-0 p-4">
-                <h1 class="block font-black text-xl text-white text-center">Onderwerp</h1>
+                <h1 class="block font-black text-xl text-white text-center">{{ term.title }}</h1>
             </div>
         </div>
     {% endfor %}

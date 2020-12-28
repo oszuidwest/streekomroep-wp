@@ -29,6 +29,12 @@ foreach ($context['options']['blokken_voorpagina'] as &$block) {
                 'ignore_sticky_posts' => true,
             ]);
             break;
+
+        case 'blok_dossier_carrousel':
+            $block['terms'] = Timber::get_terms([
+                'taxonomy' => 'dossier'
+            ]);
+            break;
     }
 }
 
