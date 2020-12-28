@@ -21,6 +21,14 @@ foreach ($context['options']['blokken_voorpagina'] as &$block) {
                 'ignore_sticky_posts' => true,
             ]);
             break;
+
+        case 'blok_fragmenten_carrousel':
+            $block['posts'] = Timber::get_posts([
+                'post_type' => 'fragment',
+                'posts_per_page' => 3,
+                'ignore_sticky_posts' => true,
+            ]);
+            break;
     }
 }
 
