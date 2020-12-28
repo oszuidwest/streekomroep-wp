@@ -1,9 +1,13 @@
 <h2>{{ block.tekst_boven_artikelen }}</h2>
 {% for post in block.posts %}
-    <a class="block" href="{{ post.link }}">
-        <img src="{{ post.thumbnail.src|resize(160) }}"/>
-        <h2>{{ post.title }}</h2>
-        <p><span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">Roosendaal</span>
-        {{ post.preview }}</p>
+    <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
+        <div class="flex-none w-48 relative">
+            <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"/>
+        </div>
+        <div class="flex-auto pl-4">
+            <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+            <p><span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">Roosendaal</span>
+                {{ post.preview }}</p>
+        </div>
     </a>
 {% endfor %}
