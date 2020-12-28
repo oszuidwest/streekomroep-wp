@@ -1,7 +1,7 @@
 <h2>{{ block.tekst_boven_artikelen }}</h2>
 {% for post in block.posts %}
     <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
-        <div class="flex-none w-48 relative">
+        <div class="flex-none w-40 relative">
             <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"/>
         </div>
         <div class="flex-auto pl-4">
