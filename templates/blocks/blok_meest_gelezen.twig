@@ -1,4 +1,7 @@
-<h2>Meest gelezen</h2>
+<h2 class="font-black font-round uppercase text-sm mx-4 my-2">Meest gelezen</h2>
 {% for post in block.posts %}
-    <a class="block" href="{{ post.link }}">{{ post.title }}</a>
+    {% if not loop.first %}
+        <div class="border-t border-gray-200 mx-4"></div>
+    {% endif %}
+    <a class="block px-4 py-2 rounded-lg hover:bg-gray-200" href="{{ post.link }}">{{ post.title }}</a>
 {% endfor %}
