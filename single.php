@@ -13,6 +13,10 @@ $context         = Timber::context();
 $timber_post     = Timber::get_post();
 $context['post'] = $timber_post;
 
+if ($timber_post->post_type == 'fragment') {
+    $context['embed'] = wp_oembed_get($timber_post->fragment_url);
+}
+
 if ( post_password_required( $timber_post->ID ) ) {
 	Timber::render( 'single-password.twig', $context );
 } else {
