@@ -7,7 +7,7 @@
         <div class="flex-auto pl-4">
             <h2 class="text-xl font-semibold">{{ post.title }}</h2>
             <p><span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
-                {{ post.preview.read_more(false) }}</p>
+                {{ post.preview.length(140).read_more(false) }}</p>
         </div>
     </a>
 {% endfor %}
