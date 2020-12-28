@@ -129,7 +129,27 @@
                     "name": "blok_fragmenten_carrousel",
                     "label": "Fragmenten carrousel",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_5fe9e8afe8b2f",
+                            "label": "Tekst boven fragmenten",
+                            "name": "tekst_boven_fragmenten",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond.",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -165,5 +185,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608558498
+    "modified": 1609165012
 }
