@@ -22,6 +22,20 @@
         <div class="prose md:prose-lg max-w-none">
             {{ post.content }}
         </div>
+
+        <div class="mt-8">
+            <h1 class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</h1>
+            {% for post in posts %}
+                <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
+                    <div class="flex-none w-32 relative">
+                        <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"/>
+                    </div>
+                    <div class="flex-auto pl-4">
+                        <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
     </div>
 
 

@@ -17,6 +17,7 @@ if ($timber_post->post_type == 'fragment') {
     $context['embed'] = wp_oembed_get($timber_post->fragment_url, ['width' => 960]);
     $context['posts'] = Timber::get_posts(array(
         'post_type' => 'post',
+        'ignore_sticky_posts' => true,
         'meta_query' => array(
             array(
                 'key' => 'post_gekoppeld_fragment', // name of custom field
