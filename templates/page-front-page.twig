@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="max-w-960 mx-auto">
-        <div class="grid grid-stories gap-1">
+        <div class="grid grid-stories gap-0.5">
             {% for post in topstories %}
                 <a class="block bg-yellow-500 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
                     <img class="object-cover w-full h-full" src="{{ post.thumbnail.src }}"/>
