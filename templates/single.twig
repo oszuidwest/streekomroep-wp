@@ -14,7 +14,7 @@
                 <span>&bull;</span>
                 <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
                 <span>&bull;</span>
-                <span>{{ post.terms({query:{taxonomy:'regio'}})[0].name }}</span>
+                <span>{{ post.region.title }}</span>
             </p>
 
             <section class="article-content">

@@ -53,6 +53,30 @@ Timber::$dirname = array( 'templates', 'views' );
 Timber::$autoescape = false;
 
 
+class MySitePost extends Timber\Post
+{
+
+    var $_region;
+
+    public function region()
+    {
+        if (!$this->_region) {
+            $regions = $this->get_terms(['query' => ['taxonomy' => 'regio']]);
+            if (is_array($regions) && count($regions)) {
+                $this->_region = $regions[0];
+            }
+        }
+        return $this->_region;
+    }
+}
+
+// Use default class for all post types, except for pages.
+add_filter('Timber\PostClassMap', function () {
+    return [
+        'post' => MySitePost::class
+    ];
+});
+
 /**
  * We're going to configure our theme inside of a subclass of Timber\Site
  * You can move this to its own file and include here via php's include("MySite.php")
