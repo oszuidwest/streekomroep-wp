@@ -15,6 +15,16 @@ $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
     $context['embed'] = wp_oembed_get($timber_post->fragment_url, ['width' => 960]);
+    $context['posts'] = Timber::get_posts(array(
+        'post_type' => 'post',
+        'meta_query' => array(
+            array(
+                'key' => 'post_gekoppeld_fragment', // name of custom field
+                'value' => '"' . $timber_post->id . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
+                'compare' => 'LIKE'
+            )
+        )
+    ));
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
