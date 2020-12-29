@@ -5,7 +5,7 @@
         <div class="grid grid-stories gap-0.5">
             {% for post in topstories %}
                 <a class="block bg-yellow-500 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
-                    <img class="object-cover w-full h-full" src="{{ post.thumbnail.src }}"/>
+                    <img class="object-cover w-full h-full" src="{{ post.thumbnail.src|resize(455, 384) }}" srcset="{{ post.thumbnail.src|resize(910, 768) }} 2x"/>
                     <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
                     <span class="block absolute left-0 right-0 bottom-0 p-4">
                         <span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
