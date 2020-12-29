@@ -28,7 +28,7 @@
             {% for post in posts %}
                 <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
                     <div class="flex-none w-32 relative">
-                        <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"/>
+                        <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}" srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
                     </div>
                     <div class="flex-auto pl-4">
                         <h2 class="text-xl font-semibold">{{ post.title }}</h2>
