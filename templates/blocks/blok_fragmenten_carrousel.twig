@@ -1,7 +1,7 @@
 <div class="grid grid-cols-3 gap-4 py-2">
     {% for post in block.posts %}
         <a class="block" href="{{ post.link }}">
-            <img class="w-full" src="{{ post.thumbnail.src|resize(160, 90) }}"/>
+            <img class="w-full" src="{{ post.thumbnail.src|resize(160, 90)" srcset="{{ post.thumbnail.src|resize(320, 180) }} 2x"/>
             <h1>{{ post.title }}</h1>
         </a>
     {% endfor %}
