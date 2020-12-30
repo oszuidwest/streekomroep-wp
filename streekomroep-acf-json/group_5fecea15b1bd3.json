@@ -1,0 +1,68 @@
+{
+    "key": "group_5fecea15b1bd3",
+    "title": "Radio - Programmering",
+    "fields": [
+        {
+            "key": "field_5fecea1e8fbf3",
+            "label": "Week begint op",
+            "name": "radio_week_start",
+            "type": "select",
+            "instructions": "Selecteer wat de eerste dag van de week is voor de programmering.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "zondag": "Zondag",
+                "maandag": "Maandag"
+            },
+            "default_value": false,
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value",
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_5fecea478fbf4",
+            "label": "Geen programma naam",
+            "name": "radio_geen_programma_naam",
+            "type": "text",
+            "instructions": "Naam die getoond wordt in de programmering en RDS output wanneer er voor dit uur geen gepland programma is.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Non-stop",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "radio-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1609362148
+}
