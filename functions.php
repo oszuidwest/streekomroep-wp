@@ -147,6 +147,11 @@ class StarterSite extends Timber\Site {
 		 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
 		 */
 		add_theme_support( 'post-thumbnails' );
+		
+		/*
+		 * Enable support for Responsive embeds.
+		 */
+		add_theme_support( 'responsive-embeds' );
 
 		/*
 		 * Switch default core markup for search form, comment form, and comments
