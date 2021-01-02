@@ -1,6 +1,6 @@
 {
     "key": "group_5f99e99a53c6f",
-    "title": "Desking – Colofon",
+    "title": "Desking – Algemene invulling",
     "fields": [
         {
             "key": "field_5f99e9a496ebd",
@@ -19,6 +19,25 @@
             "allow_null": 0,
             "multiple": 1,
             "return_format": "id"
+        },
+        {
+            "key": "field_5ff0b973dbc61",
+            "label": "Geen regio placeholder",
+            "name": "placeholder_geen_regio",
+            "type": "text",
+            "instructions": "Toon dit wanneer er geen regio bij een artikel is geslecteerd.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Regio",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         }
     ],
     "location": [
@@ -38,5 +57,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607702627
+    "modified": 1609611746
 }

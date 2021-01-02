@@ -26,7 +26,7 @@
             "label": "Presentator(en)",
             "name": "fm_show_presentator",
             "type": "user",
-            "instructions": "Presentator moet in WordPress bestaan als users.",
+            "instructions": "Presentator moet in WordPress bestaan als user.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -129,5 +129,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1608483964
+    "modified": 1609602917
 }
