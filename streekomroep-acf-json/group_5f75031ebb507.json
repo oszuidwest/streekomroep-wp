@@ -28,7 +28,7 @@
         },
         {
             "key": "field_5fc27af33a90a",
-            "label": "Duur",
+            "label": "Duur (in seconden)",
             "name": "fragment_duur",
             "type": "number",
             "instructions": "Wordt automatisch berekend bij opslaan.",
@@ -81,5 +81,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608471243
+    "modified": 1609612575
 }

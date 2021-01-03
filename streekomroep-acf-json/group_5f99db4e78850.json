@@ -4,8 +4,8 @@
     "fields": [
         {
             "key": "field_5f99dbc9c1d0d",
-            "label": "Stationsnaam",
-            "name": "radio_rds_stationsnaam",
+            "label": "Zendernaam",
+            "name": "radio_rds_zendernaam",
             "type": "text",
             "instructions": "Radio PS tekst",
             "required": 1,
@@ -24,7 +24,7 @@
         {
             "key": "field_5f99db5452274",
             "label": "RadioText",
-            "name": "radio_rds_optie",
+            "name": "radio_rds_rt_optie",
             "type": "select",
             "instructions": "Optionele RDS RadioText (werkt niet op alle radio's)",
             "required": 0,
@@ -35,8 +35,9 @@
                 "id": ""
             },
             "choices": {
-                "Statische tekst": "Statische tekst",
-                "Programmanaam": "Programmanaam"
+                "1": "Statische tekst",
+                "2": "Programmanaam",
+                "3": "Programmanaam en presentator(en)"
             },
             "default_value": false,
             "allow_null": 0,
@@ -49,7 +50,7 @@
         {
             "key": "field_5f99dbbac1d0c",
             "label": "Statische tekst",
-            "name": "radio_rds_statische_tekst",
+            "name": "radio_rds_rt_statische_tekst",
             "type": "text",
             "instructions": "",
             "required": 0,
@@ -58,7 +59,7 @@
                     {
                         "field": "field_5f99db5452274",
                         "operator": "==",
-                        "value": "Statische tekst"
+                        "value": "1"
                     }
                 ]
             ],
@@ -108,5 +109,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697445
+    "modified": 1609701456
 }

@@ -26,7 +26,7 @@
             "label": "Presentator(en)",
             "name": "fm_show_presentator",
             "type": "user",
-            "instructions": "Presentator moet in WordPress bestaan als user.",
+            "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -100,6 +100,25 @@
             },
             "display_format": "H:i:s",
             "return_format": "H:i:s"
+        },
+        {
+            "key": "field_5ff211a0746d3",
+            "label": "Overschrijf programmanaam",
+            "name": "fm_show_overschrijf_programmanaam",
+            "type": "text",
+            "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Bijvoorbeeld: ZuidWest in de morgen - feestelijke 100e aflevering!",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         }
     ],
     "location": [
@@ -129,5 +148,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1609602917
+    "modified": 1609700179
 }
