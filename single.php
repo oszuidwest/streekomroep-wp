@@ -28,6 +28,44 @@ if ($timber_post->post_type == 'fragment') {
     ));
 }
 
+$topic = $timber_post->dossier();
+$region = $timber_post->region();
+if ($topic) {
+    $related = [];
+    $related['topic'] = $topic;
+    $related['posts'] = Timber::get_posts(
+        [
+            'posts_per_page' => 4,
+            'post_type' => 'post',
+            'ignore_sticky_posts' => true,
+            'tax_query' => [
+                [
+                    'taxonomy' => 'dossier',
+                    'terms' => $topic->term_id,
+                ]
+            ]
+        ]
+    );
+    $context['topical'] = $related;
+} else if ($region) {
+    $related = [];
+    $related['region'] = $region;
+    $related['posts'] = Timber::get_posts(
+        [
+            'posts_per_page' => 4,
+            'post_type' => 'post',
+            'ignore_sticky_posts' => true,
+            'tax_query' => [
+                [
+                    'taxonomy' => 'regio',
+                    'terms' => $region->term_id,
+                ]
+            ]
+        ]
+    );
+    $context['local'] = $related;
+}
+
 if ($timber_post->post_gekoppeld_fragment) {
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
     $context['embed'] = wp_oembed_get($fragment->fragment_url, ['width' => 960]);

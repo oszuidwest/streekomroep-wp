@@ -57,6 +57,7 @@ class MySitePost extends Timber\Post
 {
 
     var $_region;
+    var $_topic;
 
     public function region()
     {
@@ -67,6 +68,17 @@ class MySitePost extends Timber\Post
             }
         }
         return $this->_region;
+    }
+
+    public function topic()
+    {
+        if (!$this->_topic) {
+            $topics = $this->get_terms(['query' => ['taxonomy' => 'dossier']]);
+            if (is_array($topics) && count($topics)) {
+                $this->_topic = $topics[0];
+            }
+        }
+        return $this->_topic;
     }
 }
 

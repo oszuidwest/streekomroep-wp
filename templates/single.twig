@@ -47,4 +47,33 @@
 
 {% include "partial/socialshare.twig" %}
 
+    {% if topical %}
+        {% set term = topical.topic %}
+        <div class="bg-gray-800 text-white">
+            <h1>Meer over {{ term }}</h1>
+
+            <ul>
+                {% for post in topical.posts %}
+                    <li><a href="{{ post.link }}">{{ post.title }}</a></li>
+                {% endfor %}
+            </ul>
+            <a href="{{ term.link }}">Alles over {{ term.name }}</a>
+        </div>
+    {% endif %}
+
+    {% if local %}
+        <div class="bg-gray-800 text-white">
+            <h1>Meer nieuws uit {{ local.region }}</h1>
+            <div class="max-w-960 mx-auto grid md:grid-cols-4 gap-4 ">
+                {% for post in local.posts %}
+                    <a class="block" href="{{ post.link }}">
+                        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(201, 113) }}"
+                             srcset="{{ post.thumbnail.src|resize(402, 226) }} 2x"/>
+                        <h1>{{ post.title }}</h1>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}
