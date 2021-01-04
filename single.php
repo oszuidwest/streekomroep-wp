@@ -58,6 +58,7 @@ if ($topic) {
             'tax_query' => [
                 [
                     'taxonomy' => 'regio',
+                    'include_children' => false,
                     'terms' => $region->term_id,
                 ]
             ]
