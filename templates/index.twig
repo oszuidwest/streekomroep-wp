@@ -1,11 +1,20 @@
 {% extends "base.twig" %}
 
 {% block content %}
-	<h2>{{ foo }}</h2>
-	<p>{{ qux }}</p>
-	{% for post in posts %}
-		{% include ['tease-'~post.post_type~'.twig', 'tease.twig'] %}
-	{% endfor %}
-	
-	{% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 3, end_size: 2}) } %}
+    <div class="max-w-960 mx-auto">
+        <h2>{{ title }}</h2>
+
+        <div class="grid grid-cols-3 gap-8">
+            {% for post in posts %}
+                <a href="{{ post.link }}" class="block">
+                    <div class="aspect-w-16 aspect-h-9">
+                        <img src="{{ post.thumbnail.src }}"/>
+                    </div>
+                    <h2 class="h2">{{ post.title }}</h2>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 3, end_size: 2}) } %}
 {% endblock %}
