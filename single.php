@@ -28,7 +28,7 @@ if ($timber_post->post_type == 'fragment') {
     ));
 }
 
-$topic = $timber_post->dossier();
+$topic = $timber_post->topic();
 $region = $timber_post->region();
 if ($topic) {
     $related = [];
