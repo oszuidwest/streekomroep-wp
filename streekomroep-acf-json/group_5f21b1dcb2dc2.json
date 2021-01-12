@@ -1,152 +1,174 @@
-{
-    "key": "group_5f21b1dcb2dc2",
-    "title": "Radio – FM Show eigenschappen",
-    "fields": [
-        {
-            "key": "field_5f21b1e3bd76d",
-            "label": "Actief",
-            "name": "fm_show_actief",
-            "type": "true_false",
-            "instructions": "Wordt meegenomen in audiologger en in programmatie getoond.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "message": "",
-            "default_value": 0,
-            "ui": 1,
-            "ui_on_text": "",
-            "ui_off_text": ""
-        },
-        {
-            "key": "field_5f21b210489bf",
-            "label": "Presentator(en)",
-            "name": "fm_show_presentator",
-            "type": "user",
-            "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "role": "",
-            "allow_null": 0,
-            "multiple": 1,
-            "return_format": "id"
-        },
-        {
-            "key": "field_5f21b24260eb9",
-            "label": "Dag(en)",
-            "name": "fm_show_dagen",
-            "type": "select",
-            "instructions": "Kies een of meerdere dag(en)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "maandag": "maandag",
-                "dinsdag": "dinsdag",
-                "woensdag": "woensdag",
-                "donderdag": "donderdag",
-                "vrijdag": "vrijdag",
-                "zaterdag": "zaterdag",
-                "zondag": "zondag"
-            },
-            "default_value": [],
-            "allow_null": 0,
-            "multiple": 1,
-            "ui": 1,
-            "ajax": 0,
-            "return_format": "value",
-            "placeholder": ""
-        },
-        {
-            "key": "field_5f21b294701bd",
-            "label": "Starttijd",
-            "name": "fm_show_starttijd",
-            "type": "time_picker",
-            "instructions": "Kies altijd een heel uur (xx:00:00)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "display_format": "H:i:s",
-            "return_format": "H:i:s"
-        },
-        {
-            "key": "field_5f21b2d0543bd",
-            "label": "Eindtijd",
-            "name": "fm_show_eindtijd",
-            "type": "time_picker",
-            "instructions": "Kies altijd een heel uur (xx:00:00)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "display_format": "H:i:s",
-            "return_format": "H:i:s"
-        },
-        {
-            "key": "field_5ff211a0746d3",
-            "label": "Overschrijf programmanaam",
-            "name": "fm_show_overschrijf_programmanaam",
-            "type": "text",
-            "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "Bijvoorbeeld: ZuidWest in de morgen - feestelijke 100e aflevering!",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        }
-    ],
-    "location": [
-        [
+[
+    {
+        "key": "group_5f21b1dcb2dc2",
+        "title": "Radio – FM Show eigenschappen",
+        "fields": [
             {
-                "param": "post_type",
-                "operator": "==",
-                "value": "fm"
+                "key": "field_5f21b1e3bd76d",
+                "label": "Actief",
+                "name": "fm_show_actief",
+                "type": "true_false",
+                "instructions": "Wordt meegenomen in audiologger en in programmatie getoond.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "message": "",
+                "default_value": 0,
+                "ui": 1,
+                "ui_on_text": "",
+                "ui_off_text": ""
+            },
+            {
+                "key": "field_5f21b210489bf",
+                "label": "Presentator(en)",
+                "name": "fm_show_presentator",
+                "type": "user",
+                "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "role": "",
+                "allow_null": 0,
+                "multiple": 1,
+                "return_format": "id"
+            },
+            {
+                "key": "field_5ffd9521888e4",
+                "label": "Programmatie",
+                "name": "fm_show_programmatie",
+                "type": "repeater",
+                "instructions": "Als een show iedere dag op hetzelfde tijdstip uitgezonden wordt, volstaat om meerdere dagen met hetzelfde tijdstip te selecteren.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "collapsed": "",
+                "min": 0,
+                "max": 0,
+                "layout": "table",
+                "button_label": "",
+                "sub_fields": [
+                    {
+                        "key": "field_5ffd9536888e5",
+                        "label": "Dag(en)",
+                        "name": "fm_show_dagen",
+                        "type": "select",
+                        "instructions": "Kies een of meerdere dag(en)",
+                        "required": 0,
+                        "conditional_logic": 0,
+                        "wrapper": {
+                            "width": "",
+                            "class": "",
+                            "id": ""
+                        },
+                        "choices": {
+                            "maandag": "maandag",
+                            "dinsdag": "dinsdag",
+                            "woensdag": "woensdag",
+                            "donderdag": "donderdag",
+                            "vrijdag": "vrijdag",
+                            "zaterdag": "zaterdag",
+                            "zondag": "zondag"
+                        },
+                        "default_value": [],
+                        "allow_null": 0,
+                        "multiple": 1,
+                        "ui": 1,
+                        "ajax": 0,
+                        "return_format": "value",
+                        "placeholder": ""
+                    },
+                    {
+                        "key": "field_5ffd95a5a5b60",
+                        "label": "Starttijd",
+                        "name": "fm_show_starttijd",
+                        "type": "time_picker",
+                        "instructions": "Selecteer altijd een heel uur (bijvoorbeeld 14:00:00)",
+                        "required": 0,
+                        "conditional_logic": 0,
+                        "wrapper": {
+                            "width": "",
+                            "class": "",
+                            "id": ""
+                        },
+                        "display_format": "H:i:s",
+                        "return_format": "H:i:s"
+                    },
+                    {
+                        "key": "field_5ffd96be07f89",
+                        "label": "Eindtijd",
+                        "name": "fm_show_eindtijd",
+                        "type": "time_picker",
+                        "instructions": "Selecteer altijd een heel uur (bijvoorbeeld 14:00:00)",
+                        "required": 0,
+                        "conditional_logic": 0,
+                        "wrapper": {
+                            "width": "",
+                            "class": "",
+                            "id": ""
+                        },
+                        "display_format": "H:i:s",
+                        "return_format": "H:i:s"
+                    }
+                ]
+            },
+            {
+                "key": "field_5ff211a0746d3",
+                "label": "Overschrijf programmanaam",
+                "name": "fm_show_overschrijf_programmanaam",
+                "type": "text",
+                "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "placeholder": "Bijvoorbeeld: ZuidWest in de morgen - feestelijke 100e aflevering!",
+                "prepend": "",
+                "append": "",
+                "maxlength": ""
             }
-        ]
-    ],
-    "menu_order": 0,
-    "position": "normal",
-    "style": "default",
-    "label_placement": "top",
-    "instruction_placement": "label",
-    "hide_on_screen": [
-        "discussion",
-        "comments",
-        "revisions",
-        "author",
-        "format",
-        "page_attributes",
-        "categories",
-        "tags",
-        "send-trackbacks"
-    ],
-    "active": true,
-    "description": "",
-    "modified": 1609700179
-}
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "fm"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": [
+            "discussion",
+            "comments",
+            "revisions",
+            "author",
+            "format",
+            "page_attributes",
+            "categories",
+            "tags",
+            "send-trackbacks"
+        ],
+        "active": true,
+        "description": ""
+    }
+]
