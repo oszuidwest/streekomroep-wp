@@ -19,6 +19,9 @@
 
         <h2>Programmatie</h2>
         <pre>{{ dump(post.fm_show_programmatie) }}</pre>
+        {% for entry in post.fm_show_programmatie %}
+            <pre>{{ dump(entry) }}</pre>
+        {% endfor %}
 
         <h2>Volgende uitzending</h2>
 
