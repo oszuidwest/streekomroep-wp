@@ -1,0 +1,260 @@
+{
+    "key": "group_5ffaff39b59a5",
+    "title": "Desking v2",
+    "fields": [
+        {
+            "key": "field_5ffaff7110349",
+            "label": "Blokken voorpagina",
+            "name": "desking_blokken_voorpagina",
+            "type": "flexible_content",
+            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder de top stories.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layouts": {
+                "layout_5ffaff78c86e3": {
+                    "key": "layout_5ffaff78c86e3",
+                    "name": "blok_top_stories",
+                    "label": "Top stories",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffafff2390b5": {
+                    "key": "layout_5ffafff2390b5",
+                    "name": "blok_artikel_lijst",
+                    "label": "Artikelen lijst",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_5ffb0008390b6",
+                            "label": "Tekst boven artikelen",
+                            "name": "tekst_boven_artikelen",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond.",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        },
+                        {
+                            "key": "field_5ffb0022390b7",
+                            "label": "Aantal artikelen",
+                            "name": "aantal_artikelen",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "25",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": "",
+                            "max": "",
+                            "step": ""
+                        },
+                        {
+                            "key": "field_5ffb004a390b8",
+                            "label": "Offset",
+                            "name": "offset",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "25",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": "",
+                            "max": "",
+                            "step": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffb022d2bf51": {
+                    "key": "layout_5ffb022d2bf51",
+                    "name": "blok_nu_op_fmtv",
+                    "label": "Nu op FM\/TV",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_5ffb02332bf52",
+                            "label": "Layout",
+                            "name": "layout",
+                            "type": "button_group",
+                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "wide": "wide",
+                                "aside": "aside"
+                            },
+                            "allow_null": 0,
+                            "default_value": "",
+                            "layout": "horizontal",
+                            "return_format": "value"
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffb063a9efb2": {
+                    "key": "layout_5ffb063a9efb2",
+                    "name": "blok_fragmenten_carrousel",
+                    "label": "Fragmenten carrousel",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffb067cb20d7": {
+                    "key": "layout_5ffb067cb20d7",
+                    "name": "blok_meest_gelezen",
+                    "label": "Meest gelezen",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_5ffb068bb20d8",
+                            "label": "layout",
+                            "name": "layout",
+                            "type": "button_group",
+                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "wide": "wide",
+                                "aside": "aside"
+                            },
+                            "allow_null": 0,
+                            "default_value": "",
+                            "layout": "horizontal",
+                            "return_format": "value"
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffb071cf4cc7": {
+                    "key": "layout_5ffb071cf4cc7",
+                    "name": "blok_tv_gemist",
+                    "label": "TV gemist",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_5ffb0728f4cc8",
+                            "label": "layout",
+                            "name": "layout",
+                            "type": "button_group",
+                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "wide": "wide",
+                                "aside": "aside"
+                            },
+                            "allow_null": 0,
+                            "default_value": "",
+                            "layout": "horizontal",
+                            "return_format": "value"
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_5ffb25372cbf4": {
+                    "key": "layout_5ffb25372cbf4",
+                    "name": "blok_fm_gemist",
+                    "label": "FM gemist",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_5ffb25372cbf5",
+                            "label": "layout",
+                            "name": "layout",
+                            "type": "button_group",
+                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "wide": "wide",
+                                "aside": "aside"
+                            },
+                            "allow_null": 0,
+                            "default_value": "",
+                            "layout": "horizontal",
+                            "return_format": "value"
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                }
+            },
+            "button_label": "Nieuw blok",
+            "min": "",
+            "max": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "desking"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1610294595
+}
