@@ -1,0 +1,11 @@
+{# This file demonstrates using most of the index.twig template and modifying 
+   just a small part. See `search.twig` for an example of another approach #}
+
+{% extends "archive.twig" %}
+
+{% block content %}
+    <h1>{{ term.name }}</h1>
+    <img src="{{ Image(term.dossier_afbeelding).src }}"/>
+    <div class="prose">{{ term.description }}</div>
+    {{ parent() }}
+{% endblock %}
