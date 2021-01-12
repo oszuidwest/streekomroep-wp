@@ -8,8 +8,8 @@
 
         <h2>Presenatie</h2>
         <ul>
-            {% for id in post.fm_show_presentator %}
-                <li>{{ id }}</li>
+            {% for id in post.meta('fm_show_presentator') %}
+                <li>{{ User(id) }}</li>
             {% endfor %}
         </ul>
 
@@ -18,8 +18,7 @@
         </div>
 
         <h2>Programmatie</h2>
-        <pre>{{ dump(post.fm_show_programmatie) }}</pre>
-        {% for entry in post.fm_show_programmatie %}
+        {% for entry in post.meta('fm_show_programmatie') %}
             <pre>{{ dump(entry) }}</pre>
         {% endfor %}
 
