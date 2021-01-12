@@ -1,0 +1,28 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <div class="px-6 md:px-12 max-w-3xl mx-auto">
+        <h1>{{ post.title }}</h1>
+
+        <img src="{{ post.thumbnail.src }}"/>
+
+        <h2>Programmamakers</h2>
+        <ul>
+            {% for id in post.fm_show_presentator %}
+                <li>{{ id }}</li>
+            {% endfor %}
+        </ul>
+
+        <div class="prose">
+            {{ post.content }}
+        </div>
+
+        <h2>Programmatie</h2>
+        <pre>{{ dump(post.fm_show_programmatie) }}</pre>
+
+        <h2>Volgende uitzending</h2>
+
+        <h2>Luister terug</h2>
+
+    </div>
+{% endblock %}
