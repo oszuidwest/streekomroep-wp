@@ -84,9 +84,7 @@ class MySitePost extends Timber\Post
 
 // Use default class for all post types, except for pages.
 add_filter('Timber\PostClassMap', function () {
-    return [
-        'post' => MySitePost::class
-    ];
+    return MySitePost::class;
 });
 
 /**

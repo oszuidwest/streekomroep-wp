@@ -1,0 +1,70 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <div class="px-6 md:px-12 max-w-3xl mx-auto">
+        <h1>{{ post.title }}</h1>
+        <img src="{{ post.thumbnail.src }}"/>
+        <table>
+            <tr>
+                <th>Van</th>
+                <td>{{ post.agenda_item_startdatum }}</td>
+            </tr>
+            <tr>
+                <th>Tot</th>
+                <td>{{ post.agenda_item_einddatum }}</td>
+            </tr>
+            <tr>
+                <th>Regio</th>
+                <td>{{ post.region.title }}</td>
+            </tr>
+        </table>
+        <div class="prose">
+            {{ post.content }}
+        </div>
+        <table>
+            <tr>
+                <th>Locatie</th>
+                <td>{{ post.agenda_item_locatie }}</td>
+            </tr>
+            <tr>
+                <th>Kosten</th>
+                <td>{{ post.agenda_item_kosten }}</td>
+            </tr>
+            <tr>
+                <th>Organisator</th>
+                <td>{{ post.agenda_item_organisator }}</td>
+            </tr>
+            <tr>
+                <th>Performer</th>
+                <td>{{ post.agenda_item_performer }}</td>
+            </tr>
+        </table>
+
+        <div class="py-10 bg-blue-500 text-white text-center">
+            Google Maps
+        </div>
+    </div>
+
+    <div class="bg-yellow-400 text-blue-900">
+        <div class="px-6 md:px-12 max-w-3xl mx-auto">
+            <h1>Meer in {{ post.region }}</h1>
+            <ul>
+                {% for post in local.posts %}
+                    <li><a href="{{ post.link }}">{{ post.title }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 text-white">
+        <div class="px-6 md:px-12 max-w-3xl mx-auto">
+            <h1>Meer {{ post.agenda_item_soort }}</h1>
+            <ul>
+                {% for post in topical.posts %}
+                    <li><a href="{{ post.link }}">{{ post.title }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

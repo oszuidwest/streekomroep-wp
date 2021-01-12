@@ -52,8 +52,9 @@ if ($topic) {
     $related['region'] = $region;
     $related['posts'] = Timber::get_posts(
         [
+            'post__not_in' => [$timber_post->id],
             'posts_per_page' => 4,
-            'post_type' => 'post',
+            'post_type' => $timber_post->post_type,
             'ignore_sticky_posts' => true,
             'tax_query' => [
                 [
@@ -65,6 +66,27 @@ if ($topic) {
         ]
     );
     $context['local'] = $related;
+}
+
+if ($timber_post->post_type == 'agenda') {
+
+    $related = [];
+    $related['posts'] = Timber::get_posts(
+        [
+            'post__not_in' => [$timber_post->id],
+            'posts_per_page' => 4,
+            'post_type' => $timber_post->post_type,
+            'ignore_sticky_posts' => true,
+            'meta_query' => [
+                [
+                    'key' => 'agenda_item_soort',
+                    'value' => $timber_post->agenda_item_soort,
+                    'compare' => '=',
+                ]
+            ]
+        ]
+    );
+    $context['topical'] = $related;
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
