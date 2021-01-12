@@ -5,22 +5,22 @@
             {# First #}
             {% if posts.pagination.pages|first and posts.pagination.pages|first.current != true %}
                 <li class="first btn">
-                    <a href="{{ posts.pagination.pages|first.link }}">First</a>
+                    <a href="{{ posts.pagination.pages|first.link }}">Begin</a>
                 </li>
             {% else %}
                 <li class="first btn disabled">
-                    <button disabled>First</button>
+                    <button disabled>Begin</button>
                 </li>
             {% endif %}
 
             {# Previous #}
             {% if posts.pagination.prev %}
                 <li class="prev btn">
-                    <a href="{{ posts.pagination.prev.link }}">Previous</a>
+                    <a href="{{ posts.pagination.prev.link }}">Vorige</a>
                 </li>
             {% else %}
                 <li class="prev btn disabled">
-                    <button disabled>Previous</button>
+                    <button disabled>Vorige</button>
                 </li>
             {% endif %}
 
@@ -40,22 +40,22 @@
             {# Next #}
             {% if posts.pagination.next %}
                 <li class="next btn">
-                    <a href="{{ posts.pagination.next.link }}">Next</a>
+                    <a href="{{ posts.pagination.next.link }}">Volgende</a>
                 </li>
             {% else %}
                 <li class="next btn disabled">
-                    <button disabled>Next</button>
+                    <button disabled>Volgende</button>
                 </li>
             {% endif %}
 
             {# Last #}
             {% if posts.pagination.pages|last and posts.pagination.pages|last.current != true %}
                 <li class="last btn">
-                    <a href="{{ posts.pagination.pages|last.link }}">Last</a>
+                    <a href="{{ posts.pagination.pages|last.link }}">Einde</a>
                 </li>
             {% else %}
                 <li class="last btn disabled">
-                    <button disabled>Last</button>
+                    <button disabled>Einde</button>
                 </li>
             {% endif %}
 
