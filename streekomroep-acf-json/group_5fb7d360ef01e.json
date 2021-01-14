@@ -138,9 +138,9 @@
                 "class": "",
                 "id": ""
             },
-            "center_lat": "",
-            "center_lng": "",
-            "zoom": "",
+            "center_lat": "51.53083",
+            "center_lng": "4.46528",
+            "zoom": 16,
             "height": ""
         },
         {
@@ -176,5 +176,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608315729
+    "modified": 1610631007
 }
