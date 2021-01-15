@@ -1,0 +1,29 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <div class="px-6 md:px-12 max-w-3xl mx-auto">
+        <h1><span>Het gevoel van</span><span class="text-2xl block">{{ term.name }}</span></h1>
+
+        <h2 class="text-xl font-bold">Nieuws uit {{ term.name }}</h2>
+        <ul>
+            {% for post in news %}
+                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <h2 class="text-xl font-bold">{{ term.name }} in beeld en geluid</h2>
+        <ul>
+            {% for post in fragments %}
+                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <h2 class="text-xl font-bold">Te doen in {{ term.name }}</h2>
+        <ul>
+            {% for post in calendar %}
+                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+
+    </div>
+{% endblock %}
