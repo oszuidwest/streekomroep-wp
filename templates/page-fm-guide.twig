@@ -1,0 +1,28 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <div class="w-full mx-auto max-w-960">
+        <h1>{{ post.title }}</h1>
+
+        {% for day in days %}
+            <h2 class="font-bold text-2xl">{{ day.name }}</h2>
+            <table>
+                {% for broadcast in day.broadcasts %}
+                    <tr>
+                        <td rowspan="2" class="align-top">{{ broadcast.startTime }}</td>
+                        <td class="font-bold">{{ broadcast.show.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ul>
+                                {% for host in broadcast.show.meta('fm_show_presentator') %}
+                                    <li>{{ User(host) }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    </div>
+{% endblock %}
