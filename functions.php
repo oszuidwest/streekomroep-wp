@@ -287,6 +287,15 @@ if( function_exists('acf_add_options_page') ) {
 	));	
 }
 
+function zw_parse_query(WP_Query $query)
+{
+    if (is_post_type_archive('fm')) {
+        $query->set('nopaging', 1);
+    }
+}
+
+add_action('parse_query', 'zw_parse_query');
+
 class Jetpack_Options{
     public static function get_option_and_ensure_autoload() {
         return 'rectangular';
