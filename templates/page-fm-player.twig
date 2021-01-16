@@ -1,0 +1,34 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <h2 class="mt-4 font-bold text-xl">Nu</h2>
+    <p>{{ current.title }}</p>
+
+    <h2 class="mt-4 font-bold text-xl">Straks</h2>
+    <p>{{ next.title }}</p>
+
+    <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
+    <ul>
+        {% for channel in options.radio_frequenties %}
+            <li>{{ channel.radio_frequenties_medium }}: {{ channel.radio_frequenties_frequentie }}</li>
+        {% endfor %}
+    </ul>
+
+    {% set config = {poster: Image(options.radio_webplayer_poster).src, forceLive:true} %}
+    <audio class="mejs__player" autoplay controls data-mejsoptions="{{ config|json_encode|e('html_attr') }}">
+        {% if options.radio_webplayer_aac_stream %}
+            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
+        {% endif %}
+        {% if options.radio_webplayer_mp3_stream %}
+            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
+        {% endif %}
+        {% if options.radio_webplayer_ogg_stream %}
+            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
+        {% endif %}
+        {% if options.radio_webplayer_hls_stream %}
+            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
+        {% endif %}
+        Your browser does not support the audio tag.
+    </audio>
+{% endblock %}
