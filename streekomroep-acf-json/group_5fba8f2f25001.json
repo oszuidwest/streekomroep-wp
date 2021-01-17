@@ -59,68 +59,6 @@
             "allow_null": 0,
             "multiple": 1,
             "return_format": "id"
-        },
-        {
-            "key": "field_5fba8f2f27b6a",
-            "label": "Dag(en)",
-            "name": "tv_show_dagen",
-            "type": "select",
-            "instructions": "Kies een of meerdere dag(en)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "maandag": "maandag",
-                "dinsdag": "dinsdag",
-                "woensdag": "woensdag",
-                "donderdag": "donderdag",
-                "vrijdag": "vrijdag",
-                "zaterdag": "zaterdag",
-                "zondag": "zondag"
-            },
-            "default_value": [],
-            "allow_null": 0,
-            "multiple": 1,
-            "ui": 1,
-            "ajax": 0,
-            "return_format": "value",
-            "placeholder": ""
-        },
-        {
-            "key": "field_5fba8f2f27ba7",
-            "label": "Starttijd",
-            "name": "tv_show_starttijd",
-            "type": "time_picker",
-            "instructions": "Kies altijd een heel uur (xx:00:00)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "display_format": "H:i:s",
-            "return_format": "H:i:s"
-        },
-        {
-            "key": "field_5fba8f2f27be4",
-            "label": "Eindtijd",
-            "name": "tv_show_eindtijd",
-            "type": "time_picker",
-            "instructions": "Kies altijd een heel uur (xx:00:00)",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "33.33",
-                "class": "",
-                "id": ""
-            },
-            "display_format": "H:i:s",
-            "return_format": "H:i:s"
         }
     ],
     "location": [
@@ -150,5 +88,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1608483984
+    "modified": 1610814119
 }
