@@ -1,0 +1,18 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <h1>{{ post.title }}</h1>
+
+    <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
+    <ul>
+        {% for channel in options.tv_frequenties %}
+            <li>{{ channel.tv_frequenties_aanbieder }}: {{ channel.tv_frequenties_kanaal }}</li>
+        {% endfor %}
+    </ul>
+
+    <video autoplay controls>
+        {% if options.tv_webplayer_hls_stream %}
+            <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
+        {% endif %}
+    </video>
+{% endblock %}
