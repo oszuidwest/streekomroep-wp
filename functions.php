@@ -289,7 +289,7 @@ if( function_exists('acf_add_options_page') ) {
 
 function zw_parse_query(WP_Query $query)
 {
-    if (is_post_type_archive('fm')) {
+    if (is_post_type_archive('fm') || is_post_type_archive('tv')) {
         $query->set('nopaging', 1);
     }
 }
