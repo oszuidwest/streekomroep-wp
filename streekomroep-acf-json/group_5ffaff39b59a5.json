@@ -1,6 +1,6 @@
 {
     "key": "group_5ffaff39b59a5",
-    "title": "Desking v2",
+    "title": "Desking",
     "fields": [
         {
             "key": "field_5ffaff7110349",
@@ -186,7 +186,27 @@
                     "name": "blok_dossiers_carrousel",
                     "label": "Dossiers carrousel",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_6005b638746d2",
+                            "label": "Tekst boven dossiers",
+                            "name": "tekst_boven_dossiers",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -245,5 +265,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610986791
+    "modified": 1610987424
 }
