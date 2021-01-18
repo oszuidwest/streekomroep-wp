@@ -7,7 +7,7 @@
             "label": "Blokken voorpagina",
             "name": "desking_blokken_voorpagina",
             "type": "flexible_content",
-            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder de top stories.",
+            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder het menu",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -45,7 +45,7 @@
                                 "id": ""
                             },
                             "default_value": "",
-                            "placeholder": "Indien leeg: tekst wordt niet getoond.",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond",
                             "prepend": "",
                             "append": "",
                             "maxlength": ""
@@ -101,30 +101,7 @@
                     "name": "blok_nu_op_fmtv",
                     "label": "Nu op FM\/TV",
                     "display": "block",
-                    "sub_fields": [
-                        {
-                            "key": "field_5ffb02332bf52",
-                            "label": "Layout",
-                            "name": "layout",
-                            "type": "button_group",
-                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "",
-                                "id": ""
-                            },
-                            "choices": {
-                                "wide": "wide",
-                                "aside": "aside"
-                            },
-                            "allow_null": 0,
-                            "default_value": "",
-                            "layout": "horizontal",
-                            "return_format": "value"
-                        }
-                    ],
+                    "sub_fields": [],
                     "min": "",
                     "max": ""
                 },
@@ -133,7 +110,27 @@
                     "name": "blok_fragmenten_carrousel",
                     "label": "Fragmenten carrousel",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_6005b3bfd89cc",
+                            "label": "Tekst boven fragmenten",
+                            "name": "tekst_boven_fragmenten",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: tekst wordt niet getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -144,11 +141,11 @@
                     "display": "block",
                     "sub_fields": [
                         {
-                            "key": "field_5ffb068bb20d8",
-                            "label": "layout",
-                            "name": "layout",
-                            "type": "button_group",
-                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
+                            "key": "field_6005b4076cce9",
+                            "label": "Tekst boven artikelen",
+                            "name": "tekst_boven_artikelen",
+                            "type": "text",
+                            "instructions": "",
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
@@ -156,14 +153,11 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "choices": {
-                                "wide": "wide",
-                                "aside": "aside"
-                            },
-                            "allow_null": 0,
                             "default_value": "",
-                            "layout": "horizontal",
-                            "return_format": "value"
+                            "placeholder": "Indien leeg: wordt niet getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
                         }
                     ],
                     "min": "",
@@ -174,30 +168,7 @@
                     "name": "blok_tv_gemist",
                     "label": "TV gemist",
                     "display": "block",
-                    "sub_fields": [
-                        {
-                            "key": "field_5ffb0728f4cc8",
-                            "label": "layout",
-                            "name": "layout",
-                            "type": "button_group",
-                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "",
-                                "id": ""
-                            },
-                            "choices": {
-                                "wide": "wide",
-                                "aside": "aside"
-                            },
-                            "allow_null": 0,
-                            "default_value": "",
-                            "layout": "horizontal",
-                            "return_format": "value"
-                        }
-                    ],
+                    "sub_fields": [],
                     "min": "",
                     "max": ""
                 },
@@ -206,28 +177,46 @@
                     "name": "blok_fm_gemist",
                     "label": "FM gemist",
                     "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_6005b4436cceb": {
+                    "key": "layout_6005b4436cceb",
+                    "name": "blok_dossiers_carrousel",
+                    "label": "Dossiers carrousel",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_6005b4506ccec": {
+                    "key": "layout_6005b4506ccec",
+                    "name": "blok_dossier",
+                    "label": "Dossier",
+                    "display": "block",
                     "sub_fields": [
                         {
-                            "key": "field_5ffb25372cbf5",
-                            "label": "layout",
-                            "name": "layout",
-                            "type": "button_group",
-                            "instructions": "Kies of dit blok over de volledige paginabreedte wordt getoond, of in de sidebar (dit betreft alleen desktop, mobiel heeft geen sidebar)",
-                            "required": 1,
+                            "key": "field_6005b45e6cced",
+                            "label": "Selecteer dossier",
+                            "name": "selecteer_dossier",
+                            "type": "taxonomy",
+                            "instructions": "",
+                            "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
                                 "width": "",
                                 "class": "",
                                 "id": ""
                             },
-                            "choices": {
-                                "wide": "wide",
-                                "aside": "aside"
-                            },
+                            "taxonomy": "dossier",
+                            "field_type": "select",
                             "allow_null": 0,
-                            "default_value": "",
-                            "layout": "horizontal",
-                            "return_format": "value"
+                            "add_term": 0,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "id",
+                            "multiple": 0
                         }
                     ],
                     "min": "",
@@ -256,5 +245,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610294595
+    "modified": 1610986791
 }
