@@ -9,11 +9,11 @@
                 {% if post.fm_show_actief %}
                     <a class="block aspect-w-16 aspect-h-9 bg-blue-50 relative" href="{{ post.link }}">
                         <div>
-                            <img src="{{ post.thumbnail.src |resize(640, 360)}}"/>
+                            <img class="w-full h-full object-cover" src="{{ post.thumbnail.src|resize(640, 360) }}"/>
                             <div class="absolute inset-0 top-auto p-4">
                                 <h1 class="font-round uppercase font-black text-xl">{{ post.title }}</h1>
                                 <ul>
-                                    {% for host in broadcast.show.meta('fm_show_presentator') %}
+                                    {% for host in post.meta('fm_show_presentator') %}
                                         <li>{{ User(host) }}</li>
                                     {% endfor %}
                                 </ul>
@@ -33,7 +33,7 @@
                         <img src="{{ post.thumbnail.src }}"/>
                         <h1>{{ post.title }}</h1>
                         <ul>
-                            {% for host in broadcast.show.meta('fm_show_presentator') %}
+                            {% for host in post.meta('fm_show_presentator') %}
                                 <li>{{ User(host) }}</li>
                             {% endfor %}
                         </ul>
