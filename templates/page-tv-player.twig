@@ -17,6 +17,9 @@
                     {% if options.tv_webplayer_hls_stream %}
                         <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
                     {% endif %}
+                    {% if options.tv_webplayer_dash_stream %}
+                        <source src="{{ options.tv_webplayer_dash_stream }}" type="application/dash+xml">
+                    {% endif %}
                 </video>
             </div>
         </div>
