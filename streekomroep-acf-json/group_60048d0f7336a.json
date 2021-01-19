@@ -17,6 +17,22 @@
             },
             "default_value": "",
             "placeholder": ""
+        },
+        {
+            "key": "field_600712f65e020",
+            "label": "DASH Stream",
+            "name": "tv_webplayer_dash_stream",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
         }
     ],
     "location": [
@@ -36,5 +52,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610911025
+    "modified": 1611076382
 }
