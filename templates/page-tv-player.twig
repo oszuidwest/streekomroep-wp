@@ -10,6 +10,12 @@
         {% endfor %}
     </ul>
 
+    <video class="mejs__player" autoplay controls>
+        {% if options.tv_webplayer_hls_stream %}
+            <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
+        {% endif %}
+    </video>
+
     <video class="video-js" data-setup="{}" autoplay controls>
         {% if options.tv_webplayer_hls_stream %}
             <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
