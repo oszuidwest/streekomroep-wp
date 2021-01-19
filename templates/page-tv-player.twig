@@ -10,15 +10,25 @@
         {% endfor %}
     </ul>
 
-    <video class="mejs__player" autoplay controls>
-        {% if options.tv_webplayer_hls_stream %}
-            <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
-        {% endif %}
-    </video>
+    <div class="max-w-960">
+        <div class="aspect-w-16 aspect-h-9 ">
+            <div>
+                <video class="mejs__player" width="100%" height="100%" autoplay controls>
+                    {% if options.tv_webplayer_hls_stream %}
+                        <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
+                    {% endif %}
+                </video>
+            </div>
+        </div>
 
-    <video class="video-js" data-setup="{}" autoplay controls>
-        {% if options.tv_webplayer_hls_stream %}
-            <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
-        {% endif %}
-    </video>
+        <div class="aspect-w-16 aspect-h-9 ">
+            <div>
+                <video class="video-js vjs-fluid vjs-theme-city" data-setup="{}" autoplay controls>
+                    {% if options.tv_webplayer_hls_stream %}
+                        <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
+                    {% endif %}
+                </video>
+            </div>
+        </div>
+    </div>
 {% endblock %}
