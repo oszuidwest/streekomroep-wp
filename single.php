@@ -10,6 +10,8 @@
  */
 
 $context         = Timber::context();
+
+/** @var \Timber\Post $timber_post */
 $timber_post     = Timber::get_post();
 $context['post'] = $timber_post;
 
@@ -87,6 +89,16 @@ if ($timber_post->post_type == 'agenda') {
         ]
     );
     $context['topical'] = $related;
+}
+
+if ($timber_post->post_type == 'tv') {
+    $args = [
+        'headers' => [
+            'Authorization' => 'bearer ' . get_field('vimeo_access_token', 'option')
+        ]
+    ];
+    $response = wp_remote_get('https://api.vimeo.com/me/projects/' . $timber_post->meta('tv_show_gemist_locatie') . '/videos', $args);
+    $context['vimeo'] = json_decode($response['body']);
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
