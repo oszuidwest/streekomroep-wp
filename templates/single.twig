@@ -8,8 +8,11 @@
         <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x" class="w-full">
     </div>
     <div class="px-6 md:px-12 max-w-3xl mx-auto mt-8">
-        <p class="flex  items-center text-lg mb-8">
-            <a href="{{ post.author.path }}"> {{ post.author.name }} </a>
+        <p class="flex flex-wrap items-center text-lg mb-8">
+            <a href="{{ post.author.path }}" class="flex items-center">
+                <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded-full">
+                <span class="block ml-3">{{ post.author.name }}</span>
+            </a>
             <span class="text-base font-normal mx-2">·</span>
             <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             <span class="text-base font-normal mx-2">·</span>
