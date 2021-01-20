@@ -4,10 +4,34 @@
     "fields": [
         {
             "key": "field_5fdf86fa00c51",
-            "label": "Dossier afbeelding",
-            "name": "dossier_afbeelding",
+            "label": "Dossier afbeelding breed",
+            "name": "dossier_afbeelding_breed",
             "type": "image",
-            "instructions": "Afbeelding wordt gebruikt in de dossier carrousel, overzichtspagina's en single dossier-pagina.",
+            "instructions": "Afbeelding wordt gebruikt op overzichtspagina's met alle dossiers en op de single dossier-pagina. Gebruik bij voorkeur een 16x9-verhouding.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "id",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
+        },
+        {
+            "key": "field_60084c3464289",
+            "label": "Dossier afbeelding hoog",
+            "name": "dossier_afbeelding_hoog",
+            "type": "image",
+            "instructions": "Afbeelding wordt gebruikt in de carrousel. Gebruik bij voorkeur een 9x16-verhouding.",
             "required": 1,
             "conditional_logic": 0,
             "wrapper": {
@@ -44,5 +68,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1608484715
+    "modified": 1611156606
 }
