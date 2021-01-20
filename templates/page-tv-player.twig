@@ -10,20 +10,6 @@
         {% endfor %}
     </ul>
 
-    <div class="max-w-960">
-        <div class="aspect-w-16 aspect-h-9 ">
-            <div>
-                <video class="mejs__player" width="100%" height="100%" autoplay controls>
-                    {% if options.tv_webplayer_hls_stream %}
-                        <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
-                    {% endif %}
-                    {% if options.tv_webplayer_dash_stream %}
-                        <source src="{{ options.tv_webplayer_dash_stream }}" type="application/dash+xml">
-                    {% endif %}
-                </video>
-            </div>
-        </div>
-
         <div class="aspect-w-16 aspect-h-9 ">
             <div>
                 <video class="video-js vjs-fluid vjs-theme-city" data-setup="{}" autoplay controls>

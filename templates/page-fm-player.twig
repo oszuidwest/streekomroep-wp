@@ -15,23 +15,6 @@
         {% endfor %}
     </ul>
 
-    {% set config = {poster: Image(options.radio_webplayer_poster).src, forceLive:true} %}
-    <audio class="mejs__player" autoplay controls data-mejsoptions="{{ config|json_encode|e('html_attr') }}">
-        {% if options.radio_webplayer_aac_stream %}
-            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
-        {% endif %}
-        {% if options.radio_webplayer_mp3_stream %}
-            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
-        {% endif %}
-        {% if options.radio_webplayer_ogg_stream %}
-            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
-        {% endif %}
-        {% if options.radio_webplayer_hls_stream %}
-            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
-        {% endif %}
-        Your browser does not support the audio tag.
-    </audio>
-
     <audio class="video-js" data-setup="{}" autoplay controls>
         {% if options.radio_webplayer_aac_stream %}
             <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
