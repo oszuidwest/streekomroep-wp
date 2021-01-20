@@ -142,6 +142,33 @@ function zw_parse_query(WP_Query $query)
 
 add_action('parse_query', 'zw_parse_query');
 
+add_filter('get_avatar_url', 'zw_get_avatar_url', 10, 3);
+
+/**
+ * @param $url
+ * @param $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+ * user email, WP_User object, WP_Post object, or WP_Comment object.
+ * @param $args
+ * @return string
+ */
+function zw_get_avatar_url($url, $id_or_email, $args)
+{
+    $id = null;
+    if (is_numeric($id_or_email)) {
+        $id = absint($id_or_email);
+    }
+    if ($id === null) {
+        return $url;
+    }
+    $field = get_field('gebruiker_profielfoto', 'user_' . $id);
+    if ($field === null) {
+        return $url;
+    }
+
+    $src = wp_get_attachment_image_src($field['id'], [$args['size'], $args['size']]);
+    return $src[0];
+}
+
 class Jetpack_Options{
     public static function get_option_and_ensure_autoload() {
         return 'rectangular';
