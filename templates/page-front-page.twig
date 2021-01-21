@@ -1,31 +1,9 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="max-w-960 mx-auto">
-        <div class="grid grid-stories gap-0.5">
-            {% for post in topstories %}
-                <a class="block bg-yellow-500 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
-                    <img class="object-cover w-full h-full" loading="lazy" src="{{ post.thumbnail.src|resize(455, 384) }}" srcset="{{ post.thumbnail.src|resize(910, 768) }} 2x"/>
-                    <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
-                    <span class="block absolute left-0 right-0 bottom-0 p-4">
-                        <span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
-                        <h1 class="block font-black text-2xl text-white">{{ post.title }}</h1>
-                    </span>
-                </a>
-            {% endfor %}
+    {% for block in options.desking_blokken_voorpagina %}
+        <div class="{% if loop.index is odd %}bg-purple-500{% else %}bg-pink-600{% endif %}">
+            {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
         </div>
-    </div>
-
-    <div class="max-w-960 mx-auto grid grid-cols-3 gap-4">
-        <div class="col-span-2">
-            {% for block in options.blokken_voorpagina %}
-                {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
-            {% endfor %}
-        </div>
-        <div>
-            {% for block in options.blokken_sidebar %}
-                {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
-            {% endfor %}
-        </div>
-    </div>
+    {% endfor %}
 {% endblock %}

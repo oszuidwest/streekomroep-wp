@@ -4,20 +4,29 @@ $context = Timber::context();
 $timber_post = new Timber\Post();
 $context['post'] = $timber_post;
 $context['options'] = get_fields('options');
-foreach ($context['options']['blokken_sidebar'] as &$block) {
-    switch ($block['acf_fc_layout']) {
-        case 'blok_meest_gelezen':
-            $block['posts'] = Timber::get_posts(['tag' => 'populair']);
-            break;
-    }
-}
 
-foreach ($context['options']['blokken_voorpagina'] as &$block) {
+foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     switch ($block['acf_fc_layout']) {
-        case 'blok_artikelen_lijst':
+        case 'blok_top_stories':
             $block['posts'] = Timber::get_posts([
-                'posts_per_page' => $block['artikel_lijst_aantal_artikelen'],
-                'offset' => $block['artikel_lijst_offset'],
+                'post_type' => 'post',
+                'post_status' => 'publish',
+                'posts_per_page' => 3,
+                'ignore_sticky_posts' => true,
+                'meta_query' => [
+                    [
+                        'key' => 'post_ranking',
+                        'value' => '2',
+                        'compare' => 'LIKE',
+                    ]
+                ]
+            ]);
+            break;
+
+        case 'blok_artikel_lijst':
+            $block['posts'] = Timber::get_posts([
+                'posts_per_page' => $block['aantal_artikelen'],
+                'offset' => $block['offset'],
                 'ignore_sticky_posts' => true,
             ]);
             break;
@@ -30,7 +39,7 @@ foreach ($context['options']['blokken_voorpagina'] as &$block) {
             ]);
             break;
 
-        case 'blok_dossier_carrousel':
+        case 'blok_dossiers_carrousel':
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier'
             ]);
@@ -38,19 +47,5 @@ foreach ($context['options']['blokken_voorpagina'] as &$block) {
     }
 }
 
-$args = [
-    'post_type' => 'post',
-    'post_status' => 'publish',
-    'posts_per_page' => 3,
-    'ignore_sticky_posts' => true,
-    'meta_query' => [
-        [
-            'key' => 'post_ranking',
-            'value' => '2',
-            'compare' => 'LIKE',
-        ]
-    ]
-];
-$context['topstories'] = Timber::get_posts($args);
 
 Timber::render(array('page-' . $timber_post->post_name . '.twig', 'page.twig'), $context);
