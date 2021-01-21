@@ -9,7 +9,7 @@
 		'add_new_item'          => 'Nieuwe show',
 		'add_new'               => 'Voeg show toe',
 		'new_item'              => 'Nieuwe show',
-		'edit_item'             => 'Bewerkt show',
+		'edit_item'             => 'Bewerk show',
 		'update_item'           => 'Update show',
 		'view_item'             => 'Bekijk show',
 		'view_items'            => 'Bekijk shows',
