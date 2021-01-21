@@ -41,6 +41,16 @@ if ( ! class_exists( 'Timber' ) ) {
 	return;
 }
 
+if (!class_exists('ACF')) {
+    add_action(
+        'admin_notices',
+        function () {
+            echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+        }
+    );
+    return;
+}
+
 /**
  * Sets the directories (inside your theme) to find .twig files
  */
