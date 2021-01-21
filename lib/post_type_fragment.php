@@ -9,7 +9,7 @@
 		'add_new_item'          => 'Nieuw fragment',
 		'add_new'               => 'Voeg fragment toe',
 		'new_item'              => 'Nieuw fragment',
-		'edit_item'             => 'Bewerkt fragment',
+		'edit_item'             => 'Bewerk fragment',
 		'update_item'           => 'Update fragment',
 		'view_item'             => 'Bekijk fragment',
 		'view_items'            => 'Bekijk fragmenten',
