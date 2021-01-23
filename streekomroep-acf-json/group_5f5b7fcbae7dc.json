@@ -45,7 +45,7 @@
                 "featured_image"
             ],
             "min": "",
-            "max": "",
+            "max": 1,
             "return_format": "object"
         }
     ],
@@ -73,5 +73,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697325
+    "modified": 1611418641
 }
