@@ -11,7 +11,7 @@
                 <div class="flex-auto">
                     <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
                     <h2 class="text-xl font-semibold">{{ post.title }}</h2>
-                    <p>{{ post.preview..length(20).read_more(false) }}</p>
+                    <p>{{ post.preview.length(20).read_more(false) }}</p>
                 </div>
             </a>
         {% endfor %}
