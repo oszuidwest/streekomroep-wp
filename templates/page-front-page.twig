@@ -2,7 +2,7 @@
 
 {% block content %}
     {% for block in options.desking_blokken_voorpagina %}
-        <div class="{% if loop.index is odd %}bg-purple-500{% else %}bg-pink-600{% endif %}">
+        <div>
             {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with {block: block} only %}
         </div>
     {% endfor %}
