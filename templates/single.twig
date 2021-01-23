@@ -5,7 +5,11 @@
         <h1 class="mt-6 mb-8 text-5xl font-black font-round">{{ post.title }}</h1>
     </div>
     <div class="w-full mx-auto max-w-960">
-        <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x" class="w-full">
+        <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x"
+             class="w-full">
+        {% if post.thumbnail.caption %}
+            <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
+        {% endif %}
     </div>
     <div class="px-6 md:px-12 max-w-3xl mx-auto mt-8">
         <p class="flex flex-wrap items-center text-lg mb-8">
