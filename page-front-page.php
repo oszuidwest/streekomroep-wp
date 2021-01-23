@@ -43,6 +43,23 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier'
             ]);
+
+            foreach ($block['terms'] as $term) {
+                $term->post_date = Timber::get_post([
+                    'ignore_sticky_posts' => true,
+                    'posts_per_page' => 1,
+
+                    'tax_query' => [
+                        [
+                            'taxonomy' => $term->taxonomy,
+                            'terms' => $term->id,
+                        ],
+                    ],
+                ])->post_date;
+            }
+            usort($block['terms'], function ($lhs, $rhs) {
+                return strcmp($rhs->post_date, $lhs->post_date);
+            });
             break;
     }
 }
