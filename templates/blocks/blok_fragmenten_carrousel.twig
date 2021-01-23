@@ -1,9 +1,20 @@
-<h2 class="font-black font-round uppercase text-sm my-2">{{ block.tekst_boven_fragmenten }}</h2>
-<div class="grid grid-cols-3 gap-4 py-2">
-    {% for post in block.posts %}
-        <a class="block" href="{{ post.link }}">
-            <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(201, 113) }}" srcset="{{ post.thumbnail.src|resize(402, 226) }} 2x"/>
-            <h1>{{ post.title }}</h1>
-        </a>
-    {% endfor %}
+<div class="bg-gray-800 text-white">
+    <div class="w-full mx-auto max-w-960 py-4">
+
+        {% if block.tekst_boven_fragmenten %}
+            <h2 class="font-bold text-3xl pb-4">{{ block.tekst_boven_fragmenten }}</h2>
+        {% endif %}
+
+        <div class="grid grid-cols-3 gap-4">
+            {% for post in block.posts %}
+                <a class="block" href="{{ post.link }}">
+                    <div class="aspect-w-16 aspect-h-9">
+                        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(160) }}"
+                             srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
+                    </div>
+                    <h1 class="text-xl font-semibold">{{ post.title }}</h1>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 </div>
