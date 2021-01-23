@@ -1,14 +1,19 @@
-<div class="py-2">
+<div class="w-full mx-auto max-w-960">
     <h2 class="font-black font-round uppercase text-sm my-2">Dossiers</h2>
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-4 gap-4">
         {% for term in block.terms %}
-            <div class="bg-pink-600 relative" style="height: 384px;">
-                <img class="absolute inset-0" loading="lazy" src="{{ Image(term.dossier_afbeelding) | resize(200,384) }}" srcset="{{ Image(term.dossier_afbeelding) | resize(400,768) }} 2x"/>
-                <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
-                <div class="block absolute left-0 right-0 bottom-0 p-4">
-                    <h1 class="block font-black text-xl text-white text-center">{{ term.title }}</h1>
+            <a href="{{ term.link }}" class="block">
+                <div class="aspect-h-16 aspect-w-9">
+                    <div>
+                        <img class="absolute inset-0" loading="lazy" src="{{ term.meta('dossier_afbeelding_hoog') }}"
+                             srcset="{{ term.meta('dossier_afbeelding_hoog')| resize(400,768) }} 2x"/>
+                        <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
+                        <div class="block absolute left-0 right-0 bottom-0 p-4">
+                            <h1 class="block font-black text-xl text-white text-center">{{ term.title }}</h1>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         {% endfor %}
     </div>
 </div>
