@@ -67,7 +67,7 @@ require_once 'src/Site.php';
 
 // Use default class for all post types, except for pages.
 add_filter('Timber\PostClassMap', function () {
-    return Post::class;
+    return \Streekomroep\Post::class;
 });
 
 new \Streekomroep\Site();
