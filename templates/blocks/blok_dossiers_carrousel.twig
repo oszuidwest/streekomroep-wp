@@ -2,7 +2,7 @@
     <h2 class="font-black font-round uppercase text-sm my-2">Dossiers</h2>
     <div class="grid grid-cols-4 gap-4">
         {% for term in block.terms %}
-            <a href="{{ term.link }}" class="block">
+            <a href="{{ term.link }}" class="block overflow-hidden">
                 <div class="aspect-h-16 aspect-w-9">
                     <div>
                         <img class="absolute inset-0 w-full" loading="lazy"
