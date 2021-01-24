@@ -1,22 +1,25 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="px-6 md:px-12 max-w-3xl mx-auto">
-        <h1 class="mt-6 mb-8 text-5xl font-black font-round">{{ post.title }}</h1>
+    <div class="grid grid-cols-1">
+        <div class="px-6 md:px-12 max-w-3xl mx-auto row-start-2 md:row-start-auto">
+            <h1 class="mt-6 mb-8 text-5xl font-black font-round">{{ post.title }}</h1>
+        </div>
+        {% if embed and post.meta('post_fragment_is_featured') %}
+            <div class="w-full mx-auto max-w-960">
+                {{ embed }}
+            </div>
+        {% elseif post.thumbnail %}
+            <div class="w-full mx-auto max-w-960">
+                <img src="{{ post.thumbnail.src|resize(960, 540) }}"
+                     srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x"
+                     class="w-full">
+                {% if post.thumbnail.caption %}
+                    <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
-    {% if embed and post.meta('post_fragment_is_featured') %}
-        <div class="w-full mx-auto max-w-960">
-            {{ embed }}
-        </div>
-    {% elseif post.thumbnail %}
-        <div class="w-full mx-auto max-w-960">
-            <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x"
-                 class="w-full">
-            {% if post.thumbnail.caption %}
-                <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
-            {% endif %}
-        </div>
-    {% endif %}
     <div class="px-6 md:px-12 max-w-3xl mx-auto mt-8">
         <p class="flex flex-wrap items-center text-lg mb-8">
             <a href="{{ post.author.path }}" class="flex items-center">
