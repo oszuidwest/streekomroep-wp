@@ -37,6 +37,7 @@ if ($topic) {
     $related['topic'] = $topic;
     $related['posts'] = Timber::get_posts(
         [
+            'post__not_in' => [$timber_post->id],
             'posts_per_page' => 4,
             'post_type' => 'post',
             'ignore_sticky_posts' => true,
