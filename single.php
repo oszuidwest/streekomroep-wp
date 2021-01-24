@@ -16,7 +16,9 @@ $timber_post     = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
-    $context['embed'] = wp_oembed_get($timber_post->fragment_url, ['width' => 960]);
+    global $wp_embed;
+    $context['embed'] = $wp_embed->shortcode([], $timber_post->fragment_url);
+
     $context['posts'] = Timber::get_posts(array(
         'post_type' => 'post',
         'ignore_sticky_posts' => true,
@@ -104,7 +106,9 @@ if ($timber_post->post_type == 'tv') {
 
 if ($timber_post->post_gekoppeld_fragment) {
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
-    $context['embed'] = wp_oembed_get($fragment->fragment_url, ['width' => 960]);
+
+    global $wp_embed;
+    $context['embed'] = $wp_embed->shortcode([], $fragment->fragment_url);
 }
 
 if ( post_password_required( $timber_post->ID ) ) {
