@@ -179,6 +179,55 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     return $src[0];
 }
 
+add_filter('embed_oembed_html', 'zw_embed_oembed_html', 99, 4);
+
+function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
+{
+
+    $doc = new DOMDocument();
+    $doc->loadHTML('<div id="oembed">' . $cache . '</div>');
+
+    $iframes = $doc->getElementsByTagName('iframe');
+    /** @var DOMElement $iframe */
+    foreach ($iframes as $iframe) {
+        $width = intval($iframe->getAttribute('width'));
+        $iframe->removeAttribute('width');
+        $height = intval($iframe->getAttribute('height'));
+        $iframe->removeAttribute('height');
+        $iframe->setAttribute('class', 'absolute inset-0 w-full h-full');
+        $padding = $height / $width * 100;
+        $out = '';
+        $out .= sprintf('<div class="relative" style="height: 0; padding-bottom: %f%%;">', $padding);
+        $out .= $doc->saveHTML($iframe);
+        $out .= '</div>';
+
+        return $out;
+
+    }
+
+    return $cache;
+}
+
+/**
+ * @param $cache (string|false) The cached HTML result, stored in post meta.
+ * @param $url (string) The attempted embed URL.
+ * @param $attr (array) An array of shortcode attributes.
+ * @param $post_ID (int) Post ID.
+ * @return string
+ */
+function zw_embed_oembed_html($cache, $url, $attr, $post_ID)
+{
+    if (preg_match('#https?://youtu\.be/.*#i', $url) || preg_match('#https?://((m|www)\.)?youtube\.com/watch.*#i', $url)) {
+        return zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID);
+    }
+
+    if (preg_match('#https?://(.+\.)?vimeo\.com/.*#i', $url)) {
+        return zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID);
+    }
+
+    return $cache;
+}
+
 class Jetpack_Options{
     public static function get_option_and_ensure_autoload() {
         return 'rectangular';
