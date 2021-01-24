@@ -1,0 +1,17 @@
+<div class="bg-gray-800 text-white">
+    <div class="w-full mx-auto max-w-960">
+        <div class="sm:grid gap-4 grid-cols-2">
+            <div class="px-4 sm:px-0">
+                <h1 class="text-3xl font-bold">{{ block.term.title }}</h1>
+                <img src="{{ Image(block.term.dossier_afbeelding).src }}"/>
+                <div class="prose text-white">{{ block.term.description }}</div>
+            </div>
+            <ul>
+                {% for post in block.posts %}
+                    {% include 'partial/dossier-post-tile.twig' with {'post': post} only %}
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+</div>

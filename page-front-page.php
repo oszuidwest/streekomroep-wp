@@ -39,6 +39,23 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             ]);
             break;
 
+        case 'blok_dossier':
+            $block['term'] = Timber::get_term($block['selecteer_dossier'], 'dossier');
+            $block['posts'] = Timber::get_posts(
+                [
+                    'posts_per_page' => 4,
+                    'post_type' => 'post',
+                    'ignore_sticky_posts' => true,
+                    'tax_query' => [
+                        [
+                            'taxonomy' => 'dossier',
+                            'terms' => $block['selecteer_dossier'],
+                        ]
+                    ]
+                ]
+            );
+            break;
+
         case 'blok_dossiers_carrousel':
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier'
