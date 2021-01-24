@@ -77,6 +77,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             usort($block['terms'], function ($lhs, $rhs) {
                 return strcmp($rhs->post_date, $lhs->post_date);
             });
+            $block['terms'] = array_slice($block['terms'], 0, 5);
             break;
     }
 }
