@@ -9,8 +9,8 @@
         <a href="{{ post.link }}" class="block grid sm:grid-cols-2 gap-4">
             <div>
                 <div class="aspect-w-16 aspect-h-9">
-                    <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(160) }}"
-                         srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
+                    <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(472) }}"
+                         srcset="{{ post.thumbnail.src|resize(994) }} 2x"/>
                 </div>
             </div>
 
@@ -25,8 +25,8 @@
             {% for post in block.posts[1:] %}
                 <a class="block" href="{{ post.link }}">
                     <div class="aspect-w-16 aspect-h-9">
-                        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(160) }}"
-                             srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
+                        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(228) }}"
+                             srcset="{{ post.thumbnail.src|resize(456) }} 2x"/>
                     </div>
                     <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
                     <h1 class="text-xl font-semibold">{{ post.title }}</h1>
