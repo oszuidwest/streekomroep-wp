@@ -34,7 +34,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
         case 'blok_fragmenten_carrousel':
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'fragment',
-                'posts_per_page' => 3,
+                'posts_per_page' => 5,
                 'ignore_sticky_posts' => true,
             ]);
             break;
