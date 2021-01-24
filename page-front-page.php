@@ -11,7 +11,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'post',
                 'post_status' => 'publish',
-                'posts_per_page' => 3,
+                'posts_per_page' => 5,
                 'ignore_sticky_posts' => true,
                 'meta_query' => [
                     [
