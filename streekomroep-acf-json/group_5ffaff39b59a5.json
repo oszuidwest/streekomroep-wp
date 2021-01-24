@@ -217,6 +217,25 @@
                     "display": "block",
                     "sub_fields": [
                         {
+                            "key": "field_600d8cd21a6bf",
+                            "label": "Tekst boven dossier",
+                            "name": "tekst_boven_dossier",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: naam van dossier wordt getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        },
+                        {
                             "key": "field_6005b45e6cced",
                             "label": "Selecteer dossier",
                             "name": "selecteer_dossier",
@@ -225,7 +244,7 @@
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "",
+                                "width": "50",
                                 "class": "",
                                 "id": ""
                             },
@@ -265,5 +284,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610988289
+    "modified": 1611500833
 }
