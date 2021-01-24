@@ -4,13 +4,19 @@
     <div class="px-6 md:px-12 max-w-3xl mx-auto">
         <h1 class="mt-6 mb-8 text-5xl font-black font-round">{{ post.title }}</h1>
     </div>
-    <div class="w-full mx-auto max-w-960">
-        <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x"
-             class="w-full">
-        {% if post.thumbnail.caption %}
-            <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
-        {% endif %}
-    </div>
+    {% if embed and post.meta('post_fragment_is_featured') %}
+        <div class="w-full mx-auto max-w-960">
+            {{ embed }}
+        </div>
+    {% elseif post.thumbnail %}
+        <div class="w-full mx-auto max-w-960">
+            <img src="{{ post.thumbnail.src|resize(960, 540) }}" srcset="{{ post.thumbnail.src|resize(1920, 1080) }} 2x"
+                 class="w-full">
+            {% if post.thumbnail.caption %}
+                <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
     <div class="px-6 md:px-12 max-w-3xl mx-auto mt-8">
         <p class="flex flex-wrap items-center text-lg mb-8">
             <a href="{{ post.author.path }}" class="flex items-center">
@@ -29,28 +35,11 @@
         </div>
     </div>
 
-    {% for item in Post(post.post_gekoppeld_fragment) %}
-        <div class="w-full mx-auto max-w-960 mt-8">
-            <style>.embed-container {
-                    position: relative;
-                    padding-bottom: 56.25%;
-                    height: 0;
-                    overflow: hidden;
-                    max-width: 100%;
-                }
-
-                .embed-container iframe, .embed-container object, .embed-container embed {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                }</style>
-            <div class='embed-container'>
-                {{ embed }}
-            </div>
+    {% if embed and not post.meta('post_fragment_is_featured') %}
+        <div class="w-full mx-auto max-w-960">
+            {{ embed }}
         </div>
-    {% endfor %}
+    {% endif %}
 
 {% include "partial/socialshare.twig" %}
 
