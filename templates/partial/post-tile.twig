@@ -1,0 +1,12 @@
+<a class="block flex flex-col" href="{{ post.link }}">
+    <div class="aspect-w-16 aspect-h-9">
+        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(160, 90) }}"
+             srcset="{{ post.thumbnail.src|resize(320, 180) }} 2x"/>
+    </div>
+    <div class="flex-auto">
+        <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
+        <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+        <p>{{ post.preview.length(20).read_more(false) }}</p>
+        <span>{{ post.date }}</span>
+    </div>
+</a>

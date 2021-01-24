@@ -62,15 +62,13 @@
 
     {% if local %}
         <div class="bg-gray-800 text-white">
-            <h1>Meer nieuws uit {{ local.region }}</h1>
-            <div class="max-w-960 mx-auto grid md:grid-cols-4 gap-4 ">
-                {% for post in local.posts %}
-                    <a class="block" href="{{ post.link }}">
-                        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(201, 113) }}"
-                             srcset="{{ post.thumbnail.src|resize(402, 226) }} 2x"/>
-                        <h1>{{ post.title }}</h1>
-                    </a>
-                {% endfor %}
+            <div class="w-full mx-auto max-w-960 py-4">
+                <h2 class="font-bold text-3xl pb-4">Meer nieuws uit {{ local.region }}</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    {% for post in local.posts %}
+                        {% include 'partial/post-tile.twig' with {'post': post} only %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     {% endif %}
