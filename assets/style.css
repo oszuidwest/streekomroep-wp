@@ -22,13 +22,6 @@
     }
 }
 
-@screen lg {
-    .zw-block-content {
-        max-height: 100vh;
-        height: auto;
-    }
-}
-
 .main .zw-block-content {
     max-height: 400px;
 }
