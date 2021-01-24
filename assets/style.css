@@ -20,3 +20,7 @@
         @apply col-span-1 h-96;
     }
 }
+
+.zw-prose p:first-child {
+    @apply font-bold;
+}
