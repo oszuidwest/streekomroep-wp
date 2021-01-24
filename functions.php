@@ -179,6 +179,16 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     return $src[0];
 }
 
+add_filter('oembed_fetch_url', 'zw_oembed_fetch_url', 10, 3);
+
+function zw_oembed_fetch_url($provider, $url, $args)
+{
+    if (strpos($provider, 'https://publish.twitter.com/oembed') === 0) {
+        $provider = add_query_arg('align', 'center', $provider);
+    }
+    return $provider;
+}
+
 add_filter('embed_oembed_html', 'zw_embed_oembed_html', 99, 4);
 
 function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
