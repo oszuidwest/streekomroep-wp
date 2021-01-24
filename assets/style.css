@@ -39,7 +39,7 @@
     }
 
     .grid-stories .main {
-        @apply col-span-1 h-96;
+        @apply col-span-1;
     }
 }
 
