@@ -8,7 +8,28 @@
 
 .grid-stories .main {
     @apply col-span-2;
+}
+
+.zw-block-content {
     height: 66vw;
+    min-height: 135px;
+    max-height: 55vh;
+}
+
+@screen sm {
+    .zw-block-content {
+        height: 300px;
+    }
+}
+
+@screen lg {
+    .zw-block-content {
+        max-height: 100vh;
+        height: auto;
+    }
+}
+
+.main .zw-block-content {
     max-height: 400px;
 }
 
@@ -16,6 +37,7 @@
     .grid-stories {
         grid-template-columns: 47.35043% 1fr 1fr;
     }
+
     .grid-stories .main {
         @apply col-span-1 h-96;
     }

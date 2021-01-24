@@ -4,11 +4,12 @@
             <a class="block bg-yellow-500 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
                 <img class="object-cover w-full h-full" loading="lazy" src="{{ post.thumbnail.src|resize(455, 384) }}"
                      srcset="{{ post.thumbnail.src|resize(910, 768) }} 2x"/>
-                <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
-                <span class="block absolute left-0 right-0 bottom-0 p-4">
+                <div class="flex flex-col justify-end zw-block-content">
+                    <span class="block absolute left-0 right-0 bottom-0 p-4 pt-14 bg-gradient-to-b from-transparent" style="--tw-gradient-to: rgba(0,0,0,.60);">
                         <span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
-                        <h1 class="block font-black text-2xl text-white">{{ post.title }}</h1>
+                        <h1 class="block font-black {% if loop.first %}text-xl{% else %}text-base{% endif %} text-white">{{ post.title }}</h1>
                     </span>
+                </div>
             </a>
         {% endfor %}
     </div>
