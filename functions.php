@@ -51,6 +51,8 @@ if (!class_exists('ACF')) {
     return;
 }
 
+require 'vimeo-thumbnail.php';
+
 /**
  * Sets the directories (inside your theme) to find .twig files
  */
