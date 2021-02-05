@@ -23,11 +23,14 @@ add_action('acf/save_post', function (int $post_ID) {
     $duration = $vimeo->duration;
     update_field('fragment_duur', $duration, $post_ID);
 
-    $thumb = get_post_thumbnail_id($post_ID);
+    $thumbnail_id = get_post_thumbnail_id($post_ID);
     $key = $vimeo->pictures->resource_key;
-    if ($thumb != 0) {
-        dd('Non-zero thumbnail found');
-        return;
+    if ($thumbnail_id != 0) {
+        $meta = get_post_meta($thumbnail_id, 'vimeo_resource_key', true);
+        if ($meta == $key) {
+            // Current thumbnail is already the selected one
+            return;
+        }
     }
 
     $bestPic = null;
