@@ -1,7 +1,8 @@
 <?php
 
 // After save
-add_action('acf/save_post', function (int $post_ID) {
+add_action('acf/save_post', function ($post_ID) {
+    if (!is_int($post_ID)) return;
     if (get_post_type($post_ID) !== 'fragment') return;
 
     $url = get_field('fragment_url', $post_ID, false);
