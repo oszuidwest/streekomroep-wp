@@ -156,6 +156,22 @@ add_action('parse_query', 'zw_parse_query');
 
 add_filter('get_avatar_url', 'zw_get_avatar_url', 10, 3);
 
+add_action('rest_api_init', 'zw_rest_api_init');
+
+function zw_rest_api_init()
+{
+    register_rest_field(
+        'post',
+        'kabelkrant_text',
+        [
+            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                $data = get_field('post_kabelkrant_content', $post_arr['id']);
+                return $data;
+            },
+        ]
+    );
+}
+
 /**
  * @param $url
  * @param $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
