@@ -25,6 +25,7 @@ class Site extends \Timber\Site
         register_nav_menu('main', 'Hoofdmenu');
         register_nav_menu('sub', 'Submenu');
         register_nav_menu('social', 'Social menu');
+        register_nav_menu('footer', 'Footer Menu');
     }
 
     /** This is where you can register custom post types. */
@@ -56,6 +57,8 @@ class Site extends \Timber\Site
         $context['menu'] = new \Timber\Menu('main');
         $context['submenu'] = new \Timber\Menu('sub');
         $context['socialmenu'] = new \Timber\Menu('social');
+        $context['footer'] = new \Timber\Menu('footer');
+        $context['socials'] = zw_get_socials();
         $context['site'] = $this;
         return $context;
     }

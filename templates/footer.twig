@@ -1,1 +1,27 @@
-<div class="h-screen"></div>
+<footer class="bg-gray-50 ">
+    <div class="max-w-960 mx-auto mx-auto divide-y divide-gray-200">
+        <ul class="text-sm font-medium grid sm:grid-cols-4">
+            {% for item in footer.items %}
+                <li>
+                    <h2 class="text-xs font-bold uppercase {{ item.classes|join(' ') }}">{{ item.title }}</h2>
+                    <ul>
+                        {% for child in item.children %}
+                            <li>
+                                <a class="{{ child.classes|join(' ') }}" href="{{ child.link }}">{{ child.title }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        <div>
+            <p>
+                {# Empty string evaluates to the current date #}
+                Copyright © {{ ""|date('Y') }} Omroepstichting ZuidWest |
+                {% for social in socials %}
+                    <a href="{{ social.link }}">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+</footer>

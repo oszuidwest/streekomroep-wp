@@ -256,6 +256,44 @@ function zw_embed_oembed_html($cache, $url, $attr, $post_ID)
     return $cache;
 }
 
+function zw_get_socials()
+{
+    $seo_data = get_option('wpseo_social');
+    if ($seo_data === false) {
+        return [];
+    }
+
+    $socials = [
+        ['name' => 'Facebook', 'class' => 'facebook', 'field' => 'facebook_site'],
+        ['name' => 'Instagram', 'class' => 'instagram', 'field' => 'instagram_url'],
+        ['name' => 'LinkedIN', 'class' => 'linkedin', 'field' => 'linkedin_url'],
+        ['name' => 'Myspace', 'class' => 'myspace', 'field' => 'myspace_url'],
+        ['name' => 'Pinterest', 'class' => 'pinterest', 'field' => 'pinterest_url'],
+        ['name' => 'Twitter', 'class' => 'twitter', 'field' => 'twitter_site'],
+        ['name' => 'YouTube', 'class' => 'youtube', 'field' => 'youtube_url'],
+        ['name' => 'Wikipedia', 'class' => 'wikipedia', 'field' => 'wikipedia_url']
+    ];
+
+    $out = [];
+    foreach ($socials as $item) {
+        if (!isset($seo_data[$item['field']]))
+            continue;
+
+        $value = trim($seo_data[$item['field']]);
+        if (empty($value))
+            continue;
+
+        if ($item['field'] == 'twitter_site') {
+            $value = 'https://twitter.com/' . $value;
+        }
+
+        $item['link'] = $value;
+        $out[] = $item;
+    }
+
+    return $out;
+}
+
 class Jetpack_Options{
     public static function get_option_and_ensure_autoload() {
         return 'rectangular';
