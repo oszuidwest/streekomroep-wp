@@ -15,7 +15,7 @@
             </div>
 
             <div>
-                <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
+                {% include 'partial/tag-region.twig' with { region: post.region } %}
                 <h1 class="font-bold text-xl sm:text-3xl">{{ post.title }}</h1>
                 <p class="prose text-white hidden sm:block">{{ post.preview.read_more(false) }}</p>
             </div>
@@ -28,7 +28,7 @@
                         <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(228) }}"
                              srcset="{{ post.thumbnail.src|resize(456) }} 2x"/>
                     </div>
-                    <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
+                    {% include 'partial/tag-region.twig' with { region: post.region } %}
                     <h1 class="text-xl font-semibold">{{ post.title }}</h1>
                 </a>
             {% endfor %}

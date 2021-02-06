@@ -6,7 +6,7 @@
                      srcset="{{ post.thumbnail.src|resize(910, 768) }} 2x"/>
                 <div class="relative flex flex-col justify-end zw-block-content">
                     <span class="block p-4 pt-14 bg-gradient-to-b from-transparent" style="--tw-gradient-to: rgba(0,0,0,.60);">
-                        <span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
+                        {% include 'partial/tag-region.twig' with { region: post.region } %}
                         <h1 class="block font-black {% if loop.first %}text-xl{% else %}text-base{% endif %} text-white">{{ post.title }}</h1>
                     </span>
                 </div>

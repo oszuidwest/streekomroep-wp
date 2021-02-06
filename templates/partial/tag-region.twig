@@ -1,0 +1,10 @@
+{% if not options %}
+{{ dump("NO OPTIONS") }}
+{% endif %}
+<span class="inline rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-pink-600 text-white">
+   {% if region %}
+       {{ region.title }}
+   {% else %}
+       {{ options.placeholder_geen_regio }}
+   {% endif %}
+</span>

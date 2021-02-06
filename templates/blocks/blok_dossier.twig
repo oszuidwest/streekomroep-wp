@@ -8,7 +8,7 @@
             </div>
             <ul>
                 {% for post in block.posts %}
-                    {% include 'partial/dossier-post-tile.twig' with {'post': post} only %}
+                    {% include 'partial/dossier-post-tile.twig' with { post: post } %}
                 {% endfor %}
             </ul>
         </div>

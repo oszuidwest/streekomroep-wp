@@ -3,7 +3,6 @@ $context = Timber::context();
 
 $timber_post = new Timber\Post();
 $context['post'] = $timber_post;
-$context['options'] = get_fields('options');
 
 foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     switch ($block['acf_fc_layout']) {

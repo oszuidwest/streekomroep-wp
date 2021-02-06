@@ -6,7 +6,7 @@
         </div>
     </div>
     <div class="flex-auto pl-2 pr-4 sm:px-0">
-        <span class="inline rounded-full px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-green-600 text-white">{{ post.region.title }}</span>
+        {% include 'partial/tag-region.twig' with { region: post.region } %}
         <span>{{ post.date }}</span>
         <h2 class="sm:text-xl font-semibold">{{ post.title }}</h2>
         <p>{{ post.preview.length(20).read_more(false) }}</p>

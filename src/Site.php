@@ -60,6 +60,7 @@ class Site extends \Timber\Site
         $context['footer'] = new \Timber\Menu('footer');
         $context['socials'] = zw_get_socials();
         $context['site'] = $this;
+        $context['options'] = get_fields('option');
         return $context;
     }
 
