@@ -34,7 +34,11 @@
             <span class="text-base font-normal mx-2">·</span>
             <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             <span class="text-base font-normal mx-2">·</span>
-            <span>{{ post.region.title }}</span>
+            {% if post.region %}
+                <span>{{ post.region.title }}</span>
+            {% else %}
+                <span>{{ options.placeholder_geen_regio }}</span>
+            {% endif %}
         </p>
 
 
