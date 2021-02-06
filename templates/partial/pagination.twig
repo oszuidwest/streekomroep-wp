@@ -1,63 +1,45 @@
-{% if posts.pagination.pages is not empty %}
-    <nav class="pagination-block">
-        <ul class="pagination">
-
-            {# First #}
-            {% if posts.pagination.pages|first and posts.pagination.pages|first.current != true %}
-                <li class="first btn">
-                    <a href="{{ posts.pagination.pages|first.link }}">Begin</a>
-                </li>
-            {% else %}
-                <li class="first btn disabled">
-                    <button disabled>Begin</button>
-                </li>
-            {% endif %}
+{% if pagination.pages is not empty %}
+    <nav>
+        <ul class="flex justify-center">
 
             {# Previous #}
-            {% if posts.pagination.prev %}
-                <li class="prev btn">
-                    <a href="{{ posts.pagination.prev.link }}">Vorige</a>
-                </li>
-            {% else %}
-                <li class="prev btn disabled">
-                    <button disabled>Vorige</button>
-                </li>
-            {% endif %}
+            <li class="p-2">
+                {% if pagination.prev %}
+                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white"
+                       href="{{ pagination.prev.link }}">&lt; Vorige</a>
+                {% else %}
+                    <button class="min-w-12 h-12 px-4  flex justify-center items-center rounded text-gray-400" disabled>
+                        &lt; Vorige
+                    </button>
+                {% endif %}
+            </li>
 
             {# Pages #}
-            {% for page in posts.pagination.pages %}
-                {% if page.link %}
-                    <li>
-                        <a href="{{ page.link }}" class="{{ page.class }}">{{ page.title }}</a>
-                    </li>
-                {% else %}
-                    <li class="current">
-                        <span class="{{ page.class }}">{{ page.title }}</span>
-                    </li>
-                {% endif %}
+            {% for page in pagination.pages %}
+                <li class="p-2">
+                    {% if page.link %}
+                        <a class="w-12 h-12 flex justify-center items-center rounded border-2 border-gray-200 "
+                           href="{{ page.link }}" class="{{ page.class }}">{{ page.title }}</a>
+                    {% elseif page.current %}
+                        <span class="w-12 h-12 flex justify-center items-center rounded border-2  border-green-400 {{ page.class }}">{{ page.title }}</span>
+                    {% else %}
+                        {# dots #}
+                        <span class="h-12 flex justify-center items-center text-gray-400">...</span>
+                    {% endif %}
+                </li>
             {% endfor %}
 
             {# Next #}
-            {% if posts.pagination.next %}
-                <li class="next btn">
-                    <a href="{{ posts.pagination.next.link }}">Volgende</a>
-                </li>
-            {% else %}
-                <li class="next btn disabled">
-                    <button disabled>Volgende</button>
-                </li>
-            {% endif %}
-
-            {# Last #}
-            {% if posts.pagination.pages|last and posts.pagination.pages|last.current != true %}
-                <li class="last btn">
-                    <a href="{{ posts.pagination.pages|last.link }}">Einde</a>
-                </li>
-            {% else %}
-                <li class="last btn disabled">
-                    <button disabled>Einde</button>
-                </li>
-            {% endif %}
+            <li class="p-2">
+                {% if pagination.next %}
+                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white"
+                       href="{{ pagination.next.link }}">Volgende &gt;</a>
+                {% else %}
+                    <button class="min-w-12 h-12 px-4 flex justify-center items-center rounded text-gray-400" disabled>
+                        Volgende &gt;
+                    </button>
+                {% endif %}
+            </li>
 
         </ul>
     </nav>
