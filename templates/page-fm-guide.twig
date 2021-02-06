@@ -8,6 +8,7 @@
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
             <table>
                 {% for broadcast in day.broadcasts %}
+                    {% if broadcast.show %}
                     <tr>
                         <td rowspan="2" class="align-top">{{ broadcast.startTime }}</td>
                         <td class="font-bold">{{ broadcast.show.title }}</td>
@@ -21,6 +22,12 @@
                             </ul>
                         </td>
                     </tr>
+                    {% else %}
+                        <tr>
+                            <td class="align-top">{{ broadcast.startTime }}</td>
+                            <td class="font-bold">{{ broadcast.title }}</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </table>
         {% endfor %}

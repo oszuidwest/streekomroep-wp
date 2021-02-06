@@ -18,6 +18,8 @@ $context['shows'] = $shows;
 class Day
 {
     public $name;
+
+    /** @var Broadcast[] */
     public $broadcasts = [];
 
     public function __construct($name)
@@ -40,7 +42,11 @@ class Broadcast
 
     public function __construct($show, $startTime, $endTime)
     {
-        $this->show = $show;
+        if (is_string($show)) {
+            $this->title = $show;
+        } else {
+            $this->show = $show;
+        }
         $this->startTime = $startTime;
         $this->endTime = $endTime;
     }
@@ -51,24 +57,48 @@ class Broadcast
     }
 }
 
+$dayNames = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag'];
 
+/** @var Day[] $days */
 $days = [];
 
+foreach ($dayNames as $day) {
+    $days[$day] = new Day($day);
+}
+
 foreach ($shows as $show) {
+    if (!$show->meta('fm_show_actief'))
+        continue;
+
     $rules = $show->meta('fm_show_programmatie');
     if ($rules) {
         foreach ($rules as $rule) {
             foreach ($rule['fm_show_dagen'] as $day) {
-                if (!isset($days[$day])) {
-                    $days[$day] = new Day($day);
-                }
-
                 $days[$day]->add(new Broadcast($show, $rule['fm_show_starttijd'], $rule['fm_show_eindtijd']));
             }
         }
     }
 }
 
+$fillerTitle = get_field('radio_geen_programma_naam', 'option');
+foreach ($days as $day) {
+    $time = '00:00:00';
+    $newBroadcasts = [];
+    foreach ($day->broadcasts as $broadcast) {
+        if ($broadcast->startTime != $time) {
+            $newBroadcasts[] = new Broadcast($fillerTitle, $time, $broadcast->startTime);
+        }
+        $time = $broadcast->endTime;
+    }
+
+    if ($time != '24:00:00') {
+        $newBroadcasts[] = new Broadcast($fillerTitle, $time, '24:00:00');
+    }
+
+    foreach ($newBroadcasts as $broadcast) {
+        $day->add($broadcast);
+    }
+}
 
 $context['days'] = $days;
 
