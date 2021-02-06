@@ -11,7 +11,7 @@
                     {% if broadcast.show %}
                     <tr>
                         <td rowspan="2" class="align-top">{{ broadcast.startTime }}</td>
-                        <td class="font-bold">{{ broadcast.show.title }}</td>
+                        <td class="font-bold"><a href="{{ broadcast.show.link }}">{{ broadcast.show.title }}</a></td>
                     </tr>
                     <tr>
                         <td>
