@@ -119,14 +119,26 @@ class Site extends \Timber\Site
         add_theme_support('menus');
     }
 
-    /** This Would return 'foo bar!'.
-     *
-     * @param string $text being 'foo', then returned 'foo bar!'.
-     */
-    public function myfoo($text)
+    public function format_schedule($entry)
     {
-        $text .= ' bar!';
-        return $text;
+        $dayString = '';
+        $days = $entry['fm_show_dagen'];
+        if (count($days) == 1) {
+            $dayString = $days[0];
+        } else {
+            for ($i = 0; $i < count($days); $i++) {
+                if ($i == count($days) - 1) {
+                    $dayString .= ' en ';
+                } else if ($i != 0) {
+                    $dayString .= ', ';
+                }
+
+                $dayString .= $days[$i];
+            }
+        }
+
+        $out = sprintf('Elke %s van %d tot %d', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
+        return $out;
     }
 
     /** This is where you can add your own functions to twig.
@@ -136,7 +148,7 @@ class Site extends \Timber\Site
     public function add_to_twig($twig)
     {
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
-        $twig->addFilter(new \Twig\TwigFilter('myfoo', array($this, 'myfoo')));
+        $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         return $twig;
     }
 
