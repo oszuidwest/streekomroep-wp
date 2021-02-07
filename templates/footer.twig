@@ -19,7 +19,7 @@
                 {# Empty string evaluates to the current date #}
                 Copyright © {{ ""|date('Y') }} Omroepstichting ZuidWest |
                 {% for social in socials %}
-                    <a href="{{ social.link }}">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
+                    <a href="{{ social.link }}" target="_blank">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             </p>
         </div>
