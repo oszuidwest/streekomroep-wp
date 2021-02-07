@@ -23,7 +23,7 @@
 
         <div class="grid grid-cols-4 gap-4">
             {% for post in block.posts[1:] %}
-                {% include 'partials/tile-fragment.twig' wth { post: post } %}
+                {% include 'partial/tile-fragment.twig' with { post: post } %}
             {% endfor %}
         </div>
     </div>
