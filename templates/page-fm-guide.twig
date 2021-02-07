@@ -4,7 +4,7 @@
     <div class="w-full mx-auto max-w-960">
         <h1>{{ post.title }}</h1>
 
-        {% for day in days %}
+        {% for day in schedule.days %}
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
             <table>
                 {% for broadcast in day.broadcasts %}

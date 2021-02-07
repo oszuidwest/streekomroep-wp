@@ -64,6 +64,9 @@ Timber::$dirname = array('templates', 'views');
  */
 Timber::$autoescape = false;
 
+require_once 'src/Broadcast.php';
+require_once 'src/BroadcastDay.php';
+require_once 'src/BroadcastSchedule.php';
 require_once 'src/Post.php';
 require_once 'src/Site.php';
 
