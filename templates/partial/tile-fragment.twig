@@ -1,0 +1,8 @@
+<a class="block" href="{{ post.link }}">
+    <div class="aspect-w-16 aspect-h-9">
+        <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(228) }}"
+             srcset="{{ post.thumbnail.src|resize(456) }} 2x"/>
+    </div>
+    {% include 'partial/tag-region.twig' with { region: post.region } %}
+    <h1 class="text-xl font-semibold">{{ post.title }}</h1>
+</a>
