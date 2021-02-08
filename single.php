@@ -94,14 +94,54 @@ if ($timber_post->post_type == 'agenda') {
     $context['topical'] = $related;
 }
 
-if ($timber_post->post_type == 'tv') {
+function vimeo_get($url)
+{
     $args = [
+        'timeout' => 30,
         'headers' => [
             'Authorization' => 'bearer ' . get_field('vimeo_access_token', 'option')
         ]
     ];
-    $response = wp_remote_get('https://api.vimeo.com/me/projects/' . $timber_post->meta('tv_show_gemist_locatie') . '/videos', $args);
-    $context['vimeo'] = json_decode($response['body']);
+
+    return wp_remote_get('https://api.vimeo.com' . $url, $args);
+}
+
+function vimeo_get_project_videos($project_id)
+{
+    $next = '/me/projects/' . $project_id . '/videos?per_page=100';
+    $data = [];
+    while ($next !== null) {
+        $response = vimeo_get($next);
+        if ($response instanceof WP_Error || $response['response']['code'] !== 200) {
+            throw new Exception($response->get_error_message());
+        }
+
+        $body = json_decode($response['body']);;
+        $next = $body->paging->next;
+        $data = array_merge($data, $body->data);
+    }
+
+    return $data;
+}
+
+if ($timber_post->post_type == 'tv') {
+    $project_id = $timber_post->meta('tv_show_gemist_locatie');
+
+    $vimeo = get_transient('vimeo/projects/' . $project_id . '/videos');
+    if ($vimeo === false) {
+        $vimeo = [];
+        try {
+            $vimeo = vimeo_get_project_videos($project_id);
+            set_transient('vimeo/projects/' . $project_id . '/videos', $vimeo, 1 * HOUR_IN_SECONDS);
+        } catch (Throwable$t) {
+            ob_start();
+            var_dump($t);
+            $obj = ob_get_clean();
+            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_DEPRECATED);
+        }
+    }
+
+    $context['videos'] = $vimeo;
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
