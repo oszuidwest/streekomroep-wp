@@ -18,14 +18,14 @@
         </div>
     </div>
 
-    <div class="bg-blue-500 text-white">
-        <div class="max-w-960 mx-auto">
-            <h2>Uitzending gemist</h2>
-            <div class="grid grid-cols-3 gap-8">
+    <div class="bg-gray-800 text-white">
+        <div class="w-full mx-auto max-w-960 py-4">
+            <h2 class="font-bold text-3xl pb-4">Uitzending gemist</h2>
+            <div class="grid grid-cols-4 gap-4">
                 {% for video in videos %}
                     <a href="#">
                         <img src="{{ video.pictures.sizes[2].link }}"/>
-                        <h3 class="font-bold text-2xl">{{ video.name }}</h3>
+                        <h3 class="font-bold mt-2">{{ video.name }}</h3>
                     </a>
                 {% endfor %}
             </div>
