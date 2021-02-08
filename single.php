@@ -112,8 +112,12 @@ function vimeo_get_project_videos($project_id)
     $data = [];
     while ($next !== null) {
         $response = vimeo_get($next);
-        if ($response instanceof WP_Error || $response['response']['code'] !== 200) {
+        if ($response instanceof WP_Error) {
             throw new Exception($response->get_error_message());
+        }
+
+        if ($response['response']['code'] !== 200) {
+            throw new Exception('Error while fetching vimeo data: ' . $response['body']);
         }
 
         $body = json_decode($response['body']);;
@@ -137,7 +141,7 @@ if ($timber_post->post_type == 'tv') {
             ob_start();
             var_dump($t);
             $obj = ob_get_clean();
-            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_ERROR);
+            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_NOTICE);
         }
     }
 
