@@ -137,7 +137,7 @@ if ($timber_post->post_type == 'tv') {
             ob_start();
             var_dump($t);
             $obj = ob_get_clean();
-            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_DEPRECATED);
+            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_ERROR);
         }
     }
 
