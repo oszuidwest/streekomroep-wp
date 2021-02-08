@@ -22,6 +22,50 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             ]);
             break;
 
+        case 'blok_tv_gemist':
+            $vimeo = get_transient('vimeo/videos');
+            if ($vimeo === false) {
+                $vimeo = [];
+                try {
+                    $vimeo = vimeo_get('/me/videos?sort=date');
+                    $response = json_decode($vimeo['body']);
+                    set_transient('vimeo/videos', $response->data, 1 * HOUR_IN_SECONDS);
+                } catch (Throwable$t) {
+                    ob_start();
+                    var_dump($t);
+                    $obj = ob_get_clean();
+                    trigger_error('Error fetching vimeo : ' . $obj, E_USER_NOTICE);
+                }
+            }
+
+            $shows = \Timber\Timber::get_posts([
+                'post_type' => 'tv',
+                'nopaging' => true,
+                'ignore_sticky_posts' => true,
+            ]);
+            $block['shows'] = $shows;
+
+            $videos = [];
+            foreach ($vimeo as $video) {
+                $projectId = basename($video->parent_folder->uri);
+                $args = [
+                    'post_type' => 'tv',
+                    'meta_key' => 'tv_show_gemist_locatie',
+                    'meta_value' => $projectId
+                ];
+                $shows = Timber::get_posts($args);
+                if (count($shows) > 0) {
+                    $video->show = $shows[0];
+                    $videos[] = $video;
+                }
+
+                if (count($videos) == 2) {
+                    break;
+                }
+            }
+            $block['videos'] = $videos;
+            break;
+
         case 'blok_artikel_lijst':
             $block['posts'] = Timber::get_posts([
                 'posts_per_page' => $block['aantal_artikelen'],

@@ -1,0 +1,18 @@
+<div class="bg-gray-800 text-white">
+    <div class="w-full mx-auto max-w-960 py-4">
+        <h2 class="font-bold text-3xl pb-4">TV Gemist</h2>
+
+        <div class="grid grid-cols-2 gap-4">
+            {% for video in block.videos %}
+                <a href="{{ video.show.link }}?v={{ get_vimeo_id(video) }}" class="grid grid-cols-2 gap-4 hover:bg-gray-700">
+                    <img src="{{ video.pictures.sizes[2].link }}"/>
+                    <h3 class="font-bold mt-2">{{ video.name }}</h3>
+                </a>
+            {% endfor %}
+        </div>
+
+        {% for show in block.shows %}
+            <a href="{{ show.link }}">{{ show.title }}</a>
+        {% endfor %}
+    </div>
+</div>
