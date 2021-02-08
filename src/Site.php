@@ -141,6 +141,11 @@ class Site extends \Timber\Site
         return $out;
     }
 
+    public function get_vimeo_id($video)
+    {
+        return basename($video->uri);
+    }
+
     /** This is where you can add your own functions to twig.
      *
      * @param string $twig get extension.
@@ -149,6 +154,7 @@ class Site extends \Timber\Site
     {
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
+        $twig->addFunction(new \Twig\TwigFunction('get_vimeo_id', [$this, 'get_vimeo_id']));
         return $twig;
     }
 

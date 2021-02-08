@@ -145,6 +145,24 @@ if ($timber_post->post_type == 'tv') {
         }
     }
 
+    if (isset($_GET['v'])) {
+        $videoId = '/videos/' . $_GET['v'];
+        $video = null;
+        foreach ($vimeo as $item) {
+            if ($item->uri == $videoId) {
+                $video = $item;
+                break;
+            }
+        }
+
+        if ($video) {
+            $context['video'] = $video;
+            $context['embed'] = $wp_embed->shortcode([], $video->link);
+            Timber::render('single-tv-video.twig', $context);
+            return;
+        }
+    }
+
     $context['videos'] = $vimeo;
 }
 
