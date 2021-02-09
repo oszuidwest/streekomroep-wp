@@ -27,10 +27,11 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             if ($vimeo === false) {
                 $vimeo = [];
                 try {
-                    $vimeo = vimeo_get('/me/videos?sort=date');
-                    $response = json_decode($vimeo['body']);
-                    set_transient('vimeo/videos', $response->data, 1 * HOUR_IN_SECONDS);
-                } catch (Throwable$t) {
+                    $response = vimeo_get('/me/videos?sort=date');
+                    $response = json_decode($response['body']);
+                    $vimeo = $response->data;
+                    set_transient('vimeo/videos', $vimeo, 1 * HOUR_IN_SECONDS);
+                } catch (Throwable $t) {
                     ob_start();
                     var_dump($t);
                     $obj = ob_get_clean();
