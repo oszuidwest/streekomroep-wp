@@ -1,0 +1,17 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <div class="bg-gray-800 text-white">
+        <div class="px-4 mx-auto max-w-xl">
+            <h1 class="font-bold text-3xl text-center pt-8">Zoeken</h1>
+            <form class=" py-4" role="search" method="get" id="searchform"
+                  action="{{ function('home_url', '/') }}">
+                <input class="appearance-none block w-full text-lg rounded p-4 text-black" type="search"
+                       value="{{ function('get_search_query') }}" name="s" id="s"/>
+
+                <input class="appearance-none block text-lg rounded py-2 px-8 mx-auto mt-4 uppercase bg-blue-500"
+                       type="submit" value="Zoeken">
+            </form>
+        </div>
+    </div>
+{% endblock %}
