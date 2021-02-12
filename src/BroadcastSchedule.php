@@ -64,6 +64,27 @@ class BroadcastSchedule
         }
     }
 
+    public function getNextBroadcast()
+    {
+        $current = $this->getCurrentBroadcast();
+        $returnNext = false;
+
+        // Loop twice, so we take in account current broadcasts at the end of the week
+        for ($week = 0; $week < 2; $week++) {
+            foreach ($this->days as $day) {
+                foreach ($day->broadcasts as $broadcast) {
+                    if ($returnNext) return $broadcast;
+
+                    if ($broadcast == $current) {
+                        $returnNext = true;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public function getCurrentBroadcast()
     {
         $now = new \DateTime();

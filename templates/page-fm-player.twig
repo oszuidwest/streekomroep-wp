@@ -10,7 +10,11 @@
     {% endif %}
 
     <h2 class="mt-4 font-bold text-xl">Straks</h2>
-    <p>{{ next.title }}</p>
+    {% if next.show %}
+        <p>{{ next.show.title }}</p>
+    {% else %}
+        <p>{{ next.title }}</p>
+    {% endif %}
 
     <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
     <ul>

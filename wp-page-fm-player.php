@@ -7,7 +7,7 @@ $context = Timber::context();
 $context['post'] = new Timber\Post();
 $schedule = new \Streekomroep\BroadcastSchedule();
 $context['current'] = $schedule->getCurrentBroadcast();
-$context['next'] = new Timber\Post();
+$context['next'] = $schedule->getNextBroadcast();
 
 wp_enqueue_style('video.js', 'https://vjs.zencdn.net/7.11.5/video-js.css');
 wp_enqueue_script('video.js', 'https://vjs.zencdn.net/7.11.5/video.min.js');
