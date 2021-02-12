@@ -6,7 +6,10 @@
             {% for video in block.videos %}
                 <a href="{{ video.show.link }}?v={{ get_vimeo_id(video) }}" class="grid grid-cols-2 gap-4 hover:bg-gray-700">
                     <img src="{{ video.pictures.sizes[2].link }}"/>
-                    <h3 class="font-bold mt-2">{{ video.name }}</h3>
+                    <div>
+                        <h3 class="font-bold mt-2">{{ video.show.title }}</h3>
+                        <p>{{ video.name }}</p>
+                    </div>
                 </a>
             {% endfor %}
         </div>
