@@ -194,7 +194,7 @@ function zw_get_avatar_url($url, $id_or_email, $args)
         return $url;
     }
     $field = get_field('gebruiker_profielfoto', 'user_' . $id);
-    if ($field === false) {
+    if ($field === null || $field === false) {
         return $url;
     }
 
