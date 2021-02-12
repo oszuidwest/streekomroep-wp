@@ -16,10 +16,17 @@ class BroadcastSchedule
         ]);
         $context['shows'] = $shows;
 
-        $dayNames = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag'];
-
-        foreach ($dayNames as $day) {
-            $this->days[$day] = new BroadcastDay($day);
+        $dayNames = [
+            1 => 'maandag',
+            2 => 'dinsdag',
+            3 => 'woensdag',
+            4 => 'donderdag',
+            5 => 'vrijdag',
+            6 => 'zaterdag',
+            7 => 'zondag'
+        ];
+        foreach ($dayNames as $no => $day) {
+            $this->days[$day] = new BroadcastDay($no, $day);
         }
 
         foreach ($shows as $show) {
@@ -55,5 +62,27 @@ class BroadcastSchedule
                 $day->add($broadcast);
             }
         }
+    }
+
+    public function getCurrentBroadcast()
+    {
+        $now = new \DateTime();
+        $weekday = (int)$now->format('N');
+        $hour = intval($now->format('G'));
+
+        foreach ($this->days as $day) {
+            if ($day->number != $weekday) continue;
+
+            foreach ($day->broadcasts as $broadcast) {
+                $startHour = intval(substr($broadcast->startTime, 0, 2));
+                $endHour = intval(substr($broadcast->endTime, 0, 2));
+
+                if ($hour >= $startHour && $hour < $endHour) {
+                    return $broadcast;
+                }
+            }
+        }
+
+        return null;
     }
 }

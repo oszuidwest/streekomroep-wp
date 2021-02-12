@@ -4,13 +4,15 @@ namespace Streekomroep;
 
 class BroadcastDay
 {
+    public $number;
     public $name;
 
     /** @var Broadcast[] */
     public $broadcasts = [];
 
-    public function __construct($name)
+    public function __construct($number, $name)
     {
+        $this->number = $number;
         $this->name = $name;
     }
 

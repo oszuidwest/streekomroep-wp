@@ -123,6 +123,11 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             });
             $block['terms'] = array_slice($block['terms'], 0, 5);
             break;
+
+        case 'blok_nu_op_fmtv':
+            $schedule = new \Streekomroep\BroadcastSchedule();
+            $block['fm'] = $schedule->getCurrentBroadcast();
+            break;
     }
 }
 
