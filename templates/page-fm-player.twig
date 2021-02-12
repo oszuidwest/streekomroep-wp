@@ -3,7 +3,11 @@
 {% block content %}
     <h1>{{ post.title }}</h1>
     <h2 class="mt-4 font-bold text-xl">Nu</h2>
-    <p>{{ current.title }}</p>
+    {% if current.show %}
+        <p>{{ current.show.title }}</p>
+    {% else %}
+        <p>{{ current.title }}</p>
+    {% endif %}
 
     <h2 class="mt-4 font-bold text-xl">Straks</h2>
     <p>{{ next.title }}</p>
