@@ -2,12 +2,14 @@
 {% extends "base.twig" %}
 
 {% block content %}
-  {# see `base.twig:27` for where this block's content will be inserted #}
-  <div class="content-wrapper">
-    {% for post in posts %}
-      {% include ['tease-'~post.post_type~'.twig', 'tease.twig'] %}
-    {% endfor %}
+    <div class="max-w-960 mx-auto">
+        <h1>Zoekresultaten voor ‘{{ function('get_search_query') }}’</h1>
 
-    {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
-  </div>
+        <div class="grid grid-cols-4 gap-4">
+            {% for post in posts %}
+                {% include ['tease-'~post.post_type~'.twig', 'tease.twig'] %}
+            {% endfor %}
+        </div>
+        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+    </div>
 {% endblock %}
