@@ -10,7 +10,7 @@
                 {% for broadcast in day.broadcasts %}
                     {% if broadcast.show %}
                     <tr>
-                        <td rowspan="2" class="align-top">{{ broadcast.startTime }}</td>
+                        <td rowspan="2" class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
                         <td class="font-bold"><a href="{{ broadcast.show.link }}">{{ broadcast.show.title }}</a></td>
                     </tr>
                     <tr>
@@ -24,7 +24,7 @@
                     </tr>
                     {% else %}
                         <tr>
-                            <td class="align-top">{{ broadcast.startTime }}</td>
+                            <td class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
                             <td class="font-bold">{{ broadcast.title }}</td>
                         </tr>
                     {% endif %}
