@@ -6,7 +6,7 @@
 	</head>
 {% endblock %}
 
-	<body class="{{body_class}}" data-template="base.twig">
+	<body class="{{body_class}} bg-gray-100" data-template="base.twig">
         <div class="bg-gradient-to-r from-green-500 to-green-600 overflow-hidden">
             <div class="px-6 md:px-4 max-w-960 h-16 mx-auto text-white flex items-center">
                 <a class="font-round font-black uppercase text-xl mr-4" href="{{ site.url }}" rel="home">{{ site.name }}</a>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="border-b border-gray-200">
+        <div class="border-b bg-white border-gray-200">
             <div class="flex -mb-px max-w-960 mx-auto overflow-auto">
                 {% for item in submenu.items %}
                     <a class="flex-none flex px-4 border-b-2 border-transparent items-center h-12"
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-		<section id="content" role="main" class="content-wrapper">
+		<section id="content" role="main" class="bg-white">
 			{% if title %}<h1>{{title}}</h1>{% endif %}
 			<div class="wrapper {{sidebar_class}}">
 				{% block content %}
@@ -48,10 +48,8 @@
 		</section>
 
 		{% block footer %}
-			<footer id="footer">
-				{% include 'footer.twig' %}
-			</footer>
-			{{ function('wp_footer') }}
-		{% endblock %}
+            {% include 'footer.twig' %}
+            {{ function('wp_footer') }}
+        {% endblock %}
 	</body>
 </html>

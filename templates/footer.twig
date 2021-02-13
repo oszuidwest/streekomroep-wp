@@ -1,13 +1,13 @@
-<footer class="bg-gray-50 ">
+<footer class="text-gray-700">
     <div class="max-w-960 mx-auto mx-auto divide-y divide-gray-200">
-        <ul class="text-sm font-medium grid sm:grid-cols-4">
+        <ul class="text-sm pt-8 mb-4 grid sm:grid-cols-4">
             {% for item in footer.items %}
                 <li>
-                    <h2 class="text-xs font-bold uppercase {{ item.classes|join(' ') }}">{{ item.title }}</h2>
+                    <h2 class="text-xs mb-1 font-round font-bold text-gray-500 tracking-wider uppercase {{ item.classes|join(' ') }}">{{ item.title }}</h2>
                     <ul>
                         {% for child in item.children %}
                             <li>
-                                <a class="{{ child.classes|join(' ') }}" href="{{ child.link }}">{{ child.title }}</a>
+                                <a class="hover:underline focus:underline block py-1{{ child.classes|join(' ') }}" href="{{ child.link }}">{{ child.title }}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -15,11 +15,11 @@
             {% endfor %}
         </ul>
         <div>
-            <p>
+            <p class="text-sm py-4 pb-6">
                 {# Empty string evaluates to the current date #}
                 Copyright © {{ ""|date('Y') }} Omroepstichting ZuidWest |
                 {% for social in socials %}
-                    <a href="{{ social.link }}" target="_blank">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
+                    <a href="{{ social.link }}" target="_blank" class="hover:underline">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             </p>
         </div>
