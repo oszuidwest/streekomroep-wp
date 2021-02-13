@@ -6,22 +6,33 @@
 
         {% for day in schedule.days %}
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
+            {% for row in options.programmatie %}
+                {% if row.dag == day.name %}
+                    {% if row.naam_override %}
+                        <h2 class="mt-4 font-bold">{{ row.naam_override }}</h2>
+                    {% else %}
+                        <h2 class="mt-4 font-bold">{{ row.programma.post_title }}</h2>
+                    {% endif %}
+                    <p>{{ row.starttijden }}</p>
+                {% endif %}
+            {% endfor %}
             <table>
                 {% for broadcast in day.broadcasts %}
                     {% if broadcast.show %}
-                    <tr>
-                        <td rowspan="2" class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
-                        <td class="font-bold"><a href="{{ broadcast.show.link }}">{{ broadcast.show.title }}</a></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <ul>
-                                {% for host in broadcast.show.meta('fm_show_presentator') %}
-                                    <li>{{ User(host) }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td rowspan="2" class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
+                            <td class="font-bold"><a href="{{ broadcast.show.link }}">{{ broadcast.show.title }}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <ul>
+                                    {% for host in broadcast.show.meta('fm_show_presentator') %}
+                                        <li>{{ User(host) }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
                     {% else %}
                         <tr>
                             <td class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
