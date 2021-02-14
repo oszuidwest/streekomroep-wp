@@ -3,8 +3,11 @@
 {% block content %}
     <div class="grid grid-cols-1">
         <div class="row-start-2 md:row-start-auto">
-            <div class="px-6 md:px-12 max-w-3xl mx-auto">
-                <h1 class="mt-6 mb-8 text-4xl lg:text-5xl font-black font-round">{{ post.title }}</h1>
+            <div class="px-6 md:px-12 max-w-3xl mx-auto pt-6 pb-8">
+                {% include 'partial/tag-region.twig' with { region: post.region } %}
+                <h1 class="text-4xl lg:text-5xl font-black font-round">{{ post.title }}</h1>
+                <time class="text-xs tracking-wide uppercase font-black font-round"
+                      datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             </div>
         </div>
 
@@ -31,14 +34,6 @@
                 <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded-full">
                 <span class="block ml-3">{{ post.author.name }}</span>
             </a>
-            <span class="text-base font-normal mx-2">·</span>
-            <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
-            <span class="text-base font-normal mx-2">·</span>
-            {% if post.region %}
-                <span>{{ post.region.title }}</span>
-            {% else %}
-                <span>{{ options.placeholder_geen_regio }}</span>
-            {% endif %}
         </p>
 
 
