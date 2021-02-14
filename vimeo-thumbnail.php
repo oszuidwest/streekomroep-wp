@@ -60,7 +60,8 @@ function zw_vimeo_save_thumbnail($post_ID)
     ];
     $thumbnail_id = media_handle_sideload($file, $post_ID);
     if ($thumbnail_id instanceof WP_Error) {
-        dd($thumbnail_id);
+        var_dump($path);
+        var_dump($thumbnail_id);
         return;
     }
 
