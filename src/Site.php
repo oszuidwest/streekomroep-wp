@@ -154,7 +154,6 @@ class Site extends \Timber\Site
             }
         }
 
-        dd($video);
         throw new \Exception('Couldn\'t get desired width (' . $width . ')');
     }
 

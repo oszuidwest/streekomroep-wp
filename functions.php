@@ -352,7 +352,7 @@ function vimeo_get($url)
         $url .= '?';
     }
 
-    $url .= 'fields=name,uri,pictures,parent_folder.uri&sizes=295x166';
+    $url .= 'fields=name,uri,link,pictures,parent_folder.uri&sizes=295x166';
 
     return wp_remote_get($url, $args);
 }
