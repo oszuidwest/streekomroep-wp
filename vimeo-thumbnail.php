@@ -58,7 +58,14 @@ function zw_vimeo_save_thumbnail($post_ID)
         'name' => basename($path),
         'tmp_name' => $tempPath,
     ];
-    $thumbnail_id = media_handle_sideload($file, $post_ID);
+
+    $post_array = [];
+    $parent = get_post($post_ID);
+    $post_array['post_date'] = $parent->post_date;
+    $post_array['post_date_gmt'] = $parent->post_date_gmt;
+    $post_array['meta_input'] = [];
+    $post_array['meta_input']['vimeo_resource_key'] = $key;
+    $thumbnail_id = media_handle_sideload($file, $post_ID, null, $post_array);
     if ($thumbnail_id instanceof WP_Error) {
         var_dump($path);
         var_dump($thumbnail_id);
@@ -66,7 +73,6 @@ function zw_vimeo_save_thumbnail($post_ID)
     }
 
     set_post_thumbnail($post_ID, $thumbnail_id);
-    update_post_meta($thumbnail_id, 'vimeo_resource_key', $key);
 }
 
 add_action('acf/save_post', 'zw_vimeo_save_thumbnail');
