@@ -111,6 +111,10 @@ if ($timber_post->post_type == 'tv') {
         }
     }
 
+    $vimeo = array_map(function($a) {
+       return new \Streekomroep\SafeObject($a, 'video');
+    }, $vimeo);
+
     if (isset($_GET['v'])) {
         $videoId = '/videos/' . $_GET['v'];
         $video = null;

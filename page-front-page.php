@@ -39,6 +39,10 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 }
             }
 
+            $vimeo = array_map(function($a) {
+                return new \Streekomroep\SafeObject($a, 'video');
+            }, $vimeo);
+
             $shows = \Timber\Timber::get_posts([
                 'post_type' => 'tv',
                 'nopaging' => true,

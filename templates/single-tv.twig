@@ -24,7 +24,7 @@
             <div class="grid grid-cols-4 gap-4">
                 {% for video in videos %}
                     <a href="?v={{ get_vimeo_id(video) }}">
-                        <img src="{{ video.pictures.sizes[2].link }}"/>
+                        <img src="{{ get_vimeo_image(video, 295).link }}"/>
                         <h3 class="font-bold mt-2">{{ video.name }}</h3>
                     </a>
                 {% endfor %}

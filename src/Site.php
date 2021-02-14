@@ -146,6 +146,18 @@ class Site extends \Timber\Site
         return basename($video->uri);
     }
 
+    public function get_vimeo_image($video, $width)
+    {
+        foreach ($video->pictures->sizes as $size) {
+            if ($size->width == $width) {
+                return $size;
+            }
+        }
+
+        dd($video);
+        throw new \Exception('Couldn\'t get desired width (' . $width . ')');
+    }
+
     /** This is where you can add your own functions to twig.
      *
      * @param string $twig get extension.
@@ -155,6 +167,7 @@ class Site extends \Timber\Site
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('get_vimeo_id', [$this, 'get_vimeo_id']));
+        $twig->addFunction(new \Twig\TwigFunction('get_vimeo_image', [$this, 'get_vimeo_image']));
         return $twig;
     }
 

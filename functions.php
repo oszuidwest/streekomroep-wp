@@ -68,6 +68,7 @@ require_once 'src/Broadcast.php';
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
 require_once 'src/Post.php';
+require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
 
 // Use default class for all post types, except for pages.
@@ -343,7 +344,17 @@ function vimeo_get($url)
         ]
     ];
 
-    return wp_remote_get('https://api.vimeo.com' . $url, $args);
+    $url = 'https://api.vimeo.com' . $url;
+    $parsed = parse_url($url);
+    if (isset($parsed['query'])) {
+        $url .= '&';
+    } else {
+        $url .= '?';
+    }
+
+    $url .= 'fields=name,uri,pictures,parent_folder.uri&sizes=295x166';
+
+    return wp_remote_get($url, $args);
 }
 
 function vimeo_get_project_videos($project_id)
