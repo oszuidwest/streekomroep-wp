@@ -1,7 +1,8 @@
 <?php
 
 // After save
-add_action('acf/save_post', function ($post_ID) {
+function zw_vimeo_save_thumbnail($post_ID)
+{
     if (!is_int($post_ID)) return;
     if (get_post_type($post_ID) !== 'fragment') return;
 
@@ -65,4 +66,6 @@ add_action('acf/save_post', function ($post_ID) {
 
     set_post_thumbnail($post_ID, $thumbnail_id);
     update_post_meta($thumbnail_id, 'vimeo_resource_key', $key);
-});
+}
+
+add_action('acf/save_post', 'zw_vimeo_save_thumbnail');
