@@ -43,11 +43,11 @@
 
     {% if local %}
         <div class="bg-gray-800 text-white">
-            <div class="w-full mx-auto max-w-960 py-4">
+            <div class="w-full mx-auto max-w-960 py-4 px-4">
                 <h2 class="font-bold text-3xl pb-4">Meer nieuws uit {{ local.region }}</h2>
-                <div class="grid md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {% for post in local.posts %}
-                        {% include 'partial/tile-fragment.twig' with { post: post } %}
+                        {% include 'partial/tile-fragment.twig' with { post: post, region: false } %}
                     {% endfor %}
                 </div>
             </div>
