@@ -33,19 +33,11 @@
             </div>
         </div>
 
-		<section id="content" role="main" class="bg-white">
-			{% if title %}<h1>{{title}}</h1>{% endif %}
-			<div class="wrapper {{sidebar_class}}">
-				{% block content %}
-					Sorry, no content
-				{% endblock %}
-			</div>
-			{% if sidebar %}
-				<aside class="layout-sidebar">
-					{{sidebar}}
-				</aside>
-			{% endif %}
-		</section>
+        <section id="content" role="main" class="bg-white">
+            {% block content %}
+                Sorry, no content
+            {% endblock %}
+        </section>
 
 		{% block footer %}
             {% include 'footer.twig' %}

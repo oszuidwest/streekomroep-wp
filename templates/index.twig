@@ -1,18 +1,12 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="max-w-960 mx-auto">
-        <h2 class="text-3xl font-bold">{{ title }}</h2>
+    <div class="w-full mx-auto max-w-960 py-4 px-4">
+        <h2 class="font-bold text-3xl pb-4">{{ title }}</h2>
 
-        <div class="grid grid-cols-3 gap-8">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for post in posts %}
-                <a href="{{ post.link }}" class="block">
-                    <div class="aspect-w-16 aspect-h-9 relative bg-gray-800">
-                        <img class="absolute inset-0 object-cover" src="{{ post.thumbnail.src }}"/>
-                    </div>
-                    {% include 'partial/tag-region.twig' with { region: post.region } %}
-                    <h2 class="text-xl font-bold">{{ post.title }}</h2>
-                </a>
+                {% include 'partial/post-tile.twig' with { post: post } %}
             {% endfor %}
         </div>
 
