@@ -9,6 +9,6 @@
         {% include 'partial/tag-region.twig' with { region: post.region } %}
         <span>{{ post.date }}</span>
         <h2 class="sm:text-xl font-semibold">{{ post.title }}</h2>
-        <p>{{ post.preview.length(20).read_more(false) }}</p>
+        <p class="hidden sm:block">{{ post.preview.length(20).read_more(false) }}</p>
     </div>
 </a>
