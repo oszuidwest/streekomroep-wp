@@ -1,5 +1,5 @@
 <div class="bg-gray-800 text-white">
-    <div class="w-full mx-auto max-w-960 py-4">
+    <div class="w-full mx-auto max-w-960 px-4 pt-4">
 
         {% if block.tekst_boven_fragmenten %}
             <h2 class="font-bold text-3xl pb-4">{{ block.tekst_boven_fragmenten }}</h2>
@@ -20,7 +20,20 @@
                 <p class="prose text-white hidden sm:block">{{ post.preview.read_more(false) }}</p>
             </div>
         </a>
+    </div>
+    <div class="overflow-x-auto clear-left sm:hidden">
+        <div class="flex float-left px-2 py-4">
+            {% for post in block.posts[1:] %}
+                <div class="block w-96 flex-none mx-2"
+                     style="width: calc((100vw - (1rem * 2) - (1rem * 2)) /2); min-width: 160px">
+                    {% include 'partial/tile-fragment.twig' with { post: post } %}
+                    {{ color }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 
+    <div class="w-full mx-auto max-w-960 py-4 px-4 hidden sm:block">
         <div class="grid grid-cols-4 gap-4">
             {% for post in block.posts[1:] %}
                 {% include 'partial/tile-fragment.twig' with { post: post } %}
