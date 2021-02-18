@@ -25,7 +25,7 @@
         <div class="flex float-left px-2 py-4">
             {% for post in block.posts[1:] %}
                 <div class="block w-96 flex-none mx-2"
-                     style="width: calc((100vw - (1rem * 2) - (1rem * 2)) /2); min-width: 160px">
+                     style="width: calc((100vw - (1rem * 2) - (1rem * 2)) /2); min-width: 160px; max-width: 220px">
                     {% include 'partial/tile-fragment.twig' with { post: post } %}
                     {{ color }}
                 </div>
