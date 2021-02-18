@@ -4,6 +4,10 @@ $context = Timber::context();
 $timber_post = new Timber\Post();
 $context['post'] = $timber_post;
 
+if ($context['options']['desking_blokken_voorpagina'] === false) {
+    $context['options']['desking_blokken_voorpagina'] = [];
+}
+
 foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
@@ -39,7 +43,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 }
             }
 
-            $vimeo = array_map(function($a) {
+            $vimeo = array_map(function ($a) {
                 return new \Streekomroep\SafeObject($a, 'video');
             }, $vimeo);
 
