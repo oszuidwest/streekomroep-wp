@@ -171,7 +171,12 @@ function zw_rest_api_init()
         'kabelkrant_text',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $data = get_field('post_kabelkrant_content', $post_arr['id']);
+                $data = null;
+                $show = (bool)get_field('post_in_kabelkrant', $post_arr['id']);
+                if ($show) {
+                    $data = get_field('post_kabelkrant_content', $post_arr['id']);
+                }
+
                 return $data;
             },
         ]
