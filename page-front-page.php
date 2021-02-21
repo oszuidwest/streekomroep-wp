@@ -49,7 +49,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $shows = \Timber\Timber::get_posts([
                 'post_type' => 'tv',
-                'nopaging' => true,
+                'posts_per_page' => 4,
                 'ignore_sticky_posts' => true,
             ]);
             $block['shows'] = $shows;

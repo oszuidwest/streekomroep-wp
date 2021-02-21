@@ -16,9 +16,12 @@
 
         <p class="text-sm tracking-wide uppercase font-bold font-round text-gray-400 mt-4">Of kijk een nieuwe aflevering van:</p>
         <div class="flex flex-wrap -mx-3">
-        {% for show in block.shows %}
-            <a href="{{ show.link }}" class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">{{ show.title }}</a>
-        {% endfor %}
+            {% for show in block.shows %}
+                <a href="{{ show.link }}"
+                   class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">{{ show.title }}</a>
+            {% endfor %}
+            <a href="{{ function('get_post_type_archive_link', 'tv') }}"
+               class="text-blue-400 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">alle programma's</a>
         </div>
     </div>
 </div>
