@@ -1,0 +1,23 @@
+{% set dark = dark|default('001737') %}
+{% set light = light|default('FD0077') %}
+
+<svg class="w-full h-full object-cover" viewBox="0 0 100 100">
+    <filter id="duotone">
+        <!-- Grab the SourceGraphic (implicit) and convert it to grayscale -->
+        <feColorMatrix type="matrix" values=".33 .33 .33 0 0
+              .33 .33 .33 0 0
+              .33 .33 .33 0 0
+              0 0 0 1 0">
+        </feColorMatrix>
+
+        <!-- Map the grayscale result to the gradient map provided in tableValues -->
+        <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="{{ function('rgb', 'r', dark) }} {{ function('rgb', 'r', light) }}"></feFuncR>
+            <feFuncG type="table" tableValues="{{ function('rgb', 'g', dark) }} {{ function('rgb', 'g', light) }}"></feFuncG>
+            <feFuncB type="table" tableValues="{{ function('rgb', 'b', dark) }} {{ function('rgb', 'b', light) }}"></feFuncB>
+        </feComponentTransfer>
+    </filter>
+
+    <image xlink:href="{{ image }}" width="100%" x="0" y="0" height="100%"
+           filter="url(#duotone)"></image>
+</svg>
