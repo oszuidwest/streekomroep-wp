@@ -5,7 +5,7 @@
                  srcset="{{ post.thumbnail.src|resize(618, 348) }} 2x"/>
         </div>
     </div>
-    <div class="flex-auto pl-2 pr-4 sm:px-0">
+    <div class="flex-auto pl-2 pr-4 sm:px-0 pt-1">
         {% include 'partial/tag-region.twig' with { region: post.region } %}
         <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
         <p class="block prose prose-sm text-gray-600">
