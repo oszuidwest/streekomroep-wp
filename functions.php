@@ -384,20 +384,25 @@ function vimeo_get_project_videos($project_id)
     return $data;
 }
 
-function rgb($component, $hex)
+function rgb($hex)
 {
+    if (strlen($hex) === 7) {
+        $hex = substr($hex, 1);
+    }
+    if (strlen($hex) !== 6) {
+        throw new Exception('Invalid color');
+    }
+
     $hex = str_split($hex, 2);
     $hex = array_map(function ($component) {
         return intval($component, 16);
     }, $hex);
-    switch ($component) {
-        case 'r':
-            return $hex[0] / 255;
-        case 'g':
-            return $hex[1] / 255;
-        case 'b':
-            return $hex[2] / 255;
-    }
+
+    $rgb = new StdClass();
+    $rgb->red = $hex[0] / 255;
+    $rgb->green = $hex[1] / 255;
+    $rgb->blue = $hex[2] / 255;
+    return $rgb;
 }
 
 class Jetpack_Options

@@ -1,5 +1,5 @@
-{% set dark = dark|default('001737') %}
-{% set light = light|default('FD0077') %}
+{% set light = function('rgb', light|default('00EA81')) %}
+{% set dark = function('rgb', dark|default('563552')) %}
 
 <svg class="w-full h-full object-cover" viewBox="0 0 100 100">
     <filter id="duotone">
@@ -12,9 +12,9 @@
 
         <!-- Map the grayscale result to the gradient map provided in tableValues -->
         <feComponentTransfer color-interpolation-filters="sRGB">
-            <feFuncR type="table" tableValues="{{ function('rgb', 'r', dark) }} {{ function('rgb', 'r', light) }}"></feFuncR>
-            <feFuncG type="table" tableValues="{{ function('rgb', 'g', dark) }} {{ function('rgb', 'g', light) }}"></feFuncG>
-            <feFuncB type="table" tableValues="{{ function('rgb', 'b', dark) }} {{ function('rgb', 'b', light) }}"></feFuncB>
+            <feFuncR type="table" tableValues="{{ dark.red }} {{ light.red }}"></feFuncR>
+            <feFuncG type="table" tableValues="{{ dark.green }} {{ light.green }}"></feFuncG>
+            <feFuncB type="table" tableValues="{{ dark.blue }} {{ light.blue }}"></feFuncB>
         </feComponentTransfer>
     </filter>
 
