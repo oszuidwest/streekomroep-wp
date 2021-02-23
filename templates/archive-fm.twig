@@ -13,6 +13,7 @@
                     <a class="block relative" href="{{ post.link }}">
                         <div class="relative aspect-w-1 aspect-h-1 overflow-hidden rounded bg-pink-600">
                             {% include 'partial/cover-duotone.twig' with { image: post.thumbnail.src|resize(100, 100) }  %}
+                            <h1 class="w-full h-full p-4 absolute items-center justify-center flex uppercase font-round font-black text-white text-center text-2xl">{{ post.title }}</h1>
                         </div>
                         <h1 class="text-sm text-center mt-2">{{ post.title }}</h1>
                         <p class="text-center text-sm text-gray-500">
