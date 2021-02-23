@@ -7,8 +7,8 @@
     </div>
     <div class="flex-auto pl-2 pr-4 sm:px-0">
         {% include 'partial/tag-region.twig' with { region: post.region } %}
-        <span>{{ post.date }}</span>
-        <h2 class="sm:text-xl font-semibold">{{ post.title }}</h2>
+        <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
+        <span class="block text-sm text-gray-600">{{ post.date }}</span>
         <p class="hidden sm:block">{{ post.preview.length(20).read_more(false) }}</p>
     </div>
 </a>
