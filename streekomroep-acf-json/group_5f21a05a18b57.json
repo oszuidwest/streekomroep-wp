@@ -43,7 +43,7 @@
                 "id": ""
             },
             "default_value": "",
-            "placeholder": "Vul de versie voor op teksttv in (regio wordt automatisch toegevoegd).",
+            "placeholder": "Vul de versie voor op teksttv in",
             "maxlength": "",
             "rows": 4,
             "new_lines": ""
@@ -71,5 +71,5 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1608483577
+    "modified": 1614209773
 }

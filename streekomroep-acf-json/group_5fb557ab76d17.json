@@ -71,7 +71,7 @@
             "label": "Poster",
             "name": "radio_webplayer_poster",
             "type": "image",
-            "instructions": "Upload een poster-afbeelding die in de webplayer getoond wordt. Gebruik voor optimaal resultaat een 1x1 (vierkant) verhouding.",
+            "instructions": "Upload een poster-afbeelding die in de webplayer getoond wordt. Gebruik voor optimaal resultaat een 16x9 verhouding.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -82,8 +82,8 @@
             "return_format": "array",
             "preview_size": "medium",
             "library": "all",
-            "min_width": 500,
-            "min_height": 500,
+            "min_width": "",
+            "min_height": "",
             "min_size": "",
             "max_width": "",
             "max_height": "",
@@ -108,5 +108,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610554831
+    "modified": 1614209650
 }
