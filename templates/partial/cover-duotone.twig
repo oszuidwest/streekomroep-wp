@@ -1,5 +1,5 @@
-{% set light = function('rgb', light|default('00EA81')) %}
-{% set dark = function('rgb', dark|default('563552')) %}
+{% set light = function('rgb', light|default(random(['FEDF20', '43E7FD', 'FD0077', 'EC44FD', '1DFEAF']))) %}
+{% set dark = function('rgb', dark|default('001737')) %}
 
 <svg class="w-full h-full object-cover" viewBox="0 0 100 100">
     <filter id="duotone">
