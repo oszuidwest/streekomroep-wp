@@ -6,18 +6,21 @@
 
         {% for day in schedule.days %}
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
-            {% for row in options.programmatie %}
-                {% if row.dag == day.name %}
-                    {% if row.naam_override %}
-                        <h2 class="mt-4 font-bold">{{ row.naam_override }}</h2>
-                    {% else %}
-                        <h2 class="mt-4 font-bold">{{ row.programma.post_title }}</h2>
-                    {% endif %}
-                    <p>{{ row.starttijden }}</p>
-                {% endif %}
-            {% endfor %}
+            <h2>Op TV</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {% for broadcast in day.television %}
+                    <a class="block" href="{{ broadcast.show.link }}">
+                        <div class="aspect-w-4 aspect-h-3 bg-blue-900 rounded overflow-hidden">
+                            <img class="w-full h-full object-cover" src="{{ broadcast.show.thumbnail.src|resize(400, 300) }}"/>
+                        </div>
+                        <p class="text-center mt-2 font-bold text-sm">{{ broadcast.name }}</p>
+                        <p class="text-center text-sm">{{ broadcast.times|join('&nbsp ') }}</p>
+                    </a>
+                {% endfor %}
+            </div>
+            <h2>Op de radio</h2>
             <table>
-                {% for broadcast in day.broadcasts %}
+                {% for broadcast in day.radio %}
                     {% if broadcast.show %}
                         <tr>
                             <td rowspan="2" class="align-top">{{ broadcast.startTime|date('H:i') }}</td>

@@ -2,23 +2,34 @@
 
 namespace Streekomroep;
 
+use InvalidArgumentException;
+
 class BroadcastDay
 {
-    public $number;
+    public $weekday;
     public $name;
 
-    /** @var Broadcast[] */
-    public $broadcasts = [];
+    /** @var RadioBroadcast[] */
+    public $radio = [];
+
+    /** @var TelevisionBroadcast[] */
+    public $television = [];
 
     public function __construct($number, $name)
     {
-        $this->number = $number;
+        $this->weekday = $number;
         $this->name = $name;
     }
 
-    public function add(Broadcast $param)
+    public function add($param)
     {
-        $this->broadcasts[] = $param;
-        usort($this->broadcasts, [Broadcast::class, 'sort']);
+        if ($param instanceof RadioBroadcast) {
+            $this->radio[] = $param;
+            usort($this->radio, [RadioBroadcast::class, 'sort']);
+        } else if ($param instanceof TelevisionBroadcast) {
+            $this->television[] = $param;
+        } else {
+            throw new InvalidArgumentException('Broadcast was of  unexpected type ' . get_class($param));
+        }
     }
 }

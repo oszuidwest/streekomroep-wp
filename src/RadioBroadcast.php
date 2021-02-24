@@ -2,7 +2,7 @@
 
 namespace Streekomroep;
 
-class Broadcast
+class RadioBroadcast
 {
     public $show;
     public $startTime;
@@ -19,7 +19,7 @@ class Broadcast
         $this->endTime = $endTime;
     }
 
-    public static function sort(Broadcast $lhs, Broadcast $rhs)
+    public static function sort(RadioBroadcast $lhs, RadioBroadcast $rhs)
     {
         return strcmp($lhs->startTime, $rhs->startTime);
     }

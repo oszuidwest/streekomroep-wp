@@ -64,12 +64,13 @@ Timber::$dirname = array('templates', 'views');
  */
 Timber::$autoescape = false;
 
-require_once 'src/Broadcast.php';
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
 require_once 'src/Post.php';
+require_once 'src/RadioBroadcast.php';
 require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
+require_once 'src/TelevisionBroadcast.php';
 
 // Use default class for all post types, except for pages.
 add_filter('Timber\PostClassMap', function () {

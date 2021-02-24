@@ -29,6 +29,12 @@ class BroadcastSchedule
             $this->days[$day] = new BroadcastDay($no, $day);
         }
 
+        foreach (get_field('programmatie', 'option') as $entry) {
+            $times = explode(',', $entry['starttijden']);
+            $times = array_map('trim', $times);
+            $this->days[$entry['dag']]->add(new TelevisionBroadcast($entry['programma'], $entry['naam_override'], $times));
+        }
+
         foreach ($shows as $show) {
             if (!$show->meta('fm_show_actief'))
                 continue;
@@ -37,7 +43,7 @@ class BroadcastSchedule
             if ($rules) {
                 foreach ($rules as $rule) {
                     foreach ($rule['fm_show_dagen'] as $day) {
-                        $this->days[$day]->add(new Broadcast($show, $rule['fm_show_starttijd'], $rule['fm_show_eindtijd']));
+                        $this->days[$day]->add(new RadioBroadcast($show, $rule['fm_show_starttijd'], $rule['fm_show_eindtijd']));
                     }
                 }
             }
@@ -47,20 +53,35 @@ class BroadcastSchedule
         foreach ($this->days as $day) {
             $time = '00:00:00';
             $newBroadcasts = [];
-            foreach ($day->broadcasts as $broadcast) {
+            foreach ($day->radio as $broadcast) {
                 if ($broadcast->startTime != $time) {
-                    $newBroadcasts[] = new Broadcast($fillerTitle, $time, $broadcast->startTime);
+                    $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $broadcast->startTime);
                 }
                 $time = $broadcast->endTime;
             }
 
             if ($time != '24:00:00') {
-                $newBroadcasts[] = new Broadcast($fillerTitle, $time, '24:00:00');
+                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, '24:00:00');
             }
 
             foreach ($newBroadcasts as $broadcast) {
                 $day->add($broadcast);
             }
+        }
+
+
+        // Re-sort days to start with today
+        $now = new \DateTime();
+        $weekday = (int)$now->format('N');
+
+        reset($this->days);
+        while (true) {
+            $day = current($this->days);
+            if ($day->weekday == $weekday) {
+                break;
+            }
+            $day = array_shift($this->days);
+            $this->days[] = $day;
         }
     }
 
@@ -72,7 +93,7 @@ class BroadcastSchedule
         // Loop twice, so we take in account current broadcasts at the end of the week
         for ($week = 0; $week < 2; $week++) {
             foreach ($this->days as $day) {
-                foreach ($day->broadcasts as $broadcast) {
+                foreach ($day->radio as $broadcast) {
                     if ($returnNext) return $broadcast;
 
                     if ($broadcast == $current) {
@@ -92,9 +113,9 @@ class BroadcastSchedule
         $hour = intval($now->format('G'));
 
         foreach ($this->days as $day) {
-            if ($day->number != $weekday) continue;
+            if ($day->weekday != $weekday) continue;
 
-            foreach ($day->broadcasts as $broadcast) {
+            foreach ($day->radio as $broadcast) {
                 $startHour = intval(substr($broadcast->startTime, 0, 2));
                 $endHour = intval(substr($broadcast->endTime, 0, 2));
 
