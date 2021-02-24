@@ -1,47 +1,66 @@
 {% block html_head_container %}
 
-{% include 'html-header.twig' %}
-	{% block head %}
-	{% endblock %}
-	</head>
+    {% include 'html-header.twig' %}
+    {% block head %}
+    {% endblock %}
+    </head>
 {% endblock %}
 
-	<body class="{{body_class}} bg-gray-100" data-template="base.twig">
-        <div class="bg-gradient-to-r from-green-500 to-green-600 overflow-hidden">
-            <div class="px-6 md:px-4 max-w-960 h-16 mx-auto text-white flex items-center">
-                <a class="font-round font-black uppercase text-xl mr-4" href="{{ site.url }}" rel="home">{{ site.name }}</a>
-                {% for item in menu.items %}
-                    <a class="flex-none flex px-4 border-b-2 border-transparent items-center h-12"
-                       href="{{ item.link }}">{{ item.title }}</a>
+<body class="{{ body_class }} bg-gray-100" data-template="base.twig">
+<div class="bg-gray-800 border-b border-gray-900 text-white">
+    <div class="-mb-px">
+        <div class="mx-auto max-w-960">
+            <div class="flex overflow-auto p-2">
+                <a class="font-round flex items-center px-2 font-black uppercase text-xl sm:text-3xl leading-none"
+                   href="{{ site.url }}" rel="home">Zuid<br
+                            class="sm:hidden"/>West</a>
+
+                <div class="flex-grow"></div>
+                {% for item in topmenu.items %}
+                    {% set icon = null %}
+                    {% for class in item.classes %}
+                        {% set icon = icon|default(icon(class)) %}
+                    {% endfor %}
+
+                    {% if icon %}
+                        <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded"
+                           href="{{ item.link }}">
+                            {{ icon }}
+                            <span class="hidden sm:block ml-2 text-sm font-round font-bold uppercase">{{ item.title }}</span>
+                        </a>
+                    {% else %}
+                        <a class="flex-none flex items-center px-2 text-sm font-round font-bold uppercase"
+                           href="{{ item.link }}">{{ item.title }}</a>
+                    {% endif %}
                 {% endfor %}
             </div>
-        </div>
 
-        <div class="border-b bg-white border-gray-200">
-            <div class="flex -mb-px max-w-960 mx-auto overflow-auto">
-                {% for item in submenu.items %}
-                    <a class="flex-none flex px-4 border-b-2 border-transparent items-center h-12"
-                       href="{{ item.link }}">{{ item.title }}</a>
-                {% endfor %}
-
-				<div class="flex-grow"></div>
-
-				{% for item in socialmenu.items %}
-					<a class="flex-none flex px-4 border-b-2 border-transparent items-center h-12"
-					   href="{{ item.link }}">{{ item.title }}</a>
-				{% endfor %}
+            <div class="overflow-auto" style="-webkit-overflow-scrolling: touch">
+                <div class="flex">
+                    {% for item in mainmenu.items %}
+                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
+                        {% if item.current %}
+                            {% set classes = classes|merge(['text-green-400', 'border-current']) %}
+                        {% else %}
+                            {% set classes = classes|merge(['border-transparent']) %}
+                        {% endif %}
+                        <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <section id="content" role="main" class="bg-white">
-            {% block content %}
-                Sorry, no content
-            {% endblock %}
-        </section>
+<section id="content" role="main" class="bg-white">
+    {% block content %}
+        Sorry, no content
+    {% endblock %}
+</section>
 
-		{% block footer %}
-            {% include 'footer.twig' %}
-            {{ function('wp_footer') }}
-        {% endblock %}
-	</body>
+{% block footer %}
+    {% include 'footer.twig' %}
+    {{ function('wp_footer') }}
+{% endblock %}
+</body>
 </html>

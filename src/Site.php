@@ -22,9 +22,8 @@ class Site extends \Timber\Site
 
     public function register_menus()
     {
-        register_nav_menu('main', 'Hoofdmenu');
-        register_nav_menu('sub', 'Submenu');
-        register_nav_menu('social', 'Social menu');
+        register_nav_menu('main', 'Main menu');
+        register_nav_menu('top', 'Top menu');
         register_nav_menu('footer', 'Footer Menu');
     }
 
@@ -54,9 +53,8 @@ class Site extends \Timber\Site
         $context['foo'] = 'bar';
         $context['stuff'] = 'I am a value set in your functions.php file';
         $context['notes'] = 'These values are available everytime you call Timber::context();';
-        $context['menu'] = new \Timber\Menu('main');
-        $context['submenu'] = new \Timber\Menu('sub');
-        $context['socialmenu'] = new \Timber\Menu('social');
+        $context['mainmenu'] = new \Timber\Menu('main');
+        $context['topmenu'] = new \Timber\Menu('top');
         $context['footer'] = new \Timber\Menu('footer');
         $context['socials'] = zw_get_socials();
         $context['site'] = $this;
@@ -157,6 +155,19 @@ class Site extends \Timber\Site
         throw new \Exception('Couldn\'t get desired width (' . $width . ')');
     }
 
+    public function get_icon($name)
+    {
+        if (!preg_match('/^icon-(.*)$/', $name, $m)) {
+            return null;
+        }
+
+        $path = get_theme_file_path('icons/' . $m[1] . '/baseline.svg');
+        $svg = file_get_contents($path);
+
+        $svg = str_replace('<svg ', '<svg class="fill-current" ', $svg);
+        return $svg;
+    }
+
     /** This is where you can add your own functions to twig.
      *
      * @param string $twig get extension.
@@ -167,6 +178,7 @@ class Site extends \Timber\Site
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('get_vimeo_id', [$this, 'get_vimeo_id']));
         $twig->addFunction(new \Twig\TwigFunction('get_vimeo_image', [$this, 'get_vimeo_image']));
+        $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         return $twig;
     }
 
