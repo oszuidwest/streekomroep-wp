@@ -73,7 +73,7 @@
                 <h2 class="font-bold text-3xl pb-4">Meer nieuws uit {{ local.region }}</h2>
                 <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {% for post in local.posts %}
-                        {% include 'partial/post-tile.twig' with { post: post } %}
+                        {% include 'partial/post-tile.twig' with { post: post, region: false, summary: false, dark: true } %}
                     {% endfor %}
                 </div>
             </div>
