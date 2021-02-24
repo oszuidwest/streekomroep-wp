@@ -4,7 +4,7 @@
             <a class="block bg-gray-800 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
                 <img class="object-cover w-full h-full absolute inset-0" loading="lazy" src="{{ post.thumbnail.src|resize(455, 384) }}"
                      srcset="{{ post.thumbnail.src|resize(910, 768) }} 2x"/>
-                <div class="sm:absolute inset-0 flex flex-col justify-end zw-block-content">
+                <div class="relative sm:absolute inset-0 flex flex-col justify-end zw-block-content">
                     <span class="block p-4 pt-14 bg-gradient-to-b from-transparent" style="--tw-gradient-to: rgba(0,0,0,.60);">
                         {% include 'partial/tag-region.twig' with { region: post.region } %}
                         <h1 class="block font-black {% if loop.first %}text-xl{% else %}text-base{% endif %} text-white">{{ post.title }}</h1>
