@@ -16,12 +16,6 @@
     max-height: 55vh;
 }
 
-@screen sm {
-    .zw-block-content {
-        height: 300px;
-    }
-}
-
 .main .zw-block-content {
     max-height: 400px;
 }
@@ -33,6 +27,20 @@
 
     .grid-stories .main {
         @apply col-span-1;
+    }
+
+    .zw-block-content,
+    .main .zw-block-content {
+        height: auto;
+        max-height: none;
+    }
+
+    .grid-stories .main::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 0;
+        padding-top: 84.115608492%;
     }
 }
 
