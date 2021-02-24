@@ -2,13 +2,13 @@
 
 {% block content %}
     <div class="px-6 md:px-12 max-w-3xl mx-auto py-8">
-        <ul class="text-sm">
+        <ul class="text-sm md:text-base">
             {% for entry in post.meta('fm_show_programmatie') %}
                 <li>{{ entry|format_schedule }}</li>
             {% endfor %}
         </ul>
-        <h1 class="font-black font-round text-4xl lg:text-5xl uppercase">{{ post.title }}</h1>
-        <p class="text-sm mb-8">Met
+        <h1 class="font-black font-round text-4xl md:text-5xl uppercase">{{ post.title }}</h1>
+        <p class="text-sm md:text-base mb-8">Met
             {% spaceless %}
                 {% for host in post.meta('fm_show_presentator') %}
                     <span>{{ User(host) }}</span>
@@ -17,7 +17,7 @@
             {% endspaceless %}
         </p>
 
-        <div class="prose prose-lg">
+        <div class="prose prose-lg md:prose-xl">
             {{ post.content }}
         </div>
     </div>
