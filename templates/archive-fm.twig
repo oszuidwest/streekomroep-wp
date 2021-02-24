@@ -13,7 +13,7 @@
                 {% if post.meta('fm_show_actief') %}
                     <a class="block relative" href="{{ post.link }}">
                         <div class="relative aspect-w-1 aspect-h-1 overflow-hidden rounded">
-                            {% include 'partial/cover-duotone.twig' with { image: post.thumbnail.src|resize(200, 200) }  %}
+                            {% include 'partial/cover-duotone.twig' with { image: post.thumbnail.src|resize(200, 200) } only  %}
                             <h1 class="w-full h-full p-4 absolute items-end justify-end text-right flex uppercase font-round font-black text-white text-2xl">{{ post.title }}</h1>
                         </div>
                         <h1 class="text-sm text-center mt-2">{{ post.title }}</h1>
@@ -43,7 +43,7 @@
                     {% if not post.meta('fm_show_actief') %}
                         <a class="block relative" href="{{ post.link }}">
                             <div class="relative aspect-w-1 aspect-h-1 overflow-hidden rounded">
-                                {% include 'partial/cover-duotone.twig' with { image: post.thumbnail.src|resize(200, 200) }  %}
+                                {% include 'partial/cover-duotone.twig' with { image: post.thumbnail.src|resize(200, 200) } only  %}
                                 <h1 class="w-full h-full p-4 absolute items-end justify-end text-right flex uppercase font-round font-black text-white text-2xl">{{ post.title }}</h1>
                             </div>
                             <h1 class="text-sm text-center mt-2">{{ post.title }}</h1>
