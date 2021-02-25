@@ -2,8 +2,13 @@
 
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
-        <h1 class="font-bold text-3xl pt-4">De programma's van ZuidWest TV</h1>
-        <div class="prose prose-lg">
+        <h1 class="font-bold text-center text-2xl pt-4">De programma's van</h1>
+        <div class="flex justify-center font-bold text-4xl">
+            <span class="px-2">ZuidWest TV</span>
+            <a href="{{ function('get_post_type_archive_link', 'fm') }}" class="px-2 text-gray-400 hover:underline">ZuidWest FM</a>
+        </div>
+
+        <div class="prose text-center prose-lg mt-4 max-w-none">
             <p>Lees alles over de programma's van ZuidWest TV of kijk uitzendingen terug.</p>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-8">
