@@ -1,41 +1,54 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <h1>{{ post.title }}</h1>
-    <h2 class="mt-4 font-bold text-xl">Nu</h2>
-    {% if current.show %}
-        <p>{{ current.show.title }}</p>
-    {% else %}
-        <p>{{ current.title }}</p>
-    {% endif %}
+    <div class="bg-black text-white">
+        <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
+            <div class="aspect-w-16 aspect-h-9 ">
+                <div>
+                    <video class="video-js vjs-fluid" data-setup="{}" autoplay controls
+                           poster="{{ Image(options.radio_webplayer_poster)|resize(1280, 720) }}">
+                        {% if options.radio_webplayer_aac_stream %}
+                            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
+                        {% endif %}
+                        {% if options.radio_webplayer_mp3_stream %}
+                            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
+                        {% endif %}
+                        {% if options.radio_webplayer_ogg_stream %}
+                            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
+                        {% endif %}
+                        {% if options.radio_webplayer_hls_stream %}
+                            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
+                        {% endif %}
+                        Your browser does not support the audio tag.
+                    </video>
+                </div>
+            </div>
+        </div>
 
-    <h2 class="mt-4 font-bold text-xl">Straks</h2>
-    {% if next.show %}
-        <p>{{ next.show.title }}</p>
-    {% else %}
-        <p>{{ next.title }}</p>
-    {% endif %}
+        <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
+            <h1 class="font-bold text-3xl">{{ post.title }}</h1>
 
-    <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
-    <ul>
-        {% for channel in options.radio_frequenties %}
-            <li>{{ channel.radio_frequenties_medium }}: {{ channel.radio_frequenties_frequentie }}</li>
-        {% endfor %}
-    </ul>
+            <h2 class="mt-4 font-bold text-xl">Nu</h2>
+            {% if current.show %}
+                <p>{{ current.show.title }}</p>
+            {% else %}
+                <p>{{ current.title }}</p>
+            {% endif %}
 
-    <audio class="video-js" data-setup="{}" autoplay controls>
-        {% if options.radio_webplayer_aac_stream %}
-            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
-        {% endif %}
-        {% if options.radio_webplayer_mp3_stream %}
-            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
-        {% endif %}
-        {% if options.radio_webplayer_ogg_stream %}
-            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
-        {% endif %}
-        {% if options.radio_webplayer_hls_stream %}
-            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
-        {% endif %}
-        Your browser does not support the audio tag.
-    </audio>
+            <h2 class="mt-4 font-bold text-xl">Straks</h2>
+            {% if next.show %}
+                <p>{{ next.show.title }}</p>
+            {% else %}
+                <p>{{ next.title }}</p>
+            {% endif %}
+
+            <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
+            <ul>
+                {% for channel in options.radio_frequenties %}
+                    <li>{{ channel.radio_frequenties_medium }}: {{ channel.radio_frequenties_frequentie }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
 {% endblock %}
