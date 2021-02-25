@@ -11,9 +11,13 @@
     <div class="-mb-px">
         <div class="mx-auto max-w-960">
             <div class="flex overflow-auto p-2">
-                <a class="font-round flex items-center px-2 font-black uppercase text-xl sm:text-3xl leading-none"
-                   href="{{ site.url }}" rel="home">Zuid<br
-                            class="sm:hidden"/>West</a>
+                {% if function('has_custom_logo') %}
+                    {{ function('get_custom_logo') }}
+                {% else %}
+                    <a class="font-round flex items-center px-2 font-black uppercase text-xl sm:text-3xl leading-none"
+                       href="{{ site.url }}" rel="home">Zuid<br
+                                class="sm:hidden"/>West</a>
+                {% endif %}
 
                 <div class="flex-grow"></div>
                 {% for item in topmenu.items %}

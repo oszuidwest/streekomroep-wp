@@ -115,6 +115,8 @@ class Site extends \Timber\Site
         );
 
         add_theme_support('menus');
+
+        add_theme_support('custom-logo');
     }
 
     public function format_schedule($entry)
