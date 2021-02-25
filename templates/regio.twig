@@ -1,29 +1,43 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="px-6 md:px-12 max-w-3xl mx-auto">
-        <h1><span>Het gevoel van</span><span class="text-2xl block">{{ term.name }}</span></h1>
-
-        <h2 class="text-xl font-bold">Nieuws uit {{ term.name }}</h2>
-        <ul>
-            {% for post in news %}
-                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <h2 class="text-xl font-bold">{{ term.name }} in beeld en geluid</h2>
-        <ul>
-            {% for post in fragments %}
-                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <h2 class="text-xl font-bold">Te doen in {{ term.name }}</h2>
-        <ul>
-            {% for post in calendar %}
-                <li><a href="{{ post.link }}">{{ post.title }}</a></li>
-            {% endfor %}
-        </ul>
-
+    <div class="w-full mx-auto max-w-960 pt-4 px-4">
+        <h1 class="text-2xl font-bold">Het laatste nieuws uit</h1>
     </div>
+    <div class="overflow-x-auto md:hidden">
+        <div class="flex text-3xl font-bold text-gray-400 px-2">
+            <span class="block flex-none px-2 text-black">{{ term.name }}</span>
+            {% for region in regions %}
+                {% if region.id != term.id %}
+                    <a href="{{ region.link }}" class="block flex-none px-2">{{ region.name }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="w-full mx-auto max-w-960 hidden px-4 md:block">
+        <select class="text-3xl font-bold js-changepage">
+            {% for region in regions %}
+                <option value="{{ region.link }}"
+                        {% if region.id == term.id %}selected{% endif %}>{{ region.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <script>
+        jQuery('.js-changepage').on('change', function (event) {
+            window.location.href = this.value;
+        });
+    </script>
+
+
+    <div class="w-full mx-auto max-w-960 py-4 px-4">
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for post in news %}
+                {% include 'partial/post-tile.twig' with { post: post } %}
+            {% endfor %}
+        </div>
+
+        {% include 'partial/pagination.twig' with { pagination: news.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+    </div>
+
 {% endblock %}
