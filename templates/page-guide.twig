@@ -1,7 +1,7 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="w-full mx-auto max-w-960">
+    <div class="w-full mx-auto max-w-960 px-4">
         <h1>{{ post.title }}</h1>
 
         {% for day in schedule.days %}
@@ -11,7 +11,8 @@
                 {% for broadcast in day.television %}
                     <a class="block" href="{{ broadcast.show.link }}">
                         <div class="aspect-w-4 aspect-h-3 bg-blue-900 rounded overflow-hidden">
-                            <img class="w-full h-full object-cover" src="{{ broadcast.show.thumbnail.src|resize(400, 300) }}"/>
+                            <img class="w-full h-full object-cover"
+                                 src="{{ broadcast.show.thumbnail.src|resize(400, 300) }}"/>
                         </div>
                         <p class="text-center mt-2 font-bold text-sm">{{ broadcast.name }}</p>
                         <p class="text-center text-sm">{{ broadcast.times|join('&nbsp ') }}</p>
@@ -19,31 +20,37 @@
                 {% endfor %}
             </div>
             <h2>Op de radio</h2>
-            <table>
-                {% for broadcast in day.radio %}
-                    {% if broadcast.show %}
-                        <tr>
-                            <td rowspan="2" class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
-                            <td class="font-bold"><a href="{{ broadcast.show.link }}">{{ broadcast.show.title }}</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <ul>
-                                    {% for host in broadcast.show.meta('fm_show_presentator') %}
-                                        <li>{{ User(host) }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td class="align-top">{{ broadcast.startTime|date('H:i') }}</td>
-                            <td class="font-bold">{{ broadcast.title }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
+            <div class="relative">
+                <div class="absolute left-2 inset-y-2 border-l-2 -mx-px border-blue-400"></div>
+                <div class="relative">
+                    {% for broadcast in day.radio %}
+                        <div class="flex flex-col sm:flex-row pl-6">
+                            <time class="sm:w-16">
+                                <i class="absolute left-0 block w-4 mt-1">
+                                    <div class="w-2 h-2 m-1 bg-blue-400 rounded-full"></div>
+                                </i>
+                                {{ broadcast.startTime|date('H:i') }}</time>
+                            {% if broadcast.show %}
+                                <a class="block hover:underline" href="{{ broadcast.show.link }}">
+                                    <span class="block font-bold">{{ broadcast.show.title }}</span>
+                                    {% if broadcast.show.meta('fm_show_presentator') %}
+                                        <p>Met
+                                            {% spaceless %}
+                                                {% for host in broadcast.show.meta('fm_show_presentator') %}
+                                                    <span>{{ User(host) }}</span>
+                                                    {%- if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endspaceless %}
+                                        </p>
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                <span>{{ broadcast.title }}</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}
