@@ -5,7 +5,7 @@
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-w-16 aspect-h-9 ">
                 <div>
-                    <video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" autoplay controls
+                    <audio class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" autoplay controls
                            poster="{{ Image(options.radio_webplayer_poster)|resize(1280, 720) }}">
                         {% if options.radio_webplayer_aac_stream %}
                             <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
@@ -20,7 +20,7 @@
                             <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
                         {% endif %}
                         Your browser does not support the audio tag.
-                    </video>
+                    </audio>
                 </div>
             </div>
         </div>
