@@ -18,7 +18,7 @@ $context['news'] = Timber::get_posts([
     'tax_query' => [
         [
             'taxonomy' => 'regio',
-            'include_children' => false,
+            'include_children' => true,
             'terms' => $region->term_id,
         ]
     ]
