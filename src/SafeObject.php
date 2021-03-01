@@ -12,11 +12,11 @@ class SafeObject
 
     public function __isset($name)
     {
-        if (isset($this->data->$name)) {
+        if (property_exists($this->data, $name)) {
             return true;
         }
 
-        user_error('Property ' . $name . ' not found in ' . $this->node, E_USER_ERROR);
+        return false;
     }
 
 
@@ -30,6 +30,7 @@ class SafeObject
             return $this->data->$name;
         }
 
+        user_error('Property ' . $name . ' not found in ' . $this->node, E_USER_ERROR);
         return null;
     }
 }

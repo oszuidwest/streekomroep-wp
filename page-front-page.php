@@ -56,6 +56,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $videos = [];
             foreach ($vimeo as $video) {
+                if (!isset($video->parent_folder)) continue;
+
                 $projectId = basename($video->parent_folder->uri);
                 $args = [
                     'post_type' => 'tv',
