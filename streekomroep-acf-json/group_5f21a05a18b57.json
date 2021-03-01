@@ -45,7 +45,7 @@
             "default_value": "",
             "placeholder": "Vul de versie voor op teksttv in",
             "maxlength": "",
-            "rows": 4,
+            "rows": 7,
             "new_lines": ""
         }
     ],
