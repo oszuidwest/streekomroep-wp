@@ -1,9 +1,6 @@
 <a class="block flex sm:flex-col" href="{{ post.link }}">
     <div class="flex-none w-1/3 sm:w-auto">
-        <div class="aspect-w-16 aspect-h-9">
-            <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(309, 174) }}"
-                 srcset="{{ post.thumbnail.src|resize(618, 348) }} 2x"/>
-        </div>
+        {% include 'partial/post-thumbnail.twig' with { post: post, width: 309 } %}
     </div>
     <div class="flex-auto pl-2 pr-4 sm:px-0 pt-1">
         {% if region ?? true %}

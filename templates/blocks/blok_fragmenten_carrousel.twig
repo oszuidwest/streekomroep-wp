@@ -8,10 +8,7 @@
         {% set post = block.posts[0] %}
         <a href="{{ post.link }}" class="block grid sm:grid-cols-2 gap-4">
             <div>
-                <div class="aspect-w-16 aspect-h-9">
-                    <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(472) }}"
-                         srcset="{{ post.thumbnail.src|resize(994) }} 2x"/>
-                </div>
+                {% include 'partial/post-thumbnail.twig' with { post: post, width: 472 } %}
             </div>
 
             <div>
