@@ -19,7 +19,7 @@
 		'label'                 => 'Fragment',
 		'description'           => 'Nieuwsfragmenten',
 		'labels'                => $labels,
-		'supports'              => array( 'title', 'editor', 'thumbnail', 'comments', 'revisions', 'custom-fields' ),
+		'supports'              => array( 'title', 'editor', 'thumbnail', 'comments', 'revisions', 'custom-fields', 'excerpt' ),
 		'taxonomies'            => array( 'category', 'post_tag', 'regio', 'dossier' ),
 		'hierarchical'          => false,
 		'public'                => true,
