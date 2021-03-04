@@ -419,6 +419,8 @@ class Jetpack_Options
     }
 }
 
+add_filter('img_caption_shortcode_width', '__return_false');
+
 class Jetpack
 {
     public static function get_content_width()
