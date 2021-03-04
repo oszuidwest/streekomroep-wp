@@ -419,6 +419,12 @@ class Jetpack_Options
     }
 }
 
+/**
+ * Image handling filters
+ * The first filter disables resizing of 'big' images by WordPress, since we do this in timber
+ * The second filter removes the width-element from the shortcode element to prevent images from showing up too big
+ */
+add_filter('big_image_size_threshold', '__return_false' );
 add_filter('img_caption_shortcode_width', '__return_false');
 
 class Jetpack
