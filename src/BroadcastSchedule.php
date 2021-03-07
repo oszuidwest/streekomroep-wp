@@ -44,7 +44,8 @@ class BroadcastSchedule
 
         $start = new DateTime();
         $start->setTime(0, 0);
-        $end = $start->add(new \DateInterval('P6D'));
+        $end = clone $start;
+        $end->add(new \DateInterval('P6D'));
 
         $date = clone $start;
         while ($date <= $end) {
