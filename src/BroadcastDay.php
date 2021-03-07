@@ -2,23 +2,37 @@
 
 namespace Streekomroep;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 
 class BroadcastDay
 {
-    public $weekday;
-    public $name;
-
+    private static $WEEKDAY_NAMES = [
+        1 => 'maandag',
+        2 => 'dinsdag',
+        3 => 'woensdag',
+        4 => 'donderdag',
+        5 => 'vrijdag',
+        6 => 'zaterdag',
+        7 => 'zondag'
+    ];
     /** @var RadioBroadcast[] */
     public $radio = [];
 
     /** @var TelevisionBroadcast[] */
     public $television = [];
 
-    public function __construct($number, $name)
+    /** @var DateTimeImmutable */
+    public $date;
+
+    public function __construct(DateTimeImmutable $date)
     {
-        $this->weekday = $number;
-        $this->name = $name;
+        $this->date = $date;
+    }
+
+    public function getName()
+    {
+        return self::$WEEKDAY_NAMES[(int)$this->date->format('N')];
     }
 
     public function add($param)

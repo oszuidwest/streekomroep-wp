@@ -136,7 +136,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
         case 'blok_nu_op_fmtv':
             $schedule = new \Streekomroep\BroadcastSchedule();
-            $block['fm'] = $schedule->getCurrentBroadcast();
+            $block['fm'] = $schedule->getCurrentRadioBroadcast();
             break;
     }
 }

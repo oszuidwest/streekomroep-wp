@@ -182,6 +182,91 @@ function zw_rest_api_init()
             },
         ]
     );
+
+    register_rest_route('zw/v1', '/broadcast_data', array(
+        'methods' => 'GET',
+        'callback' => function (WP_REST_Request $request) {
+            $schedule = new \Streekomroep\BroadcastSchedule();
+            $response = [];
+
+            $options = get_fields('option');
+
+            $radiotext = '';
+            $currentRadioBroadcast = $schedule->getCurrentRadioBroadcast();
+
+            switch ($options['radio_rds_rt_optie']) {
+                case 1: // Statische tekst
+                    $radiotext = $options['radio_rds_rt_statische_tekst'];
+                    break;
+                case 2: // Programmanaam
+                case 3: // Programmanaam en presentator(en)
+                    $title = $currentRadioBroadcast->getName();
+                    $hosts = [];
+                    if ($currentRadioBroadcast->show) {
+                        $overrule = get_field('fm_show_overschrijf_programmanaam', $currentRadioBroadcast->show->ID);
+                        if (!empty($overrule)) {
+                            $title = $overrule;
+                        }
+
+                        foreach (get_field('fm_show_presentator', $currentRadioBroadcast->show->ID) as $user) {
+                            $user = get_user_by('id', $user);
+                            $hosts[] = $user->display_name;
+                        }
+                    }
+
+                    if ($options['radio_rds_rt_optie'] == 3 && count($hosts) > 0) {
+                        $radiotext = sprintf('%s met %s', $title, implode(' ', $hosts));
+                    } else {
+                        $radiotext = $title;
+                    }
+
+                    break;
+            };
+
+            $response['fm'] = [
+                'now' => $currentRadioBroadcast->getName(),
+                'next' => $schedule->getNextRadioBroadcast()->getName(),
+                'rds' => [
+                    'program' => $options['radio_rds_zendernaam'],
+                    'radiotext' => $radiotext,
+                ]
+            ];
+
+            $response['tv'] = [
+                'today' => array_map(function ($item) {
+                    return $item->name;
+                }, $schedule->getToday()->television),
+                'tomorrow' => array_map(function ($item) {
+                    return $item->name;
+                }, $schedule->getTomorrow()->television),
+            ];
+
+            $commercials = [];
+
+            if (!is_array($options['tv_reclame_slides']))
+                $options['tv_reclame_slides'] = [];
+
+            $now = new DateTime();
+            foreach ($options['tv_reclame_slides'] as $slide) {
+                // Ignore slides with no image
+                if ($slide['tv_reclame_afbeelding'] === false) continue;
+
+                $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start']);
+                $start->setTime(0, 0);
+                // TODO: is end date inclusive?
+                $end = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_eind']);
+                $end->setTime(0, 0);
+
+                if ($now >= $start && $now < $end) {
+                    $commercials[] = $slide['tv_reclame_afbeelding']['url'];
+                }
+            }
+
+            $response['commercials'] = $commercials;
+
+            return $response;
+        }
+    ));
 }
 
 /**

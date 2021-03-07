@@ -2,9 +2,15 @@
 
 namespace Streekomroep;
 
+use Timber\Timber;
+
 class RadioBroadcast
 {
+    public $title;
+
+    /** @var \Timber\Post */
     public $show;
+
     public $startTime;
     public $endTime;
 
@@ -22,5 +28,14 @@ class RadioBroadcast
     public static function sort(RadioBroadcast $lhs, RadioBroadcast $rhs)
     {
         return strcmp($lhs->startTime, $rhs->startTime);
+    }
+
+    public function getName()
+    {
+        if ($this->title) {
+            return $this->title;
+        } else {
+            return $this->show->post_title;
+        }
     }
 }
