@@ -255,7 +255,7 @@ function zw_rest_api_init()
                 $start->setTime(0, 0);
                 // TODO: is end date inclusive?
                 $end = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_eind']);
-                $end->setTime(0, 0);
+                $end->setTime(24, 0);
 
                 if ($now >= $start && $now < $end) {
                     $commercials[] = $slide['tv_reclame_afbeelding']['url'];
