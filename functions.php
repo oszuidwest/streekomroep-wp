@@ -491,6 +491,19 @@ function rgb($hex)
     return $rgb;
 }
 
+function zw_get_page_by_template($template)
+{
+    $pages = get_pages([
+        'meta_key' => '_wp_page_template',
+        'meta_value' => $template
+    ]);
+
+    if (count($pages) == 0)
+        return null;
+
+    return Timber::get_post($pages[0]->ID);
+}
+
 class Jetpack_Options
 {
     public static function get_option_and_ensure_autoload()
