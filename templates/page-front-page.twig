@@ -2,8 +2,6 @@
 
 {% block content %}
     {% for block in options.desking_blokken_voorpagina %}
-        <div class="border-b border-gray-100">
-            {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with { block: block } %}
-        </div>
+        {% include ['blocks/' ~ block.acf_fc_layout ~ '.twig', 'blocks/block.twig'] with { block: block } %}
     {% endfor %}
 {% endblock %}
