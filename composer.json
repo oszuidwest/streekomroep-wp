@@ -1,13 +1,13 @@
 {
   "name": "oszuidwest/streekomroep",
   "description": "Streekomroep theme to use with Timber",
-  "type":"wordpress-theme",
-  "minimum-stability" : "stable",
+  "type": "wordpress-theme",
+  "minimum-stability": "stable",
   "authors": [
     {
       "email": "info@zuidwesttv.nl",
       "name": "Omroepstichting ZuidWest"
-    }  
+    }
   ],
   "repositories": [
     {
@@ -16,6 +16,6 @@
     }
   ],
   "require": {
-	  "timber/timber": "1.*"
+    "timber/timber": "1.*"
   }
 }
