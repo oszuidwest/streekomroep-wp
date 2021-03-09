@@ -5,7 +5,7 @@
 		'singular_name'         => 'FM programma',
 		'menu_name'             => 'FM programma\'s',
 		'name_admin_bar'        => 'FM programma',
-		'all_items'             => 'Alle programma',
+		'all_items'             => 'Alle programma\'s',
 		'add_new_item'          => 'Nieuw programma',
 		'add_new'               => 'Voeg programma toe',
 		'new_item'              => 'Nieuwe programma',
