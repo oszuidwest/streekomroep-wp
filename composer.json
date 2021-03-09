@@ -16,6 +16,7 @@
     }
   ],
   "require": {
-    "timber/timber": "1.*"
+    "timber/timber": "1.*",
+    "symfony/yaml": "^5.2"
   }
 }
