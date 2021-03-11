@@ -29,6 +29,11 @@ class BroadcastSchedule
 
                 foreach ($week['tv_week_shows'] as $entry) {
                     if ($entry['dag'] !== $dayname) continue;
+
+                    if ($entry['show'] instanceof \WP_Post) {
+                        $entry['show'] = Timber\Timber::get_post($entry['show']->ID);
+                    }
+
                     $day->add(new TelevisionBroadcast($entry['show'], $entry['naam_override'], $entry['starttijden']));
                 }
 
