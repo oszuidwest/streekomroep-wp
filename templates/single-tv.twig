@@ -27,7 +27,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
                         {% for video in videos %}
                             <a href="?v={{ video.id }}">
-                                <img src="{{ video.thumbnail }}"/>
+                                <img src="{{ video.thumbnail }}" loading="lazy"/>
                                 <h3 class="font-bold mt-2">{{ video.name }}</h3>
                             </a>
                         {% endfor %}
