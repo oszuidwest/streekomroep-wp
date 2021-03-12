@@ -1,5 +1,6 @@
 <?php
 
+use Streekomroep\TelevisionBroadcast;
 use Streekomroep\Video;
 
 $context = Timber::context();
@@ -140,6 +141,9 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
         case 'blok_nu_op_fmtv':
             $schedule = new \Streekomroep\BroadcastSchedule();
             $block['fm'] = $schedule->getCurrentRadioBroadcast();
+            $block['tv'] = array_map(function (TelevisionBroadcast $item) {
+                return $item->name;
+            }, $schedule->getToday()->television);
             break;
     }
 }
