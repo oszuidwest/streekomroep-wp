@@ -18,6 +18,8 @@
         </feComponentTransfer>
     </filter>
 
-    <image xlink:href="{{ image }}" width="100%" x="0" y="0" height="100%"
-           filter="url(#duotone)"></image>
+    <g filter="url(#duotone)">
+        <rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+        <image xlink:href="{{ image }}" width="100%" x="0" y="0" height="100%"></image>
+    </g>
 </svg>
