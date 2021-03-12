@@ -504,6 +504,21 @@ function zw_get_page_by_template($template)
     return Timber::get_post($pages[0]->ID);
 }
 
+/*
+ * Sort fragments by newness when assigning a fragment to an article
+ */
+add_filter('acf/fields/relationship/query/name=post_gekoppeld_fragment', 'zw_sort_fragments_selector', 10, 3);
+function zw_sort_fragments_selector($args, $field, $post_id)
+{
+    // Sort by ID
+    $args['orderby'] = 'ID';
+
+    // Newest (Highest) ID first
+    $args['order'] = 'DESC';
+
+    return $args;
+}
+
 class Jetpack_Options
 {
     public static function get_option_and_ensure_autoload()
