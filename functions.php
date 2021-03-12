@@ -550,6 +550,17 @@ class Jetpack_Options
 add_filter('big_image_size_threshold', '__return_false');
 add_filter('img_caption_shortcode_width', '__return_false');
 
+/**
+ * Remove block editor (Gutenberg) CSS
+ * This function dequeues the CSS for the block editor which this theme does not use
+ */
+function zw_remove_wp_block_library_css(){
+    wp_dequeue_style( 'wp-block-library' );
+    wp_dequeue_style( 'wp-block-library-theme' );
+    wp_dequeue_style( 'wc-block-style' );
+} 
+add_action( 'wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100 );
+
 class Jetpack
 {
     public static function get_content_width()
