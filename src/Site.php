@@ -141,22 +141,6 @@ class Site extends \Timber\Site
         return $out;
     }
 
-    public function get_vimeo_id($video)
-    {
-        return basename($video->uri);
-    }
-
-    public function get_vimeo_image($video, $width)
-    {
-        foreach ($video->pictures->sizes as $size) {
-            if ($size->width == $width) {
-                return $size;
-            }
-        }
-
-        throw new \Exception('Couldn\'t get desired width (' . $width . ')');
-    }
-
     public function get_icon($name)
     {
         if (!preg_match('/^icon-(.*)$/', $name, $m)) {
@@ -178,8 +162,6 @@ class Site extends \Timber\Site
     {
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
-        $twig->addFunction(new \Twig\TwigFunction('get_vimeo_id', [$this, 'get_vimeo_id']));
-        $twig->addFunction(new \Twig\TwigFunction('get_vimeo_image', [$this, 'get_vimeo_image']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         return $twig;
     }

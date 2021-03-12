@@ -71,6 +71,7 @@ require_once 'src/RadioBroadcast.php';
 require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
+require_once 'src/Video.php';
 
 // Use default class for all post types, except for pages.
 add_filter('Timber\PostClassMap', function () {

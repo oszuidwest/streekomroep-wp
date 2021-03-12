@@ -9,10 +9,12 @@
  * @since    Timber 0.1
  */
 
-$context         = Timber::context();
+use Streekomroep\Video;
+
+$context = Timber::context();
 
 /** @var \Timber\Post $timber_post */
-$timber_post     = Timber::get_post();
+$timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
@@ -111,15 +113,46 @@ if ($timber_post->post_type == 'tv') {
         }
     }
 
-    $vimeo = array_map(function($a) {
-       return new \Streekomroep\SafeObject($a, 'video');
+    /** @var Video[] $vimeo */
+    $vimeo = array_map(function ($a) {
+        return new Video($a);
     }, $vimeo);
 
+    $now = new DateTime();
+    $vimeo = array_filter($vimeo, function ($video) use ($now) {
+        $date = $video->getBroadcastDate();
+
+        // Ignore videos with no valid date
+        if (!$date) return false;
+
+        // Ignore videos with a date in the future
+        if ($date > $now) return false;
+
+        return true;
+    });
+
+    usort($vimeo, function (Video $left, Video $right) {
+        return $right->getBroadcastDate() <=> $left->getBroadcastDate();
+    });
+
+    $seasons = [];
+    foreach ($vimeo as $video) {
+        $date = $video->getBroadcastDate();
+
+        $year = $date->format('Y');
+        if (!isset($seasons[$year])) {
+            $seasons[$year] = [];
+        }
+
+        $seasons[$year][] = $video;
+    }
+
+
     if (isset($_GET['v'])) {
-        $videoId = '/videos/' . $_GET['v'];
+        $videoId = $_GET['v'];
         $video = null;
         foreach ($vimeo as $item) {
-            if ($item->uri == $videoId) {
+            if ($item->getId() == $videoId) {
                 $video = $item;
                 break;
             }
@@ -127,13 +160,13 @@ if ($timber_post->post_type == 'tv') {
 
         if ($video) {
             $context['video'] = $video;
-            $context['embed'] = $wp_embed->shortcode([], $video->link);
+            $context['embed'] = $wp_embed->shortcode([], $video->getLink());
             Timber::render('single-tv-video.twig', $context);
             return;
         }
     }
 
-    $context['videos'] = $vimeo;
+    $context['seasons'] = $seasons;
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
@@ -143,8 +176,8 @@ if ($timber_post->post_gekoppeld_fragment) {
     $context['embed'] = $wp_embed->shortcode([], $fragment->fragment_url);
 }
 
-if ( post_password_required( $timber_post->ID ) ) {
-	Timber::render( 'single-password.twig', $context );
+if (post_password_required($timber_post->ID)) {
+    Timber::render('single-password.twig', $context);
 } else {
-	Timber::render( array( 'single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig' ), $context );
+    Timber::render(array('single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig'), $context);
 }

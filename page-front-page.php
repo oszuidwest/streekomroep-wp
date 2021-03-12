@@ -1,4 +1,7 @@
 <?php
+
+use Streekomroep\Video;
+
 $context = Timber::context();
 
 $timber_post = new Timber\Post();
@@ -44,7 +47,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             }
 
             $vimeo = array_map(function ($a) {
-                return new \Streekomroep\SafeObject($a, 'video');
+                return new Video($a);
             }, $vimeo);
 
             $shows = \Timber\Timber::get_posts([
@@ -56,13 +59,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $videos = [];
             foreach ($vimeo as $video) {
-                if ($video->parent_folder === null) continue;
+                $project = $video->getFolder();
+                if($project === null) continue;
 
-                $projectId = basename($video->parent_folder->uri);
                 $args = [
                     'post_type' => 'tv',
                     'meta_key' => 'tv_show_gemist_locatie',
-                    'meta_value' => $projectId
+                    'meta_value' => $project
                 ];
                 $shows = Timber::get_posts($args);
                 if (count($shows) > 0) {

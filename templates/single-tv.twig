@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class="px-6 md:px-12 max-w-3xl mx-auto py-8 md:pt-16">
-            <h1 class="font-black font-round text-4xl md:text-5xl uppercase">{{ post.title }}</h1>
-            {% if post.meta('tv_show_presentator') %}
+        <h1 class="font-black font-round text-4xl md:text-5xl uppercase">{{ post.title }}</h1>
+        {% if post.meta('tv_show_presentator') %}
             <p class="text-sm md:text-base">Met
                 {% spaceless %}
                     {% for host in post.meta('tv_show_presentator') %}
@@ -12,23 +12,28 @@
                     {% endfor %}
                 {% endspaceless %}
             </p>
-            {% endif %}
+        {% endif %}
         <div class="prose prose-lg md:prose-xl prose-blue mt-8">
             {{ post.content }}
         </div>
     </div>
 
-    <div class="bg-gray-800 text-white">
-        <div class="w-full mx-auto max-w-960 py-4 px-4">
-            <h2 class="font-bold text-3xl pb-4">Uitzending gemist</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {% for video in videos %}
-                    <a href="?v={{ get_vimeo_id(video) }}">
-                        <img src="{{ get_vimeo_image(video, 295).link }}"/>
-                        <h3 class="font-bold mt-2">{{ video.name }}</h3>
-                    </a>
+    {% if seasons is not empty %}
+        <div class="bg-gray-800 text-white">
+            <div class="w-full mx-auto max-w-960 px-4">
+                <h2 class="font-bold text-3xl pt-4">Uitzending gemist</h2>
+                {% for season, videos in seasons %}
+                    <h2 class="text-2xl py-4">{{ season }}</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
+                        {% for video in videos %}
+                            <a href="?v={{ video.id }}">
+                                <img src="{{ video.thumbnail }}"/>
+                                <h3 class="font-bold mt-2">{{ video.name }}</h3>
+                            </a>
+                        {% endfor %}
+                    </div>
                 {% endfor %}
             </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
