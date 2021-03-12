@@ -158,6 +158,15 @@ function zw_parse_query(WP_Query $query)
     if (is_post_type_archive('fm') || is_post_type_archive('tv')) {
         $query->set('nopaging', 1);
     }
+
+    if (is_post_type_archive('tv')) {
+        $query->set('meta_query', [
+            [
+                'key' => 'tv_show_actief',
+                'value' => 1
+            ]
+        ]);
+    }
 }
 
 add_action('parse_query', 'zw_parse_query');
