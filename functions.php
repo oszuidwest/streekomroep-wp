@@ -155,11 +155,11 @@ if (function_exists('acf_add_options_page')) {
 
 function zw_parse_query(WP_Query $query)
 {
-    if (is_post_type_archive('fm') || is_post_type_archive('tv')) {
+    if ($query->is_post_type_archive(['fm', 'tv'])) {
         $query->set('nopaging', 1);
     }
 
-    if (is_post_type_archive('tv')) {
+    if ($query->is_post_type_archive('tv')) {
         $query->set('meta_query', [
             [
                 'key' => 'tv_show_actief',
