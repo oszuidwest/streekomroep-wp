@@ -61,7 +61,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $videos = [];
             foreach ($vimeo as $video) {
                 $project = $video->getFolder();
-                if($project === null) continue;
+                if ($project === null) continue;
 
                 $args = [
                     'post_type' => 'tv',
