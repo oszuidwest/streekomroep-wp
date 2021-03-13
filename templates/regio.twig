@@ -33,7 +33,7 @@
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {% for post in news %}
-                {% include 'partial/post-tile.twig' with { post: post } %}
+                {% include 'partial/tile-post.twig' with { post: post } %}
             {% endfor %}
         </div>
 

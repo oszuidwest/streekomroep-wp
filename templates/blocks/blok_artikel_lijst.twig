@@ -5,7 +5,7 @@
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for post in block.posts %}
-            {% include 'partial/post-tile.twig' with { post: post } %}
+            {% include 'partial/tile-post.twig' with { post: post } %}
         {% endfor %}
     </div>
 </div>

@@ -4,10 +4,9 @@
 {% block content %}
     <div class="max-w-960 mx-auto">
         <h1>Zoekresultaten voor ‘{{ function('get_search_query') }}’</h1>
-
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for post in posts %}
-                {% include ['tease-'~post.post_type~'.twig', 'tease.twig'] %}
+                {% include ['partial/tile-' ~ post.post_type ~ '.twig', 'partial/tile.twig'] with { post: post } %}
             {% endfor %}
         </div>
         {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
