@@ -1,9 +1,9 @@
 {% if pagination.pages is not empty %}
     <nav>
-        <ul class="flex justify-center">
+        <ul class="flex justify-center items-center">
 
             {# Previous #}
-            <li class="p-2">
+            <li class="p-2 flex-none">
                 {% if pagination.prev %}
                     <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white"
                        href="{{ pagination.prev.link }}">&lt; Vorige</a>
@@ -15,8 +15,12 @@
             </li>
 
             {# Pages #}
+            <p class="sm:hidden text-center text-gray-400">
+                Pagina {{ pagination.current }} van {{ pagination.total }}
+            </p>
+
             {% for page in pagination.pages %}
-                <li class="p-2">
+                <li class="p-2 hidden sm:block">
                     {% if page.link %}
                         <a class="w-12 h-12 flex justify-center items-center rounded border-2 border-gray-200 "
                            href="{{ page.link }}" class="{{ page.class }}">{{ page.title }}</a>
@@ -30,7 +34,7 @@
             {% endfor %}
 
             {# Next #}
-            <li class="p-2">
+            <li class="p-2 flex-none">
                 {% if pagination.next %}
                     <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white"
                        href="{{ pagination.next.link }}">Volgende &gt;</a>
