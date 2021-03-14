@@ -13,6 +13,9 @@
  * to load your dependencies and initialize Timber. If you are using Timber via the WordPress.org
  * plug-in, you can safely delete this block.
  */
+
+use Streekomroep\Video;
+
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
     require_once $composer_autoload;
@@ -565,6 +568,33 @@ function zw_project_cron()
         }
         update_post_meta($show->ID, 'vimeo_data', $videos);
     }
+}
+
+function zw_sort_videos(array $videos)
+{
+    /** @var Video[] $vimeo */
+    $vimeo = array_map(function ($a) {
+        return new Video($a);
+    }, $videos);
+
+    $now = new DateTime();
+    $vimeo = array_filter($vimeo, function ($video) use ($now) {
+        $date = $video->getBroadcastDate();
+
+        // Ignore videos with no valid date
+        if (!$date) return false;
+
+        // Ignore videos with a date in the future
+        if ($date > $now) return false;
+
+        return true;
+    });
+
+    usort($vimeo, function (Video $left, Video $right) {
+        return $right->getBroadcastDate() <=> $left->getBroadcastDate();
+    });
+
+    return $vimeo;
 }
 
 class Jetpack_Options

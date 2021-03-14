@@ -31,54 +31,41 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_tv_gemist':
-            $vimeo = get_transient('vimeo/videos');
-            if ($vimeo === false) {
-                $vimeo = [];
-                try {
-                    $response = vimeo_get('/me/videos?sort=date');
-                    $response = json_decode($response['body']);
-                    $vimeo = $response->data;
-                    set_transient('vimeo/videos', $vimeo, 1 * HOUR_IN_SECONDS);
-                } catch (Throwable $t) {
-                    ob_start();
-                    var_dump($t);
-                    $obj = ob_get_clean();
-                    trigger_error('Error fetching vimeo : ' . $obj, E_USER_NOTICE);
-                }
-            }
 
-            $vimeo = array_map(function ($a) {
-                return new Video($a);
-            }, $vimeo);
-
-            $shows = \Timber\Timber::get_posts([
+            $shows = Timber::get_posts([
                 'post_type' => 'tv',
-                'posts_per_page' => 4,
                 'ignore_sticky_posts' => true,
+                'nopaging' => true,
             ]);
-            $block['shows'] = $shows;
 
-            $videos = [];
-            foreach ($vimeo as $video) {
-                $project = $video->getFolder();
-                if ($project === null) continue;
+            $candidates = [];
+            foreach ($shows as $show) {
+                $videos = $show->meta('vimeo_data');
+                if (!is_array($videos)) continue;
 
-                $args = [
-                    'post_type' => 'tv',
-                    'meta_key' => 'tv_show_gemist_locatie',
-                    'meta_value' => $project
-                ];
-                $shows = Timber::get_posts($args);
-                if (count($shows) > 0) {
-                    $video->show = $shows[0];
-                    $videos[] = $video;
-                }
+                $videos = zw_sort_videos($videos);
+                $lastEpisode = array_shift($videos);
+                if ($lastEpisode === null) continue;
 
-                if (count($videos) == 2) {
-                    break;
-                }
+                $show->lastEpisode = $lastEpisode;
+                $candidates[] = $show;
             }
+
+            usort($candidates, function ($left, $right) {
+               return $right->lastEpisode->getBroadcastDate() <=> $left->lastEpisode->getBroadcastDate();
+            });
+
+            // Show 2 videos and 4 shows
+            $videos = array_slice($candidates, 0, 2);
+            $shows = array_slice($candidates, 2, 4);
+
+            $videos = array_map(function($item) {
+                $item->lastEpisode->show = $item;
+                return $item->lastEpisode;
+            }, $videos);
+
             $block['videos'] = $videos;
+            $block['shows'] = $shows;
             break;
 
         case 'blok_artikel_lijst':

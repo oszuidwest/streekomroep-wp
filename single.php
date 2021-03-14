@@ -98,28 +98,7 @@ if ($timber_post->post_type == 'agenda') {
 
 if ($timber_post->post_type == 'tv') {
     $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
-
-    /** @var Video[] $vimeo */
-    $vimeo = array_map(function ($a) {
-        return new Video($a);
-    }, $vimeo);
-
-    $now = new DateTime();
-    $vimeo = array_filter($vimeo, function ($video) use ($now) {
-        $date = $video->getBroadcastDate();
-
-        // Ignore videos with no valid date
-        if (!$date) return false;
-
-        // Ignore videos with a date in the future
-        if ($date > $now) return false;
-
-        return true;
-    });
-
-    usort($vimeo, function (Video $left, Video $right) {
-        return $right->getBroadcastDate() <=> $left->getBroadcastDate();
-    });
+    $vimeo = zw_sort_videos($vimeo);
 
     $seasons = [];
     foreach ($vimeo as $video) {
