@@ -17,10 +17,10 @@
                         <div class="aspect-w-16 aspect-h-9 bg-blue-900 rounded overflow-hidden">
                             {% if broadcast.show.thumbnail %}
                                 <img class="w-full h-full object-cover"
-                                     src="{{ broadcast.show.thumbnail.src|resize(400, 300) }}"/>
+                                     src="{{ broadcast.show.thumbnail.src|resize(440, 248) }}"/>
                             {% else %}
                                 <img class="w-full h-full object-cover"
-                                     src="{{ Image(options.tv_fallback_img).src|resize(400, 300) }}"/>
+                                     src="{{ Image(options.tv_fallback_img).src|resize(440, 248) }}"/>
                             {% endif %}
                         </div>
                     </div>
