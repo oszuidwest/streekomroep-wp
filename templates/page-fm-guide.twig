@@ -23,14 +23,11 @@
                                 <a class="block hover:underline" href="{{ broadcast.show.link }}">
                                     <span class="block font-bold">{{ broadcast.show.title }}</span>
                                     {% if broadcast.show.meta('fm_show_presentator') %}
-                                        <p>Met
-                                            {% spaceless %}
-                                                {% for host in broadcast.show.meta('fm_show_presentator') %}
-                                                    <span>{{ User(host) }}</span>
-                                                    {%- if not loop.last %}, {% endif %}
-                                                {% endfor %}
-                                            {% endspaceless %}
-                                        </p>
+                                        {% set hosts = [] %}
+                                        {% for host in broadcast.show.meta('fm_show_presentator') %}
+                                            {% set hosts = hosts|merge([User(host)]) %}
+                                        {% endfor %}
+                                        <p>{{ hosts|join(', ', ' en ') }}</p>
                                     {% endif %}
                                 </a>
                             {% else %}
