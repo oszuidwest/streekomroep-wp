@@ -137,7 +137,7 @@ class Site extends \Timber\Site
             }
         }
 
-        $out = sprintf('Elke %s van %d tot %d', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
+        $out = sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
         return $out;
     }
 
