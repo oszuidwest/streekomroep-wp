@@ -17,6 +17,7 @@
   ],
   "require": {
     "timber/timber": "1.*",
-    "symfony/yaml": "^5.2"
+    "symfony/yaml": "^5.2",
+    "ext-json": "*"
   }
 }

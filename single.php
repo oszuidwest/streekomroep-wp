@@ -97,21 +97,7 @@ if ($timber_post->post_type == 'agenda') {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $project_id = $timber_post->meta('tv_show_gemist_locatie');
-
-    $vimeo = get_transient('vimeo/projects/' . $project_id . '/videos');
-    if ($vimeo === false) {
-        $vimeo = [];
-        try {
-            $vimeo = vimeo_get_project_videos($project_id);
-            set_transient('vimeo/projects/' . $project_id . '/videos', $vimeo, 1 * HOUR_IN_SECONDS);
-        } catch (Throwable$t) {
-            ob_start();
-            var_dump($t);
-            $obj = ob_get_clean();
-            trigger_error('Error fetching vimeo project: ' . $obj, E_USER_NOTICE);
-        }
-    }
+    $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
 
     /** @var Video[] $vimeo */
     $vimeo = array_map(function ($a) {

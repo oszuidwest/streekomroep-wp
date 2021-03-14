@@ -527,6 +527,46 @@ function zw_sort_fragments_selector($args, $field, $post_id)
     return $args;
 }
 
+add_action('init', function () {
+    register_deactivation_hook(__FILE__, 'zw_deactivate');
+
+    if (!wp_next_scheduled('zw_hourly')) {
+        wp_schedule_event(time(), 'hourly', 'zw_hourly');
+    }
+});
+
+function zw_deactivate()
+{
+    wp_clear_scheduled_hook('zw_hourly');
+}
+
+add_action('zw_hourly', 'zw_project_cron');
+function zw_project_cron()
+{
+    $shows = Timber::get_posts([
+        'post_type' => 'tv',
+        'ignore_sticky_posts' => true,
+        'nopaging' => true,
+    ]);
+
+    foreach ($shows as $show) {
+
+        $project_id = $show->meta('tv_show_gemist_locatie');
+        if (empty($project_id)) {
+            update_post_meta($show->ID, 'vimeo_data', []);
+            continue;
+        }
+
+        $videos = [];
+        try {
+            $videos = vimeo_get_project_videos($project_id);
+        } catch (Exception $e) {
+            error_log($e);
+        }
+        update_post_meta($show->ID, 'vimeo_data', $videos);
+    }
+}
+
 class Jetpack_Options
 {
     public static function get_option_and_ensure_autoload()
