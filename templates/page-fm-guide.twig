@@ -13,7 +13,7 @@
                 <div class="absolute left-2 inset-y-2 border-l-2 -mx-px border-blue-400"></div>
                 <div class="relative">
                     {% for broadcast in day.radio %}
-                        <div class="flex flex-col sm:flex-row pl-6">
+                        <div class="flex flex-col sm:flex-row pl-6 my-4">
                             <time class="sm:w-16">
                                 <i class="absolute left-0 block w-4 mt-1">
                                     <div class="w-2 h-2 m-1 bg-blue-400 rounded-full"></div>
@@ -31,7 +31,10 @@
                                     {% endif %}
                                 </a>
                             {% else %}
-                                <span>{{ broadcast.title }}</span>
+                                <p>
+                                    <span class="block font-bold">{{ broadcast.title }}</span>
+                                    {{ broadcast.title }}
+                                </p>
                             {% endif %}
                         </div>
                     {% endfor %}
