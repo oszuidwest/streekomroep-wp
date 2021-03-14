@@ -8,16 +8,15 @@
                  srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
                  class="w-full">
         {% endif %}
+        
         {% if post.meta('tv_show_presentator') %}
-            <p class="text-sm md:text-base">Met
-                {% spaceless %}
-                    {% for host in post.meta('tv_show_presentator') %}
-                        <span>{{ User(host) }}</span>
-                        {%- if not loop.last %}, {% endif %}
-                    {% endfor %}
-                {% endspaceless %}
-            </p>
+            {% set hosts = [] %}
+            {% for host in post.meta('tv_show_presentator') %}
+                {% set hosts = hosts|merge([User(host)]) %}
+            {% endfor %}
+            <p class="text-sm md:text-base">Met {{ hosts|join(', ', ' en ') }}</p>
         {% endif %}
+
         <div class="prose prose-lg md:prose-xl prose-blue mt-8">
             {{ post.content }}
         </div>
