@@ -52,14 +52,14 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             }
 
             usort($candidates, function ($left, $right) {
-               return $right->lastEpisode->getBroadcastDate() <=> $left->lastEpisode->getBroadcastDate();
+                return $right->lastEpisode->getBroadcastDate() <=> $left->lastEpisode->getBroadcastDate();
             });
 
             // Show 2 videos and 4 shows
             $videos = array_slice($candidates, 0, 2);
             $shows = array_slice($candidates, 2, 4);
 
-            $videos = array_map(function($item) {
+            $videos = array_map(function ($item) {
                 $item->lastEpisode->show = $item;
                 return $item->lastEpisode;
             }, $videos);
