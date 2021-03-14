@@ -131,6 +131,10 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['tv'] = array_map(function (TelevisionBroadcast $item) {
                 return $item->name;
             }, $schedule->getToday()->television);
+            $block['links'] = [
+                'fm' => zw_get_page_by_template('wp-page-fm-player.php'),
+                'tv' => zw_get_page_by_template('wp-page-tv-player.php')
+            ];
             break;
     }
 }
