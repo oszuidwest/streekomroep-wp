@@ -5,7 +5,7 @@
         <div class="row-start-2 md:row-start-auto">
             <div class="px-6 md:px-12 max-w-3xl mx-auto pt-6 pb-4">
                 {% include 'partial/tag-region.twig' with { region: post.region } %}
-                <h1 class="text-4xl lg:text-5xl font-black font-round break-all">{{ post.title }}</h1>
+                <h1 class="text-4xl lg:text-5xl font-black font-round break-words">{{ post.title }}</h1>
                 <time class="text-xs tracking-wide uppercase font-black font-round"
                       datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             </div>
