@@ -158,6 +158,8 @@ if (function_exists('acf_add_options_page')) {
 
 function zw_parse_query(WP_Query $query)
 {
+    if (is_admin()) return;
+
     if ($query->is_post_type_archive(['fm', 'tv'])) {
         $query->set('nopaging', 1);
     }
