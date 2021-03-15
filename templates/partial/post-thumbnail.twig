@@ -10,7 +10,7 @@
         <img class="w-full" loading="lazy" src="{{ post.thumbnail.src|resize(width, width / 16 * 9)|tojpg }}"
              srcset="{{ post.thumbnail.src|resize(width * 2, (width * 2) / 16 * 9)|tojpg }} 2x"/>
         {% if showPlayButton %}
-            <div class="absolute w-8 h-8 -m-4 p-1 bg-green-400 text-white left-1/2 top-1/2 rounded-full">{{ icon('icon-play_arrow') }}</div>
+            <div class="absolute w-8 h-8 -m-4 p-1 bg-groen text-white left-1/2 top-1/2 rounded-full">{{ icon('icon-play_arrow') }}</div>
         {% endif %}
     </div>
 </div>

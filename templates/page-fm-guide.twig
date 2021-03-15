@@ -10,13 +10,13 @@
         {% for day in schedule.days %}
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
             <div class="relative">
-                <div class="absolute left-2 inset-y-2 border-l-2 -mx-px border-blue-400"></div>
+                <div class="absolute left-2 inset-y-2 border-l-2 -mx-px border-roze"></div>
                 <div class="relative">
                     {% for broadcast in day.radio %}
                         <div class="flex flex-row pl-6 my-4">
                             <time class="w-16 flex-none">
                                 <i class="absolute left-0 block w-4 mt-1">
-                                    <div class="w-2 h-2 m-1 bg-blue-400 rounded-full"></div>
+                                    <div class="w-2 h-2 m-1 bg-roze rounded-full"></div>
                                 </i>
                                 {{ broadcast.startTime|date('H:i') }}</time>
                             {% if broadcast.show %}

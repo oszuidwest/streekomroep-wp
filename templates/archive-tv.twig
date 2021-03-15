@@ -14,7 +14,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-8">
             {% for post in posts %}
                 <a class="block" href="{{ post.link }}">
-                    <div class="aspect-w-16 aspect-h-9 bg-blue-900 rounded overflow-hidden">
+                    <div class="aspect-w-16 aspect-h-9 bg-blauw rounded overflow-hidden">
                         <img class="w-full h-full object-cover" src="{{ post.thumbnail.src|resize(440, 248) }}"/>
                     </div>
                     <p class="text-center mt-2 font-bold text-sm">{{ post.title }}</p>

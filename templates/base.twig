@@ -44,7 +44,7 @@
                     {% for item in mainmenu.items %}
                         {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
                         {% if item.current %}
-                            {% set classes = classes|merge(['text-green-400', 'border-current']) %}
+                            {% set classes = classes|merge(['text-groen', 'border-current']) %}
                         {% else %}
                             {% set classes = classes|merge(['border-transparent']) %}
                         {% endif %}
