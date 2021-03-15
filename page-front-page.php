@@ -73,6 +73,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
                 'ignore_sticky_posts' => true,
+                'meta_query' => [
+                    [
+                        'key' => 'post_ranking',
+                        'value' => '2',
+                        'compare' => 'NOT LIKE',
+                    ]
+                ]
             ]);
             break;
 
