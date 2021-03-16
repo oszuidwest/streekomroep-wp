@@ -11,6 +11,8 @@ class Video
 {
     private $data;
     private $yaml = false;
+    private $description = '';
+    private $didParseMeta = false;
 
     public function __construct($data)
     {
@@ -50,7 +52,7 @@ class Video
 
     public function __isset($name)
     {
-        if (in_array($name, ['id', 'thumbnail', 'name', 'link'])) {
+        if (in_array($name, ['id', 'thumbnail', 'name', 'link', 'description'])) {
             return false;
         }
         throw new Exception();
@@ -78,22 +80,33 @@ class Video
 
     private function getMeta()
     {
-        if ($this->yaml !== false) {
-            return $this->yaml;
+        $this->initMeta();
+        return $this->yaml;
+    }
+
+    private function initMeta()
+    {
+        if ($this->didParseMeta) return;
+
+        $this->didParseMeta = true;
+
+        $desc = $this->data->description;
+        $desc = preg_split('/^---\n/m', $desc);
+
+        if (count($desc) == 1) {
+            $this->yaml = null;
+            $this->description = $desc[0];
+            return;
         }
 
-        if (!preg_match('/---\n(.*)$/m', $this->data->description, $m)) {
-            $this->yaml = null;
-            return $this->yaml;
-        }
+
+        $this->description = trim($desc[0]);
 
         try {
-            $this->yaml = Yaml::parse($m[1], Yaml::PARSE_DATETIME);
+            $this->yaml = Yaml::parse($desc[1], Yaml::PARSE_DATETIME);
         } catch (ParseException $e) {
             $this->yaml = null;
         }
-
-        return $this->yaml;
     }
 
     public function getFolder()
@@ -101,5 +114,11 @@ class Video
         if ($this->data->parent_folder === null) return null;
 
         return basename($this->data->parent_folder->uri);
+    }
+
+    public function getDescription()
+    {
+        $this->initMeta();
+        return $this->description;
     }
 }
