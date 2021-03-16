@@ -98,6 +98,9 @@ if ($timber_post->post_type == 'agenda') {
 
 if ($timber_post->post_type == 'tv') {
     $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
+    if (!is_array($vimeo)) {
+        $vimeo = [];
+    }
     $vimeo = zw_sort_videos($vimeo);
 
     $seasons = [];
