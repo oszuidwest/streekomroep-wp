@@ -17,7 +17,7 @@
         <div>
             <p class="text-sm py-4 pb-6">
                 {# Empty string evaluates to the current date #}
-                Copyright © {{ ""|date('Y') }} Omroepstichting ZuidWest |
+                Copyright © {{ ""|date('Y') }} Streekomroep ZuidWest |
                 {% for social in socials %}
                     <a href="{{ social.link }}" target="_blank" class="hover:underline">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
