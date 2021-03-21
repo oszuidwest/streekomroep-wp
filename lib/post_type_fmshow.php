@@ -34,7 +34,7 @@
 		'publicly_queryable'    => true,
 		'capability_type'       => 'post',
 		'show_in_rest'          => true,
-		'rest_base'             => 'tv',
+		'rest_base'             => 'fm',
 		'rewrite'               => [ 'slug' => 'fm', 'with_front' => true ],
 	);
 	register_post_type( 'fm', $args );
