@@ -68,11 +68,12 @@ class Video
         }
 
         if ($yaml['broadcast_date'] instanceof \DateTime) {
-            return $yaml['broadcast_date'];
+            // Re-parse timestamp to interpret in WP-configured timezone
+            return new \DateTime($yaml['broadcast_date']->format('Y-m-d H:i:s'), wp_timezone());
         }
 
         try {
-            return new \DateTime($yaml['broadcast_date']);
+            return new \DateTime($yaml['broadcast_date'], wp_timezone());
         } catch (Exception $e) {
             return null;
         }

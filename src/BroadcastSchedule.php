@@ -17,9 +17,9 @@ class BroadcastSchedule
         $this->days = [];
 
         foreach (get_field('tv_week', 'option') as $week) {
-            $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start']);
+            $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'], wp_timezone());
             $start->setTime(0, 0);
-            $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind']);
+            $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'], wp_timezone());
             $end->setTime(0, 0);
 
             $date = clone $start;
@@ -47,7 +47,7 @@ class BroadcastSchedule
             'ignore_sticky_posts' => true,
         ]);
 
-        $start = new DateTime();
+        $start = new DateTime('now', wp_timezone());
         $start->setTime(0, 0);
         $end = clone $start;
         $end->add(new \DateInterval('P6D'));
@@ -98,7 +98,7 @@ class BroadcastSchedule
         ksort($this->days);
 
         // Remove days before today from schedule
-        $today = new DateTime();
+        $today = new DateTime('now', wp_timezone());
         $today->setTime(0, 0);
 
         while (true) {
@@ -141,7 +141,7 @@ class BroadcastSchedule
 
     public function getCurrentRadioBroadcast()
     {
-        $now = new DateTime();
+        $now = new DateTime('now', wp_timezone());
         $hour = intval($now->format('G'));
 
         $today = $this->getToday();
@@ -158,11 +158,11 @@ class BroadcastSchedule
 
     public function getToday()
     {
-        return $this->getBroadcastDay(new DateTime());
+        return $this->getBroadcastDay(new DateTime('now', wp_timezone()));
     }
 
     public function getTomorrow()
     {
-        return $this->getBroadcastDay(new DateTime('tomorrow'));
+        return $this->getBroadcastDay(new DateTime('tomorrow', wp_timezone()));
     }
 }

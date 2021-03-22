@@ -261,15 +261,15 @@ function zw_rest_api_init()
             if (!is_array($options['tv_reclame_slides']))
                 $options['tv_reclame_slides'] = [];
 
-            $now = new DateTime();
+            $now = new DateTime('now', wp_timezone());
             foreach ($options['tv_reclame_slides'] as $slide) {
                 // Ignore slides with no image
                 if ($slide['tv_reclame_afbeelding'] === false) continue;
 
-                $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start']);
+                $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start'], wp_timezone());
                 $start->setTime(0, 0);
                 // TODO: is end date inclusive?
-                $end = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_eind']);
+                $end = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_eind'], wp_timezone());
                 $end->setTime(24, 0);
 
                 if ($now >= $start && $now < $end) {
@@ -558,7 +558,7 @@ function zw_sort_videos(array $videos)
         return new Video($a);
     }, $videos);
 
-    $now = new DateTime();
+    $now = new DateTime('now', wp_timezone());
     $vimeo = array_filter($vimeo, function ($video) use ($now) {
         $date = $video->getBroadcastDate();
 
