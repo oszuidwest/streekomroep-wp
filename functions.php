@@ -643,7 +643,7 @@ add_action('template_redirect', function () {
             };
 
             $thumbnail = function () use ($video) {
-                return $video->getLargestThumbnail();
+                return $video->getLargestThumbnail()->link;
             };
 
             add_filter('wpseo_title', $title);
@@ -655,7 +655,10 @@ add_action('template_redirect', function () {
             add_filter('wpseo_opengraph_type', function () {
                 return 'video';
             });
-            add_filter('wpseo_opengraph_image', $thumbnail);
+            add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
+                $thumb = $video->getLargestThumbnail();
+                $images->add_image(['url' => $thumb->link, 'height' => $thumb->height, 'width' => $thumb->width]);
+            });
             add_filter('wpseo_opengraph_url', $canonical);
 
             add_filter('wpseo_twitter_title', $title);

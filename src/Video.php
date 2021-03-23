@@ -47,7 +47,7 @@ class Video
         }
 
         if ($best) {
-            return $best->link;
+            return $best;
         }
 
         throw new \Exception('Couldn\'t get thumbnail');
