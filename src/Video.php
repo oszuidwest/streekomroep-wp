@@ -35,6 +35,24 @@ class Video
         throw new \Exception('Couldn\'t get desired width (' . $width . ')');
     }
 
+    public function getLargestThumbnail()
+    {
+        $best = null;
+        foreach ($this->data->pictures->sizes as $size) {
+            if ($best === null) {
+                $best = $size;
+            } else if ($size->width > $best->width) {
+                $best = $size;
+            }
+        }
+
+        if ($best) {
+            return $best->link;
+        }
+
+        throw new \Exception('Couldn\'t get thumbnail');
+    }
+
     public function getName()
     {
         return $this->data->name;

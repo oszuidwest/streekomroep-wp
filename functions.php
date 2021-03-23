@@ -456,7 +456,7 @@ function vimeo_get($url)
         $url .= '?';
     }
 
-    $url .= 'fields=name,description,uri,link,pictures,parent_folder.uri&sizes=295x166';
+    $url .= 'fields=name,description,uri,link,pictures,parent_folder.uri&sizes=295x166,1920';
 
     return wp_remote_get($url, $args);
 }
@@ -611,6 +611,61 @@ function zw_remove_wp_block_library_css()
 }
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
+
+add_action('template_redirect', function () {
+    if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
+        $vimeo = get_post_meta(get_the_ID(), 'vimeo_data', true);
+        if (!is_array($vimeo)) {
+            $vimeo = [];
+        }
+        $vimeo = zw_sort_videos($vimeo);
+
+        $videoId = $_GET['v'];
+        $video = null;
+        foreach ($vimeo as $item) {
+            if ($item->getId() == $videoId) {
+                $video = $item;
+                break;
+            }
+        }
+
+        if ($video) {
+            $canonical = function ($url) use ($video) {
+                return $url . '?v=' . $video->getId();
+            };
+
+            $title = function ($a) use ($video) {
+                return $video->getName();
+            };
+
+            $description = function () use ($video) {
+                return $video->getDescription();
+            };
+
+            $thumbnail = function () use ($video) {
+                return $video->getLargestThumbnail();
+            };
+
+            add_filter('wpseo_title', $title);
+            add_filter('wpseo_metadesc', $description);
+            add_filter('wpseo_canonical', $canonical);
+
+            add_filter('wpseo_opengraph_title', $title);
+            add_filter('wpseo_opengraph_desc', $description);
+            add_filter('wpseo_opengraph_type', function () {
+                return 'video';
+            });
+            add_filter('wpseo_opengraph_image', $thumbnail);
+            add_filter('wpseo_opengraph_url', $canonical);
+
+            add_filter('wpseo_twitter_title', $title);
+            add_filter('wpseo_twitter_description', $description);
+            add_filter('wpseo_twitter_image', $thumbnail);
+
+        }
+
+    }
+});
 
 class Jetpack
 {
