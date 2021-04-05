@@ -15,6 +15,7 @@
  */
 
 use Streekomroep\Video;
+use Yoast\WP\SEO\Config\Schema_IDs;
 
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
@@ -576,6 +577,58 @@ function zw_sort_videos(array $videos)
     });
 
     return $vimeo;
+}
+
+add_filter('yoast_seo_development_mode', '__return_true');
+add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
+
+class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
+{
+
+    public function generate()
+    {
+        $url = get_field('fragment_url', false, false);
+        $url = trim($url);
+        if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
+            return;
+        }
+
+        $timespan = (int)get_field('fragment_duur', false, false);
+        $min = floor($timespan / 60);
+        $sec = $timespan % 60;
+
+        return [
+            '@type' => 'VideoObject',
+            '@id' => $this->context->canonical . '#video',
+            "name" => get_the_title($this->context->post),
+            "description" => get_the_content(null, false, $this->context->post),
+            "thumbnailUrl" => $this->context->canonical . Schema_IDs::PRIMARY_IMAGE_HASH,
+            "uploadDate" => get_the_date('c', $this->context->post),
+            "duration" => sprintf('PT%dM%dS', $min, $sec),
+            "contentUrl" => "https://player.vimeo.com/external/528773086.hd.mp4?s=dbd8f351894e4d41069d786b4e122bf2e09ef749&profile_id=174&oauth2_token_id=",
+        ];
+    }
+
+    public function is_needed()
+    {
+        if (!is_singular('fragment')) {
+            return false;
+        }
+
+        $type = get_field('fragment_type', false, false);
+        if ($type !== 'Video') {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+function add_custom_schema_piece($pieces, $context)
+{
+    $pieces[] = new VideoObject();
+
+    return $pieces;
 }
 
 class Jetpack_Options
