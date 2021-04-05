@@ -602,7 +602,9 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             '@id' => $this->context->canonical . '#video',
             "name" => get_the_title($this->context->post),
             "description" => get_the_content(null, false, $this->context->post),
-            "thumbnailUrl" => $this->context->canonical . Schema_IDs::PRIMARY_IMAGE_HASH,
+            "thumbnailUrl" => [
+                get_the_post_thumbnail_url($this->context->post)
+            ],
             "uploadDate" => get_the_date('c', $this->context->post),
             "duration" => sprintf('PT%dM%dS', $min, $sec),
             "contentUrl" => "https://player.vimeo.com/external/528773086.hd.mp4?s=dbd8f351894e4d41069d786b4e122bf2e09ef749&profile_id=174&oauth2_token_id=",
