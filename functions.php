@@ -440,7 +440,7 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function vimeo_get($url)
+function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri&sizes=295x166,1920')
 {
     $args = [
         'timeout' => 30,
@@ -450,14 +450,18 @@ function vimeo_get($url)
     ];
 
     $url = 'https://api.vimeo.com' . $url;
-    $parsed = parse_url($url);
-    if (isset($parsed['query'])) {
-        $url .= '&';
-    } else {
-        $url .= '?';
+
+    if (!empty($fields)) {
+        $parsed = parse_url($url);
+        if (isset($parsed['query'])) {
+            $url .= '&';
+        } else {
+            $url .= '?';
+        }
+
+        $url .= 'fields=' . $fields;
     }
 
-    $url .= 'fields=name,description,uri,link,pictures,parent_folder.uri&sizes=295x166,1920';
 
     return wp_remote_get($url, $args);
 }
@@ -592,10 +596,22 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
             return;
         }
+        $vimeoId = $m[1];
 
         $timespan = (int)get_field('fragment_duur', false, false);
         $min = floor($timespan / 60);
         $sec = $timespan % 60;
+
+        $data = vimeo_get('/videos/' . $vimeoId, false);
+        $data = json_decode($data['body']);
+        $files = [];
+        if (isset($data->files)) {
+            $files = $data->files;
+        }
+
+        if (count($files) > 0) {
+            $file = $files[0]->link;
+        }
 
         return [
             '@type' => 'VideoObject',
@@ -607,7 +623,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             ],
             "uploadDate" => get_the_date('c', $this->context->post),
             "duration" => sprintf('PT%dM%dS', $min, $sec),
-            "contentUrl" => "https://player.vimeo.com/external/528773086.hd.mp4?s=dbd8f351894e4d41069d786b4e122bf2e09ef749&profile_id=174&oauth2_token_id=",
+            "contentUrl" => $file,
         ];
     }
 
