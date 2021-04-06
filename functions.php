@@ -588,32 +588,46 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 
+function zw_fragment_get_file_url($post_id)
+{
+    $file = get_post_meta($post_id, 'fragment_vimeo_file', true);
+    if (!empty($file)) {
+        return $file;
+    }
+
+    $url = get_field('fragment_url', $post_id, false);
+    $url = trim($url);
+    if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
+        return '';
+    }
+    $vimeoId = $m[1];
+
+    $data = vimeo_get('/videos/' . $vimeoId, false);
+    $data = json_decode($data['body']);
+    $files = [];
+    if (isset($data->files)) {
+        $files = $data->files;
+    }
+
+    $file = '';
+    if (count($files) > 0) {
+        $file = $files[0]->link;
+    }
+
+    update_post_meta($post_id, 'fragment_vimeo_file', $file);
+    return $file;
+}
+
 class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
 {
 
     public function generate()
     {
-        $url = get_field('fragment_url', false, false);
-        $url = trim($url);
-        if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
-            return;
-        }
-        $vimeoId = $m[1];
-
-        $timespan = (int)get_field('fragment_duur', false, false);
+        $timespan = (int)get_field('fragment_duur', $this->context->post->ID, false);
         $min = floor($timespan / 60);
         $sec = $timespan % 60;
 
-        $data = vimeo_get('/videos/' . $vimeoId, false);
-        $data = json_decode($data['body']);
-        $files = [];
-        if (isset($data->files)) {
-            $files = $data->files;
-        }
-
-        if (count($files) > 0) {
-            $file = $files[0]->link;
-        }
+        $file = zw_fragment_get_file_url($this->context->post->ID);
 
         return [
             '@type' => 'VideoObject',
