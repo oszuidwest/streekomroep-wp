@@ -587,6 +587,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
+add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function zw_fragment_get_file_url($post_id)
 {
@@ -663,6 +664,20 @@ function add_custom_schema_piece($pieces, $context)
     $pieces[] = new VideoObject();
 
     return $pieces;
+}
+
+function zw_seo_article_add_region($data, $context)
+{
+    /** @var WP_Term[] $terms */
+    $terms = wp_get_post_terms($context->post->ID, 'regio');
+    if (count($terms) == 0) return $data;
+
+    $data['contentLocation'] = [
+        "@type" => "AdministrativeArea",
+        "name" => $terms[0]->name
+    ];
+
+    return $data;
 }
 
 class Jetpack_Options
