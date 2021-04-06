@@ -670,12 +670,12 @@ function zw_seo_article_add_region($data, $context)
 {
     /** @var WP_Term[] $terms */
     $terms = wp_get_post_terms($context->post->ID, 'regio');
-    if (count($terms) == 0) return $data;
-
-    $data['contentLocation'] = [
-        "@type" => "AdministrativeArea",
-        "name" => $terms[0]->name
-    ];
+    if (is_string($data['articleSection'])) {
+        $data['articleSection'] = [$data['articleSection']];
+    }
+    foreach ($terms as $term) {
+        $data['articleSection'][] = $term->name;
+    }
 
     return $data;
 }
