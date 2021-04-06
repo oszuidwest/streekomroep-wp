@@ -1,3 +1,4 @@
+<?php
 function zw_TinyMCE( $in ) {
 	$in['paste_remove_styles'] = true;
 	$in['paste_remove_spans'] = false;
