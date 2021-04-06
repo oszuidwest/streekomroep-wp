@@ -8,7 +8,7 @@
         {% endif %}
         <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
         <p class="block prose prose-sm {% if dark ?? false %}text-gray-400{% else %}text-gray-600{% endif %}">
-            {{ post.date }}
+            <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             {% if summary ?? true %}
                 <span class="hidden sm:inline px-1">&middot;</span>
                 <span class="hidden sm:inline">{{ post.preview.length(20).read_more(false) }}</span>
