@@ -583,7 +583,9 @@ function zw_sort_videos(array $videos)
     return $vimeo;
 }
 
-add_filter('yoast_seo_development_mode', '__return_true');
+if (defined('WP_DEBUG') && WP_DEBUG) {
+    add_filter('yoast_seo_development_mode', '__return_true');
+}
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 
 class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
