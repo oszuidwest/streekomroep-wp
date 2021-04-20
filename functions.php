@@ -640,6 +640,8 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             ],
             "uploadDate" => get_the_date('c', $this->context->post),
             "duration" => sprintf('PT%dM%dS', $min, $sec),
+            "isFamilyFriendly" => 'true',
+            "inLanguage" => 'nl_NL',
             "contentUrl" => $file,
         ];
     }
