@@ -1,4 +1,5 @@
-<a class="block" href="{{ post.link }}">
+<article>
+	<a class="block" href="{{ post.link }}">
     {% include 'partial/post-thumbnail.twig' with { post: post } %}
     <div class="pt-2">
         {% if region ?? true %}
@@ -7,3 +8,4 @@
         <h1 class="sm:text-xl font-semibold my-1">{{ post.title }}</h1>
     </div>
 </a>
+</article>
