@@ -1,7 +1,7 @@
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
     <div class="grid grid-stories gap-0.5">
         {% for post in block.posts %}
-            <article class="block bg-gray-800 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
+            <a class="block bg-gray-800 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
                 <img class="object-cover w-full h-full absolute inset-0" loading="lazy" src="{{ post.thumbnail.src|resize(455, 384)|tojpg }}"
                      srcset="{{ post.thumbnail.src|resize(910, 768)|tojpg }} 2x"/>
                 <div class="relative sm:absolute inset-0 flex flex-col justify-end zw-block-content">
@@ -10,7 +10,7 @@
                         <h1 class="block font-black {% if loop.first %}text-xl{% else %}text-base{% endif %} text-white">{{ post.title }}</h1>
                     </span>
                 </div>
-            </article>
+            </a>
         {% endfor %}
     </div>
 </div>
