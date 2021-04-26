@@ -6,7 +6,8 @@
         {% endif %}
 
         {% set post = block.posts[0] %}
-        <a href="{{ post.link }}" class="block grid sm:grid-cols-2 gap-4">
+        <article>
+			<a href="{{ post.link }}" class="block grid sm:grid-cols-2 gap-4">
             <div>
                 {% include 'partial/post-thumbnail.twig' with { post: post, width: 472 } %}
             </div>
@@ -17,6 +18,7 @@
                 <p class="prose text-white hidden sm:block">{{ post.preview.read_more(false) }}</p>
             </div>
         </a>
+	</article>
     </div>
     <div class="overflow-x-auto clear-left sm:hidden">
         <div class="flex float-left px-2 py-4">
