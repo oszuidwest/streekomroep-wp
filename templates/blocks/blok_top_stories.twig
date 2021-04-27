@@ -1,16 +1,20 @@
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
     <div class="grid grid-stories gap-0.5">
         {% for post in block.posts %}
-            <a class="block bg-gray-800 {{ loop.first? 'main' }} relative" href="{{ post.link }}">
-                <img class="object-cover w-full h-full absolute inset-0" loading="lazy" src="{{ post.thumbnail.src|resize(455, 384)|tojpg }}"
-                     srcset="{{ post.thumbnail.src|resize(910, 768)|tojpg }} 2x"/>
-                <div class="relative sm:absolute inset-0 flex flex-col justify-end zw-block-content">
-                    <span class="block p-4 pt-14 bg-gradient-to-b from-transparent" style="--tw-gradient-to: rgba(0,0,0,.60);">
+            <article class="{{ loop.first? 'main' }} flex flex-col">
+                <a class="block relative flex-grow bg-gray-800 {{ loop.first? 'sm:stories-pad' }}" href="{{ post.link }}">
+                    <img class="object-cover w-full h-full absolute inset-0" loading="lazy"
+                         src="{{ post.thumbnail.src|resize(455, 384)|tojpg }}"
+                         srcset="{{ post.thumbnail.src|resize(910, 768)|tojpg }} 2x"/>
+                    <div class="relative sm:absolute inset-0 flex flex-col justify-end zw-block-content">
+                    <span class="block p-4 pt-14 bg-gradient-to-b from-transparent"
+                          style="--tw-gradient-to: rgba(0,0,0,.60);">
                         {% include 'partial/tag-region.twig' with { region: post.region } %}
                         <h1 class="block font-black {% if loop.first %}text-xl{% else %}text-base{% endif %} text-white">{{ post.title }}</h1>
                     </span>
-                </div>
-            </a>
+                    </div>
+                </a>
+            </article>
         {% endfor %}
     </div>
 </div>

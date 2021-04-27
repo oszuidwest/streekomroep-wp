@@ -35,7 +35,7 @@
         max-height: none;
     }
 
-    .grid-stories .main::before {
+    .sm\:stories-pad::before {
         content: "";
         display: block;
         width: 100%;
