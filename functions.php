@@ -55,6 +55,16 @@ if (!class_exists('ACF')) {
     return;
 }
 
+if (!class_exists('Yoast\WP\SEO\Main')) {
+    add_action(
+        'admin_notices',
+        function () {
+            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+        }
+    );
+    return;
+}
+
 require 'vimeo-thumbnail.php';
 
 /**
