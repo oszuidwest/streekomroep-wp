@@ -13,8 +13,14 @@ class Post extends \Timber\Post
 
     public function region()
     {
-        if (!$this->_region) {
-            $this->_region = Timber::get_term(yoast_get_primary_term_id('regio', $this->ID), 'regio');
+        if ($this->_region === null) {
+            $id = yoast_get_primary_term_id('regio', $this->ID);
+            if ($id) {
+                $this->_region = Timber::get_term($id, 'regio');
+            } else {
+                $this->_region = false;
+            }
+
         }
         return $this->_region;
     }
