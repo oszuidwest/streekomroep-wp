@@ -2,6 +2,9 @@
 
 namespace Streekomroep;
 
+use Timber\Term;
+use Timber\Timber;
+
 class Post extends \Timber\Post
 {
 
@@ -11,10 +14,7 @@ class Post extends \Timber\Post
     public function region()
     {
         if (!$this->_region) {
-            $regions = $this->get_terms(['query' => ['taxonomy' => 'regio']]);
-            if (is_array($regions) && count($regions)) {
-                $this->_region = $regions[0];
-            }
+            $this->_region = Timber::get_term(yoast_get_primary_term_id('regio', $this->ID), 'regio');
         }
         return $this->_region;
     }
