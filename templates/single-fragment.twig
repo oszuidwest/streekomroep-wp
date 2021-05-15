@@ -1,45 +1,48 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
-        {{ embed }}
-    </div>
-
-    <div class="px-6 md:px-12 max-w-3xl mx-auto mt-6 pb-6">
-        {% include 'partial/tag-region.twig' with { region: post.region } %}
-        <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words">{{ post.title }}</h1>
-        <time class="text-xs tracking-wide uppercase font-black font-round"
-              datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
-        <p class="flex items-center mt-6">
-            <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
-            <a href="{{ post.author.path }}" class="ml-3 text-xs tracking-wide uppercase font-black font-round"> {{ post.author.name }} </a>
-        </p>
-    </div>
-
-    <div class="px-6 md:px-12 max-w-3xl mx-auto">
-        <div class="prose md:prose-lg max-w-none">
-            {{ post.content }}
+    <article id="post-{{ post.id }}" class="{{ post.class }}">
+        <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
+            {{ embed }}
         </div>
 
-        {% if posts %}
-            <div class="mt-8">
-                <h1 class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</h1>
-                {% for post in posts %}
-                    <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
-                        <div class="flex-none w-32 relative">
-                            <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"
-                                 srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
-                        </div>
-                        <div class="flex-auto pl-4">
-                            <h2 class="text-xl font-semibold">{{ post.title }}</h2>
-                        </div>
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+        <div class="px-6 md:px-12 max-w-3xl mx-auto mt-6 pb-6">
+            {% include 'partial/tag-region.twig' with { region: post.region } %}
+            <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words">{{ post.title }}</h1>
+            <time class="text-xs tracking-wide uppercase font-black font-round"
+                  datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
+            <p class="flex items-center mt-6">
+                <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
+                <a href="{{ post.author.path }}"
+                   class="ml-3 text-xs tracking-wide uppercase font-black font-round"> {{ post.author.name }} </a>
+            </p>
+        </div>
 
-    {% include "partial/socialshare.twig" %}
+        <div class="px-6 md:px-12 max-w-3xl mx-auto">
+            <div class="prose md:prose-lg max-w-none">
+                {{ post.content }}
+            </div>
+
+            {% if posts %}
+                <div class="mt-8">
+                    <h1 class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</h1>
+                    {% for post in posts %}
+                        <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
+                            <div class="flex-none w-32 relative">
+                                <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"
+                                     srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
+                            </div>
+                            <div class="flex-auto pl-4">
+                                <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% include "partial/socialshare.twig" %}
+    </article>
 
     {% if local %}
         <div class="bg-gray-800 text-white">

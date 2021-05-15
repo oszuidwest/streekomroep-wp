@@ -1,17 +1,19 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="px-6 md:px-12 max-w-3xl mx-auto">
-        <h1 class="mt-6 mb-8 text-4xl lg:text-5xl font-black font-round">{{ video.name }}</h1>
-    </div>
-
-    <div class="w-full mx-auto max-w-960 mt-8 mb-6">
-        {{ embed }}
-    </div>
-
-    {% if video.description %}
-        <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
-            <p class="prose md:prose-lg max-w-none">{{ video.description | nl2br }}</p>
+    <article>
+        <div class="px-6 md:px-12 max-w-3xl mx-auto">
+            <h1 class="mt-6 mb-8 text-4xl lg:text-5xl font-black font-round">{{ video.name }}</h1>
         </div>
-    {% endif %}
+
+        <div class="w-full mx-auto max-w-960 mt-8 mb-6">
+            {{ embed }}
+        </div>
+
+        {% if video.description %}
+            <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
+                <p class="prose md:prose-lg max-w-none">{{ video.description | nl2br }}</p>
+            </div>
+        {% endif %}
+    </article>
 {% endblock %}

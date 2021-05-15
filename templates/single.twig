@@ -1,53 +1,55 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="grid grid-cols-1">
-        <div class="row-start-2 md:row-start-auto">
-            <div class="px-6 md:px-12 max-w-3xl mx-auto pt-6 pb-4">
-                {% include 'partial/tag-region.twig' with { region: post.region } %}
-                <h1 class="text-4xl lg:text-5xl font-black font-round break-words">{{ post.title }}</h1>
-                <time class="text-xs tracking-wide uppercase font-black font-round"
-                      datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
+    <article id="post-{{ post.id }}" class="{{ post.class }}">
+        <div class="grid grid-cols-1">
+            <div class="row-start-2 md:row-start-auto">
+                <div class="px-6 md:px-12 max-w-3xl mx-auto pt-6 pb-4">
+                    {% include 'partial/tag-region.twig' with { region: post.region } %}
+                    <h1 class="text-4xl lg:text-5xl font-black font-round break-words">{{ post.title }}</h1>
+                    <time class="text-xs tracking-wide uppercase font-black font-round"
+                          datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
+                </div>
+            </div>
+
+            <div>
+                {% if embed and post.meta('post_fragment_is_featured') %}
+                    <div class="w-full mx-auto max-w-960 md:py-4">
+                        {{ embed }}
+                    </div>
+                {% elseif post.thumbnail %}
+                    <div class="w-full mx-auto max-w-960">
+                        <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
+                             srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
+                             class="w-full">
+                        {% if post.thumbnail.caption %}
+                            <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="px-6 md:px-12 max-w-3xl mx-auto pt-4">
+            <p class="flex items-center mb-6">
+                <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
+                <a href="{{ post.author.path }}"
+                   class="ml-3 text-xs tracking-wide uppercase font-black font-round">{{ post.author.name }} </a>
+            </p>
+
+
+            <div class="prose md:prose-lg max-w-none zw-prose">
+                {{ post.content }}
             </div>
         </div>
 
-        <div>
-            {% if embed and post.meta('post_fragment_is_featured') %}
-                <div class="w-full mx-auto max-w-960 md:py-4">
-                    {{ embed }}
-                </div>
-            {% elseif post.thumbnail %}
-                <div class="w-full mx-auto max-w-960">
-                    <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
-                         srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
-                         class="w-full">
-                    {% if post.thumbnail.caption %}
-                        <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
-                    {% endif %}
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="px-6 md:px-12 max-w-3xl mx-auto pt-4">
-        <p class="flex items-center mb-6">
-            <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
-            <a href="{{ post.author.path }}"
-               class="ml-3 text-xs tracking-wide uppercase font-black font-round">{{ post.author.name }} </a>
-        </p>
+        {% if embed and not post.meta('post_fragment_is_featured') %}
+            <div class="w-full mx-auto max-w-960">
+                {{ embed }}
+            </div>
+        {% endif %}
 
-
-        <div class="prose md:prose-lg max-w-none zw-prose">
-            {{ post.content }}
-        </div>
-    </div>
-
-    {% if embed and not post.meta('post_fragment_is_featured') %}
-        <div class="w-full mx-auto max-w-960">
-            {{ embed }}
-        </div>
-    {% endif %}
-
-    {% include "partial/socialshare.twig" %}
+        {% include "partial/socialshare.twig" %}
+    </article>
 
     {% if topical %}
         {% set term = topical.topic %}

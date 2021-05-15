@@ -55,6 +55,16 @@ if (!class_exists('ACF')) {
     return;
 }
 
+if (!class_exists('Yoast\WP\SEO\Main')) {
+    add_action(
+        'admin_notices',
+        function () {
+            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+        }
+    );
+    return;
+}
+
 require 'vimeo-thumbnail.php';
 
 /**
@@ -587,6 +597,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
+add_filter('wpseo_schema_webpage', 'zw_seo_add_framgent_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function zw_fragment_get_file_url($post_id)
@@ -666,6 +677,21 @@ function add_custom_schema_piece($pieces, $context)
     $pieces[] = new VideoObject();
 
     return $pieces;
+}
+
+function zw_seo_add_framgent_video($data, $context)
+{
+    if (!is_singular('fragment'))
+        return $data;
+
+    $type = get_field('fragment_type', false, false);
+    if ($type !== 'Video')
+        return $data;
+
+    $data['video'] = [
+        ['@id' => $context->canonical . '#video']
+    ];
+    return $data;
 }
 
 function zw_seo_article_add_region($data, $context)

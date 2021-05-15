@@ -110,7 +110,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
         case 'blok_dossiers_carrousel':
             $block['terms'] = Timber::get_terms([
-                'taxonomy' => 'dossier'
+                'taxonomy' => 'dossier',
+                'hide_empty' => true,
             ]);
 
             foreach ($block['terms'] as $term) {
