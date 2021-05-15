@@ -597,7 +597,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
-add_filter('wpseo_schema_webpage', 'zw_seo_add_framgent_video', 10, 2);
+add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function zw_fragment_get_file_url($post_id)
@@ -679,7 +679,7 @@ function add_custom_schema_piece($pieces, $context)
     return $pieces;
 }
 
-function zw_seo_add_framgent_video($data, $context)
+function zw_seo_add_fragment_video($data, $context)
 {
     if (!is_singular('fragment'))
         return $data;
