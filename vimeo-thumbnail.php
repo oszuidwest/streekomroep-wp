@@ -48,14 +48,19 @@ function zw_vimeo_save_thumbnail($post_ID)
 
     $tempPath = download_url($bestPic->link);
     if ($tempPath instanceof WP_Error) {
-        dd($tempPath);
+        error_log('Error downloading file: ' . $tempPath->get_error_message());
         return;
     }
 
     $path = parse_url($bestPic->link, PHP_URL_PATH);
 
+    $filename = basename($path) . '.bmp';
+    $checked = wp_check_filetype_and_ext($tempPath, $filename);
+    if ($checked['proper_filename'] !== false) {
+        $filename = $checked['proper_filename'];
+    }
     $file = [
-        'name' => basename($path),
+        'name' => $filename,
         'tmp_name' => $tempPath,
     ];
 
@@ -67,8 +72,7 @@ function zw_vimeo_save_thumbnail($post_ID)
     $post_array['meta_input']['vimeo_resource_key'] = $key;
     $thumbnail_id = media_handle_sideload($file, $post_ID, null, $post_array);
     if ($thumbnail_id instanceof WP_Error) {
-        var_dump($path);
-        var_dump($thumbnail_id);
+        error_log('Error uploading file: ' . $thumbnail_id->get_error_message());
         return;
     }
 
