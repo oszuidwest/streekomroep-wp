@@ -526,20 +526,31 @@ function zw_sort_fragments_selector($args, $field, $post_id)
     return $args;
 }
 
+add_filter('cron_schedules', function ($schedules) {
+    // add a 'weekly' schedule to the existing set
+    $schedules['10mins'] = array(
+        'interval' => 10 * 60,
+        'display' => __('Every 10 minutes')
+    );
+    return $schedules;
+});
+
 add_action('init', function () {
     register_deactivation_hook(__FILE__, 'zw_deactivate');
 
-    if (!wp_next_scheduled('zw_hourly')) {
-        wp_schedule_event(time(), 'hourly', 'zw_hourly');
+    if (!wp_next_scheduled('zw_10mins')) {
+        wp_schedule_event(time(), '10mins', 'zw_10mins');
     }
 });
 
 function zw_deactivate()
 {
+    // Legacy hook
     wp_clear_scheduled_hook('zw_hourly');
+    wp_clear_scheduled_hook('zw_10mins');
 }
 
-add_action('zw_hourly', 'zw_project_cron');
+add_action('zw_10mins', 'zw_project_cron');
 function zw_project_cron()
 {
     $shows = Timber::get_posts([
