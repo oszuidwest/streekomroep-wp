@@ -526,8 +526,11 @@ function zw_sort_fragments_selector($args, $field, $post_id)
     return $args;
 }
 
+/*
+ * Create custom cron to refresh Vimeo content every 10min
+ */
 add_filter('cron_schedules', function ($schedules) {
-    // add a 'weekly' schedule to the existing set
+    // add a '10mins' schedule to the existing set
     $schedules['10mins'] = array(
         'interval' => 10 * 60,
         'display' => __('Every 10 minutes')
