@@ -127,6 +127,24 @@ if ($timber_post->post_type == 'tv') {
         }
 
         if ($video) {
+            $videoData = new VideoData();
+            $videoData->description = $video->getDescription();
+            $videoData->name = $video->getName() . ' - ZuidWest TV';
+            $videoData->duration = $video->getDuration();
+            $videoData->uploadDate = $video->getBroadcastDate()->format('c');
+            $videoData->thumbnailUrl = $video->getLargestThumbnail()->link;
+            $videoData->contentUrl = $video->getFile();
+            add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
+                $pieces[] = new VideoObject($videoData);
+                return $pieces;
+            }, 11, 2);
+            add_filter('wpseo_schema_webpage', function ($data, $context) {
+                $data['video'] = [
+                    ['@id' => $context->canonical . '#video']
+                ];
+                return $data;
+            }, 10, 2);
+
             $context['video'] = $video;
             $context['embed'] = $wp_embed->shortcode([], $video->getLink());
             Timber::render('single-tv-video.twig', $context);
