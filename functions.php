@@ -536,12 +536,12 @@ add_filter('cron_schedules', function ($schedules) {
 });
 
 add_action('init', function () {
-    register_deactivation_hook(__FILE__, 'zw_deactivate');
-
     if (!wp_next_scheduled('zw_10mins')) {
         wp_schedule_event(time(), '10mins', 'zw_10mins');
     }
 });
+
+add_action('switch_theme', 'zw_deactivate');
 
 function zw_deactivate()
 {
