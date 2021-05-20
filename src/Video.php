@@ -140,4 +140,14 @@ class Video
         $this->initMeta();
         return $this->description;
     }
+
+    public function getDuration()
+    {
+        return $this->data->duration;
+    }
+
+    public function getFile()
+    {
+        return $this->data->files[0]->link;
+    }
 }

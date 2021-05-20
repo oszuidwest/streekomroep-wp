@@ -450,7 +450,7 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri&sizes=295x166,1920')
+function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri,duration,files&sizes=295x166,1920')
 {
     $args = [
         'timeout' => 30,
@@ -641,51 +641,77 @@ function zw_fragment_get_file_url($post_id)
     return $file;
 }
 
+class VideoData
+{
+    public $duration;
+    public $description;
+    public $name;
+    public $uploadDate;
+    public $thumbnailUrl;
+    public $contentUrl;
+}
+
+function fragment_get_video($id)
+{
+    $fragment = get_post($id);
+    $video = new VideoData();
+    $video->duration = (int)get_field('fragment_duur', $id, false);
+    $video->name = get_the_title($fragment);
+    $video->description = get_the_content(null, false, $fragment);
+    $video->uploadDate = get_the_date('c', $fragment);
+    $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
+    $video->contentUrl = zw_fragment_get_file_url($fragment->ID);
+
+    return $video;
+}
+
 class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
 {
+    public $video;
+
+    public function __construct(VideoData $video)
+    {
+        $this->video = $video;
+    }
 
     public function generate()
     {
-        $timespan = (int)get_field('fragment_duur', $this->context->post->ID, false);
-        $min = floor($timespan / 60);
+        $timespan = $this->video->duration;
+        $hour = floor($timespan / (60 * 60));
+        $min = floor($timespan / 60) % 60;
         $sec = $timespan % 60;
-
-        $file = zw_fragment_get_file_url($this->context->post->ID);
 
         return [
             '@type' => 'VideoObject',
             '@id' => $this->context->canonical . '#video',
-            "name" => get_the_title($this->context->post),
-            "description" => get_the_content(null, false, $this->context->post),
+            "name" => $this->video->name,
+            "description" => $this->video->description,
             "thumbnailUrl" => [
-                get_the_post_thumbnail_url($this->context->post)
+                $this->video->thumbnailUrl
             ],
-            "uploadDate" => get_the_date('c', $this->context->post),
-            "duration" => sprintf('PT%dM%dS', $min, $sec),
+            "uploadDate" => $this->video->uploadDate,
+            "duration" => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
             "isFamilyFriendly" => 'true',
             "inLanguage" => 'nl_NL',
-            "contentUrl" => $file,
+            "contentUrl" => $this->video->contentUrl,
         ];
     }
 
     public function is_needed()
     {
-        if (!is_singular('fragment')) {
-            return false;
-        }
-
-        $type = get_field('fragment_type', false, false);
-        if ($type !== 'Video') {
-            return false;
-        }
-
         return true;
     }
 }
 
 function add_custom_schema_piece($pieces, $context)
 {
-    $pieces[] = new VideoObject();
+    if (is_singular('fragment')) {
+        $type = get_field('fragment_type', false, false);
+        if ($type === 'Video') {
+            $video = fragment_get_video($context->post->ID);
+            $pieces[] = new VideoObject($video);
+        }
+    }
 
     return $pieces;
 }
