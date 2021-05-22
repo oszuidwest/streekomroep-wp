@@ -139,6 +139,7 @@ if ($timber_post->post_type == 'tv') {
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) {
+                $data['url'] .= '?v=' . $_GET['v'];
                 $data['video'] = [
                     ['@id' => $context->canonical . '#video']
                 ];
