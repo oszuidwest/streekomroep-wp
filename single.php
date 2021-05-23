@@ -138,7 +138,11 @@ if ($timber_post->post_type == 'tv') {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
-            add_filter('wpseo_schema_webpage', function ($data, $context) {
+            add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {
+                $data['description'] = $video->getDescription();
+                $data['name'] = $videoData->name;
+                $data['datePublished'] = $videoData->uploadDate;
+                $data['dateModified'] = $videoData->uploadDate;
                 $data['url'] .= '?v=' . $_GET['v'];
                 $data['video'] = [
                     ['@id' => $context->canonical . '#video']
