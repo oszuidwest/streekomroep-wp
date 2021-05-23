@@ -559,6 +559,8 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
+
+    $fh = fopen(WP_CONTENT_DIR . '/zw_recrawl.txt', 'w+');
     foreach ($shows as $show) {
 
         $project_id = $show->meta('tv_show_gemist_locatie');
@@ -573,8 +575,14 @@ function zw_project_cron()
         } catch (Exception $e) {
             error_log($e);
         }
+
+        foreach ($videos as $video) {
+            fprintf($fh, "%s?v=%s\n", $show->link(), basename($video->uri));
+        }
         update_post_meta($show->ID, 'vimeo_data', $videos);
     }
+
+    fclose($fh);
 }
 
 function zw_sort_videos(array $videos)
