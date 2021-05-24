@@ -138,6 +138,14 @@ if ($timber_post->post_type == 'tv') {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
+            add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
+                $thumb = $video->getLargestThumbnail();
+                $data['url'] = $thumb->link;
+                $data['contentUrl'] = $thumb->link;
+                $data['width'] = $thumb->width;
+                $data['height'] = $thumb->height;
+                return $data;
+            }, 10, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {
                 $data['description'] = $video->getDescription();
                 $data['name'] = $videoData->name;
