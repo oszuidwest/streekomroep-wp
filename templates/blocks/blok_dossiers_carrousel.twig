@@ -1,8 +1,12 @@
 <div class="w-full mx-auto max-w-960">
     <h2 class="font-black font-round uppercase text-sm my-2">Dossiers</h2>
-    <div class="grid grid-cols-4 gap-4">
+</div>
+
+<div class="slider">
+    <div class="slider-container">
+        <div class="slider-padding"></div>
         {% for term in block.terms %}
-            <a href="{{ term.link }}" class="block overflow-hidden">
+            <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded">
                 <div class="aspect-h-16 aspect-w-9">
                     <div>
                         <img class="absolute inset-0 w-full" loading="lazy"
@@ -15,5 +19,56 @@
                 </div>
             </a>
         {% endfor %}
+        <div class="slider-padding"></div>
     </div>
 </div>
+
+<style>
+    .slider {
+        --grid-columns: 3;
+        --grid-container: calc(min(100vw, 60rem) - 2rem);
+        --grid-gutter: 0.5rem;
+
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /** sm */
+    @media (min-width: 640px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    /** md */
+    @media (min-width: 768px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    /** lg */
+    @media (min-width: 1024px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    .slider-container {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+    }
+
+    .slider-padding {
+        flex: none;
+        width: calc(((100vw - var(--grid-container)) / 2) - (var(--grid-gutter) / 2));
+    }
+
+    .slider-term {
+        flex: none;
+        width: calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));
+        min-width: 140px;
+        margin: 0 calc(var(--grid-gutter) / 2);
+    }
+</style>
