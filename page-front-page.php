@@ -92,6 +92,14 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossier':
+            $block['selecteer_dossier']=50;
+            $term = get_term($block['selecteer_dossier'], 'dossier');
+            if (!$term || is_wp_error($term)) {
+                // Term does not exist
+                $block['acf_fc_layout'] = 'error';
+                $block['error'] = 'Er is geen dossier geselecteerd';
+                break;
+            }
             $block['term'] = Timber::get_term($block['selecteer_dossier'], 'dossier');
             $block['posts'] = Timber::get_posts(
                 [
