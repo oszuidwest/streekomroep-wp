@@ -92,7 +92,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossier':
-            $block['selecteer_dossier']=50;
             $term = get_term($block['selecteer_dossier'], 'dossier');
             if (!$term || is_wp_error($term)) {
                 // Term does not exist
