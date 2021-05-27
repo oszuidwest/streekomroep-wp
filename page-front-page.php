@@ -116,6 +116,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossiers_carrousel':
+            // Block requires jquery for scrolling
+            wp_enqueue_script('jquery');
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => true,
