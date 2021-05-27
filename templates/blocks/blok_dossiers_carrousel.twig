@@ -3,9 +3,13 @@
         --grid-columns: 3;
         --grid-container: calc(min(100vw, 60rem) - 2rem);
         --grid-gutter: 0.5rem;
+        --grid-inset: calc(((100vw - var(--grid-container)) / 2) - (var(--grid-gutter) / 2));
+    }
 
+    .slider-wrapper {
         overflow: scroll;
         -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
     }
 
     /** sm */
@@ -37,7 +41,7 @@
 
     .slider-padding {
         flex: none;
-        width: calc(((100vw - var(--grid-container)) / 2) - (var(--grid-gutter) / 2));
+        width: var(--grid-inset)
     }
 
     .slider-term {
@@ -64,80 +68,69 @@
     </a>
 {% endmacro %}
 
-<div class="max-w-960 mx-auto px-4">
-    <h2 class="font-black font-round uppercase text-sm my-2">CSS</h2>
-</div>
-<div class="slider">
-    <div class="slider-container">
-        <div class="slider-padding"></div>
-        {% for term in block.terms %}
-            {{ _self.render_term(term) }}
-        {% endfor %}
-        <div class="slider-padding"></div>
+<div class="py-4">
+    <div class="max-w-960 mx-auto px-4">
+        <h2 class="font-bold text-3xl pb-4">Dossiers</h2>
     </div>
-</div>
-
-
-<div class="max-w-960 mx-auto px-4">
-    <h2 class="font-black font-round uppercase text-sm my-2">Flickity</h2>
-</div>
-<div class="slider slider-flickity">
-    {% for term in block.terms %}
-        {{ _self.render_term(term) }}
-    {% endfor %}
-</div>
-
-
-<link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
-<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
-<script>
-    // vanilla JS
-    var flkty = new Flickity('.slider-flickity', {
-        groupCells: 4
-    });
-    flkty.next();
-</script>
-
-
-<div class="max-w-960 mx-auto px-4">
-    <h2 class="font-black font-round uppercase text-sm my-2">SwiperJS</h2>
-</div>
-<!-- Slider main container -->
-<div class="swiper-container slider">
-    <!-- Additional required wrapper -->
-    <div class="swiper-wrapper">
-        <!-- Slides -->
-        {% for term in block.terms %}
-            <div class="swiper-slide">
-                {{ _self.render_term(term) }}
+    <div class="slider">
+        <div class="slider-wrapper">
+            <div class="slider-container">
+                <div class="slider-padding"></div>
+                {% for term in block.terms %}
+                    {{ _self.render_term(term) }}
+                {% endfor %}
+                <div class="slider-padding"></div>
             </div>
-        {% endfor %}
+        </div>
+        <div class="btn-next"></div>
+        <div class="btn-prev"></div>
     </div>
-
-    <!-- If we need navigation buttons -->
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-button-next"></div>
 </div>
 
+<style>
+    .slider {
+        position: relative;
+    }
 
-<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
-<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    .btn-next, .btn-prev {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: var(--grid-inset);
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-next:hover,
+    .btn-prev:hover {
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    @media (pointer: fine) {
+        .btn-next, .btn-prev {
+            display: block;
+        }
+    }
+
+    .btn-prev {
+        left: 0;
+    }
+
+    .btn-next {
+        right: 0;
+    }
+</style>
+
 <script>
-    const swiper = new Swiper('.swiper-container', {
-        // Optional parameters
-        direction: 'horizontal',
-        loop: false,
-
-        slidesOffsetBefore: 32,
-        slidesOffsetAfter: 32,
-        slidesPerView: 'auto',
-
-
-        // Navigation arrows
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-    });
+    (function ($) {
+        let slider = $('.slider');
+        slider.on('click', '.btn-next', function (e) {
+            let wrapper = slider.find('.slider-wrapper')[0];
+            wrapper.scrollLeft += slider.find('.slider-term').first().outerWidth(true);
+        });
+        slider.on('click', '.btn-prev', function (e) {
+            let wrapper = slider.find('.slider-wrapper')[0];
+            wrapper.scrollLeft -= slider.find('.slider-term').first().outerWidth(true);
+        });
+    })(jQuery);
 </script>
-
