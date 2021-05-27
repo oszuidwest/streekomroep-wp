@@ -124,13 +124,21 @@
 <script>
     (function ($) {
         let slider = $('.slider');
+        var position = 0;
+
         slider.on('click', '.btn-next', function (e) {
             let wrapper = slider.find('.slider-wrapper')[0];
-            wrapper.scrollLeft += slider.find('.slider-term').first().outerWidth(true);
+            let columnCount = getComputedStyle(wrapper,null).getPropertyValue('--grid-columns');
+            position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
+            // TODO: clamp max position
+            wrapper.scrollLeft = position;
         });
         slider.on('click', '.btn-prev', function (e) {
             let wrapper = slider.find('.slider-wrapper')[0];
-            wrapper.scrollLeft -= slider.find('.slider-term').first().outerWidth(true);
+            let columnCount = getComputedStyle(wrapper,null).getPropertyValue('--grid-columns');
+            position -= slider.find('.slider-term').first().outerWidth(true) * columnCount;
+            position = Math.max(position, 0);
+            wrapper.scrollLeft = position;
         });
     })(jQuery);
 </script>
