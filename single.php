@@ -19,7 +19,12 @@ $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
     global $wp_embed;
-    $context['embed'] = $wp_embed->shortcode([], $timber_post->fragment_url);
+    if ($timber_post->meta('fragment_type') === 'Video') {
+        $context['embed'] = $wp_embed->shortcode([], $timber_post->fragment_url);
+    } else if ($timber_post->meta('fragment_type') === 'Audio') {
+        wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video-js.min.css');
+        wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video.min.js');
+    }
 
     $context['posts'] = Timber::get_posts(array(
         'post_type' => 'post',
