@@ -9,6 +9,7 @@
  * @since    Timber 0.1
  */
 
+use Streekomroep\Fragment;
 use Streekomroep\Video;
 
 $context = Timber::context();
@@ -18,14 +19,8 @@ $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
-    global $wp_embed;
-    if ($timber_post->meta('fragment_type') === 'Video') {
-        $context['embed'] = $wp_embed->shortcode([], $timber_post->fragment_url);
-    } else if ($timber_post->meta('fragment_type') === 'Audio') {
-        wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video-js.min.css');
-        wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video.min.js');
-    }
-
+    /** @var Fragment $timber_post */
+    $timber_post->enqueueScriptsAndStyles();
     $context['posts'] = Timber::get_posts(array(
         'post_type' => 'post',
         'ignore_sticky_posts' => true,
@@ -174,10 +169,10 @@ if ($timber_post->post_type == 'tv') {
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
+    /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
-
-    global $wp_embed;
-    $context['embed'] = $wp_embed->shortcode([], $fragment->fragment_url);
+    $fragment->enqueueScriptsAndStyles();
+    $context['embed'] = $fragment->getEmbed();
 }
 
 if (post_password_required($timber_post->ID)) {

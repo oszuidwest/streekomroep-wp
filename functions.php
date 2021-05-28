@@ -81,6 +81,7 @@ Timber::$autoescape = false;
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
 require_once 'src/Post.php';
+require_once 'src/Fragment.php';
 require_once 'src/RadioBroadcast.php';
 require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
@@ -89,7 +90,13 @@ require_once 'src/Video.php';
 
 // Use default class for all post types, except for pages.
 add_filter('Timber\PostClassMap', function () {
-    return \Streekomroep\Post::class;
+    return [
+        'post' => \Streekomroep\Post::class,
+        'fragment' => \Streekomroep\Fragment::class,
+        'agenda' => \Streekomroep\Post::class,
+        'fm' => \Streekomroep\Post::class,
+        'tv' => \Streekomroep\Post::class,
+    ];
 });
 
 new \Streekomroep\Site();
