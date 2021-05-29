@@ -831,7 +831,7 @@ add_action('template_redirect', function () {
             add_filter('wpseo_opengraph_title', $title);
             add_filter('wpseo_opengraph_desc', $description);
             add_filter('wpseo_opengraph_type', function () {
-                return 'video';
+                return 'video.episode';
             });
             add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
                 $thumb = $video->getLargestThumbnail();
