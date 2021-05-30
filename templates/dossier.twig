@@ -4,8 +4,17 @@
 {% extends "archive.twig" %}
 
 {% block content %}
-    {# <img src="{{ Image(term.dossier_afbeelding_breed).src }}"/> #}
-    <div class="w-full mx-auto max-w-960 py-4 px-4">
+    <div class="lg:hidden">
+        <div class="aspect-w-21 aspect-h-9">
+            <div>
+                <img class="object-cover absolute inset-0 w-full h-full"
+                     src="{{ Image(term.dossier_afbeelding_breed).src }}"/>
+                <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white"></div>
+            </div>
+
+        </div>
+    </div>
+    <div class="w-full mx-auto max-w-960 py-4 px-4 -mt-16 relative lg:mt-0">
         <div class="lg:grid gap-4 grid-cols-3" style="grid-template-rows: fit-content(50%) 1fr;">
             <div class="lg:col-start-2 lg:col-span-2">
                 <h1 class="font-bold">

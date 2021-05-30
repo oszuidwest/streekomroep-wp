@@ -5,6 +5,9 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      aspectRatio: {
+        21: '21',
+      },
       fontFamily: {
         round: ['Nunito', 'sans-serif'],
       },
