@@ -53,8 +53,14 @@ if ($topic) {
             ]
         ]
     );
-    $context['topical'] = $related;
-} else if ($region) {
+
+    // Only show block if there's other posts to show
+    if (count($related['posts']) >= 1) {
+        $context['topical'] = $related;
+    }
+}
+
+if ($region && !isset($context['topical'])) {
     $related = [];
     $related['region'] = $region;
     $related['posts'] = Timber::get_posts(
