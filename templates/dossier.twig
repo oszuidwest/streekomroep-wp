@@ -8,7 +8,10 @@
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         <div class="lg:grid gap-4 grid-cols-3">
             <div class="lg:col-start-2 lg:col-span-2">
-                <h1 class="font-bold text-3xl pb-4">{{ term.name }}</h1>
+                <h1 class="font-bold pb-4 lg:pb-0">
+                    <span class="block text-sm tracking-wide uppercase font-round">Dossier</span>
+                    <span class="block text-3xl">{{ term.name }}</span>
+                </h1>
             </div>
 
             <div class="lg:row-start-1 lg:row-span-2">
@@ -20,7 +23,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="prose">{{ term.description }}</div>
+                <div class="prose pb-4">{{ term.description }}</div>
             </div>
 
             <div class="lg:col-start-2 lg:col-span-2 grid sm:grid-cols-2 gap-4">
