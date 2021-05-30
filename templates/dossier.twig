@@ -4,11 +4,11 @@
 {% extends "archive.twig" %}
 
 {% block content %}
-    <img src="{{ Image(term.dossier_afbeelding).src }}"/>
+    {# <img src="{{ Image(term.dossier_afbeelding).src }}"/> #}
     <div class="w-full mx-auto max-w-960 py-4 px-4">
-        <div class="lg:grid gap-4 grid-cols-3">
+        <div class="lg:grid gap-4 grid-cols-3" style="grid-template-rows: fit-content(50%) 1fr;">
             <div class="lg:col-start-2 lg:col-span-2">
-                <h1 class="font-bold pb-4 lg:pb-0">
+                <h1 class="font-bold">
                     <span class="block text-sm tracking-wide uppercase font-round">Dossier</span>
                     <span class="block text-3xl">{{ term.name }}</span>
                 </h1>
@@ -23,7 +23,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="prose pb-4">{{ term.description }}</div>
+                <div class="prose py-4 w-auto">{{ term.description }}</div>
             </div>
 
             <div class="lg:col-start-2 lg:col-span-2 grid sm:grid-cols-2 gap-4">
