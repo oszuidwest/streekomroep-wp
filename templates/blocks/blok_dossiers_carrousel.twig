@@ -82,14 +82,50 @@
                 <div class="slider-padding"></div>
             </div>
         </div>
-        <div class="btn-next"></div>
-        <div class="btn-prev"></div>
+        <div class="shim shim-next js-next"></div>
+        <div class="shim shim-prev js-prev"></div>
+        <button class="slider-btn slider-btn-prev flickity-prev-next-button js-prev text-gray-800"
+                aria-label="Vorige">
+            {{ icon('icon-arrow_back') }}
+        </button>
+        <button class="slider-btn slider-btn-next flickity-prev-next-button js-next text-gray-800"
+                aria-label="Volgende">
+            {{ icon('icon-arrow_forward') }}
+        </button>
     </div>
 </div>
 
 <style>
     .slider {
         position: relative;
+    }
+
+    .slider-container {
+        width: fit-content;
+    }
+
+    .slider-btn {
+        display: none;
+        width: 4rem;
+        height: 4rem;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        margin: -2rem;
+        box-shadow: rgb(0 0 0 / 20%) 0px 0.125em 0.625em 0px;
+        transition: transform 250ms ease-in-out 0s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slider-btn-prev {
+        left: var(--grid-inset);
+    }
+
+    .slider-btn-next {
+        right: var(--grid-inset);
     }
 
     .slider-wrapper {
@@ -100,7 +136,7 @@
         display: none;
     }
 
-    .btn-next, .btn-prev {
+    .shim {
         display: none;
         position: absolute;
         top: 0;
@@ -109,22 +145,26 @@
         background: rgba(255, 255, 255, 0.5);
     }
 
-    .btn-next:hover,
-    .btn-prev:hover {
+    .shim-next:hover,
+    .shim-prev:hover {
         background: rgba(255, 255, 255, 0.7);
     }
 
     @media (pointer: fine) {
-        .btn-next, .btn-prev {
+        .shim-next, .shim-prev {
+            display: block;
+        }
+
+        .slider-btn {
             display: block;
         }
     }
 
-    .btn-prev {
+    .shim-prev {
         left: 0;
     }
 
-    .btn-next {
+    .shim-next {
         right: 0;
     }
 </style>
@@ -134,16 +174,18 @@
         let slider = $('.slider');
         var position = 0;
 
-        slider.on('click', '.btn-next', function (e) {
+        slider.on('click', '.js-next', function (e) {
             let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper,null).getPropertyValue('--grid-columns');
+            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
             position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
-            // TODO: clamp max position
+            let maxPosition = slider.find('.slider-container').outerWidth(true) - slider.find('.slider-wrapper').innerWidth();
+            console.log(maxPosition);
+            position = Math.min(position, maxPosition);
             wrapper.scrollLeft = position;
         });
-        slider.on('click', '.btn-prev', function (e) {
+        slider.on('click', '.js-prev', function (e) {
             let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper,null).getPropertyValue('--grid-columns');
+            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
             position -= slider.find('.slider-term').first().outerWidth(true) * columnCount;
             position = Math.max(position, 0);
             wrapper.scrollLeft = position;
