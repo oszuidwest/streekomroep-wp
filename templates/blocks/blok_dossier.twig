@@ -19,6 +19,9 @@
                         {% include 'partial/dossier-post-tile.twig' with { post: post } %}
                     {% endfor %}
                 </ul>
+                <div class="block px-2 mb-4 hover:underline ">
+                    <a href="{{ block.term.link }}" class="p-2">Alles over {{ block.term.name }} →</a>
+                </div>
             </div>
 
             <div class="col-start-1 row-start-1 relative z-10">
