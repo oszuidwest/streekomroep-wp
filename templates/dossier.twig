@@ -4,8 +4,45 @@
 {% extends "archive.twig" %}
 
 {% block content %}
-    <h1>{{ term.name }}</h1>
-    <img src="{{ Image(term.dossier_afbeelding).src }}"/>
-    <div class="prose">{{ term.description }}</div>
-    {{ parent() }}
+    <div class="lg:hidden">
+        <div class="aspect-w-21 aspect-h-9">
+            <div>
+                <img class="object-cover absolute inset-0 w-full h-full"
+                     src="{{ Image(term.dossier_afbeelding_breed).src }}"/>
+                <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white"></div>
+            </div>
+
+        </div>
+    </div>
+    <div class="w-full mx-auto max-w-960 py-4 px-4 -mt-16 relative lg:mt-0">
+        <div class="lg:grid gap-4 grid-cols-3" style="grid-template-rows: fit-content(50%) 1fr;">
+            <div class="lg:col-start-2 lg:col-span-2">
+                <h1 class="font-bold">
+                    <span class="block text-sm tracking-wide uppercase font-round">Dossier</span>
+                    <span class="block text-3xl">{{ term.name }}</span>
+                </h1>
+            </div>
+
+            <div class="lg:row-start-1 lg:row-span-2">
+                <div class="hidden lg:block overflow-hidden bg-gray-800 rounded">
+                    <div class="aspect-h-16 aspect-w-9">
+                        <div>
+                            <img class="absolute inset-0 w-full" loading="lazy"
+                                 src="{{ Image(term.meta('dossier_afbeelding_hoog'))|resize(9*48,16*48) }}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="prose py-4 w-auto">{{ term.description }}</div>
+            </div>
+
+            <div class="lg:col-start-2 lg:col-span-2 grid sm:grid-cols-2 gap-4">
+                {% for post in posts %}
+                    {% include 'partial/tile-post.twig' with { post: post } %}
+                {% endfor %}
+            </div>
+        </div>
+
+
+        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+    </div>
 {% endblock %}

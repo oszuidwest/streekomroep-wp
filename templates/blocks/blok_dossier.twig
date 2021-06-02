@@ -1,21 +1,38 @@
 <div class="bg-gray-800 text-white">
     <div class="w-full mx-auto max-w-960">
-        <div class="sm:grid gap-4 grid-cols-2">
-            <div class="px-4 sm:px-0">
-                {% set title = block.term.title %}
-                {% if block.tekst_boven_dossier %}
-                    {% set title = block.tekst_boven_dossier %}
-                {% endif %}
-                <h1 class="text-3xl font-bold">{{ title }}</h1>
-                <img src="{{ Image(block.term.dossier_afbeelding_breed).src }}"/>
-                <div class="prose text-white">{{ block.term.description }}</div>
-            </div>
-            <ul>
-                {% for post in block.posts %}
-                    {% include 'partial/dossier-post-tile.twig' with { post: post } %}
-                {% endfor %}
-            </ul>
-        </div>
+        <div class="lg:grid grid-cols-3">
+            <div class="lg:col-span-2 lg:col-start-2 relative z-20">
+                <div class="px-4 pt-4">
+                    {% if block.tekst_boven_dossier %}
+                        <h1 class="text-3xl font-bold">{{ block.tekst_boven_dossier }}</h1>
+                    {% else %}
+                        <h1 class="font-bold">
+                            <span class="block text-sm tracking-wide uppercase font-round">Dossier</span>
+                            <span class="block text-3xl">{{ block.term.name }}</span>
+                        </h1>
+                    {% endif %}
+                    <div class="prose text-white py-4">{{ block.term.description }}</div>
+                </div>
 
+                <ul class="divide-y divide-gray-700 mb-4">
+                    {% for post in block.posts %}
+                        {% include 'partial/dossier-post-tile.twig' with { post: post } %}
+                    {% endfor %}
+                </ul>
+                <div class="block px-2 pb-4 hover:underline ">
+                    <a href="{{ block.term.link }}" class="p-2">Alles over {{ block.term.name }} →</a>
+                </div>
+            </div>
+
+            <div class="col-start-1 row-start-1 relative z-10">
+                <div class="absolute inset-y-0 -inset-x-8">
+                    <img class="absolute inset-0 w-full h-full object-cover" loading="lazy"
+                         src="{{ Image(block.term.meta('dossier_afbeelding_breed')) }}"/>
+                    <div class="absolute left-0 inset-y-0 w-16 bg-gradient-to-r from-gray-800"></div>
+                    <div class="absolute right-0 inset-y-0 w-1/2 bg-gradient-to-l from-gray-800"></div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>

@@ -1,19 +1,193 @@
-<div class="w-full mx-auto max-w-960">
-    <h2 class="font-black font-round uppercase text-sm my-2">Dossiers</h2>
-    <div class="grid grid-cols-4 gap-4">
-        {% for term in block.terms %}
-            <a href="{{ term.link }}" class="block overflow-hidden">
-                <div class="aspect-h-16 aspect-w-9">
-                    <div>
-                        <img class="absolute inset-0 w-full" loading="lazy"
-                             src="{{ Image(term.meta('dossier_afbeelding_hoog'))|resize(9*48,16*48) }}"/>
-                        <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
-                        <div class="block absolute left-0 right-0 bottom-0 p-4">
-                            <h1 class="block font-black text-xl text-white text-center">{{ term.title }}</h1>
-                        </div>
-                    </div>
+<style>
+    .slider {
+        --grid-columns: 3;
+        --grid-container: calc(min(100vw, 60rem) - 2rem);
+        --grid-gutter: 0.5rem;
+        --grid-inset: calc(((100vw - var(--grid-container)) / 2) - (var(--grid-gutter) / 2));
+    }
+
+    .slider-wrapper {
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /** sm */
+    @media (min-width: 640px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    /** md */
+    @media (min-width: 768px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    /** lg */
+    @media (min-width: 1024px) {
+        .slider {
+            --grid-columns: 4;
+        }
+    }
+
+    .slider-container {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+    }
+
+    .slider-padding {
+        flex: none;
+        width: var(--grid-inset)
+    }
+
+    .slider-term {
+        flex: none;
+        width: calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));
+        min-width: 140px;
+        margin: 0 calc(var(--grid-gutter) / 2);
+    }
+</style>
+
+
+{% macro render_term(term) %}
+    <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded">
+        <div class="aspect-h-16 aspect-w-9">
+            <div>
+                <img class="absolute inset-0 w-full" loading="lazy"
+                     src="{{ Image(term.meta('dossier_afbeelding_hoog'))|resize(9*48,16*48) }}"/>
+                <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
+                <div class="block absolute left-0 right-0 bottom-0 p-4">
+                    <h1 class="block font-black text-md sm:text-xl text-white text-center">{{ term.title }}</h1>
                 </div>
-            </a>
-        {% endfor %}
+            </div>
+        </div>
+    </a>
+{% endmacro %}
+
+<div class="py-4">
+    <div class="max-w-960 mx-auto px-4">
+        <h2 class="font-bold text-3xl pb-4">Dossiers</h2>
+    </div>
+    <div class="slider">
+        <div class="slider-wrapper">
+            <div class="slider-container">
+                <div class="slider-padding"></div>
+                {% for term in block.terms %}
+                    {{ _self.render_term(term) }}
+                {% endfor %}
+                <div class="slider-padding"></div>
+            </div>
+        </div>
+        <div class="shim shim-next js-next"></div>
+        <div class="shim shim-prev js-prev"></div>
+        <button class="slider-btn slider-btn-prev flickity-prev-next-button js-prev text-gray-800"
+                aria-label="Vorige">
+            {{ icon('icon-arrow_back') }}
+        </button>
+        <button class="slider-btn slider-btn-next flickity-prev-next-button js-next text-gray-800"
+                aria-label="Volgende">
+            {{ icon('icon-arrow_forward') }}
+        </button>
     </div>
 </div>
+
+<style>
+    .slider {
+        position: relative;
+    }
+
+    .slider-container {
+        width: fit-content;
+    }
+
+    .slider-btn {
+        display: none;
+        width: 4rem;
+        height: 4rem;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        margin: -2rem;
+        box-shadow: rgb(0 0 0 / 20%) 0px 0.125em 0.625em 0px;
+        transition: transform 250ms ease-in-out 0s;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slider-btn-prev {
+        left: var(--grid-inset);
+    }
+
+    .slider-btn-next {
+        right: var(--grid-inset);
+    }
+
+    .slider-wrapper {
+        scrollbar-width: none;
+    }
+
+    .slider-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    .shim {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: var(--grid-inset);
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .shim-next:hover,
+    .shim-prev:hover {
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    @media (pointer: fine) {
+        .shim-next, .shim-prev {
+            display: block;
+        }
+
+        .slider-btn {
+            display: flex;
+        }
+    }
+
+    .shim-prev {
+        left: 0;
+    }
+
+    .shim-next {
+        right: 0;
+    }
+</style>
+
+<script>
+    (function ($) {
+        let slider = $('.slider');
+        var position = 0;
+
+        slider.on('click', '.js-next', function (e) {
+            let wrapper = slider.find('.slider-wrapper')[0];
+            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
+            position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
+            let maxPosition = slider.find('.slider-container').outerWidth(true) - slider.find('.slider-wrapper').innerWidth();
+            console.log(maxPosition);
+            position = Math.min(position, maxPosition);
+            wrapper.scrollLeft = position;
+        });
+        slider.on('click', '.js-prev', function (e) {
+            let wrapper = slider.find('.slider-wrapper')[0];
+            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
+            position -= slider.find('.slider-term').first().outerWidth(true) * columnCount;
+            position = Math.max(position, 0);
+            wrapper.scrollLeft = position;
+        });
+    })(jQuery);
+</script>

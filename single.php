@@ -9,6 +9,7 @@
  * @since    Timber 0.1
  */
 
+use Streekomroep\Fragment;
 use Streekomroep\Video;
 
 $context = Timber::context();
@@ -18,9 +19,8 @@ $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
-    global $wp_embed;
-    $context['embed'] = $wp_embed->shortcode([], $timber_post->fragment_url);
-
+    /** @var Fragment $timber_post */
+    $timber_post->enqueueScriptsAndStyles();
     $context['posts'] = Timber::get_posts(array(
         'post_type' => 'post',
         'ignore_sticky_posts' => true,
@@ -53,8 +53,14 @@ if ($topic) {
             ]
         ]
     );
-    $context['topical'] = $related;
-} else if ($region) {
+
+    // Only show block if there's other posts to show
+    if (count($related['posts']) >= 1) {
+        $context['topical'] = $related;
+    }
+}
+
+if ($region && !isset($context['topical'])) {
     $related = [];
     $related['region'] = $region;
     $related['posts'] = Timber::get_posts(
@@ -169,10 +175,10 @@ if ($timber_post->post_type == 'tv') {
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
+    /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
-
-    global $wp_embed;
-    $context['embed'] = $wp_embed->shortcode([], $fragment->fragment_url);
+    $fragment->enqueueScriptsAndStyles();
+    $context['embed'] = $fragment->getEmbed();
 }
 
 if (post_password_required($timber_post->ID)) {
