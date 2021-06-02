@@ -55,9 +55,9 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 return $right->lastEpisode->getBroadcastDate() <=> $left->lastEpisode->getBroadcastDate();
             });
 
-            // Show 2 videos and 4 shows
-            $videos = array_slice($candidates, 0, 2);
-            $shows = array_slice($candidates, 2, 4);
+            // Show 4 videos and 4 shows
+            $videos = array_slice($candidates, 0, 4);
+            $shows = array_slice($candidates, 4, 4);
 
             $videos = array_map(function ($item) {
                 $item->lastEpisode->show = $item;
