@@ -21,6 +21,7 @@
 		'show_in_nav_menus'          => true,
 		'show_tagcloud'              => true,
 		'show_in_rest'               => true,
+		'public'                     => true,
 		'rest_base'                  => 'regio',
 	);
 	register_taxonomy( 'regio', array( 'post', 'fragment', 'agenda' ), $args );
