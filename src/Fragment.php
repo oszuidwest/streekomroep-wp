@@ -9,6 +9,17 @@ use Timber\Twig;
 class Fragment extends Post
 {
 
+    public function region()
+    {
+        if (!$this->_region) {
+            $regions = $this->get_terms(['query' => ['taxonomy' => 'regio']]);
+            if (is_array($regions) && count($regions)) {
+                $this->_region = $regions[0];
+            }
+        }
+        return $this->_region;
+    }
+
     public function getEmbed()
     {
         if ($this->meta('fragment_type') === 'Video') {
