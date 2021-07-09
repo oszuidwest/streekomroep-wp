@@ -215,6 +215,33 @@ function zw_rest_api_init()
             },
         ]
     );
+    register_rest_field(
+        'tv',
+        'episodes',
+        [
+            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                $data = [];
+                $vimeo = get_post_meta($post_arr['id'], 'vimeo_data', true);
+                if (!is_array($vimeo)) {
+                    $vimeo = [];
+                }
+                $vimeo = zw_sort_videos($vimeo);
+
+                foreach ($vimeo as $video) {
+                    $d = [];
+                    $d['vimeo_id'] = $video->getId();
+                    $d['vimeo_link'] = $video->getLink();
+                    $d['title'] = $video->getName();
+                    $d['description'] = $video->getDescription();
+                    $d['date'] = $video->getBroadcastDate()->format('c');
+                    $d['thumnail'] = $video->getLargestThumbnail()->link;
+                    $data[] = $d;
+                }
+
+                return $data;
+            },
+        ]
+    );
 
     register_rest_route('zw/v1', '/broadcast_data', array(
         'methods' => 'GET',
