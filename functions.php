@@ -234,7 +234,7 @@ function zw_rest_api_init()
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
-                    $d['thumnail'] = $video->getLargestThumbnail()->link;
+                    $d['thumbnail'] = $video->getLargestThumbnail()->link;
                     $data[] = $d;
                 }
 
