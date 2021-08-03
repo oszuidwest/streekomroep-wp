@@ -243,6 +243,45 @@ function zw_rest_api_init()
         ]
     );
 
+    $eventDateFields = [
+        'start_date' => 'agenda_item_startdatum',
+        'end_date' => 'agenda_item_einddatum',
+    ];
+
+    foreach ($eventDateFields as $key => $value) {
+        register_rest_field(
+            'agenda',
+            $key,
+            [
+                'get_callback' => function ($post_arr, $attr, $request, $object_type) use ($value) {
+                    $date = DateTime::createFromFormat('Ymd', get_field($value, $post_arr['id'], false));
+                    return $date->format('Y-m-d');
+                }
+            ]
+        );
+    }
+
+    $eventFields = [
+        'event_type' => 'agenda_item_soort',
+        'ticket_price' => 'agenda_item_kosten',
+        'performer' => 'agenda_item_performer',
+        'organizer' => 'agenda_item_organisator',
+        'location' => 'agenda_item_locatie',
+        'ticket_url' => 'agenda_item_tickets',
+    ];
+
+    foreach ($eventFields as $key => $value) {
+        register_rest_field(
+            'agenda',
+            $key,
+            [
+                'get_callback' => function ($post_arr, $attr, $request, $object_type) use ($value) {
+                    return get_field($value, $post_arr['id']);
+                }
+            ]
+        );
+    }
+
     register_rest_route('zw/v1', '/broadcast_data', array(
         'methods' => 'GET',
         'callback' => function (WP_REST_Request $request) {
