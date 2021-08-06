@@ -106,3 +106,11 @@
     line-height: 1.3;
     margin: 0;
 }
+
+.prose .wp-caption * {
+    margin: 0;
+}
+
+.prose .wp-caption-text {
+    @apply text-sm text-gray-500 text-center pt-2;
+}
