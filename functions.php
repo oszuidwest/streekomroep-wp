@@ -445,7 +445,7 @@ function zw_rest_api_init()
 
                     case 'blok_nu_op_fmtv':
                         $output[] = [
-                            'type' => 'now_playing'
+                            'type' => 'now_onair'
                         ];
                         break;
 
