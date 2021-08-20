@@ -11,7 +11,7 @@
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "25",
+                "width": "20",
                 "class": "",
                 "id": ""
             },
@@ -38,7 +38,7 @@
                 ]
             ],
             "wrapper": {
-                "width": "75",
+                "width": "80",
                 "class": "",
                 "id": ""
             },

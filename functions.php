@@ -366,6 +366,106 @@ function zw_rest_api_init()
             return $response;
         }
     ));
+
+    register_rest_route('zw/v1', '/desking', array(
+        'methods' => 'GET',
+        'callback' => function (WP_REST_Request $request) {
+            $output = [];
+            $blocks = get_field('desking_blokken_voorpagina', 'option');
+
+            foreach ($blocks as $block) {
+                switch ($block['acf_fc_layout']) {
+                    case 'blok_top_stories':
+                        $output[] = [
+                            'type' => 'topstories',
+                        ];
+                        break;
+
+                    case 'blok_tv_gemist':
+                        $output[] = [
+                            'type' => 'recent_tv'
+                        ];
+                        break;
+
+                    case 'blok_fm_gemist':
+                        $output[] = [
+                            'type' => 'recent_fm'
+                        ];
+                        break;
+
+                    case 'blok_fragmenten_carrousel':
+                        $title = $block['tekst_boven_fragmenten'];
+                        if (empty($title)) {
+                            $title = null;
+                        }
+                        $output[] = [
+                            'type' => 'fragments',
+                            'title' => $title,
+                        ];
+                        break;
+
+                    case 'blok_artikel_lijst':
+                        $title = $block['tekst_boven_artikelen'];
+                        if (empty($title)) {
+                            $title = null;
+                        }
+                        $output[] = [
+                            'type' => 'posts',
+                            'title' => $title,
+                            'count' => $block['aantal_artikelen'],
+                            'offset' => $block['offset'],
+                        ];
+                        break;
+
+                    case 'blok_dossier':
+                        $term = get_term($block['selecteer_dossier'], 'dossier');
+                        $title = $block['tekst_boven_dossier'];
+                        if (empty($title)) {
+                            $title = $term->name;
+                        }
+
+                        $output[] = [
+                            'type' => 'dossier',
+                            'title' => $title,
+                            'term_id' => $term->term_id,
+                        ];
+                        break;
+
+                    case 'blok_dossiers_carrousel':
+                        $title = $block['tekst_boven_dossiers'];
+                        if (empty($title)) {
+                            $title = 'Dossiers';
+                        }
+
+                        $output[] = [
+                            'type' => 'dossier_carousel',
+                            'title' => $title,
+                        ];
+                        break;
+
+                    case 'blok_nu_op_fmtv':
+                        $output[] = [
+                            'type' => 'now_onair'
+                        ];
+                        break;
+
+                    case 'blok_meest_gelezen':
+                        $title = $block['tekst_boven_artikelen'];
+                        if (empty($title)) {
+                            $title = null;
+                        }
+
+                        $output[] = [
+                            'type' => 'popular',
+                            'title' => $title,
+                        ];
+                        break;
+                }
+            }
+
+            return $output;
+        }
+    ));
 }
 
 /**
