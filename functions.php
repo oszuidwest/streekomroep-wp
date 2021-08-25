@@ -229,7 +229,7 @@ function zw_rest_api_init()
 
                 foreach ($vimeo as $video) {
                     $d = [];
-                    $d['source'] = vimeo;
+                    $d['source'] = 'vimeo';
                     $d['vimeo_id'] = $video->getId();
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
