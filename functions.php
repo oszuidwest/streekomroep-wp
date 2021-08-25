@@ -243,6 +243,31 @@ function zw_rest_api_init()
         ]
     );
 
+    $types = ['tv', 'fm'];
+    foreach ($types as $type) {
+        register_rest_field(
+            $type,
+            'active',
+            [
+                'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                    return get_field($object_type . '_show_actief', $post_arr['id']);
+                }
+            ]);
+
+        register_rest_field(
+            $type,
+            'presenters',
+            [
+                'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                    $data = get_field($object_type . '_show_presentator', $post_arr['id']);
+                    if ($data === false) {
+                        $data = [];
+                    }
+                    return $data;
+                }
+            ]);
+    }
+
     $eventDateFields = [
         'start_date' => 'agenda_item_startdatum',
         'end_date' => 'agenda_item_einddatum',
