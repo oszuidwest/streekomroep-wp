@@ -177,8 +177,10 @@ if ($timber_post->post_type == 'tv') {
 if ($timber_post->post_gekoppeld_fragment) {
     /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
-    $fragment->enqueueScriptsAndStyles();
-    $context['embed'] = $fragment->getEmbed();
+    if ($fragment) {
+        $fragment->enqueueScriptsAndStyles();
+        $context['embed'] = $fragment->getEmbed();
+    }
 }
 
 if (post_password_required($timber_post->ID)) {
