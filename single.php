@@ -21,17 +21,7 @@ $context['post'] = $timber_post;
 if ($timber_post->post_type == 'fragment') {
     /** @var Fragment $timber_post */
     $timber_post->enqueueScriptsAndStyles();
-    $context['posts'] = Timber::get_posts(array(
-        'post_type' => 'post',
-        'ignore_sticky_posts' => true,
-        'meta_query' => array(
-            array(
-                'key' => 'post_gekoppeld_fragment', // name of custom field
-                'value' => '"' . $timber_post->id . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
-                'compare' => 'LIKE'
-            )
-        )
-    ));
+    $context['posts'] = fragment_get_posts($timber_post->id);
 }
 
 $topic = $timber_post->topic();
