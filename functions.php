@@ -307,8 +307,9 @@ function zw_rest_api_init()
         );
     }
 
-    register_rest_route('zw/v1', '/broadcast_data', array(
+    register_rest_route('zw/v1', '/broadcast_data', [
         'methods' => 'GET',
+        'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
             $schedule = new \Streekomroep\BroadcastSchedule();
             $response = [];
@@ -390,10 +391,11 @@ function zw_rest_api_init()
 
             return $response;
         }
-    ));
+    ]);
 
-    register_rest_route('zw/v1', '/desking', array(
+    register_rest_route('zw/v1', '/desking', [
         'methods' => 'GET',
+        'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
             $output = [];
             $blocks = get_field('desking_blokken_voorpagina', 'option');
@@ -490,7 +492,7 @@ function zw_rest_api_init()
 
             return $output;
         }
-    ));
+    ]);
 }
 
 /**
