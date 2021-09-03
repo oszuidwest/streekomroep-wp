@@ -215,6 +215,49 @@ function zw_rest_api_init()
             },
         ]
     );
+
+    register_rest_field(
+        'fragment',
+        'posts',
+        [
+            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                $posts = fragment_get_posts($post_arr['id']);
+                return array_map(function ($post) {
+                    return $post->id;
+                }, $posts);
+            },
+        ]
+    );
+
+    register_rest_field(
+        'fragment',
+        'source',
+        [
+            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
+                    return 'vimeo';
+                }
+
+                return null;
+            },
+        ]
+    );
+
+    register_rest_field(
+        'fragment',
+        'vimeo_id',
+        [
+            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
+                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
+                    $url = get_field('fragment_url', $post_arr['id'], false);
+                    return vimeo_id_from_url($url);
+                }
+
+                return null;
+            },
+        ]
+    );
+
     register_rest_field(
         'tv',
         'episodes',
@@ -307,8 +350,9 @@ function zw_rest_api_init()
         );
     }
 
-    register_rest_route('zw/v1', '/broadcast_data', array(
+    register_rest_route('zw/v1', '/broadcast_data', [
         'methods' => 'GET',
+        'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
             $schedule = new \Streekomroep\BroadcastSchedule();
             $response = [];
@@ -390,10 +434,11 @@ function zw_rest_api_init()
 
             return $response;
         }
-    ));
+    ]);
 
-    register_rest_route('zw/v1', '/desking', array(
+    register_rest_route('zw/v1', '/desking', [
         'methods' => 'GET',
+        'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
             $output = [];
             $blocks = get_field('desking_blokken_voorpagina', 'option');
@@ -490,7 +535,16 @@ function zw_rest_api_init()
 
             return $output;
         }
-    ));
+    ]);
+}
+
+function vimeo_id_from_url($url)
+{
+    if (preg_match('|^https://vimeo\.com/(\d+)|', $url, $m)) {
+        return (int)$m[1];
+    }
+
+    return null;
 }
 
 /**
@@ -910,6 +964,25 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
     {
         return true;
     }
+}
+
+/**
+ * @param $timber_post
+ * @return mixed
+ */
+function fragment_get_posts($fragmentID)
+{
+    return Timber::get_posts(array(
+        'post_type' => 'post',
+        'ignore_sticky_posts' => true,
+        'meta_query' => array(
+            array(
+                'key' => 'post_gekoppeld_fragment', // name of custom field
+                'value' => '"' . $fragmentID . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
+                'compare' => 'LIKE'
+            )
+        )
+    ));
 }
 
 function add_custom_schema_piece($pieces, $context)
