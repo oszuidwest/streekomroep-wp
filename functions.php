@@ -557,7 +557,9 @@ function vimeo_id_from_url($url)
 function zw_get_avatar_url($url, $id_or_email, $args)
 {
     $id = null;
-    if (is_numeric($id_or_email)) {
+    if ($id_or_email instanceof WP_User) {
+        $id = $id_or_email->ID;
+    } else if (is_numeric($id_or_email)) {
         $id = absint($id_or_email);
     }
     if ($id === null) {
