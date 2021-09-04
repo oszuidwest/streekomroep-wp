@@ -200,6 +200,27 @@ add_action('rest_api_init', 'zw_rest_api_init');
 
 function zw_rest_api_init()
 {
+    $fields = [
+        'image_wide' => 'dossier_afbeelding_breed',
+        'image_tall' => 'dossier_afbeelding_hoog'
+    ];
+    foreach ($fields as $apiField => $acfField) {
+        register_rest_field(
+            'dossier',
+            $apiField,
+            [
+                'get_callback' => function ($term_arr, $attr, $request, $object_type) use ($acfField) {
+                    $term = get_term($term_arr['id'], 'dossier');
+                    $field = get_field($acfField, $term);
+                    if ($field !== null) {
+                        return $field['url'];
+                    }
+
+                    return null;
+                }
+            ]);
+    }
+
     register_rest_field(
         'post',
         'kabelkrant_text',
@@ -557,7 +578,9 @@ function vimeo_id_from_url($url)
 function zw_get_avatar_url($url, $id_or_email, $args)
 {
     $id = null;
-    if (is_numeric($id_or_email)) {
+    if ($id_or_email instanceof WP_User) {
+        $id = $id_or_email->ID;
+    } else if (is_numeric($id_or_email)) {
         $id = absint($id_or_email);
     }
     if ($id === null) {
