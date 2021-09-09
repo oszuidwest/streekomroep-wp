@@ -3,9 +3,17 @@
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
         <h1 class="font-bold text-center text-2xl pt-4">De programma's van</h1>
-        <div class="flex justify-center font-bold text-4xl">
-            <span class="px-2">ZuidWest TV</span>
-            <a href="{{ function('get_post_type_archive_link', 'fm') }}" class="px-2 text-gray-400 hover:underline">ZuidWest FM</a>
+        <div class="flex justify-center font-bold text-4xl mt-2">
+            <span class="flex-none flex items-center p-3 mx-2 bg-gray-800 text-white rounded"
+               href="{{ function('get_post_type_archive_link', 'tv') }}">
+                {{ icon('icon-tv') }}
+                <span class="ml-2 text-sm font-round font-bold uppercase">ZuidWest TV</span>
+            </span>
+            <a class="flex-none flex items-center  mx-2 p-3 text-white bg-gray-100 hover:bg-gray-200 text-gray-900 rounded"
+               href="{{ function('get_post_type_archive_link', 'fm') }}">
+                {{ icon('icon-radio') }}
+                <span class="ml-2 text-sm font-round font-bold uppercase">ZuidWest FM</span>
+            </a>
         </div>
 
         <div class="prose text-center prose-lg mt-4 max-w-none">
