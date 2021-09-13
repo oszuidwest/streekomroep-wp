@@ -20,7 +20,6 @@ $context['post'] = $timber_post;
 
 if ($timber_post->post_type == 'fragment') {
     /** @var Fragment $timber_post */
-    $timber_post->enqueueScriptsAndStyles();
     $context['posts'] = fragment_get_posts($timber_post->id);
 }
 
@@ -168,7 +167,6 @@ if ($timber_post->post_gekoppeld_fragment) {
     /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
     if ($fragment) {
-        $fragment->enqueueScriptsAndStyles();
         $context['embed'] = $fragment->getEmbed();
     }
 }

@@ -65,6 +65,61 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     return;
 }
 
+
+add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
+
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    $id = vimeo_id_from_url($url);
+    if (!$id) {
+        return $default;
+    }
+
+    $response = vimeo_get('/videos/' . $id);
+    if ($response instanceof WP_Error) {
+        return $default;
+    }
+
+    if ($response['response']['code'] !== 200) {
+        return $default;
+    }
+
+    $body = json_decode($response['body']);
+
+    $m3u = null;
+    foreach ($body->files as $source) {
+        if ($source->quality === 'hls') {
+            $m3u = $source->link;
+            break;
+        }
+    }
+
+    if ($m3u === null) {
+        return $default;
+    }
+
+    // Determine poster
+    $bestPic = null;
+    $bestWidth = -1;
+    foreach ($body->pictures->sizes as $size) {
+        if ($size->width > $bestWidth) {
+            $bestPic = $size;
+        }
+    }
+
+    $out = '';
+
+    $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
+    if ($bestPic) {
+        $out .= ' poster="' . htmlspecialchars($bestPic->link) . '"';
+    }
+    $out .= '>';
+    $out .= '<source src="' . htmlspecialchars($m3u) . '" type="application/x-mpegURL">';
+    $out .= '</video>';
+
+    return $out;
+}
+
 require 'vimeo-thumbnail.php';
 
 /**
@@ -611,7 +666,8 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
 {
 
     $doc = new DOMDocument();
-    $doc->loadHTML('<div id="oembed">' . $cache . '</div>');
+    // Ignore warnings (invalid entities, unknown tags)
+    @$doc->loadHTML('<div id="oembed">' . $cache . '</div>');
 
     $iframes = $doc->getElementsByTagName('iframe');
     /** @var DOMElement $iframe */
@@ -1082,7 +1138,14 @@ function zw_remove_wp_block_library_css()
     wp_dequeue_style('wc-block-style');
 }
 
+function zw_add_videojs()
+{
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video.min.js');
+}
+
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
+add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
