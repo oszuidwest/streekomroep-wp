@@ -297,11 +297,7 @@ function zw_rest_api_init()
         'ranking',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $field = get_field_object('post_ranking', $post_arr['id']);
                 $selected = get_field('post_ranking', $post_arr['id']);
-                $selected = array_map(function ($key) use ($field) {
-                    return $field['choices'][$key];
-                }, $selected);
                 return $selected;
             },
         ]
