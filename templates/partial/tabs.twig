@@ -1,0 +1,22 @@
+{% macro tab_active(name, icon, link) %}
+    <span class="flex-none flex items-center p-3 mx-2 bg-gray-800 text-white rounded">
+                {{ icon(icon) }}
+                <span class="ml-2 text-sm font-round font-bold uppercase">{{ name }}</span>
+            </span>
+{% endmacro %}
+
+{% macro tab(name, icon, link) %}
+    <a class="flex-none flex items-center  mx-2 p-3 text-white bg-gray-100 hover:bg-gray-200 text-gray-900 rounded"
+       href="{{ link }}">
+        {{ icon(icon) }}
+        <span class="ml-2 text-sm font-round font-bold uppercase">{{ name }}</span>
+    </a>
+{% endmacro %}
+
+
+<h1 class="font-bold text-center text-2xl pt-4">{% block title %}{% endblock %}</h1>
+
+<div class="flex justify-center font-bold text-4xl mt-2">
+    {% block content %}
+    {% endblock %}
+</div>
