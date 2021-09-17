@@ -3,11 +3,16 @@
 {% set showArchive = false %}
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
-        <h1 class="font-bold text-center text-2xl pt-4">De programma's van</h1>
-        <div class="flex justify-center font-bold text-4xl">
-            <a href="{{ function('get_post_type_archive_link', 'tv') }}" class="px-2 text-gray-400 hover:underline">ZuidWest TV</a>
-            <span class="px-2">ZuidWest FM</span>
-        </div>
+        {% embed "partial/tabs.twig" %}
+            {% block title %}
+                De programma's van
+            {% endblock %}
+
+            {% block content %}
+                {{ _self.tab('ZuidWest TV', 'icon-tv', function('get_post_type_archive_link', 'tv')) }}
+                {{ _self.tab_active('ZuidWest FM', 'icon-radio', function('get_post_type_archive_link', 'fm')) }}
+            {% endblock %}
+        {% endembed %}
 
         <div class="prose text-center prose-lg mt-4 max-w-none">
             <p>Bekijk alle informatie over onze programma's en luister uitzendingen terug.</p>

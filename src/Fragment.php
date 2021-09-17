@@ -33,13 +33,4 @@ class Fragment extends Post
 
         return null;
     }
-
-    public function enqueueScriptsAndStyles()
-    {
-        if ($this->meta('fragment_type') === 'Audio') {
-            wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video-js.min.css');
-            wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.12.1/video.min.js');
-        }
-    }
-
 }

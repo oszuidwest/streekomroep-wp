@@ -2,11 +2,16 @@
 
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
-        <h1 class="font-bold text-center text-2xl pt-4">De programmering van</h1>
-        <div class="flex justify-center font-bold text-4xl">
-            <a href="{{ tv.link }}" class="px-2 text-gray-400 hover:underline">ZuidWest TV</a>
-            <span class="px-2">ZuidWest FM</span>
-        </div>
+        {% embed "partial/tabs.twig" %}
+            {% block title %}
+                De programmering van
+            {% endblock %}
+
+            {% block content %}
+                {{ _self.tab('ZuidWest TV', 'icon-tv', tv.link) }}
+                {{ _self.tab_active('ZuidWest FM', 'icon-radio') }}
+            {% endblock %}
+        {% endembed %}
 
         {% for day in schedule.days %}
             <h2 class="font-bold text-2xl">{{ day.name }}</h2>
