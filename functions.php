@@ -1158,6 +1158,21 @@ function zw_add_videojs()
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
+class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
+{
+    public function __construct($date)
+    {
+        $this->date = $date;
+    }
+
+    protected $tag_format = '<meta property="article:modified_time" content="%s" />';
+
+    public function get()
+    {
+        return $this->helpers->date->format($this->date);
+    }
+}
+
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
         $vimeo = get_post_meta(get_the_ID(), 'vimeo_data', true);
@@ -1211,6 +1226,24 @@ add_action('template_redirect', function () {
             add_filter('wpseo_twitter_description', $description);
             add_filter('wpseo_twitter_image', $thumbnail);
 
+            add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
+                foreach ($presenters as $i => $presenter) {
+                    if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
+                        $presenters[$i] = new ZW_Vimeo_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
+                    } else if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
+                        unset($presenters[$i]);
+                    }
+                }
+
+                return $presenters;
+            });
+
+            add_filter('wpseo_frontend_presentation', function ($presentation, $context) {
+                $presentation->model->open_graph_image_id = null;
+                $presentation->model->open_graph_image_meta = null;
+                $presentation->model->open_graph_image = null;
+                return $presentation;
+            }, 10, 2);
         }
 
     }
