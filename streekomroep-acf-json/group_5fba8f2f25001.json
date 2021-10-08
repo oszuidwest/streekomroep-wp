@@ -1,36 +1,102 @@
 {
-    "key": "group_5fba8f2f25001",
-    "title": "TV - Programma eigenschappen",
+    "key": "group_5fb7d360ef01e",
+    "title": "Agenda - Informatie",
     "fields": [
         {
-            "key": "field_5fba8f2f27aec",
-            "label": "Actief",
-            "name": "tv_show_actief",
-            "type": "true_false",
-            "instructions": "Indien actief: wordt in overzicht met programma's getoond. Indien niet actief: gearchiveerd programma.",
-            "required": 0,
+            "key": "field_5fb7d36739f82",
+            "label": "Startdatum",
+            "name": "agenda_item_startdatum",
+            "type": "date_picker",
+            "instructions": "",
+            "required": 1,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "50",
+                "width": "33.33",
                 "class": "",
                 "id": ""
             },
-            "message": "",
-            "default_value": 0,
-            "ui": 1,
-            "ui_on_text": "",
-            "ui_off_text": ""
+            "display_format": "d\/m\/Y",
+            "return_format": "d\/m\/Y",
+            "first_day": 1
         },
         {
-            "key": "field_5fba8f630fd86",
-            "label": "Gemist locatie",
-            "name": "tv_show_gemist_locatie",
-            "type": "number",
-            "instructions": "Vul het ID van de Vimeo-map waar de uitzendingen in staan in.",
+            "key": "field_5fb7d38839f83",
+            "label": "Einddatum",
+            "name": "agenda_item_einddatum",
+            "type": "date_picker",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33.33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "d\/m\/Y",
+            "return_format": "d\/m\/Y",
+            "first_day": 1
+        },
+        {
+            "key": "field_5fb7d53d1153b",
+            "label": "Soort",
+            "name": "agenda_item_soort",
+            "type": "select",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33.33",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "muziek": "Muziek",
+                "theaterfilm": "Theater en film",
+                "workshopcursus": "Workshop \/ cursus",
+                "expositie": "Expositie",
+                "religie": "Religie",
+                "jeugd": "Jeugd",
+                "ouderen": "Ouderen",
+                "evenement": "Evenement",
+                "actief": "Actief"
+            },
+            "default_value": false,
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 0,
+            "return_format": "value",
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_5fb7d654b7042",
+            "label": "Kosten",
+            "name": "agenda_item_kosten",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33.33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Gratis",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_5fb7d6a79fbc2",
+            "label": "Performer",
+            "name": "agenda_item_performer",
+            "type": "text",
+            "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "50",
+                "width": "33.33",
                 "class": "",
                 "id": ""
             },
@@ -38,16 +104,33 @@
             "placeholder": "",
             "prepend": "",
             "append": "",
-            "min": "",
-            "max": "",
-            "step": ""
+            "maxlength": ""
         },
         {
-            "key": "field_5fba8f2f27b2c",
-            "label": "Presentator(en)",
-            "name": "tv_show_presentator",
-            "type": "user",
-            "instructions": "Presentator moet in WordPress bestaan als users.",
+            "key": "field_5fb7d6ec121a9",
+            "label": "Organisator",
+            "name": "agenda_item_organisator",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33.33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_5fb7d60b39789",
+            "label": "Locatie",
+            "name": "agenda_item_locatie",
+            "type": "google_map",
+            "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -55,10 +138,25 @@
                 "class": "",
                 "id": ""
             },
-            "role": "",
-            "allow_null": 0,
-            "multiple": 1,
-            "return_format": "id"
+            "center_lat": "51.53083",
+            "center_lng": "4.46528",
+            "zoom": 16,
+            "height": ""
+        },
+        {
+            "key": "field_5fc4f7e642694",
+            "label": "Tickets en info",
+            "name": "agenda_item_tickets",
+            "type": "link",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "url"
         }
     ],
     "location": [
@@ -66,7 +164,7 @@
             {
                 "param": "post_type",
                 "operator": "==",
-                "value": "tv"
+                "value": "agenda"
             }
         ]
     ],
@@ -75,18 +173,8 @@
     "style": "default",
     "label_placement": "top",
     "instruction_placement": "label",
-    "hide_on_screen": [
-        "discussion",
-        "comments",
-        "revisions",
-        "author",
-        "format",
-        "page_attributes",
-        "categories",
-        "tags",
-        "send-trackbacks"
-    ],
+    "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1615303633
+    "modified": 1633683905
 }
