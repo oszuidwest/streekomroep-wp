@@ -50,15 +50,15 @@
                 "id": ""
             },
             "choices": {
-                "Muziek": "Muziek",
-                "Theater en film": "Theater en film",
-                "Workshop \/ cursus": "Workshop \/ cursus",
-                "Expositie": "Expositie",
-                "Religie": "Religie",
-                "Jeugd": "Jeugd",
-                "Ouderen": "Ouderen",
-                "Evenement": "Evenement",
-                "Actief": "Actief"
+                "muziek": "Muziek",
+                "theaterfilm": "Theater en film",
+                "workshopcursus": "Workshop \/ cursus",
+                "expositie": "Expositie",
+                "religie": "Religie",
+                "jeugd": "Jeugd",
+                "ouderen": "Ouderen",
+                "evenement": "Evenement",
+                "actief": "Actief"
             },
             "default_value": false,
             "allow_null": 0,
@@ -176,5 +176,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610631007
+    "modified": 1633683905
 }
