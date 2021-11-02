@@ -98,15 +98,15 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         return $default;
     }
 
-    $hdmp4 = null;
+    $mp4 = null;
     foreach ($body->files as $source) {
-        if ($source->width === '1280') {
-            $hdmp4 = $source->link;
+        if ($source->quality === 'hd') {
+            $mp4 = $source->link;
             break;
         }
     }
 
-    if ($hdmp4 === null) {
+    if ($mp4 === null) {
         return $default;
     }
 
@@ -127,7 +127,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     }
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($m3u) . '" type="application/x-mpegURL">';
-    $out .= '<source src="' . htmlspecialchars($hdmp4) . '" type="video/mp4">';
+    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
     $out .= '</video>';
 
     return $out;
