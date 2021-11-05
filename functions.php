@@ -89,7 +89,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $m3u8 = null;
     foreach ($body->files as $source) {
         if ($source->quality === 'hls') {
-            $m3u = $source->link;
+            $m3u8 = $source->link;
             break;
         }
     }
