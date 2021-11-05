@@ -86,7 +86,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $body = json_decode($response['body']);
 
-    $m3u = null;
+    $m3u8 = null;
     foreach ($body->files as $source) {
         if ($source->quality === 'hls') {
             $m3u = $source->link;
@@ -94,7 +94,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         }
     }
 
-    if ($m3u === null) {
+    if ($m3u8 === null) {
         return $default;
     }
 
@@ -123,7 +123,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         $out .= ' poster="' . htmlspecialchars($bestPic->link) . '"';
     }
     $out .= '>';
-    $out .= '<source src="' . htmlspecialchars($m3u) . '" type="application/x-mpegURL">';
+    $out .= '<source src="' . htmlspecialchars($m3u8) . '" type="application/x-mpegURL">';
 	if ($mp4) {
 	        $out .= '<source src="' . htmlspecialchars($mp4->link) . '" type="video/mp4">';
 	    }
