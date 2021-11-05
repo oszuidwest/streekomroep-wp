@@ -100,14 +100,11 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $mp4 = null;
     foreach ($body->files as $source) {
-        if ($source->quality === 'hd') {
-            $mp4 = $source->link;
-            break;
-        }
-    }
+        if ($source->type !== "video/mp4") continue;
 
-    if ($mp4 === null) {
-        return $default;
+        if (!$mp4 || $source->width > $mp4->width) {
+            $mp4 = $source;
+        }
     }
 
     // Determine poster
@@ -127,7 +124,9 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     }
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($m3u) . '" type="application/x-mpegURL">';
-    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
+	if ($mp4) {
+	        $out .= '<source src="' . htmlspecialchars($mp4->link) . '" type="video/mp4">';
+	    }
     $out .= '</video>';
 
     return $out;
