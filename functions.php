@@ -101,8 +101,12 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $mp4 = null;
     foreach ($body->files as $source) {
         if ($source->type !== "video/mp4") continue;
-
-        if (!$mp4 || $source->width > $mp4->width) {
+		
+		if (!isset($source->width)) {
+		    $source->width = 0;
+		}
+        
+		if (!$mp4 || $source->width > $mp4->width) {
             $mp4 = $source;
         }
     }
