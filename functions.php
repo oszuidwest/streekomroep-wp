@@ -560,7 +560,7 @@ function zw_rest_api_init()
                         $title = null;
                     }
                         $output[] = [
-                            'type' => 'recent_tv'
+                            'type' => 'recent_tv',
                             'title' => $title,
                         ];
                         break;
