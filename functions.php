@@ -555,6 +555,10 @@ function zw_rest_api_init()
                         break;
 
                     case 'blok_tv_gemist':
+                    $title = $block['tekst_boven_videos'];
+                    if (empty($title)) {
+                        $title = null;
+                    }
                         $output[] = [
                             'type' => 'recent_tv'
                         ];
