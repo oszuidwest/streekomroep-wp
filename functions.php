@@ -566,8 +566,13 @@ function zw_rest_api_init()
                         break;
 
                     case 'blok_fm_gemist':
+                    $title = $block['tekst_boven_audio'];
+                    if (empty($title)) {
+                        $title = null;
+                    }
                         $output[] = [
-                            'type' => 'recent_fm'
+                            'type' => 'recent_fm',
+                            'title' => $title,
                         ];
                         break;
 
