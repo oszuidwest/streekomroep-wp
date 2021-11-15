@@ -561,6 +561,7 @@ function zw_rest_api_init()
                     }
                         $output[] = [
                             'type' => 'recent_tv'
+                            'title' => $title,
                         ];
                         break;
 
