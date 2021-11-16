@@ -168,7 +168,27 @@
                     "name": "blok_tv_gemist",
                     "label": "TV gemist",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_619263fbc2e11",
+                            "label": "Tekst boven video's",
+                            "name": "tekst_boven_videos",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: wordt niet getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -177,7 +197,27 @@
                     "name": "blok_fm_gemist",
                     "label": "FM gemist",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_6192689323212",
+                            "label": "Tekst boven audio",
+                            "name": "tekst_boven_audio",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "Indien leeg: wordt niet getoond",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -284,5 +324,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1611500833
+    "show_in_rest": 0,
+    "modified": 1636985019
 }

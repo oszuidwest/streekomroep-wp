@@ -556,13 +556,15 @@ function zw_rest_api_init()
 
                     case 'blok_tv_gemist':
                         $output[] = [
-                            'type' => 'recent_tv'
+                            'type' => 'recent_tv',
+                            'title' => trim($block['tekst_boven_videos']),
                         ];
                         break;
 
                     case 'blok_fm_gemist':
                         $output[] = [
-                            'type' => 'recent_fm'
+                            'type' => 'recent_fm',
+                            'title' => trim($block['tekst_boven_audio']),
                         ];
                         break;
 
