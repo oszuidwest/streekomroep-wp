@@ -555,24 +555,16 @@ function zw_rest_api_init()
                         break;
 
                     case 'blok_tv_gemist':
-                    $title = $block['tekst_boven_videos'];
-                    if (empty($title)) {
-                        $title = null;
-                    }
                         $output[] = [
                             'type' => 'recent_tv',
-                            'title' => $title,
+                            'title' => $block['tekst_boven_videos'],
                         ];
                         break;
 
                     case 'blok_fm_gemist':
-                    $title = $block['tekst_boven_audio'];
-                    if (empty($title)) {
-                        $title = null;
-                    }
                         $output[] = [
                             'type' => 'recent_fm',
-                            'title' => $title,
+                            'title' => $block['tekst_boven_audio'],
                         ];
                         break;
 
