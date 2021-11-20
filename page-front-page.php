@@ -40,7 +40,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $candidates = [];
             foreach ($shows as $show) {
-                $videos = $show->meta('vimeo_data');
+                $videos = $show->vimeo_data;
                 if (!is_array($videos)) continue;
 
                 $videos = zw_sort_videos($videos);
