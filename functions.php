@@ -212,8 +212,8 @@ if (function_exists('get_field')) {
 if (function_exists('acf_add_options_page')) {
 
     acf_add_options_page(array(
-        'page_title' => 'Radio Instellingen',
-        'menu_title' => 'Radio Instellingen',
+        'page_title' => 'Radio instellingen',
+        'menu_title' => 'Radio instellingen',
         'menu_slug' => 'radio-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-playlist-audio',
@@ -224,8 +224,8 @@ if (function_exists('acf_add_options_page')) {
 if (function_exists('acf_add_options_page')) {
 
     acf_add_options_page(array(
-        'page_title' => 'TV Instellingen',
-        'menu_title' => 'TV Instellingen',
+        'page_title' => 'TV instellingen',
+        'menu_title' => 'TV instellingen',
         'menu_slug' => 'tv-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-format-video',
