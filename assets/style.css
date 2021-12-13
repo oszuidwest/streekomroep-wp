@@ -114,3 +114,7 @@
 .prose .wp-caption-text {
     @apply text-sm text-gray-500 text-center pt-2;
 }
+
+.prose .video-js video {
+    margin: 0;
+}
