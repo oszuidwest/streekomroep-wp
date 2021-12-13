@@ -154,6 +154,10 @@ class Site extends \Timber\Site
         return $svg;
     }
 
+	public function thumbor($a) {
+		var_dump($a);
+	}
+	
     /** This is where you can add your own functions to twig.
      *
      * @param string $twig get extension.
@@ -163,6 +167,7 @@ class Site extends \Timber\Site
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
+        $twig->addFilter(new \Twig\TwigFilter('thumbor', [$this, 'thumbor']));
         return $twig;
     }
 

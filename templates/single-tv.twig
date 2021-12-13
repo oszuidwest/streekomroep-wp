@@ -4,8 +4,8 @@
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="px-6 md:px-12 max-w-3xl mx-auto py-8 md:pt-16">
             {% if post.thumbnail %}
-                <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
-                     srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
+                <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
+                     srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
                      class="w-full">
             {% endif %}
 

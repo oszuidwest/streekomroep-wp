@@ -19,8 +19,8 @@
                     </div>
                 {% elseif post.thumbnail %}
                     <div class="w-full mx-auto max-w-960">
-                        <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
-                             srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
+                        <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
+                             srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
                              class="w-full">
                         {% if post.thumbnail.caption %}
                             <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
