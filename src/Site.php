@@ -171,8 +171,8 @@ class Site extends \Timber\Site
         $extension = 'jpeg';
 
         // Round dimensions
-        $width = (int)$width;
-        $height = (int)$height;
+        $width = (int)round($width);
+        $height = (int)round($height);
 
         $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
         $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
