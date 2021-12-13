@@ -58,7 +58,7 @@
         <div class="aspect-h-16 aspect-w-9">
             <div>
                 <img class="absolute inset-0 w-full" loading="lazy"
-                     src="{{ Image(term.meta('dossier_afbeelding_hoog'))|resize(9*48,16*48) }}"/>
+                     src="{{ Image(term.meta('dossier_afbeelding_hoog'))|thumbor(9*48,16*48) }}"/>
                 <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
                 <div class="block absolute left-0 right-0 bottom-0 p-4">
                     <h1 class="block font-black text-md sm:text-xl text-white text-center">{{ term.title }}</h1>

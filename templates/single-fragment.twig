@@ -12,7 +12,9 @@
             <time class="text-xs tracking-wide uppercase font-black font-round"
                   datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             <p class="flex items-center mt-6">
-                <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
+                <img src="{{ post.author.avatar|thumbor(32, 32) }}" 
+                     srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
+                     class="h-8 w-8 rounded">
                 <a href="{{ post.author.path }}"
                    class="ml-3 text-xs tracking-wide uppercase font-black font-round"> {{ post.author.name }} </a>
             </p>
@@ -29,8 +31,8 @@
                     {% for post in posts %}
                         <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
-                                <img class="w-full" src="{{ post.thumbnail.src|resize(160) }}"
-                                     srcset="{{ post.thumbnail.src|resize(320) }} 2x"/>
+                                <img class="w-full" src="{{ post.thumbnail.src|thumbor(160) }}"
+                                     srcset="{{ post.thumbnail.src|thumbor(320) }} 2x"/>
                             </div>
                             <div class="flex-auto pl-4">
                                 <h2 class="text-xl font-semibold">{{ post.title }}</h2>

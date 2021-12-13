@@ -9,8 +9,8 @@
     <div class="{% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <img class="w-full" loading="lazy"
-                 src="{{ post.thumbnail.src|resize(width, width / 16 * 9)|tojpg }}"
-                 srcset="{{ post.thumbnail.src|resize(width * 2, (width * 2) / 16 * 9)|tojpg }} 2x"/>
+                 src="{{ post.thumbnail.src|thumbor(width, width / 16 * 9) }}"
+                 srcset="{{ post.thumbnail.src|thumbor(width * 2, (width * 2) / 16 * 9) }} 2x"/>
         {% endif %}
         {% if showPlayButton %}
             <div class="absolute w-8 h-8 -m-4 p-1 bg-groen text-white left-1/2 top-1/2 rounded-full">{{ icon('icon-play_arrow') }}</div>

@@ -2,7 +2,7 @@
     <div class="bg-gray-50 text-gray-800 rounded overflow-hidden">
         {% if post.thumbnail %}
             <img class="absolute inset-0 w-full h-full object-cover"
-                 src="{{ post.thumbnail.src|tojpg|resize(160, 90) }}"/>
+                 src="{{ post.thumbnail.src|thumbor(160, 90) }}"/>
         {% endif %}
         <div class="absolute flex flex-col inset-x-0 bottom-0 px-4 pb-3 pt-12 bg-gradient-to-b from-transparent to-gray-50">
             <h1 class="uppercase font-round font-black text-2xl">{{ post.title }}</h1>
