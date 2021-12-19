@@ -1,0 +1,97 @@
+{
+    "key": "group_61bf3624d1942",
+    "title": "Desking - Meest gelezen",
+    "fields": [
+        {
+            "key": "field_61bf363f4a043",
+            "label": "Locatie analytics",
+            "name": "populair_analytics_url",
+            "type": "url",
+            "instructions": "Werkt met Plausible Analytics",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "40",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "URL naar Plausbile Analytics met afsluitende slash. Bijvoorbeeld: https:\/\/stats.zuidwesttv.nl\/"
+        },
+        {
+            "key": "field_61bf36794a044",
+            "label": "API key analytics",
+            "name": "populair_analytics_key",
+            "type": "password",
+            "instructions": "Aanmaken in dashboard",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "40",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_61bf3d8882634",
+            "label": "Aantal dagen",
+            "name": "populair_analytics_dagen",
+            "type": "range",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": 1,
+            "max": 7,
+            "step": "",
+            "prepend": "",
+            "append": "dagen"
+        },
+        {
+            "key": "field_61bf404edbea9",
+            "label": "Content filter",
+            "name": "populair_analytics_filter",
+            "type": "textarea",
+            "instructions": "Gebruik onderstaand veld om te bepalen welke url's getoond mogen worden. Leeg = alle url's mogen getoond worden. Elke url op een nieuwe regel. Gebruik * als wildcard.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 5,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "desking"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1639925416
+}
