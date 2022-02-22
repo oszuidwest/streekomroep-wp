@@ -38,7 +38,11 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'nopaging' => true,
             ]);
 
-            $candidates = [];
+            $episodes_with_duplicate_shows = [];
+            $latest_episode_per_show = [];
+
+            $deduplicate = $block['ontdubbel'] ? true : false;
+            $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
                 $videos = $show->vimeo_data;
                 if (!is_array($videos)) continue;
@@ -48,21 +52,56 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 if ($lastEpisode === null) continue;
 
                 $show->lastEpisode = $lastEpisode;
-                $candidates[] = $show;
+
+                /**
+                 * Build a list of candidate shows.
+                 * We will use this list for the other shows and maybe for the featured shows when deduplication is enabled.
+                 * Each array item holds the show it belongs to and the last episode.
+                 */
+                $latest_episode_per_show[] = [
+                    'show' => $show,
+                    'video' => $show->lastEpisode,
+                ];
+
+                /**
+                 * When deduplication is disabled, we will build a second array of candidates.
+                 * We loop through all the videos and add them to the array of featured candidates.
+                 * Each items holds the show it belongs to and the episode.
+                 */
+                if (false === $deduplicate) {
+                    foreach ($videos as $video) {
+                        $episodes_with_duplicate_shows[] = [
+                            'show' => $show,
+                            'video' => $video,
+                        ];
+                    }
+                }
             }
 
-            usort($candidates, function ($left, $right) {
-                return $right->lastEpisode->getBroadcastDate() <=> $left->lastEpisode->getBroadcastDate();
+            /**
+             * We sort the candidates by broadcast date. 
+             * The most recently broadcasted show is the first item in the array.
+             */
+            usort($latest_episode_per_show, function ($left, $right) {
+                return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
             });
 
             // Show 4 videos and 4 shows
-            $videos = array_slice($candidates, 0, 4);
-            $shows = array_slice($candidates, 4, 4);
+            $videos = array_slice($latest_episode_per_show, 0, $videos_to_show);
+            $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
 
-            $videos = array_map(function ($item) {
-                $item->lastEpisode->show = $item;
-                return $item->lastEpisode;
-            }, $videos);
+            if (!empty($episodes_with_duplicate_shows)) {
+
+                /**
+                 * We sort the videos by broadcast date. 
+                 * The most recently broadcasted show is the first item in the array.
+                 */
+                usort($episodes_with_duplicate_shows, function ($left, $right) {
+                    return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
+                });
+
+                $videos = array_slice($episodes_with_duplicate_shows, 0, $videos_to_show);
+            }
 
             $block['videos'] = $videos;
             $block['shows'] = $shows;

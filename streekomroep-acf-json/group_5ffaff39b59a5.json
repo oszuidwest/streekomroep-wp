@@ -187,6 +187,46 @@
                             "prepend": "",
                             "append": "",
                             "maxlength": ""
+                        },
+                        {
+                            "key": "field_6212542c5d300",
+                            "label": "Ontdubbel programma's",
+                            "name": "ontdubbel",
+                            "type": "true_false",
+                            "instructions": "Als ingeschakeld: toont alleen de laatste aflevering van ieder programma. Als uitgeschakeld: toont video's op volgorde van uitzenddatum. Onafhankelijk van programma.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "message": "",
+                            "default_value": 1,
+                            "ui": 1,
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_621254d01d730",
+                            "label": "Aantal video's",
+                            "name": "aantal_videos",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": 4,
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": "4",
+                            "max": "12",
+                            "step": "2"
                         }
                     ],
                     "min": "",
@@ -325,5 +365,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1636985019
+    "modified": 1645368774
 }
