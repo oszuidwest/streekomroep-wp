@@ -47,8 +47,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 $videos = $show->vimeo_data;
                 if (!is_array($videos)) continue;
 
-                $videos = zw_sort_videos($videos);
-                $lastEpisode = array_shift($videos);
+                $videos_for_last_episode = $videos = zw_sort_videos($videos);
+                $lastEpisode = array_shift($videos_for_last_episode);
                 if ($lastEpisode === null) continue;
 
                 $show->lastEpisode = $lastEpisode;
@@ -69,6 +69,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                  * Each items holds the show it belongs to and the episode.
                  */
                 if (false === $deduplicate) {
+                    $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
                     foreach ($videos as $video) {
                         $episodes_with_duplicate_shows[] = [
                             'show' => $show,
