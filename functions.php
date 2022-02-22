@@ -558,8 +558,8 @@ function zw_rest_api_init()
                         $output[] = [
                             'type' => 'recent_tv',
                             'title' => trim($block['tekst_boven_videos']),
-							'deduplicate' => $block['ontdubbel'],
-							'count' => $block['aantal_videos'],
+                            'deduplicate' => $block['ontdubbel'],
+                            'count' => $block['aantal_videos'],
                         ];
                         break;
 
