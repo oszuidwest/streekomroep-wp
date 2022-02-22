@@ -42,7 +42,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $latest_episode_per_show = [];
 
             $deduplicate = $block['ontdubbel'] ? true : false;
-
+            $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
                 $videos = $show->vimeo_data;
                 if (!is_array($videos)) continue;
@@ -87,8 +87,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             });
 
             // Show 4 videos and 4 shows
-            $videos = array_slice($latest_episode_per_show, 0, 4);
-            $shows = array_slice($latest_episode_per_show, 4, 4);
+            $videos = array_slice($latest_episode_per_show, 0, $videos_to_show);
+            $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
 
             if (!empty($episodes_with_duplicate_shows)) {
 
@@ -100,7 +100,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
                 });
 
-                $videos = array_slice($episodes_with_duplicate_shows, 0, 4);
+                $videos = array_slice($episodes_with_duplicate_shows, 0, $videos_to_show);
             }
 
             $block['videos'] = $videos;
