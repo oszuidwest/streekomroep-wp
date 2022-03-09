@@ -3,14 +3,14 @@
         <div class="lg:grid grid-cols-3">
             <div class="lg:col-span-2 lg:col-start-2 relative z-20">
                 <div class="px-4 pt-4">
-                    {% if block.tekst_boven_dossier %}
-                        <h1 class="text-3xl font-bold">{{ block.tekst_boven_dossier }}</h1>
-                    {% else %}
                         <h1 class="font-bold">
                             <span class="block text-sm tracking-wide uppercase font-round">Dossier</span>
+                            {% if block.tekst_boven_dossier %}
+                            <span class="block text-3xl">{{ block.tekst_boven_dossier }}</span>
+                            {% else %}
                             <span class="block text-3xl">{{ block.term.name }}</span>
+                            {% endif %}
                         </h1>
-                    {% endif %}
                     <div class="prose text-white py-4">{{ block.term.description }}</div>
                 </div>
 
