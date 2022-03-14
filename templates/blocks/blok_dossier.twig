@@ -3,7 +3,7 @@
         <div class="aspect-w-21 aspect-h-9">
             <div>
                 <img
-                    class="object-cover absolute inset-0 w-full h-full"
+                    class="object-cover absolute inset-0 w-full h-full" loading="lazy"
                     src="{{ Image(block.term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
                     srcset="{{ Image(block.term.dossier_afbeelding_breed).src|thumbor(1024*2, 439*2) }} 2x"
                 />
