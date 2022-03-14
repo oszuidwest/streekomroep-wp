@@ -594,7 +594,7 @@ function zw_rest_api_init()
                         ];
                         break;
 
-                    /* case 'blok_dossier':
+                    case 'blok_dossier':
                         $term = get_term($block['selecteer_dossier'], 'dossier');
                         $title = $block['tekst_boven_dossier'];
                         if (empty($title)) {
@@ -606,7 +606,7 @@ function zw_rest_api_init()
                             'title' => $title,
                             'term_id' => $term->term_id,
                         ];
-                        break; */
+                        break;
 
                     case 'blok_dossiers_carrousel':
                         $title = $block['tekst_boven_dossiers'];
