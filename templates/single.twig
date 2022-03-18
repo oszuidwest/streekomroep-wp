@@ -64,11 +64,11 @@
 
                 <ul class="divide-y divide-gray-700 mb-4">
                     {% for post in topical.posts %}
-                        <li><a href="{{ post.link }}" class="block py-2">{{ post.title }}</a></li>
+                        <li><a href="{{ post.link }}" class="block py-2 hover:underline">{{ post.title }}</a></li>
                     {% endfor %}
                 </ul>
                 <div class="block text-right">
-                    <a href="{{ term.link }}" class="py-2">Bekijk het volledige dossier →</a>
+                    <a href="{{ term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded">Bekijk het volledige dossier →</a>
                 </div>
             </div>
         </div>

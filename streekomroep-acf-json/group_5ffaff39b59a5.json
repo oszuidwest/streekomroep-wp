@@ -224,9 +224,9 @@
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "4",
-                            "max": "12",
-                            "step": "2"
+                            "min": 2,
+                            "max": 12,
+                            "step": 2
                         }
                     ],
                     "min": "",
@@ -336,6 +336,48 @@
                             "load_terms": 0,
                             "return_format": "id",
                             "multiple": 0
+                        },
+                        {
+                            "key": "field_6233477e5ac55",
+                            "label": "Aantal artikelen",
+                            "name": "aantal_artikelen",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": "",
+                            "max": "",
+                            "step": ""
+                        },
+                        {
+                            "key": "field_623347af5ac56",
+                            "label": "Offset",
+                            "name": "offset",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": "",
+                            "max": "",
+                            "step": ""
                         }
                     ],
                     "min": "",
@@ -365,5 +407,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1645368774
+    "modified": 1647528450
 }
