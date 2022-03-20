@@ -604,6 +604,8 @@ function zw_rest_api_init()
                         $output[] = [
                             'type' => 'dossier',
                             'title' => $title,
+                            'count' => $block['aantal_artikelen'],
+                            'offset' => $block['offset'],
                             'term_id' => $term->term_id,
                         ];
                         break;
