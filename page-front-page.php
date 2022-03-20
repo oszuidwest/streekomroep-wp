@@ -142,7 +142,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['term'] = Timber::get_term($block['selecteer_dossier'], 'dossier');
             $block['posts'] = Timber::get_posts(
                 [
-                    'posts_per_page' => 4,
+	                'posts_per_page' => $block['aantal_artikelen'],
+	                'offset' => $block['offset'],
                     'post_type' => 'post',
                     'ignore_sticky_posts' => true,
                     'tax_query' => [
