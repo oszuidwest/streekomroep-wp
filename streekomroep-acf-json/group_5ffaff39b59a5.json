@@ -63,13 +63,13 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 6,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
-                            "step": ""
+                            "step": 1
                         },
                         {
                             "key": "field_5ffb004a390b8",
@@ -88,9 +88,9 @@
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
-                            "step": ""
+                            "step": 1
                         }
                     ],
                     "min": "",
@@ -350,11 +350,11 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 4,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
                             "step": ""
                         },
@@ -371,11 +371,11 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 0,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
                             "step": ""
                         }
@@ -407,5 +407,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1647528450
+    "modified": 1647772742
 }
