@@ -7,7 +7,7 @@
             "label": "Actief",
             "name": "tv_show_actief",
             "type": "true_false",
-            "instructions": "Indien actief: wordt in overzicht met programma's getoond. Indien niet actief: gearchiveerd programma.",
+            "instructions": "Indien actief: wordt in overzicht met programma's getoond. Indien niet actief: gearchiveerd programma. Wordt niet in overzichten getoond.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -89,5 +89,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1648394597
+    "modified": 1648402004
 }
