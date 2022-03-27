@@ -1,13 +1,13 @@
 {
     "key": "group_5fba9092307df",
-    "title": "TV - Uitzending gemist (Vimeo)",
+    "title": "TV - Uitzending gemist",
     "fields": [
         {
-            "key": "field_5fba9099c14e2",
-            "label": "Vimeo client ID",
-            "name": "vimeo_client_id",
-            "type": "password",
-            "instructions": "",
+            "key": "field_62408073991e2",
+            "label": "Bunny CDN Library ID",
+            "name": "bunny_library_id",
+            "type": "number",
+            "instructions": "Vul het ID van de library in Bunny CDN in.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -15,33 +15,20 @@
                 "class": "",
                 "id": ""
             },
+            "default_value": "",
             "placeholder": "",
             "prepend": "",
-            "append": ""
+            "append": "",
+            "min": "",
+            "max": "",
+            "step": ""
         },
         {
-            "key": "field_5fba90b3e0bbc",
-            "label": "Vimeo client secret",
-            "name": "vimeo_client_secret",
+            "key": "field_623b82a61698a",
+            "label": "Bunny CDN API Key",
+            "name": "bunny_api_key",
             "type": "password",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
-            "key": "field_5fba90d3e0bbd",
-            "label": "Vimeo access token",
-            "name": "vimeo_access_token",
-            "type": "password",
-            "instructions": "",
+            "instructions": "Zoek de API Key op in het panel van Bunny CDN. Iedere Library heeft zijn eigen API key.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -71,5 +58,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697529
+    "show_in_rest": 0,
+    "modified": 1648394518
 }

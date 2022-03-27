@@ -26,7 +26,7 @@
             "label": "Gemist locatie",
             "name": "tv_show_gemist_locatie",
             "type": "number",
-            "instructions": "Vul het ID van de Vimeo-map waar de uitzendingen in staan in.",
+            "instructions": "Vul het ID van de Bunny CDN Collection waar de uitzendingen in staan in.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -88,5 +88,6 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1615303633
+    "show_in_rest": 0,
+    "modified": 1648394597
 }
