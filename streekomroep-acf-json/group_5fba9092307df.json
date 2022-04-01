@@ -3,15 +3,34 @@
     "title": "TV - Uitzending gemist",
     "fields": [
         {
-            "key": "field_62408073991e2",
-            "label": "Bunny CDN Library ID",
-            "name": "bunny_library_id",
-            "type": "number",
-            "instructions": "Vul het ID van de library in Bunny CDN in.",
+            "key": "field_6246e1e8c4402",
+            "label": "Bunny CDN Hostname",
+            "name": "bunny_cdn_hostname",
+            "type": "text",
+            "instructions": "Te vinden onder Stream в†’ API в†’ CDN Hostname (mag ook CNAME naar een eigen domein zijn)",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "",
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_62408073991e2",
+            "label": "Bunny CDN Library ID",
+            "name": "bunny_cdn_library_id",
+            "type": "number",
+            "instructions": "Vul het ID van de library in Bunny CDN in. Te vinden onder Stream в†’ API в†’ Video Library ID",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -26,7 +45,7 @@
         {
             "key": "field_623b82a61698a",
             "label": "Bunny CDN API Key",
-            "name": "bunny_api_key",
+            "name": "bunny_cdn_api_key",
             "type": "password",
             "instructions": "Zoek de API Key op in het panel van Bunny CDN. Iedere Library heeft zijn eigen API key.",
             "required": 0,
@@ -59,5 +78,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1648394518
+    "modified": 1648812749
 }
