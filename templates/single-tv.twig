@@ -34,7 +34,7 @@
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
-                                        <img src="{{ video.thumbnail }}" loading="lazy"/>
+                                        <img src="{{ video.thumbnail }}" alt="{{ video.name }}" loading="lazy"/>
                                         <h3 class="font-bold mt-2">{{ video.name }}</h3>
                                     </a>
                                 </article>
