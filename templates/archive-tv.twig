@@ -20,7 +20,7 @@
             {% for post in posts %}
                 <a class="block" href="{{ post.link }}">
                     <div class="aspect-w-16 aspect-h-9 bg-blauw rounded overflow-hidden">
-                        <img class="w-full h-full object-cover" src="{{ post.thumbnail.src|thumbor(440, 248) }}"/>
+                        <img class="w-full h-full object-cover" alt="{{ post.title }}" src="{{ post.thumbnail.src|thumbor(440, 248) }}"/>
                     </div>
                     <p class="text-center mt-2 font-bold text-sm">{{ post.title }}</p>
                 </a>
