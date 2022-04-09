@@ -35,7 +35,7 @@
             <div class="col-start-1 row-start-1 relative z-10">
                 <div class="absolute inset-y-0 -inset-x-8">
                     <img
-                        class="absolute inset-0 w-full h-full object-cover" loading="lazy"
+                        class="absolute inset-0 w-full h-full object-cover" loading="lazy" "{{ block.term.name }}"
                         src="{{ Image(block.term.dossier_afbeelding_hoog).src|thumbor(384, 423) }}"
                         srcset="{{ Image(block.term.dossier_afbeelding_hoog).src|thumbor(384*2, 423*2) }} 2x"
                     />
