@@ -33,7 +33,7 @@
             <p class="flex items-center mb-6">
                 <img src="{{ post.author.avatar|thumbor(32, 32) }}"
                      srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
-                     class="h-8 w-8 rounded">
+                     alt="{{ post.author.name }}" class="h-8 w-8 rounded">
                 <a href="{{ post.author.path }}"
                    class="ml-3 text-xs tracking-wide uppercase font-black font-round">{{ post.author.name }} </a>
             </p>
