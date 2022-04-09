@@ -7,7 +7,7 @@
         <div class="grid sm:grid-cols-2 gap-4">
             {% for item in block.videos %}
                 <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
-                    <img src="{{ item.video.thumbnail }}" loading="lazy"/>
+                    <img src="{{ item.video.thumbnail }}" alt="{{ item.video.name }}" loading="lazy"/>
                     <div class="sm:mt-4 md:m-0">
                         <h3 class="font-bold">{{ item.show.title }}</h3>
                         <p>{{ item.video.name }}</p>
