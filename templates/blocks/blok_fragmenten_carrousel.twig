@@ -14,7 +14,7 @@
 
             <div>
                 {% include 'partial/tag-region.twig' with { region: post.region } %}
-                <h1 class="font-bold text-xl sm:text-3xl">{{ post.title }}</h1>
+                <h2 class="font-bold text-xl sm:text-3xl">{{ post.title }}</h2>
                 <p class="prose text-white hidden sm:block">{{ post.preview.read_more(false) }}</p>
             </div>
         </a>
