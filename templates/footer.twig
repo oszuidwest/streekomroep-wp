@@ -3,7 +3,7 @@
         <ul class="text-sm pt-6 sm:grid sm:grid-cols-4">
             {% for item in footer.items %}
                 <li>
-                    <h2 class="text-xs pt-2 mb-1 font-round font-bold text-gray-500 tracking-wider uppercase {{ item.classes|join(' ') }}">{{ item.title }}</h2>
+                    <p class="text-xs pt-2 mb-1 font-round font-bold text-gray-500 tracking-wider uppercase {{ item.classes|join(' ') }}">{{ item.title }}</p>
                     <ul class="mb-4">
                         {% for child in item.children %}
                             <li>
