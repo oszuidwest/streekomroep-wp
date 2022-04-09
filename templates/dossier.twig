@@ -7,7 +7,7 @@
     <div class="lg:hidden">
         <div class="aspect-w-21 aspect-h-9">
             <div>
-                <img class="object-cover absolute inset-0 w-full h-full"
+                <img class="object-cover absolute inset-0 w-full h-full" alt="{{ term.name }}"
                      src="{{ Image(term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
                      srcset="{{ Image(term.dossier_afbeelding_breed).src|thumbor(1024*2, 439*2) }} 2x"
                      />
