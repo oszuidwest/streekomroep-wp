@@ -22,10 +22,10 @@
                     <div class="w-1/2 sm:w-1/3 flex-none pr-2">
                         <div class="aspect-w-16 aspect-h-9 bg-blauw rounded overflow-hidden">
                             {% if broadcast.show.thumbnail %}
-                                <img class="w-full h-full object-cover"
+                                <img class="w-full h-full object-cover" alt="{{ broadcast.name }}"
                                      src="{{ broadcast.show.thumbnail.src|thumbor(440, 248) }}"/>
                             {% else %}
-                                <img class="w-full h-full object-cover"
+                                <img class="w-full h-full object-cover" alt="{{ broadcast.name }}"
                                      src="{{ Image(options.tv_fallback_img).src|thumbor(440, 248) }}"/>
                             {% endif %}
                         </div>

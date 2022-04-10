@@ -3,7 +3,7 @@
         <div class="aspect-w-21 aspect-h-9">
             <div>
                 <img
-                    class="object-cover absolute inset-0 w-full h-full" loading="lazy"
+                    class="object-cover absolute inset-0 w-full h-full" loading="lazy" alt="{{ block.term.name }}"
                     src="{{ Image(block.term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
                     srcset="{{ Image(block.term.dossier_afbeelding_breed).src|thumbor(1024*2, 439*2) }} 2x"
                 />
@@ -35,7 +35,7 @@
             <div class="col-start-1 row-start-1 relative z-10">
                 <div class="absolute inset-y-0 -inset-x-8">
                     <img
-                        class="absolute inset-0 w-full h-full object-cover" loading="lazy"
+                        class="absolute inset-0 w-full h-full object-cover" loading="lazy" alt="{{ block.term.name }}"
                         src="{{ Image(block.term.dossier_afbeelding_hoog).src|thumbor(384, 423) }}"
                         srcset="{{ Image(block.term.dossier_afbeelding_hoog).src|thumbor(384*2, 423*2) }} 2x"
                     />
