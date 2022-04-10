@@ -26,8 +26,8 @@
             </div>
 
             {% if posts %}
-                <div class="mt-8">
-                    <h1 class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</h1>
+                <aside class="mt-8">
+                    <p class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</p>
                     {% for post in posts %}
                         <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
@@ -39,7 +39,7 @@
                             </div>
                         </a>
                     {% endfor %}
-                </div>
+                </aside>
             {% endif %}
         </div>
 
