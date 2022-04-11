@@ -1066,7 +1066,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             ],
             "uploadDate" => $this->video->uploadDate,
             "duration" => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
-            "isFamilyFriendly" => 'true',
+            "isFamilyFriendly" => true,
             "inLanguage" => 'nl',
             "contentUrl" => $this->video->contentUrl,
         ];
