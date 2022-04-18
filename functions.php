@@ -558,6 +558,8 @@ function zw_rest_api_init()
                         $output[] = [
                             'type' => 'recent_tv',
                             'title' => trim($block['tekst_boven_videos']),
+                            'deduplicate' => $block['ontdubbel'],
+                            'count' => $block['aantal_videos'],
                         ];
                         break;
 
@@ -602,6 +604,8 @@ function zw_rest_api_init()
                         $output[] = [
                             'type' => 'dossier',
                             'title' => $title,
+                            'count' => $block['aantal_artikelen'],
+                            'offset' => $block['offset'],
                             'term_id' => $term->term_id,
                         ];
                         break;
@@ -1062,7 +1066,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             ],
             "uploadDate" => $this->video->uploadDate,
             "duration" => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
-            "isFamilyFriendly" => 'true',
+            "isFamilyFriendly" => true,
             "inLanguage" => 'nl',
             "contentUrl" => $this->video->contentUrl,
         ];
@@ -1169,8 +1173,9 @@ function zw_remove_wp_block_library_css()
 
 function zw_add_videojs()
 {
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video.min.js');
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.18.1/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.18.1/video.min.js');
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.18.1/lang/nl.js');
 }
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);

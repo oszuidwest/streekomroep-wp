@@ -7,8 +7,10 @@
     <div class="lg:hidden">
         <div class="aspect-w-21 aspect-h-9">
             <div>
-                <img class="object-cover absolute inset-0 w-full h-full"
-                     src="{{ Image(term.dossier_afbeelding_breed).src }}"/>
+                <img class="object-cover absolute inset-0 w-full h-full" alt="{{ term.name }}"
+                     src="{{ Image(term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
+                     srcset="{{ Image(term.dossier_afbeelding_breed).src|thumbor(1024*2, 439*2) }} 2x"
+                     />
                 <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white"></div>
             </div>
 
@@ -27,8 +29,8 @@
                 <div class="hidden lg:block overflow-hidden bg-gray-800 rounded">
                     <div class="aspect-h-16 aspect-w-9">
                         <div>
-                            <img class="absolute inset-0 w-full" loading="lazy"
-                                 src="{{ Image(term.meta('dossier_afbeelding_hoog'))|resize(9*48,16*48) }}"/>
+                            <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.name }}"
+                                 src="{{ Image(term.meta('dossier_afbeelding_hoog'))|thumbor(9*48,16*48) }}"/>
                         </div>
                     </div>
                 </div>

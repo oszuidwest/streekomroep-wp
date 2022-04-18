@@ -4,9 +4,9 @@
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="px-6 md:px-12 max-w-3xl mx-auto py-8 md:pt-16">
             {% if post.thumbnail %}
-                <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
-                     srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
-                     class="w-full">
+                <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
+                     srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
+                     alt="{{ post.title }}" class="w-full">
             {% endif %}
 
             <h1 class="font-black font-round text-4xl md:text-5xl uppercase">{{ post.title }}</h1>
@@ -34,7 +34,7 @@
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
-                                        <img src="{{ video.thumbnail }}" loading="lazy"/>
+                                        <img src="{{ video.thumbnail }}" alt="{{ video.name }}" loading="lazy"/>
                                         <h3 class="font-bold mt-2">{{ video.name }}</h3>
                                     </a>
                                 </article>

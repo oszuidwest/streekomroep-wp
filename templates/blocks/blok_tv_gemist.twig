@@ -5,12 +5,12 @@
         {% endif %}
 
         <div class="grid sm:grid-cols-2 gap-4">
-            {% for video in block.videos %}
-                <a href="{{ video.show.link }}?v={{ video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
-                    <img src="{{ video.thumbnail }}" loading="lazy"/>
+            {% for item in block.videos %}
+                <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
+                    <img src="{{ item.video.thumbnail }}" alt="{{ item.show.title }} - {{ item.video.name }}" loading="lazy"/>
                     <div class="sm:mt-4 md:m-0">
-                        <h3 class="font-bold">{{ video.show.title }}</h3>
-                        <p>{{ video.name }}</p>
+                        <h3 class="font-bold">{{ item.show.title }}</h3>
+                        <p>{{ item.video.name }}</p>
                     </div>
                 </a>
             {% endfor %}
@@ -18,9 +18,9 @@
 
         <p class="text-sm tracking-wide uppercase font-bold font-round text-gray-400 mt-4">Of kijk een nieuwe aflevering van:</p>
         <div class="flex flex-wrap -mx-3">
-            {% for show in block.shows %}
-                <a href="{{ show.link }}"
-                   class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">{{ show.title }}</a>
+            {% for item in block.shows %}
+                 <a href="{{ item.show.link }}"
+                   class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">{{ item.show.title }}</a>
             {% endfor %}
             <a href="{{ function('get_post_type_archive_link', 'tv') }}"
                class="text-blauw hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">→ Alle programma's</a>

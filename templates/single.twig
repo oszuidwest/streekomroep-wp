@@ -19,9 +19,9 @@
                     </div>
                 {% elseif post.thumbnail %}
                     <div class="w-full mx-auto max-w-960">
-                        <img src="{{ post.thumbnail.src|tojpg|resize(960, 540) }}"
-                             srcset="{{ post.thumbnail.src|tojpg|resize(1920, 1080) }} 2x"
-                             class="w-full">
+                        <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
+                             srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
+                             alt="{{ post.thumbnail.alt }}" class="w-full">
                         {% if post.thumbnail.caption %}
                             <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
                         {% endif %}
@@ -31,7 +31,9 @@
         </div>
         <div class="px-6 md:px-12 max-w-3xl mx-auto pt-4">
             <p class="flex items-center mb-6">
-                <img src="{{ post.author.avatar }}" class="h-8 w-8 rounded">
+                <img src="{{ post.author.avatar|thumbor(32, 32) }}"
+                     srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
+                     alt="{{ post.author.name }}" class="h-8 w-8 rounded">
                 <a href="{{ post.author.path }}"
                    class="ml-3 text-xs tracking-wide uppercase font-black font-round">{{ post.author.name }} </a>
             </p>
@@ -56,17 +58,17 @@
         <div class="bg-gray-800 text-white">
             <div class="px-6 md:px-12 py-4 max-w-3xl mx-auto">
                 <h2 class="font-bold pb-4">
-                    <span class="block text-sm tracking-wide uppercase font-round">Meer over</span>
+                    <span class="block text-sm tracking-wide uppercase font-round">Meer uit dossier</span>
                     <span class="block text-3xl">{{ term }}</span>
                 </h2>
 
                 <ul class="divide-y divide-gray-700 mb-4">
                     {% for post in topical.posts %}
-                        <li><a href="{{ post.link }}" class="block py-2">{{ post.title }}</a></li>
+                        <li><a href="{{ post.link }}" class="block py-2 hover:underline">{{ post.title }}</a></li>
                     {% endfor %}
                 </ul>
                 <div class="block text-right">
-                    <a href="{{ term.link }}" class="py-2">Alles over {{ term.name }} →</a>
+                    <a href="{{ term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded">Bekijk het volledige dossier →</a>
                 </div>
             </div>
         </div>

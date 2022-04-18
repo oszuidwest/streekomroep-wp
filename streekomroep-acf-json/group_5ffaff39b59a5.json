@@ -63,13 +63,13 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
+                            "default_value": 6,
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
-                            "step": ""
+                            "step": 1
                         },
                         {
                             "key": "field_5ffb004a390b8",
@@ -88,9 +88,9 @@
                             "placeholder": "",
                             "prepend": "",
                             "append": "",
-                            "min": "",
+                            "min": 0,
                             "max": "",
-                            "step": ""
+                            "step": 1
                         }
                     ],
                     "min": "",
@@ -187,6 +187,46 @@
                             "prepend": "",
                             "append": "",
                             "maxlength": ""
+                        },
+                        {
+                            "key": "field_6212542c5d300",
+                            "label": "Ontdubbel programma's",
+                            "name": "ontdubbel",
+                            "type": "true_false",
+                            "instructions": "Als ingeschakeld: toont alleen de laatste aflevering van ieder programma. Als uitgeschakeld: toont video's op volgorde van uitzenddatum. Onafhankelijk van programma.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "message": "",
+                            "default_value": 1,
+                            "ui": 1,
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_621254d01d730",
+                            "label": "Aantal video's",
+                            "name": "aantal_videos",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": 4,
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": 2,
+                            "max": 12,
+                            "step": 2
                         }
                     ],
                     "min": "",
@@ -296,6 +336,48 @@
                             "load_terms": 0,
                             "return_format": "id",
                             "multiple": 0
+                        },
+                        {
+                            "key": "field_6233477e5ac55",
+                            "label": "Aantal artikelen",
+                            "name": "aantal_artikelen",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": 4,
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": 0,
+                            "max": "",
+                            "step": ""
+                        },
+                        {
+                            "key": "field_623347af5ac56",
+                            "label": "Offset",
+                            "name": "offset",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": 0,
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "min": 0,
+                            "max": "",
+                            "step": ""
                         }
                     ],
                     "min": "",
@@ -325,5 +407,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1636985019
+    "modified": 1647772742
 }
