@@ -209,7 +209,7 @@
         },
         {
             "key": "field_62780ea5d89a0",
-            "label": "Twitter",
+            "label": "Twitter-URL",
             "name": "fm_show_twitter",
             "type": "url",
             "instructions": "Twitterpagina van programma.",
@@ -225,7 +225,7 @@
         },
         {
             "key": "field_62780ee93d060",
-            "label": "Facebook",
+            "label": "Facebook-URL",
             "name": "fm_show_facebook",
             "type": "url",
             "instructions": "Facebookpagina van programma.",
@@ -241,7 +241,7 @@
         },
         {
             "key": "field_62780f6466504",
-            "label": "Instagram",
+            "label": "Instagram-URL",
             "name": "fm_show_instagram",
             "type": "url",
             "instructions": "Instagrampagina van programma.",
