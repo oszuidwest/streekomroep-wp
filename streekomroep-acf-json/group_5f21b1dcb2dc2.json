@@ -44,15 +44,7 @@
             "type": "user",
             "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
             "required": 1,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -70,15 +62,7 @@
             "type": "repeater",
             "instructions": "Als een show iedere dag op hetzelfde tijdstip uitgezonden wordt, volstaat om meerdere dagen met hetzelfde tijdstip te selecteren.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -161,15 +145,7 @@
             "type": "text",
             "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -188,15 +164,7 @@
             "type": "tab",
             "instructions": "",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -212,15 +180,7 @@
             "type": "email",
             "instructions": "Geef het e-mailaders van de maker op zodat luisteraars contact op kunnen nemen.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "100",
                 "class": "",
@@ -238,15 +198,7 @@
             "type": "url",
             "instructions": "Geef het adres van een externe programmasite op.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "100",
                 "class": "",
@@ -262,15 +214,7 @@
             "type": "url",
             "instructions": "Twitterpagina van programma.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "50",
                 "class": "",
@@ -286,15 +230,7 @@
             "type": "url",
             "instructions": "Facebookpagina van programma.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "50",
                 "class": "",
@@ -310,15 +246,7 @@
             "type": "url",
             "instructions": "Instagrampagina van programma.",
             "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f21b1e3bd76d",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
+            "conditional_logic": 0,
             "wrapper": {
                 "width": "50",
                 "class": "",
@@ -372,5 +300,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1652035807
+    "modified": 1652036077
 }
