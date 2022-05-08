@@ -1,0 +1,124 @@
+{
+    "key": "group_60bb98f84d791",
+    "title": "Radio - Audiologger",
+    "fields": [
+        {
+            "key": "field_60bba06d86cb3",
+            "label": "Uitzending gemist inschakelen?",
+            "name": "radio_gemist_actief",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_60bb991f8715c",
+            "label": "Locatie audiologger",
+            "name": "radio_gemist_baseurl",
+            "type": "url",
+            "instructions": "Vul de basis-url naar de locatie van audiobestanden in.",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_60bba06d86cb3",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_60bb99fc32789",
+            "label": "Bestandsnaam uren",
+            "name": "radio_gemist_file",
+            "type": "text",
+            "instructions": "Geef op hoe de bestanden met audio per uur heten. Gebruik de date syntax van PHP. https:\/\/www.php.net\/manual\/en\/datetime.formats.date.php en https:\/\/www.php.net\/manual\/en\/datetime.formats.time.php",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_60bba06d86cb3",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Voor bestanden als \"05-12-2021_18u.mp3\" gebruik je \"DD-MM-YY_HHu.mp3\"",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_60bba01316302",
+            "label": "Bewaarperiode",
+            "name": "radio_gemist_retentie",
+            "type": "number",
+            "instructions": "Hoeveel dagen worden opnamen bewaard?",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_60bba06d86cb3",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Bijvoorbeeld: 7",
+            "prepend": "",
+            "append": "",
+            "min": 0,
+            "max": "",
+            "step": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "radio-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1652036677
+}
