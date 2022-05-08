@@ -1,7 +1,23 @@
 {
     "key": "group_5f21b1dcb2dc2",
-    "title": "Radio – Programma eigenschappen",
+    "title": "Radio вЂ“ Programma eigenschappen",
     "fields": [
+        {
+            "key": "field_62780d2cee364",
+            "label": "Programma",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
         {
             "key": "field_5f21b1e3bd76d",
             "label": "Actief",
@@ -27,8 +43,16 @@
             "name": "fm_show_presentator",
             "type": "user",
             "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
-            "required": 0,
-            "conditional_logic": 0,
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -46,7 +70,15 @@
             "type": "repeater",
             "instructions": "Als een show iedere dag op hetzelfde tijdstip uitgezonden wordt, volstaat om meerdere dagen met hetzelfde tijdstip te selecteren.",
             "required": 0,
-            "conditional_logic": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -129,7 +161,15 @@
             "type": "text",
             "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
             "required": 0,
-            "conditional_logic": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -140,6 +180,168 @@
             "prepend": "",
             "append": "",
             "maxlength": ""
+        },
+        {
+            "key": "field_62780d789b895",
+            "label": "Socials en links",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_62780dc46f039",
+            "label": "E-mailadres maker",
+            "name": "fm_show_mail",
+            "type": "email",
+            "instructions": "Geef het e-mailaders van de maker op zodat luisteraars contact op kunnen nemen.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Indien leeg: wordt niet getoond.",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_62780dee663eb",
+            "label": "Website",
+            "name": "fm_show_site",
+            "type": "url",
+            "instructions": "Geef het adres van een externe programmasite op.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Indien leeg: wordt niet getoond."
+        },
+        {
+            "key": "field_62780ea5d89a0",
+            "label": "Twitter",
+            "name": "fm_show_twitter",
+            "type": "url",
+            "instructions": "Twitterpagina van programma.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
+        },
+        {
+            "key": "field_62780ee93d060",
+            "label": "Facebook",
+            "name": "fm_show_facebook",
+            "type": "url",
+            "instructions": "Facebookpagina van programma.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
+        },
+        {
+            "key": "field_62780f6466504",
+            "label": "Instagram",
+            "name": "fm_show_instagram",
+            "type": "url",
+            "instructions": "Instagrampagina van programma.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f21b1e3bd76d",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
+        },
+        {
+            "key": "field_62780ff4c15b3",
+            "label": "TikTok-URL",
+            "name": "fm_show_tiktok",
+            "type": "url",
+            "instructions": "TikTokpagina van programma.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
         }
     ],
     "location": [
@@ -169,5 +371,6 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1610455654
+    "show_in_rest": 0,
+    "modified": 1652035807
 }
