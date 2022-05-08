@@ -4,8 +4,8 @@
     "fields": [
         {
             "key": "field_60bba06d86cb3",
-            "label": "Uitzending gemist voor FM programma's inschakelen?",
-            "name": "radio_audiologger_actief",
+            "label": "Uitzending gemist inschakelen?",
+            "name": "radio_gemist_actief",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -24,8 +24,8 @@
         {
             "key": "field_60bb991f8715c",
             "label": "Locatie audiologger",
-            "name": "radio_audiologger_baseurl",
-            "type": "text",
+            "name": "radio_gemist_baseurl",
+            "type": "url",
             "instructions": "Vul de basis-url naar de locatie van audiobestanden in.",
             "required": 1,
             "conditional_logic": [
@@ -43,15 +43,12 @@
                 "id": ""
             },
             "default_value": "",
-            "placeholder": "Bijvoorbeeld: https:\/\/audio.zuidwestfm.nl",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "placeholder": ""
         },
         {
             "key": "field_60bb99fc32789",
             "label": "Bestandsnaam uren",
-            "name": "radio_audiologger_bestandsnaam",
+            "name": "radio_gemist_file",
             "type": "text",
             "instructions": "Geef op hoe de bestanden met audio per uur heten. Gebruik de date syntax van PHP. https:\/\/www.php.net\/manual\/en\/datetime.formats.date.php en https:\/\/www.php.net\/manual\/en\/datetime.formats.time.php",
             "required": 1,
@@ -78,7 +75,7 @@
         {
             "key": "field_60bba01316302",
             "label": "Bewaarperiode",
-            "name": "radio_audiologger_bewaarperiode",
+            "name": "radio_gemist_retentie",
             "type": "number",
             "instructions": "Hoeveel dagen worden opnamen bewaard?",
             "required": 1,
@@ -100,9 +97,9 @@
             "placeholder": "Bijvoorbeeld: 7",
             "prepend": "",
             "append": "",
-            "min": "",
+            "min": 0,
             "max": "",
-            "step": ""
+            "step": 1
         }
     ],
     "location": [
@@ -122,5 +119,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1622909187
+    "show_in_rest": 0,
+    "modified": 1652036677
 }
