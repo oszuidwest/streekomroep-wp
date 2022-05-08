@@ -27,7 +27,7 @@
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -46,7 +46,7 @@
             "required": 1,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -178,7 +178,7 @@
             "label": "E-mailadres maker",
             "name": "fm_show_mail",
             "type": "email",
-            "instructions": "Geef het e-mailaders van de maker op zodat luisteraars contact op kunnen nemen.",
+            "instructions": "Geef het e-mailadres van de maker op zodat luisteraars contact op kunnen nemen.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -270,6 +270,38 @@
             },
             "default_value": "",
             "placeholder": "Geef de volledige link op."
+        },
+        {
+            "key": "field_62781b2f28e95",
+            "label": "Spotify-URL",
+            "name": "fm_show_spotify",
+            "type": "url",
+            "instructions": "Spotifypagina van programma.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
+        },
+        {
+            "key": "field_62781b4328e96",
+            "label": "YouTube-URL",
+            "name": "fm_show_youtube",
+            "type": "url",
+            "instructions": "YouTubepagina van programma.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Geef de volledige link op."
         }
     ],
     "location": [
@@ -300,5 +332,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1652036077
+    "modified": 1652038532
 }
