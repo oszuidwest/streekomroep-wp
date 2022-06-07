@@ -22,7 +22,7 @@
     "url": "https://github.com/oszuidwest/streekomroep/issues"
   },
   "homepage": "https://github.com/oszuidwest/streekomroep#readme",
-  "devDependencies": {
+  "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/typography": "^0.5.2",
     "autoprefixer": "^10.4.7",
