@@ -20,5 +20,10 @@
     "symfony/yaml": "^5.2",
     "ext-json": "*",
     "ext-fileinfo": "*"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
   }
 }
