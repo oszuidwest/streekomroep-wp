@@ -32,6 +32,6 @@ These are tested plug-ins and are great additions to the theme:
 ## How to build
 
 ```bash
-NODE_ENV=production npx tailwindcss-cli build assets/style.css  -o dist/style.css
+NODE_ENV=production npx tailwindcss-cli build -i assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
