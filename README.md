@@ -1,7 +1,7 @@
 
 # The Streekomroep WordPress theme
 
-This is a WordPress theme made for Streekomroep ZuidWest in The Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts. 
+This is a WordPress theme made for Streekomroep ZuidWest in The Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts.
 
 ## Installation
 This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
@@ -32,6 +32,6 @@ These are tested plug-ins and are great additions to the theme:
 ## How to build
 
 ```bash
-NODE_ENV=production npx tailwindcss-cli build -i assets/style.css -o dist/style.css --minify
+NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
