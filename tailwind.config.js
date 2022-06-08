@@ -1,5 +1,6 @@
 module.exports = {
   content: ['./templates/**/*.twig'],
+  darkMode: 'class',
   theme: {
     extend: {
       aspectRatio: {
