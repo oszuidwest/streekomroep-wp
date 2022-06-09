@@ -6,7 +6,7 @@ This is a WordPress theme made for Streekomroep ZuidWest in The Netherlands. It'
 ## Installation
 This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
 
-1. Install WordPress 5.9.x
+1. Install WordPress 6.0.x
 2. Install and activate the hard dependencies
 3. Upload the theme to your `wp-content/themes`
 4. Switch to the `streekomroep` theme
@@ -16,7 +16,7 @@ Install these before activating the theme:
 - Timber 1.x [[free download](https://wordpress.org/plugins/timber-library/)]
 - Advanced Custom Fields Pro 5.x [[purchace](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor a bit more time to stabilize)_
-- Yoast SEO Premium 18.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 19.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These are tested plug-ins and are great additions to the theme:
