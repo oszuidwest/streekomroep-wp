@@ -6,8 +6,8 @@
             <div class="row-start-2 md:row-start-auto">
                 <div class="px-6 md:px-12 max-w-3xl mx-auto pt-6 pb-4">
                     {% include 'partial/tag-region.twig' with { region: post.region } %}
-                    <h1 class="text-4xl lg:text-5xl font-black font-round break-words">{{ post.title }}</h1>
-                    <time class="text-xs tracking-wide uppercase font-black font-round"
+                    <h1 class="text-4xl lg:text-5xl font-black font-round break-words text-black dark:text-white">{{ post.title }}</h1>
+                    <time class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-gray-200"
                           datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                              srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
                              alt="{{ post.thumbnail.alt }}" class="w-full">
                         {% if post.thumbnail.caption %}
-                            <p class="text-sm text-gray-500 text-center pt-2">{{ post.thumbnail.caption }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 text-center pt-2">{{ post.thumbnail.caption }}</p>
                         {% endif %}
                     </div>
                 {% endif %}
@@ -35,11 +35,11 @@
                      srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
                      alt="{{ post.author.name }}" class="h-8 w-8 rounded">
                 <a href="{{ post.author.path }}"
-                   class="ml-3 text-xs tracking-wide uppercase font-black font-round">{{ post.author.name }} </a>
+                   class="ml-3 text-xs tracking-wide uppercase font-black font-round text-black dark:text-white">{{ post.author.name }} </a>
             </p>
 
 
-            <div class="prose md:prose-lg max-w-none zw-prose">
+            <div class="prose dark:prose-invert md:prose-lg max-w-none zw-prose">
                 {{ post.content }}
             </div>
         </div>
@@ -55,7 +55,7 @@
 
     {% if topical %}
         {% set term = topical.topic %}
-        <div class="bg-gray-800 text-white">
+        <div class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
             <div class="px-6 md:px-12 py-4 max-w-3xl mx-auto">
                 <h2 class="font-bold pb-4">
                     <span class="block text-sm tracking-wide uppercase font-round">Meer uit dossier</span>
@@ -75,7 +75,7 @@
     {% endif %}
 
     {% if local %}
-        <div class="bg-gray-800 text-white">
+        <div class="bg-white dark:bg-gray-800 text-black dark:text-white border-t border-gray-300/50 dark:border-gray-700/50">
             <div class="w-full mx-auto max-w-960 py-4 px-4">
                 <h2 class="font-bold text-3xl pb-4">Meer nieuws uit {{ local.region }}</h2>
                 <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4">

@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="w-full mx-auto max-w-960 pt-4 px-4">
-        <h1 class="text-2xl font-bold">Het laatste nieuws uit</h1>
+        <h1 class="text-2xl font-bold text-black dark:text-white">Het laatste nieuws uit</h1>
     </div>
     <div class="overflow-x-auto md:hidden">
         <div class="flex text-3xl font-bold text-gray-400 px-2">
@@ -15,7 +15,7 @@
         </div>
     </div>
     <div class="w-full mx-auto max-w-960 hidden px-4 md:block">
-        <select class="text-3xl font-bold js-changepage">
+        <select class="text-3xl font-bold js-changepage bg-transparent dark:bg-gray-800 text-black dark:text-white focus:outline-none">
             {% for region in regions %}
                 <option value="{{ region.link }}"
                         {% if region.id == term.id %}selected{% endif %}>{{ region.name }}</option>

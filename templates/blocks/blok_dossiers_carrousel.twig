@@ -68,9 +68,9 @@
     </a>
 {% endmacro %}
 
-<div class="py-4">
+<div class="py-4 dark:border-t dark:border-gray-700/50">
     <div class="max-w-960 mx-auto px-4">
-        <h2 class="font-bold text-3xl pb-4">Dossiers</h2>
+        <h2 class="font-bold text-3xl pb-4 dark:text-white">Dossiers</h2>
     </div>
     <div class="slider">
         <div class="slider-wrapper">
@@ -82,8 +82,8 @@
                 <div class="slider-padding"></div>
             </div>
         </div>
-        <div class="shim shim-next js-next"></div>
-        <div class="shim shim-prev js-prev"></div>
+        <div class="shim shim-next js-next bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
+        <div class="shim shim-prev js-prev bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
         <button class="slider-btn slider-btn-prev flickity-prev-next-button js-prev text-gray-800"
                 aria-label="Vorige">
             {{ icon('icon-arrow_back') }}
@@ -141,7 +141,6 @@
         top: 0;
         bottom: 0;
         width: var(--grid-inset);
-        background: rgba(255, 255, 255, 0.5);
     }
 
     .shim-next:hover,

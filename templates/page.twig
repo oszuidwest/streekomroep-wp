@@ -4,9 +4,8 @@
     <div class="px-6 md:px-12 py-6 max-w-3xl mx-auto">
         <article class="post-type-{{ post.post_type }}" id="post-{{ post.ID }}">
             <section class="article-content">
-                <h1 class="text-4xl lg:text-5xl font-black font-round">{{ post.title }}</h1>
-
-                <div class="prose md:prose-lg max-w-none mt-4">
+                <h1 class="text-4xl lg:text-5xl font-black font-round text-black dark:text-white">{{ post.title }}</h1>
+                <div class="prose dark:prose-invert md:prose-lg max-w-none mt-4">
                     {{ post.content }}
                 </div>
             </section>

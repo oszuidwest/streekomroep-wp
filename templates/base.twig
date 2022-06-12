@@ -42,11 +42,11 @@
             <div class="overflow-auto" style="-webkit-overflow-scrolling: touch">
                 <div class="flex">
                     {% for item in mainmenu.items %}
-                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'dark:text-gray-400', 'hover:text-white', 'transition'] %}
+                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
                         {% if item.current %}
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
                         {% else %}
-                            {% set classes = classes|merge(['border-transparent']) %}
+                            {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
                         {% endif %}
                         <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
                     {% endfor %}
@@ -66,41 +66,6 @@
     {% include 'footer.twig' %}
     {{ function('wp_footer') }}
 {% endblock %}
-
-<script>
-    (function ($) {
-        initDarkMode()
-
-        $('#themeDarkBtn').click(function() {
-            localStorage.theme = 'light';
-            $( document.documentElement).trigger("changeTheme");
-            $('#themeDarkBtn').hide()
-            $('#themeLightBtn').show()
-        })
-        $('#themeLightBtn').click(function() {
-            localStorage.theme = 'dark';
-            $( document.documentElement).trigger("changeTheme");
-            $('#themeLightBtn').hide()
-            $('#themeDarkBtn').show()
-        })
-
-        $(document.documentElement).on('changeTheme', function() {
-            initDarkMode()
-        })
-
-        function initDarkMode() {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark')
-                $('#themeLightBtn').hide()
-                $('#themeDarkBtn').show()
-            } else {
-                document.documentElement.classList.remove('dark')
-                $('#themeDarkBtn').hide()
-                $('#themeLightBtn').show()
-            }
-        }
-    })(jQuery);
-</script>
 
 </body>
 </html>

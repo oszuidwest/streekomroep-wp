@@ -14,19 +14,19 @@
         {% endembed %}
 
         {% for day in schedule.days %}
-            <h2 class="font-bold text-2xl">{{ day.name }}</h2>
+            <h2 class="font-bold text-2xl text-black dark:text-white">{{ day.name }}</h2>
             <div class="relative">
                 <div class="absolute left-2 inset-y-2 border-l-2 -mx-px border-roze"></div>
                 <div class="relative">
                     {% for broadcast in day.radio %}
                         <div class="flex flex-row pl-6 my-4">
-                            <time class="w-16 flex-none">
+                            <time class="w-16 flex-none text-black dark:text-gray-200">
                                 <i class="absolute left-0 block w-4 mt-1">
                                     <div class="w-2 h-2 m-1 bg-roze rounded-full"></div>
                                 </i>
                                 {{ broadcast.startTime|date('H:i') }}</time>
                             {% if broadcast.show %}
-                                <a class="block hover:underline" href="{{ broadcast.show.link }}">
+                                <a class="block hover:underline text-black dark:text-gray-200" href="{{ broadcast.show.link }}">
                                     <span class="block font-bold">{{ broadcast.show.title }}</span>
                                     {% if broadcast.show.meta('fm_show_presentator') %}
                                         {% set hosts = [] %}
@@ -37,7 +37,7 @@
                                     {% endif %}
                                 </a>
                             {% else %}
-                                <p>
+                                <p class='text-black dark:text-gray-200'>
                                     <span class="block font-bold">{{ broadcast.title }}</span>
                                     {{ broadcast.title }}
                                 </p>

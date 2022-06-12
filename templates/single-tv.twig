@@ -9,33 +9,33 @@
                      alt="{{ post.title }}" class="w-full">
             {% endif %}
 
-            <h1 class="font-black font-round text-4xl md:text-5xl uppercase">{{ post.title }}</h1>
+            <h1 class="font-black font-round text-4xl md:text-5xl uppercase text-black dark:text-white">{{ post.title }}</h1>
 
             {% if post.meta('tv_show_presentator') %}
                 {% set hosts = [] %}
                 {% for host in post.meta('tv_show_presentator') %}
                     {% set hosts = hosts|merge([User(host)]) %}
                 {% endfor %}
-                <p class="text-sm md:text-base">Met {{ hosts|join(', ', ' en ') }}</p>
+                <p class="text-sm md:text-base text-black dark:text-white">Met {{ hosts|join(', ', ' en ') }}</p>
             {% endif %}
 
-            <div class="prose prose-lg md:prose-xl mt-8">
+            <div class="prose dark:prose-invert prose-lg md:prose-xl mt-8">
                 {{ post.content }}
             </div>
         </div>
 
         {% if seasons is not empty %}
-            <div class="bg-gray-800 text-white">
+            <div class="bg-white border-t border-gray-300/50 dark:border-gray-700/50 dark:bg-gray-800 text-white">
                 <div class="w-full mx-auto max-w-960 px-4">
-                    <h2 class="font-bold text-3xl pt-4">Uitzending gemist</h2>
+                    <h2 class="font-bold text-3xl pt-4 text-black dark:text-white">Uitzending gemist</h2>
                     {% for season, videos in seasons %}
-                        <h2 class="text-2xl py-4">{{ season }}</h2>
+                        <h2 class="text-2xl py-4 text-black dark:text-white">{{ season }}</h2>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
                                         <img src="{{ video.thumbnail }}" alt="{{ video.name }}" loading="lazy"/>
-                                        <h3 class="font-bold mt-2">{{ video.name }}</h3>
+                                        <h3 class="font-bold mt-2 text-black dark:text-gray-200">{{ video.name }}</h3>
                                     </a>
                                 </article>
                             {% endfor %}
