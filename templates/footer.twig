@@ -17,7 +17,7 @@
         <div>
             <p class="text-sm py-4 pb-6">
                 {# Empty string evaluates to the current date #}
-                Copyright © {{ ""|date('Y') }} Streekomroep ZuidWest |
+                Copyright © {{ ""|date('Y') }} Streekomroep ZuidWest | <a class="bg-gradient-to-l from-roze to-blauw bg-clip-text text-transparent" target="_blank" href="https://www.nlpo.nl/streekomroep-ZuidWest-Omroep-van-het-Jaar-2022">Omroep van het jaar 2022</a> |
                 {% for social in socials %}
                     <a href="{{ social.link }}" target="_blank" class="hover:underline">{{ social.name }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
