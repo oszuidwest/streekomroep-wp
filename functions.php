@@ -1183,21 +1183,6 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
 
-// Add custom script static/site.js
-add_action( 'wp_enqueue_scripts', 'add_my_script' );
-
-function add_my_script() {
-    wp_register_script(
-        'parent-theme-script',
-        get_stylesheet_directory() . '/static/site.js',
-        array('jquery')
-    );
-
-    wp_enqueue_script('parent-theme-script');
-}
-
-
-
 class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
 {
     public function __construct($date)

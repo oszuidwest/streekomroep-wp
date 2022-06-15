@@ -5,7 +5,7 @@
         {% if region ?? true %}
             {% include 'partial/tag-region.twig' with { region: post.region } %}
         {% endif %}
-        <h2 class="sm:text-xl font-semibold my-1 text-black dark:text-white">{{ post.title }}</h2>
+        <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
     </div>
 </a>
 </article>

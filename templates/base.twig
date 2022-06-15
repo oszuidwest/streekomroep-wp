@@ -67,5 +67,39 @@
     {{ function('wp_footer') }}
 {% endblock %}
 
+    <script>
+            var themeLightBtn = document.querySelector('#themeLightBtn');
+            var themeDarkBtn = document.getElementById('themeDarkBtn');
+            initDarkMode()
+
+            themeDarkBtn.addEventListener('click', function() {
+                localStorage.theme = 'light';
+                document.documentElement.dispatchEvent(new Event('changeTheme'));
+                themeDarkBtn.style.display = 'none'
+                themeLightBtn.style.display = 'block'
+            })
+            themeLightBtn.addEventListener('click', function() {
+                localStorage.theme = 'dark';
+                document.documentElement.dispatchEvent(new Event('changeTheme'));
+                themeDarkBtn.style.display = 'block'
+                themeLightBtn.style.display = 'none'
+            })
+
+            document.documentElement.addEventListener('changeTheme', initDarkMode)
+
+            function initDarkMode() {
+                console.log('init dark mode')
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark')
+                    themeLightBtn.style.display = 'none'
+                    themeDarkBtn.style.display = 'block'
+                } else {
+                    document.documentElement.classList.remove('dark')
+                    themeDarkBtn.style.display = 'none'
+                    themeLightBtn.style.display = 'block'
+                }
+            }
+    </script>
+
 </body>
 </html>
