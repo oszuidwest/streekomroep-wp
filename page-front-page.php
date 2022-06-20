@@ -116,7 +116,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'meta_query' => [
                     [
                         'key' => 'post_ranking',
-                        'value' => '2',
+                        'value' => ['2','6'],
                         'compare' => 'NOT LIKE',
                     ]
                 ]
