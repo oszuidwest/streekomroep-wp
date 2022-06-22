@@ -114,11 +114,17 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'offset' => $block['offset'],
                 'ignore_sticky_posts' => true,
                 'meta_query' => [
+                    'relation' => 'AND',
                     [
                         'key' => 'post_ranking',
-                        'value' => ['2', '6'],
-                        'compare' => 'NOT IN',
-                    ]
+                        'value' => '2',
+                        'compare' => 'NOT LIKE',
+                    ],
+                    [
+                        'key' => 'post_ranking',
+                        'value' => '6',
+                        'compare' => 'NOT LIKE',
+                    ],
                 ]
             ]);
             break;
