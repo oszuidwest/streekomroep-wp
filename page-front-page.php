@@ -117,7 +117,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     [
                         'key' => 'post_ranking',
                         'value' => ['2', '6'],
-                        'compare' => 'NOT LIKE',
+                        'compare' => 'NOT IN',
                     ]
                 ]
             ]);
