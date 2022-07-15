@@ -8,35 +8,35 @@
 
         <div class="px-6 md:px-12 max-w-3xl mx-auto mt-6 pb-6">
             {% include 'partial/tag-region.twig' with { region: post.region } %}
-            <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words">{{ post.title }}</h1>
-            <time class="text-xs tracking-wide uppercase font-black font-round"
+            <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words text-black dark:text-white">{{ post.title }}</h1>
+            <time class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-gray-200"
                   datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
             <p class="flex items-center mt-6">
-                <img src="{{ post.author.avatar|thumbor(32, 32) }}" 
+                <img src="{{ post.author.avatar|thumbor(32, 32) }}"
                      srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
                      alt="{{ post.author.name }}" class="h-8 w-8 rounded">
                 <a href="{{ post.author.path }}"
-                   class="ml-3 text-xs tracking-wide uppercase font-black font-round"> {{ post.author.name }} </a>
+                   class="ml-3 text-xs tracking-wide uppercase font-black font-round text-black dark:text-white"> {{ post.author.name }} </a>
             </p>
         </div>
 
         <div class="px-6 md:px-12 max-w-3xl mx-auto">
-            <div class="prose md:prose-lg max-w-none">
+            <div class="prose dark:prose-invert md:prose-lg max-w-none">
                 {{ post.content }}
             </div>
 
             {% if posts %}
                 <aside class="mt-8">
-                    <p class="font-black font-round text-sm uppercase">Artikelen bij dit fragment</p>
+                    <p class="font-black font-round text-sm uppercase text-black dark:text-white">Artikelen bij dit fragment</p>
                     {% for post in posts %}
-                        <a class="block flex py-2 hover:bg-gray-50" href="{{ post.link }}">
+                        <a class="flex py-2 hover:bg-gray-50 dark:hover:bg-gray-700" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
-                                <img alt="{{ post.thumbnail.alt }}" 
+                                <img alt="{{ post.thumbnail.alt }}"
                                      class="w-full" src="{{ post.thumbnail.src|thumbor(160, 90) }}"
                                      srcset="{{ post.thumbnail.src|thumbor(320, 180) }} 2x"/>
                             </div>
                             <div class="flex-auto pl-4">
-                                <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+                                <h2 class="text-xl font-semibold text-black dark:text-white">{{ post.title }}</h2>
                             </div>
                         </a>
                     {% endfor %}
@@ -48,7 +48,7 @@
     </article>
 
     {% if local %}
-        <div class="bg-gray-800 text-white">
+        <div class="bg-white dark:bg-gray-800 text-black dark:text-white border-t border-gray-300/50 dark:border-gray-700/50">
             <div class="w-full mx-auto max-w-960 py-4 px-4">
                 <h2 class="font-bold text-3xl pb-4">Meer nieuws uit {{ local.region }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

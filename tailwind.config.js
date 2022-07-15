@@ -1,8 +1,6 @@
 module.exports = {
-  purge: [
-    './templates/**/*.twig'
-  ],
-  darkMode: false, // or 'media' or 'class'
+  content: ['./templates/**/*.twig'],
+  darkMode: 'class',
   theme: {
     extend: {
       aspectRatio: {
@@ -12,26 +10,23 @@ module.exports = {
         round: ['Nunito', 'sans-serif'],
       },
       maxWidth: {
-        '960': '60rem',
+        960: '60rem',
       },
       colors: {
         roze: {
-          DEFAULT: '#e6007e'
+          DEFAULT: '#e6007e',
         },
         groen: {
-          DEFAULT: '#00de01'
+          DEFAULT: '#00de01',
         },
         blauw: {
-          DEFAULT: '#009fe3'
-        }
-      }
+          DEFAULT: '#009fe3',
+        },
+      },
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/typography'),
   ],
-}
+};

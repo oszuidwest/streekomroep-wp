@@ -6,15 +6,15 @@
     </head>
 {% endblock %}
 
-<body class="{{ body_class }} bg-gray-100" data-template="base.twig">
-<div class="bg-gray-800 border-b border-gray-900 text-white">
+<body class="{{ body_class }} bg-white dark:bg-gray-800" data-template="base.twig">
+<div class="bg-gray-800 border-b border-gray-900 dark:border-gray-700 text-white">
     <div class="-mb-px">
         <div class="mx-auto max-w-960">
             <div class="flex overflow-auto p-2">
                 {% if function('has_custom_logo') %}
                     {{ function('get_custom_logo') }}
                 {% else %}
-                    <a class="font-round flex items-center px-2 font-black uppercase text-xl sm:text-3xl leading-none"
+                    <a class="text-white font-round flex items-center px-2 font-black uppercase text-xl sm:text-3xl leading-none"
                        href="{{ site.url }}" rel="home">Zuid<br
                                 class="sm:hidden"/>West</a>
                 {% endif %}
@@ -42,11 +42,11 @@
             <div class="overflow-auto" style="-webkit-overflow-scrolling: touch">
                 <div class="flex">
                     {% for item in mainmenu.items %}
-                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
+                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
                         {% if item.current %}
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
                         {% else %}
-                            {% set classes = classes|merge(['border-transparent']) %}
+                            {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
                         {% endif %}
                         <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
                     {% endfor %}
@@ -56,7 +56,7 @@
     </div>
 </div>
 
-<section id="content" role="main" class="bg-white flow-root">
+<section id="content" role="main" class="bg-white dark:bg-gray-800 flow-root">
     {% block content %}
         Sorry, no content
     {% endblock %}
@@ -66,5 +66,39 @@
     {% include 'footer.twig' %}
     {{ function('wp_footer') }}
 {% endblock %}
+
+    <script>
+            var themeLightBtn = document.querySelector('#themeLightBtn');
+            var themeDarkBtn = document.getElementById('themeDarkBtn');
+            initDarkMode()
+
+            themeDarkBtn.addEventListener('click', function() {
+                localStorage.theme = 'light';
+                document.documentElement.dispatchEvent(new Event('changeTheme'));
+                themeDarkBtn.style.display = 'none'
+                themeLightBtn.style.display = 'block'
+            })
+            themeLightBtn.addEventListener('click', function() {
+                localStorage.theme = 'dark';
+                document.documentElement.dispatchEvent(new Event('changeTheme'));
+                themeDarkBtn.style.display = 'block'
+                themeLightBtn.style.display = 'none'
+            })
+
+            document.documentElement.addEventListener('changeTheme', initDarkMode)
+
+            function initDarkMode() {
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark')
+                    themeLightBtn.style.display = 'none'
+                    themeDarkBtn.style.display = 'block'
+                } else {
+                    document.documentElement.classList.remove('dark')
+                    themeDarkBtn.style.display = 'none'
+                    themeLightBtn.style.display = 'block'
+                }
+            }
+    </script>
+
 </body>
 </html>

@@ -18,7 +18,7 @@
                 WhatsApp</a>
             {% set title = function('html_entity_decode', post.title) %}
             {% set body = 'Lees dit artikel op ' ~ site.name ~ ': ' ~ title ~ "\n\n" ~ post.link %}
-            <a href="mailto:?subject={{ title|escape('url') }}&body={{ body|escape('url') }}"  class="border-current border whitespace-nowrap flex-none flex items-center pl-1 pr-3 m-1 rounded">
+            <a href="mailto:?subject={{ title|escape('url') }}&body={{ body|escape('url') }}"  class="border-current border whitespace-nowrap flex-none flex items-center pl-1 pr-3 m-1 rounded text-black dark:text-gray-200">
                 <svg width="16" height="16" class="m-2 fill-current"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M 12 2 C 6.4886661 2 2 6.4886661 2 12 C 2 17.511334 6.4886661 22 12 22 L 16 22 A 1.0001 1.0001 0 1 0 16 20 L 12 20 C 7.5693339 20 4 16.430666 4 12 C 4 7.5693339 7.5693339 4 12 4 C 16.430666 4 20 7.5693339 20 12 L 20 13.5 C 20 14.340812 19.340812 15 18.5 15 C 17.659188 15 17 14.340812 17 13.5 L 17 12 A 1.0001 1.0001 0 0 0 16.994141 11.888672 C 16.933859 9.1903924 14.712044 7 12 7 C 9.2504209 7 7 9.2504209 7 12 C 7 14.749579 9.2504209 17 12 17 C 13.413556 17 14.687859 16.398875 15.599609 15.447266 C 16.230695 16.380863 17.297708 17 18.5 17 C 20.421188 17 22 15.421188 22 13.5 L 22 12 C 22 6.4886661 17.511334 2 12 2 z M 12 9 C 13.668699 9 15 10.331301 15 12 C 15 13.668699 13.668699 15 12 15 C 10.331301 15 9 13.668699 9 12 C 9 10.331301 10.331301 9 12 9 z"></path></svg>
                 E-mail</a>
         </div>

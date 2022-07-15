@@ -1,20 +1,20 @@
 <article>
-	<a class="block flex sm:flex-col" href="{{ post.link }}">
-    <div class="flex-none w-1/3 sm:w-auto">
-        {% include 'partial/post-thumbnail-4-3.twig' with { post: post, width: 309 } %}
-    </div>
-    <div class="flex-auto pl-2 pr-4 sm:px-0 sm:pt-2">
-        {% if region ?? true %}
-            {% include 'partial/tag-region.twig' with { region: post.region } %}
-        {% endif %}
-        <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
-        <p class="block prose prose-sm {% if dark ?? false %}text-gray-400{% else %}text-gray-600{% endif %}">
-            <time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
-            {% if summary ?? true %}
-                <span class="hidden sm:inline px-1">&middot;</span>
-                <span class="hidden sm:inline">{{ post.preview.length(20).read_more(false) }}</span>
-            {% endif %}
-        </p>
-    </div>
-</a>
+	<a class="flex sm:flex-col" href="{{ post.link }}">
+		<div class="flex-none w-1/3 sm:w-auto">
+			{% include 'partial/post-thumbnail-4-3.twig' with { post: post, width: 309 } %}
+		</div>
+		<div class="flex-auto pl-2 pr-4 sm:px-0 sm:pt-2">
+			{% if region ?? true %}
+				{% include 'partial/tag-region.twig' with { region: post.region } %}
+			{% endif %}
+			<h2 class="sm:text-xl font-semibold my-1 text-black dark:text-white">{{ post.title }}</h2>
+			<p class="block prose prose-sm text-gray-600 dark:text-gray-400">
+				<time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
+				{% if summary ?? true %}
+					<span class="hidden sm:inline px-1">&middot;</span>
+					<span class="hidden sm:inline">{{ post.preview.length(20).read_more(false) }}</span>
+				{% endif %}
+			</p>
+		</div>
+	</a>
 </article>
