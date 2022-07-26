@@ -63,7 +63,7 @@
 /* Pullquote */
 
 .prose blockquote {
-    @apply border-none font-round text-xl text-gray-600;
+    @apply border-none font-round text-xl text-gray-600 dark:text-white;
     text-transform: none;
     text-align: center;
     line-height: 1em;
