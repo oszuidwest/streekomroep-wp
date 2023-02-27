@@ -12,7 +12,7 @@ This is a WordPress theme with some hard dependencies. You can't run it without 
 4. Switch to the `streekomroep` theme
 
 ### ⚠️ A note about PHP 8.0/8.1
-This theme is not yet tested with PHP 8.0 or 8.1. This is mainly due to the rendering engine Timber (not being compatible yet)[https://github.com/timber/timber]. We advice you to run it on PHP 7.4 for now and keep monitoring this repository.
+This theme is not yet tested with PHP 8.0 or 8.1. This is mainly due to the rendering engine Timber [not being compatible yet](https://github.com/timber/timber). We advice you to run it on PHP 7.4 for now and keep monitoring this repository. You are welcome to test it with PHP 8.0 and report issues.
 
 ### Hard dependencies
 Install these before activating the theme:
