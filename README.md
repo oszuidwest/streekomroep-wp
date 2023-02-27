@@ -44,3 +44,5 @@ NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --m
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
 - Upload the theme to `/wp-content/themes/` and activate it.
+
+This theme is never built on Windows or Linux, but you should be able to do so if your Composer and Node version are somewhat up-to-date. If you don't want to build it locally, we suggest using [Buddy CI/CD](https://buddy.works/) to handle the building and uploading.
