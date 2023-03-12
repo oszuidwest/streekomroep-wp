@@ -6,6 +6,7 @@
             "key": "field_60048d0f8ab64",
             "label": "HLS Stream",
             "name": "tv_webplayer_hls_stream",
+            "aria-label": "",
             "type": "url",
             "instructions": "",
             "required": 0,
@@ -22,8 +23,26 @@
             "key": "field_600712f65e020",
             "label": "DASH Stream",
             "name": "tv_webplayer_dash_stream",
+            "aria-label": "",
             "type": "url",
             "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_61c1a3725d9d1",
+            "label": "Poster",
+            "name": "tv_webplayer_poster",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Plaats een link naar een poster-afbeelding die in de webplayer getoond wordt. Gebruik voor optimaal resultaat een 16x9 verhouding.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -52,5 +71,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1611076382
+    "show_in_rest": 0,
+    "modified": 1678649438
 }
