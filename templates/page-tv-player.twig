@@ -5,7 +5,7 @@
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-w-16 aspect-h-9 ">
                 <div>
-                    <video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup='{"liveui": true}' autoplay controls>
+                    <video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup='{"liveui": true}' autoplay controls {% if options.tv_webplayer_poster %}poster="{{ options.tv_webplayer_tv_webplayer_poster }}"{% endif %}>
                         {% if options.tv_webplayer_hls_stream %}
                             <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
                         {% endif %}
