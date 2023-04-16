@@ -1,1 +1,38 @@
 name: Build and deploy dev and prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: curl
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: |
+          composer update
+          composer install
+
+      - name: Set-up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Build CSS
+        run: NODE_ENV=production npx tailwindcss -i assets/style.css -o dist/style.css --minify
