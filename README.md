@@ -45,4 +45,4 @@ composer install --prefer-dist --no-dev --optimize-autoloader
 ```
 - Upload the theme to `/wp-content/themes/` and activate it.
 
-This theme is never built on Windows or Linux, but you should be able to do so if your Composer and Node version are somewhat up-to-date. If you don't want to build it locally, we suggest using [Buddy CI/CD](https://buddy.works/) to handle the building and uploading.
+Use `apt` or `yum` instead of Homebrew if you use Linux. This theme was never built on Windows, but you should be able to do so if your Composer and Node version are somewhat up-to-date. If you don't want to build it locally, we suggest using Githun Actions or [Buddy CI/CD](https://buddy.works/) to handle the building and uploading.
