@@ -55,6 +55,7 @@ jobs:
           EXCLUDE: '/node_modules/, /.git/, /.github'
 
       - name: Purge cache
+        if: github.ref == 'refs/heads/master'
         uses: nathanvaughn/actions-cloudflare-purge@master
         with:
           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
