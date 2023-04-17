@@ -1,0 +1,56 @@
+name: Build and deploy dev and prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: curl
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: |
+          composer update
+          composer install
+
+      - name: Set-up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Build CSS
+        run: NODE_ENV=production npx tailwindcss -i assets/style.css -o dist/style.css --minify
+
+      - name: Deploy to remote server
+        uses: easingthemes/ssh-deploy@v4
+        with:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ github.ref == 'refs/heads/master' && secrets.REMOTE_USER || secrets.REMOTE_USER_DEV }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+          TARGET: ${{ github.ref == 'refs/heads/master' && secrets.REMOTE_PATH || secrets.REMOTE_PATH_DEV }}
+          SSH_PRIVATE_KEY: ${{ secrets.REMOTE_KEY }}
+          ARGS: '-avz --delete'
+          EXCLUDE: '/node_modules/, /.git/, /.github'
+
+      - name: Purge cache
+        if: github.ref == 'refs/heads/master'
+        uses: nathanvaughn/actions-cloudflare-purge@master
+        with:
+          cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
+          cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
