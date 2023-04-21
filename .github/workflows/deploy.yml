@@ -24,7 +24,7 @@ jobs:
       - name: Install Composer dependencies
         run: |
           composer update
-          composer install
+          composer install --no-dev --optimize-autoloader
 
       - name: Set-up Node
         uses: actions/setup-node@v3

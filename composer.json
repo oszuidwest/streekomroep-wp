@@ -16,14 +16,19 @@
     }
   ],
   "require": {
-    "timber/timber": "1.*",
-    "symfony/yaml": "^5.2",
+    "ext-fileinfo": "*",
     "ext-json": "*",
-    "ext-fileinfo": "*"
+    "nesbot/carbon": "^2.66",
+    "symfony/yaml": "^5.2",
+    "timber/timber": "1.*"
   },
   "config": {
+    "sort-packages": true,
     "allow-plugins": {
       "composer/installers": true
     }
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^5.4"
   }
 }

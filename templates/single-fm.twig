@@ -24,6 +24,12 @@
             <div class="prose dark:prose-invert prose-lg md:prose-xl">
                 {{ post.content }}
             </div>
+
+            <ul>
+                {% for recording in recordings %}
+                <li><a href="{{ "https://audio.zuidwestfm.nl/" ~ recording.format('Y-m-d_H') ~ ".mp3" }}">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
     </article>
 {% endblock %}

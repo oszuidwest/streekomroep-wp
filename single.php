@@ -9,6 +9,7 @@
  * @since    Timber 0.1
  */
 
+use Carbon\Carbon;
 use Streekomroep\Fragment;
 use Streekomroep\Video;
 
@@ -161,6 +162,56 @@ if ($timber_post->post_type == 'tv') {
     }
 
     $context['seasons'] = $seasons;
+}
+
+$weekdayNames = [
+    1 => 'maandag',
+    2 => 'dinsdag',
+    3 => 'woensdag',
+    4 => 'donderdag',
+    5 => 'vrijdag',
+    6 => 'zaterdag',
+    7 => 'zondag'
+];
+
+if ($timber_post->post_type == 'fm') {
+    $show = $timber_post;
+    $gemist = (bool)$show->meta('fm_show_actief');
+
+    $recordings = [];
+    if ($gemist) {
+        $items = [];
+        $rules = $show->meta('fm_show_programmatie');
+        if (!$rules) {
+            $rules = [];
+        }
+
+        $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
+        $end = $hour->copy()->subDays(30);
+
+        while ($hour->isAfter($end)) {
+            $dayname = $weekdayNames[$hour->dayOfWeekIso];
+
+            foreach ($rules as $rule) {
+                if (!in_array($dayname, $rule['fm_show_dagen'])) {
+                    continue;
+                }
+
+                $ruleStart = $hour->copy()->setTimeFromTimeString($rule['fm_show_starttijd']);
+                $ruleEnd = $hour->copy()->setTimeFromTimeString($rule['fm_show_eindtijd']);
+
+
+                if (($hour->isAfter($ruleStart) || $hour->is($ruleStart)) && $hour->isBefore($ruleEnd)) {
+                    $recordings[] = $hour;
+                }
+            }
+
+            // Work around DST causing an endless loop
+            $hour = Carbon::createFromTimestamp($hour->timestamp - (60 * 60), 'Europe/Amsterdam');
+        }
+    }
+
+    $context['recordings'] = $recordings;
 }
 
 if ($timber_post->post_gekoppeld_fragment) {
