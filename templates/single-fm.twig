@@ -36,8 +36,8 @@
                             <a class="block bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 rounded-md p-2"
                                href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
                                target="_blank">
-                                <span class="block font-bold">{{ post.title }}</span>
-                                <span class="block text-sm">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</span>
+                                <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
+                                <span class="block">{{ recording.locale('nl').isoFormat('HH:mm') }} uur</span>
                             </a>
                         </li>
                     {% endfor %}
