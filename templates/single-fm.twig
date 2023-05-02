@@ -21,15 +21,26 @@
             {% endfor %}
             <p class="text-sm md:text-base mb-8 text-black dark:text-white">Met {{ hosts|join(', ', ' en ') }}</p>
 
-            <div class="prose dark:prose-invert prose-lg md:prose-xl">
-                {{ post.content }}
-            </div>
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div class="prose dark:prose-invert prose-lg md:prose-xl sm:col-span-2">
+                    {{ post.content }}
+                </div>
 
-            <ul>
-                {% for recording in recordings %}
-                <li><a href="{{ "https://audio.zuidwestfm.nl/" ~ recording.format('Y-m-d_H') ~ ".mp3" }}">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</a></li>
-                {% endfor %}
-            </ul>
+                {% if recordings is not empty %}
+                    <div class="bg-slate-300 -mx-6 px-6 py-4 sm:mx-0 sm:p-2">
+                        <ul class="list-disc pl-4">
+                            {% for recording in recordings %}
+                                <li>
+                                    <a class="hover:underline focus:underline"
+                                       href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
+                                       target="_blank">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+            </div>
         </div>
     </article>
 {% endblock %}

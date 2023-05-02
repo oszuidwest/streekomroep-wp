@@ -187,7 +187,7 @@ if ($timber_post->post_type == 'fm') {
         }
 
         $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
-        $end = $hour->copy()->subDays(30);
+        $end = $hour->copy()->subDays(get_field('radio_gemist_retentie', 'option'));
 
         while ($hour->isAfter($end)) {
             $dayname = $weekdayNames[$hour->dayOfWeekIso];
