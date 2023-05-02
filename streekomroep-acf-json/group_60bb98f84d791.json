@@ -6,6 +6,7 @@
             "key": "field_60bba06d86cb3",
             "label": "Uitzending gemist inschakelen?",
             "name": "radio_gemist_actief",
+            "aria-label": "",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -25,6 +26,7 @@
             "key": "field_60bb991f8715c",
             "label": "Locatie audiologger",
             "name": "radio_gemist_baseurl",
+            "aria-label": "",
             "type": "url",
             "instructions": "Vul de basis-url naar de locatie van audiobestanden in.",
             "required": 1,
@@ -43,14 +45,15 @@
                 "id": ""
             },
             "default_value": "",
-            "placeholder": ""
+            "placeholder": "https:\/\/audio.zuidwestfm.nl\/<date>.mp3"
         },
         {
             "key": "field_60bb99fc32789",
             "label": "Bestandsnaam uren",
             "name": "radio_gemist_file",
+            "aria-label": "",
             "type": "text",
-            "instructions": "Geef op hoe de bestanden met audio per uur heten. Gebruik de date syntax van PHP. https:\/\/www.php.net\/manual\/en\/datetime.formats.date.php en https:\/\/www.php.net\/manual\/en\/datetime.formats.time.php",
+            "instructions": "Geef op hoe de bestanden met audio per uur heten. Gebruik de date syntax van PHP: https:\/\/www.php.net\/manual\/en\/datetime.format.php",
             "required": 1,
             "conditional_logic": [
                 [
@@ -67,15 +70,16 @@
                 "id": ""
             },
             "default_value": "",
-            "placeholder": "Voor bestanden als \"05-12-2021_18u.mp3\" gebruik je \"DD-MM-YY_HHu.mp3\"",
+            "maxlength": "",
+            "placeholder": "Voor bestanden als \"2023-12-01_23\" gebruik je \"Y-m-d_H\"",
             "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "append": ""
         },
         {
             "key": "field_60bba01316302",
             "label": "Bewaarperiode",
             "name": "radio_gemist_retentie",
+            "aria-label": "",
             "type": "number",
             "instructions": "Hoeveel dagen worden opnamen bewaard?",
             "required": 1,
@@ -120,5 +124,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1652036677
+    "modified": 1683049212
 }
