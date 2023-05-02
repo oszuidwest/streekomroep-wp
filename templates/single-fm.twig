@@ -21,25 +21,27 @@
             {% endfor %}
             <p class="text-sm md:text-base mb-8 text-black dark:text-white">Met {{ hosts|join(', ', ' en ') }}</p>
 
-            <div class="grid sm:grid-cols-3 gap-4">
-                <div class="prose dark:prose-invert prose-lg md:prose-xl sm:col-span-2">
-                    {{ post.content }}
-                </div>
+            <div class="prose dark:prose-invert sm:col-span-2">
+                {{ post.content }}
+            </div>
+        </div>
 
-                {% if recordings is not empty %}
-                    <div class="bg-slate-300 -mx-6 px-6 py-4 sm:mx-0 sm:p-2">
-                        <ul class="list-disc pl-4">
-                            {% for recording in recordings %}
-                                <li>
-                                    <a class="hover:underline focus:underline"
-                                       href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
-                                       target="_blank">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
+        <div class="bg-white border-t border-gray-300/50 dark:border-gray-700/50">
+            <div class="w-full mx-auto max-w-960 px-4">
+                <h2 class="font-bold text-3xl pt-4 pb-4 text-black dark:text-white">Uitzending gemist</h2>
 
+                <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
+                    {% for recording in recordings %}
+                        <li>
+                            <a class="block bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 rounded-md p-2"
+                               href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
+                               target="_blank">
+                                <span class="block font-bold">{{ post.title }}</span>
+                                <span class="block text-sm">{{ recording.locale('nl').isoFormat('dddd D MMMM, HH:mm') }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </article>
