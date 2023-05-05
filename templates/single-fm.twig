@@ -30,23 +30,25 @@
             </div>
         </div>
 
-        <aside class="bg-gray-800 border-t border-transparent dark:border-gray-200/10 text-white">
-            <div class="w-full mx-auto max-w-960 px-4">
-                <h2 class="font-bold text-3xl pt-4 pb-4">Uitzending gemist</h2>
+        {% if recordings is not empty %}
+            <aside class="bg-gray-800 border-t border-transparent dark:border-gray-200/10 text-white">
+                <div class="w-full mx-auto max-w-960 px-4">
+                    <h2 class="font-bold text-3xl pt-4 pb-4">Uitzending gemist</h2>
 
-                <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
-                    {% for recording in recordings %}
-                        <li>
-                            <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded-md p-2"
-                               href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
-                               target="_blank">
-                                <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
-                                <span class="block">{{ recording.locale('nl').isoFormat('HH:mm') }} uur</span>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </aside>
+                    <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
+                        {% for recording in recordings %}
+                            <li>
+                                <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded-md p-2"
+                                   href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
+                                   target="_blank">
+                                    <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
+                                    <span class="block">{{ recording.locale('nl').isoFormat('HH:mm') }} uur</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+        {% endif %}
     </article>
 {% endblock %}
