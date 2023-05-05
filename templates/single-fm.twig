@@ -7,7 +7,7 @@
                 {% if post.thumbnail %}
                     <img src="{{ post.thumbnail.src|thumbor(960, 960 / 21 * 9) }}"
                          srcset="{{ post.thumbnail.src|thumbor(1920, 1920 / 21 * 9) }} 2x"
-                         alt="{{ post.title }}" class="absolute inset-0 md:rounded-md bg-gray-200 dark:bg-gray-700 ">
+                         alt="{{ post.title }}" class="absolute inset-0 bg-gray-200 dark:bg-gray-700 ">
                 {% endif %}
             </div>
         </div>
@@ -38,7 +38,7 @@
                     <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
                         {% for recording in recordings %}
                             <li>
-                                <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded-md p-2"
+                                <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded p-2"
                                    href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format('Y-m-d_H')}) }}"
                                    target="_blank">
                                     <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
