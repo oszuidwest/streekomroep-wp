@@ -28,4 +28,5 @@ $context['regions'] = Timber::get_terms([
     'taxonomy' => 'regio'
 ]);
 
+wp_enqueue_script('jquery');
 Timber::render(['regio.twig'], $context);
