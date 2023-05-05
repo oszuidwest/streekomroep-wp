@@ -25,17 +25,17 @@
         </div>
 
         {% if seasons is not empty %}
-            <div class="bg-white border-t border-gray-300/50 dark:border-gray-700/50 dark:bg-gray-800 text-white">
+            <div class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
                 <div class="w-full mx-auto max-w-960 px-4">
-                    <h2 class="font-bold text-3xl pt-4 text-black dark:text-white">Uitzending gemist</h2>
+                    <h2 class="font-bold text-3xl pt-4 text-white">Uitzending gemist</h2>
                     {% for season, videos in seasons %}
-                        <h2 class="text-2xl py-4 text-black dark:text-white">{{ season }}</h2>
+                        <h2 class="text-2xl py-4 text-white">{{ season }}</h2>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
                                         <img src="{{ video.thumbnail }}" alt="{{ video.name }}" loading="lazy"/>
-                                        <h3 class="font-bold mt-2 text-black dark:text-gray-200">{{ video.name }}</h3>
+                                        <h3 class="font-bold mt-2 :text-gray-200">{{ video.name }}</h3>
                                     </a>
                                 </article>
                             {% endfor %}
