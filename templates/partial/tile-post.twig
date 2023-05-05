@@ -7,8 +7,8 @@
 			{% if region ?? true %}
 				{% include 'partial/tag-region.twig' with { region: post.region } %}
 			{% endif %}
-			<h2 class="sm:text-xl font-semibold my-1 text-black dark:text-white">{{ post.title }}</h2>
-			<p class="block prose prose-sm text-gray-600 dark:text-gray-400">
+			<h2 class="sm:text-xl font-semibold my-1 {% if dark ?? false %}text-white{% else %}text-black dark:text-white{% endif %}">{{ post.title }}</h2>
+			<p class="block prose prose-sm {% if dark ?? false %}text-gray-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
 				<time datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
 				{% if summary ?? true %}
 					<span class="hidden sm:inline px-1">&middot;</span>
