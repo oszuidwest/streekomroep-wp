@@ -71,27 +71,6 @@ if ($region && !isset($context['topical'])) {
     $context['local'] = $related;
 }
 
-if ($timber_post->post_type == 'agenda') {
-
-    $related = [];
-    $related['posts'] = Timber::get_posts(
-        [
-            'post__not_in' => [$timber_post->id],
-            'posts_per_page' => 4,
-            'post_type' => $timber_post->post_type,
-            'ignore_sticky_posts' => true,
-            'meta_query' => [
-                [
-                    'key' => 'agenda_item_soort',
-                    'value' => $timber_post->agenda_item_soort,
-                    'compare' => '=',
-                ]
-            ]
-        ]
-    );
-    $context['topical'] = $related;
-}
-
 if ($timber_post->post_type == 'tv') {
     $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
     if (!is_array($vimeo)) {
