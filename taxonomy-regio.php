@@ -4,10 +4,6 @@ $context = Timber::context();
 $region = new \Timber\Term(get_queried_object());
 $context['term'] = $region;
 
-$context['calendar'] = Timber::get_posts([
-    'post_type' => 'agenda',
-]);
-
 $context['fragment'] = Timber::get_posts([
     'post_type' => 'fragment',
 ]);
