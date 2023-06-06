@@ -61,7 +61,8 @@
 
 <section id="content" role="main" class="bg-white dark:bg-gray-800 flow-root">
     {% if submenu %}
-        <div class="w-full mx-auto max-w-960 py-4 px-4">
+        <aside>
+            <div class="w-full mx-auto max-w-960 py-4 px-4">
             <ul class="flex flex-wrap gap-2 mb-4 md:w-4/5">
                 {% for item in submenu %}
                     {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded',  'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
@@ -74,9 +75,10 @@
                 {% endfor %}
             </ul>
         </div>
+        </aside>
     {% endif %}
     {% block content %}
-        Sorry, no content
+        Sorry, geen content
     {% endblock %}
 </section>
 
