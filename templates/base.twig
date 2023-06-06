@@ -6,6 +6,8 @@
     </head>
 {% endblock %}
 
+{% set submenu = null %}
+
 <body class="{{ body_class }} bg-white dark:bg-gray-800" data-template="base.twig">
 <div class="bg-gray-800 border-b border-gray-900 dark:border-gray-700 text-white">
     <div class="-mb-px">
@@ -43,8 +45,9 @@
                 <div class="flex">
                     {% for item in mainmenu.items %}
                         {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
-                        {% if item.current %}
+                        {% if item.current or item.current_item_parent %}
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
+                            {% set submenu = item.children %}
                         {% else %}
                             {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
                         {% endif %}
@@ -57,6 +60,21 @@
 </div>
 
 <section id="content" role="main" class="bg-white dark:bg-gray-800 flow-root">
+    {% if submenu %}
+        <div class="w-full mx-auto max-w-960 py-4 px-4">
+            <ul class="flex flex-wrap gap-2 mb-4 md:w-4/5">
+                {% for item in submenu %}
+                    {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded',  'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
+                    {% if item.current or item.currentItemParent %}
+                        {% set classes = classes|merge(['bg-gray-800', 'dark:bg-gray-200', 'dark:text-black ', 'text-white']) %}
+                    {% else %}
+                        {% set classes = classes|merge(['bg-gray-100 dark:bg-gray-700 dark:text-gray-100 text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-600 transition']) %}
+                    {% endif %}
+                    <li><a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     {% block content %}
         Sorry, no content
     {% endblock %}
