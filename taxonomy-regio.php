@@ -2,15 +2,17 @@
 
 $context = Timber::context();
 $region = new \Timber\Term(get_queried_object());
-$context['term'] = $region;
+$context['region'] = $region;
 
-$context['fragment'] = Timber::get_posts([
-    'post_type' => 'fragment',
-]);
+global $paged;
+if (!isset($paged) || !$paged){
+    $paged = 1;
+}
 
-$context['news'] = Timber::get_posts([
+$context['news'] = new Timber\PostQuery([
     'post_type' => 'post',
     'ignore_sticky_posts' => true,
+    'paged' => $paged,
     'tax_query' => [
         [
             'taxonomy' => 'regio',
@@ -18,10 +20,6 @@ $context['news'] = Timber::get_posts([
             'terms' => $region->term_id,
         ]
     ]
-]);
-
-$context['regions'] = Timber::get_terms([
-    'taxonomy' => 'regio'
 ]);
 
 wp_enqueue_script('jquery');

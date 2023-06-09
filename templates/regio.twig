@@ -1,36 +1,9 @@
 {% extends "base.twig" %}
 
 {% block content %}
-    <div class="w-full mx-auto max-w-960 pt-4 px-4">
-        <h1 class="text-2xl font-bold text-black dark:text-white">Het laatste nieuws uit</h1>
-    </div>
-    <div class="overflow-x-auto md:hidden">
-        <div class="flex text-3xl font-bold text-gray-400 px-2">
-            <span class="block flex-none px-2 text-black">{{ term.name }}</span>
-            {% for region in regions %}
-                {% if region.id != term.id %}
-                    <a href="{{ region.link }}" class="block flex-none px-2">{{ region.name }}</a>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="w-full mx-auto max-w-960 hidden px-4 md:block">
-        <select class="text-3xl font-bold js-changepage bg-transparent dark:bg-gray-800 text-black dark:text-white focus:outline-none">
-            {% for region in regions %}
-                <option value="{{ region.link }}"
-                        {% if region.id == term.id %}selected{% endif %}>{{ region.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <script>
-        jQuery('.js-changepage').on('change', function (event) {
-            window.location.href = this.value;
-        });
-    </script>
-
-
     <div class="w-full mx-auto max-w-960 py-4 px-4">
+        <h1 class="font-bold text-3xl pb-4 text-gray-800 dark:text-white">Nieuws uit {{ region.title }}</h1>
+
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {% for post in news %}
                 {% include 'partial/tile-post.twig' with { post: post } %}
