@@ -46,8 +46,18 @@
                     {% for item in mainmenu.items %}
                         {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
                         {% if item.current or item.current_item_parent %}
+
+                            {% if item.current %}
+                                {% set submenu = item.children %}
+                            {% endif %}
+
+                            {% for child in item.children %}
+                                {% if child.current %}
+                                    {% set submenu = item.children %}
+                                {% endif %}
+                            {% endfor %}
+
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
-                            {% set submenu = item.children %}
                         {% else %}
                             {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
                         {% endif %}
