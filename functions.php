@@ -86,6 +86,10 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $body = json_decode($response['body']);
 
+    if ($body->status !== 'available') {
+        return false;
+    }
+
     $m3u8 = null;
     foreach ($body->files as $source) {
         if ($source->quality === 'hls') {
@@ -774,7 +778,7 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri,duration,files&sizes=295x166,1920')
+function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri,duration,files,status&sizes=295x166,1920')
 {
     $args = [
         'timeout' => 30,
