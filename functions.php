@@ -923,6 +923,11 @@ function zw_sort_videos(array $videos)
         return new Video($a);
     }, $videos);
 
+    // Filter videos that are still being uploaded or transcoded
+    $vimeo = array_filter($vimeo, function ($video) {
+        return $video->isAvailable();
+    });
+
     $now = new DateTime('now', wp_timezone());
     $vimeo = array_filter($vimeo, function ($video) use ($now) {
         $date = $video->getBroadcastDate();
