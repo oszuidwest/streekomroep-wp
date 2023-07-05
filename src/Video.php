@@ -76,6 +76,11 @@ class Video
         throw new Exception();
     }
 
+    public function isAvailable()
+    {
+        return $this->data->status === 'available';
+    }
+
     public function getBroadcastDate()
     {
         $yaml = $this->getMeta();
