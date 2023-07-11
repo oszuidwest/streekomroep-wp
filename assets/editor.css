@@ -4,11 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+    @apply bg-gray-50;
+}
+
 body {
+    @apply shadow;
     @apply prose font-sans;
     @apply zw-prose;
     @apply mx-auto;
-    max-width: 400px;
+    max-width: calc(400px - 2 * 1.5rem);
+    box-sizing: content-box;
+    @apply p-4;
 }
 
 body.wp-autoresize {
