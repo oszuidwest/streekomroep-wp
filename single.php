@@ -190,6 +190,14 @@ if ($timber_post->post_type == 'fm') {
         }
     }
 
+    usort($recordings, function (Carbon $lhs, Carbon $rhs) {
+        if ($lhs->isSameDay($rhs)) {
+            return $lhs <=> $rhs;
+        }
+
+        return $rhs <=> $lhs;
+    });
+
     $context['recordings'] = $recordings;
 }
 
