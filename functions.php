@@ -870,6 +870,8 @@ add_action('init', function () {
     if (!wp_next_scheduled('zw_10mins')) {
         wp_schedule_event(time(), '10mins', 'zw_10mins');
     }
+
+    add_editor_style(get_stylesheet_directory_uri() . '/dist/editor.css');
 });
 
 add_action('switch_theme', 'zw_deactivate');
