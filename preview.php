@@ -15,11 +15,23 @@ if (!isset($_GET['url'])) {
 
 ?>
 <!doctype html>
-<html class="h-full bg-gray-50">
+<html class="h-full">
 <head>
     <link rel="stylesheet" href="dist/style.css"/>
+    <meta name="viewport" content="width=device-width"/>
+    <script>
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark')
+            document.documentElement.classList.add('bg-neutral-900')
+        } else {
+            document.documentElement.classList.add('bg-gray-50')
+        }
+    </script>
 </head>
-<body class="grid min-h-full place-items-center p-6">
-<iframe class="h-full shadow w-[400px]" src="<?= htmlspecialchars($_GET['url']); ?>"></iframe>
+<body class="flex min-h-full flex-col items-center py-4 gap-4 dark:text-white">
+<div>
+    <a href="<?= htmlspecialchars($_GET['url']); ?>" class="underline">Open normale weergave</a>
+</div>
+<iframe class="h-full flex-grow shadow w-full rounded" style="max-width: 400px;" src="<?= htmlspecialchars($_GET['url']); ?>"></iframe>
 </body>
 </html>
