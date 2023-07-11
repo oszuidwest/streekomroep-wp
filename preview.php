@@ -30,7 +30,7 @@ if (!isset($_GET['url'])) {
 </head>
 <body class="flex min-h-full flex-col items-center py-4 gap-4 dark:text-white">
 <div>
-    <a href="<?= htmlspecialchars($_GET['url']); ?>" class="underline">Open normale weergave</a>
+    <a href="<?= htmlspecialchars($_GET['url']); ?>" class="underline">Open desktop-weergave</a>
 </div>
 <iframe class="h-full flex-grow shadow w-full rounded" style="max-width: 400px;" src="<?= htmlspecialchars($_GET['url']); ?>"></iframe>
 </body>
