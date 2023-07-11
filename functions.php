@@ -1266,3 +1266,10 @@ function jetpack_photon_url($image_url, $args = array(), $scheme = null)
 
 include 'modules/assets.php';
 include 'modules/tiled-gallery/tiled-gallery.php';
+
+function zw_preview_post_link($link)
+{
+    return get_stylesheet_directory_uri() . '/preview.php?url=' . urlencode($link);
+}
+
+add_filter('preview_post_link', 'zw_preview_post_link');
