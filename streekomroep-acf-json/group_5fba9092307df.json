@@ -1,13 +1,14 @@
 {
     "key": "group_5fba9092307df",
-    "title": "TV - Uitzending gemist (Vimeo)",
+    "title": "TV - Uitzending gemist",
     "fields": [
         {
-            "key": "field_5fba9099c14e2",
-            "label": "Vimeo client ID",
-            "name": "vimeo_client_id",
-            "type": "password",
-            "instructions": "",
+            "key": "field_6246e1e8c4402",
+            "label": "Bunny CDN Hostname",
+            "name": "bunny_cdn_hostname",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Te vinden onder Stream → API → CDN Hostname (mag ook CNAME naar een eigen domein zijn).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -15,33 +16,41 @@
                 "class": "",
                 "id": ""
             },
+            "default_value": "",
+            "maxlength": "",
             "placeholder": "",
             "prepend": "",
             "append": ""
         },
         {
-            "key": "field_5fba90b3e0bbc",
-            "label": "Vimeo client secret",
-            "name": "vimeo_client_secret",
-            "type": "password",
-            "instructions": "",
+            "key": "field_62408073991e2",
+            "label": "Bunny CDN Library ID",
+            "name": "bunny_cdn_library_id",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Zoek de API Key op in het panel van Bunny CDN. Te vinden onder Stream → API → API Key.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
+            "default_value": "",
+            "min": "",
+            "max": "",
             "placeholder": "",
+            "step": "",
             "prepend": "",
             "append": ""
         },
         {
-            "key": "field_5fba90d3e0bbd",
-            "label": "Vimeo access token",
-            "name": "vimeo_access_token",
+            "key": "field_623b82a61698a",
+            "label": "Bunny CDN API Key",
+            "name": "bunny_cdn_api_key",
+            "aria-label": "",
             "type": "password",
-            "instructions": "",
+            "instructions": "Zoek de API Key op in het panel van Bunny CDN.  Te vinden onder Stream в†’ API в†’ API Key.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -71,5 +80,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1607697529
+    "show_in_rest": 0,
+    "modified": 1691943049
 }
