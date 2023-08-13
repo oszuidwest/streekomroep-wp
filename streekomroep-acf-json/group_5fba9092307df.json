@@ -50,7 +50,7 @@
             "name": "bunny_cdn_api_key",
             "aria-label": "",
             "type": "password",
-            "instructions": "Zoek de API Key op in het panel van Bunny CDN. Te vinden onder Stream в†’ API в†’ API Key.",
+            "instructions": "Zoek de API Key op in het panel van Bunny CDN. Te vinden onder Stream → API → API Key.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
