@@ -24,7 +24,7 @@
         },
         {
             "key": "field_5fba8f630fd86",
-            "label": "Gemist locatie",
+            "label": "CDN locatie",
             "name": "tv_show_gemist_locatie",
             "aria-label": "",
             "type": "text",
