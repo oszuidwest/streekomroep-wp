@@ -8,7 +8,7 @@
             "name": "bunny_cdn_hostname",
             "aria-label": "",
             "type": "text",
-            "instructions": "Te vinden onder Stream → API → CDN Hostname (mag ook CNAME naar een eigen domein zijn).",
+            "instructions": "Te vinden onder Stream → API → CDN Hostname (eindig niet op een slash).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -28,11 +28,11 @@
             "name": "bunny_cdn_library_id",
             "aria-label": "",
             "type": "number",
-            "instructions": "Zoek het library ID op in het panel van Bunny CDN. Te vinden onder Stream → API → Video Library ID.",
+            "instructions": "Te vinden onder Stream → API → Video Library ID.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "50",
+                "width": "",
                 "class": "",
                 "id": ""
             },
@@ -50,7 +50,7 @@
             "name": "bunny_cdn_api_key",
             "aria-label": "",
             "type": "password",
-            "instructions": "Zoek de API Key op in het panel van Bunny CDN. Te vinden onder Stream → API → API Key.",
+            "instructions": "Te vinden onder Stream → API → API Key.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
