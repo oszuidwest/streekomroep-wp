@@ -27,7 +27,7 @@
             "label": "Gemist locatie",
             "name": "tv_show_gemist_locatie",
             "aria-label": "",
-            "type": "number",
+            "type": "text",
             "instructions": "Vul het ID van de Bunny CDN Collection waar de uitzendingen in staan in.",
             "required": 0,
             "conditional_logic": 0,
