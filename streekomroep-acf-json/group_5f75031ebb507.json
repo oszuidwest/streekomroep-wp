@@ -6,6 +6,7 @@
             "key": "field_5f75032710141",
             "label": "Fragment type",
             "name": "fragment_type",
+            "aria-label": "",
             "type": "radio",
             "instructions": "",
             "required": 0,
@@ -30,6 +31,7 @@
             "key": "field_5fc27af33a90a",
             "label": "Duur (in seconden)",
             "name": "fragment_duur",
+            "aria-label": "",
             "type": "number",
             "instructions": "Wordt automatisch berekend bij opslaan.",
             "required": 0,
@@ -49,12 +51,49 @@
         },
         {
             "key": "field_5f7503a2f4e72",
-            "label": "URL",
-            "name": "fragment_url",
-            "type": "oembed",
+            "label": "Video ID",
+            "name": "fragment_video_id",
+            "aria-label": "",
+            "type": "text",
             "instructions": "Volledige link naar de Vimeo-video of .mp3 audio file",
             "required": 0,
-            "conditional_logic": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f75032710141",
+                        "operator": "==",
+                        "value": "Video"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_64d9d4f0f6086",
+            "label": "Audiobestand",
+            "name": "fragment_audio_file",
+            "aria-label": "",
+            "type": "oembed",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f75032710141",
+                        "operator": "==",
+                        "value": "Audio"
+                    }
+                ]
+            ],
             "wrapper": {
                 "width": "",
                 "class": "",
@@ -81,5 +120,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1609612575
+    "show_in_rest": 0,
+    "modified": 1691997820
 }
