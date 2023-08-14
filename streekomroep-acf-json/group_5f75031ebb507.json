@@ -55,8 +55,8 @@
             "name": "fragment_video_id",
             "aria-label": "",
             "type": "text",
-            "instructions": "Het Video ID bij Bunny CDN",
-            "required": 1,
+            "instructions": "Volledige link naar de Vimeo-video of .mp3 audio file",
+            "required": 0,
             "conditional_logic": [
                 [
                     {
@@ -73,7 +73,7 @@
             },
             "default_value": "",
             "maxlength": "",
-            "placeholder": "f1cfd17d-e236-44ea-97c8-cb4fcbcf5064",
+            "placeholder": "",
             "prepend": "",
             "append": ""
         },
@@ -84,7 +84,7 @@
             "aria-label": "",
             "type": "oembed",
             "instructions": "",
-            "required": 1,
+            "required": 0,
             "conditional_logic": [
                 [
                     {
@@ -121,5 +121,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1691998171
+    "modified": 1691997820
 }
