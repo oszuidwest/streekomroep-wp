@@ -1,0 +1,85 @@
+{
+    "key": "group_64dbe14b2647f",
+    "title": "TV - Fragmenten CDN",
+    "fields": [
+        {
+            "key": "field_64dbe14b2ec83",
+            "label": "Bunny CDN Hostname",
+            "name": "bunny_cdn_hostname_fragmenten",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Te vinden onder Stream → API → CDN Hostname (eindig niet op een slash).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_64dbe14b2ecb9",
+            "label": "Bunny CDN Library ID",
+            "name": "bunny_cdn_library_id_fragmenten",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Te vinden onder Stream → API → Video Library ID.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": "",
+            "placeholder": "",
+            "step": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_64dbe14b2ecef",
+            "label": "Bunny CDN API Key",
+            "name": "bunny_cdn_api_key_fragmenten",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "Te vinden onder Stream → API → API Key.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "tv-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1692131734
+}
