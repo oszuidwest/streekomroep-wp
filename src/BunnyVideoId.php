@@ -4,9 +4,14 @@ namespace Streekomroep;
 
 class BunnyVideoId
 {
+    public int $libraryId;
+    public string $videoId;
+
     public function __construct(
-        public int $libraryId,
-        public string $videoId,
+        int $libraryId,
+        string $videoId
     ) {
+        $this->videoId = $videoId;
+        $this->libraryId = $libraryId;
     }
 }
