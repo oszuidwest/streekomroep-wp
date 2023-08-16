@@ -65,17 +65,40 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     return;
 }
 
+function zw_bunny_video_get($accessKey, $url)
+{
+    $args = [
+        'timeout' => 30,
+        'headers' => [
+            'AccessKey' => $accessKey,
+            'accept' => 'application/json',
+        ]
+    ];
+
+    return wp_remote_get($url, $args);
+}
+
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
 
 function zw_filter_pre_oembed_result($default, $url, $args)
 {
-    $id = vimeo_id_from_url($url);
+    $id = zw_bunny_parse_url($url);
     if (!$id) {
         return $default;
     }
 
-    $response = vimeo_get('/videos/' . $id);
+    if ($id->libraryId == get_field('bunny_cdn_library_id', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname', 'option');
+        $apiKey = get_field('bunny_cdn_api_key', 'option');
+    } elseif ($id->libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
+        $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
+    } else {
+        return $default;
+    }
+
+    $response = zw_bunny_video_get($apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
     if ($response instanceof WP_Error) {
         return $default;
     }
@@ -84,45 +107,19 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         return $default;
     }
 
-    $body = json_decode($response['body']);
+    /** @var \Streekomroep\BunnyVideo $video */
+    $video = json_decode($response['body']);
 
-    if ($body->status !== 'available') {
+    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
         return false;
     }
 
-    $m3u8 = null;
-    foreach ($body->files as $source) {
-        if ($source->quality === 'hls') {
-            $m3u8 = $source->link;
-            break;
-        }
-    }
+    $m3u8 = sprintf("%s/%s/playlist.m3u8", $hostname, $video->guid);
 
-    if ($m3u8 === null) {
-        return $default;
-    }
+    $sizes = explode(',', $video->availableResolutions);
+    $mp4 = sprintf("%s/%s/play_%s.mp4", $hostname, $video->guid, array_pop($sizes));
 
-    $mp4 = null;
-    foreach ($body->files as $source) {
-        if ($source->type !== "video/mp4") continue;
-
-		if (!isset($source->width)) {
-		    $source->width = 0;
-		}
-
-		if (!$mp4 || $source->width > $mp4->width) {
-            $mp4 = $source;
-        }
-    }
-
-    // Determine poster
-    $bestPic = null;
-    $bestWidth = -1;
-    foreach ($body->pictures->sizes as $size) {
-        if ($size->width > $bestWidth) {
-            $bestPic = $size;
-        }
-    }
+    $poster = sprintf("%s/%s/%s", $hostname, $video->guid, $video->thumbnailFileName);
 
     $out = '';
 
@@ -155,6 +152,8 @@ Timber::$autoescape = false;
 
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
+require_once 'src/BunnyVideo.php';
+require_once 'src/BunnyVideoId.php';
 require_once 'src/Post.php';
 require_once 'src/Fragment.php';
 require_once 'src/RadioBroadcast.php';
@@ -354,11 +353,7 @@ function zw_rest_api_init()
         'vimeo_id',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    $url = get_field('fragment_url', $post_arr['id'], false);
-                    return vimeo_id_from_url($url);
-                }
-
+                // TODO: add support for Bunny to API
                 return null;
             },
         ]
@@ -611,10 +606,10 @@ function zw_rest_api_init()
     ]);
 }
 
-function vimeo_id_from_url($url)
+function zw_bunny_parse_url($url)
 {
-    if (preg_match('|^https://vimeo\.com/(\d+)|', $url, $m)) {
-        return (int)$m[1];
+    if (preg_match('|^https://iframe.mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
+        return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
     }
 
     return null;
