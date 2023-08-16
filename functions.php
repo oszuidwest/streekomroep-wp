@@ -124,14 +124,10 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $out = '';
 
     $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
-    if ($bestPic) {
-        $out .= ' poster="' . htmlspecialchars($bestPic->link) . '"';
-    }
+    $out .= ' poster="' . htmlspecialchars($poster) . '"';
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($m3u8) . '" type="application/x-mpegURL">';
-	if ($mp4) {
-	        $out .= '<source src="' . htmlspecialchars($mp4->link) . '" type="video/mp4">';
-	    }
+    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
     $out .= '</video>';
 
     return $out;
