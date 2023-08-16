@@ -65,7 +65,7 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     return;
 }
 
-function zw_bunny_video_get($accessKey, $url)
+function zw_bunny_get($accessKey, $url)
 {
     $args = [
         'timeout' => 30,
@@ -81,6 +81,23 @@ function zw_bunny_video_get($accessKey, $url)
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
 
+function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id) {
+
+    $response = zw_bunny_get($credentials->apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
+    if ($response instanceof WP_Error) {
+        return null;
+    }
+
+    if ($response['response']['code'] !== 200) {
+        return null;
+    }
+
+    /** @var \Streekomroep\BunnyVideo $video */
+    $video = json_decode($response['body']);
+
+    return $video;
+}
+
 function zw_filter_pre_oembed_result($default, $url, $args)
 {
     $id = zw_bunny_parse_url($url);
@@ -88,38 +105,26 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         return $default;
     }
 
-    if ($id->libraryId == get_field('bunny_cdn_library_id', 'option')) {
-        $hostname = get_field('bunny_cdn_hostname', 'option');
-        $apiKey = get_field('bunny_cdn_api_key', 'option');
-    } elseif ($id->libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
-        $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
-        $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
-    } else {
+    $credentials = zw_bunny_credentials_get($id->libraryId);
+    if (!$credentials) {
         return $default;
     }
 
-    $response = zw_bunny_video_get($apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
-    if ($response instanceof WP_Error) {
+    $video = zw_bunny_get_video($credentials, $id);
+    if (!$video) {
         return $default;
     }
-
-    if ($response['response']['code'] !== 200) {
-        return $default;
-    }
-
-    /** @var \Streekomroep\BunnyVideo $video */
-    $video = json_decode($response['body']);
 
     if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
         return false;
     }
 
-    $m3u8 = sprintf("%s/%s/playlist.m3u8", $hostname, $video->guid);
+    $m3u8 = sprintf("%s/%s/playlist.m3u8", $credentials->hostname, $video->guid);
 
     $sizes = explode(',', $video->availableResolutions);
-    $mp4 = sprintf("%s/%s/play_%s.mp4", $hostname, $video->guid, array_pop($sizes));
+    $mp4 = sprintf("%s/%s/play_%s.mp4", $credentials->hostname, $video->guid, array_pop($sizes));
 
-    $poster = sprintf("%s/%s/%s", $hostname, $video->guid, $video->thumbnailFileName);
+    $poster = sprintf("%s/%s/%s", $credentials->hostname, $video->guid, $video->thumbnailFileName);
 
     $out = '';
 
@@ -133,7 +138,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     return $out;
 }
 
-require 'vimeo-thumbnail.php';
+require 'fragment-thumbnail.php';
 
 /**
  * Sets the directories (inside your theme) to find .twig files
@@ -148,6 +153,7 @@ Timber::$autoescape = false;
 
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
+require_once 'src/BunnyCredentials.php';
 require_once 'src/BunnyVideo.php';
 require_once 'src/BunnyVideoId.php';
 require_once 'src/Post.php';
@@ -606,6 +612,20 @@ function zw_bunny_parse_url($url)
 {
     if (preg_match('|^https://iframe.mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
         return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
+    }
+
+    return null;
+}
+
+function zw_bunny_credentials_get(int $libraryId) {
+    if ($libraryId == get_field('bunny_cdn_library_id', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname', 'option');
+        $apiKey = get_field('bunny_cdn_api_key', 'option');
+        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
+    } elseif ($libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
+        $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
+        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
     }
 
     return null;
