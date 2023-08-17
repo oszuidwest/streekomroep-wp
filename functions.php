@@ -824,7 +824,7 @@ function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_fo
 
 function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $collectionId)
 {
-    $url = 'https://video.bunnycdn.com/library/{libraryId}/videos';
+    $url = 'https://video.bunnycdn.com/library/' . $credentials->libraryId . '/videos';
     $query = [
         'itemsPerPage' => 10, // TODO: set to 100
         'collection' => $collectionId,
