@@ -72,7 +72,7 @@ if ($region && !isset($context['topical'])) {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
+    $vimeo = get_post_meta($timber_post->ID, ZW_TV_META_VIDEOS, true);
     if (!is_array($vimeo)) {
         $vimeo = [];
     }

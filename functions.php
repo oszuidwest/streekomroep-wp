@@ -17,6 +17,8 @@
 use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
 
+const ZW_TV_META_VIDEOS = 'bunny_data';
+
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
     require_once $composer_autoload;
@@ -49,7 +51,9 @@ if (!class_exists('ACF')) {
     add_action(
         'admin_notices',
         function () {
-            echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+            echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(
+                    admin_url('plugins.php')
+                ) . '</a></p></div>';
         }
     );
     return;
@@ -59,7 +63,9 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     add_action(
         'admin_notices',
         function () {
-            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(
+                    admin_url('plugins.php')
+                ) . '</a></p></div>';
         }
     );
     return;
@@ -81,8 +87,8 @@ function zw_bunny_get($accessKey, $url)
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
 
-function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id) {
-
+function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id)
+{
     $response = zw_bunny_get($credentials->apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
     if ($response instanceof WP_Error) {
         return null;
@@ -367,7 +373,7 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 $data = [];
-                $vimeo = get_post_meta($post_arr['id'], 'vimeo_data', true);
+                $vimeo = get_post_meta($post_arr['id'], ZW_TV_META_VIDEOS, true);
                 if (!is_array($vimeo)) {
                     $vimeo = [];
                 }
@@ -617,7 +623,8 @@ function zw_bunny_parse_url($url)
     return null;
 }
 
-function zw_bunny_credentials_get(int $libraryId) {
+function zw_bunny_credentials_get(int $libraryId)
+{
     if ($libraryId == get_field('bunny_cdn_library_id', 'option')) {
         $hostname = get_field('bunny_cdn_hostname', 'option');
         $apiKey = get_field('bunny_cdn_api_key', 'option');
@@ -815,23 +822,35 @@ function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_fo
     return wp_remote_get($url, $args);
 }
 
-function vimeo_get_project_videos($project_id)
+function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $collectionId)
 {
-    $next = '/me/projects/' . $project_id . '/videos?per_page=100';
+    $url = 'https://video.bunnycdn.com/library/{libraryId}/videos';
+    $query = [
+        'itemsPerPage' => 10, // TODO: set to 100
+        'collection' => $collectionId,
+    ];
+
+    $page = 0;
     $data = [];
-    while ($next !== null) {
-        $response = vimeo_get($next);
+    while (true) {
+        $query['page'] = $page;
+        $response = zw_bunny_get($credentials, $url . '?' . build_query($query));
         if ($response instanceof WP_Error) {
             throw new Exception($response->get_error_message());
         }
 
         if ($response['response']['code'] !== 200) {
-            throw new Exception('Error while fetching vimeo data: ' . $response['body']);
+            throw new Exception('Error while fetching bunny data: ' . $response['body']);
         }
 
         $body = json_decode($response['body']);;
-        $next = $body->paging->next;
-        $data = array_merge($data, $body->data);
+
+        $data = array_merge($data, $body->items);
+        if (count($data) >= $body->totalItems) {
+            break;
+        }
+
+        $page++;
     }
 
     return $data;
@@ -901,30 +920,22 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
+    $credentials = zw_bunny_credentials_get(get_field('bunny_cdn_library_id', 'option'));
 
-    $fh = fopen(WP_CONTENT_DIR . '/zw_recrawl.txt', 'w+');
     foreach ($shows as $show) {
-
-        $project_id = $show->meta('tv_show_gemist_locatie');
-        if (empty($project_id)) {
-            update_post_meta($show->ID, 'vimeo_data', []);
+        $collectionId = $show->meta('tv_show_gemist_locatie');
+        if (empty($collectionId)) {
+            update_post_meta($show->ID, ZW_TV_META_VIDEOS, []);
             continue;
         }
 
-        $videos = [];
         try {
-            $videos = vimeo_get_project_videos($project_id);
+            $videos = zw_bunny_get_collection($credentials, $collectionId);
+            update_post_meta($show->ID, ZW_TV_META_VIDEOS, $videos);
         } catch (Exception $e) {
             error_log($e);
         }
-
-        foreach ($videos as $video) {
-            fprintf($fh, "%s?v=%s\n", $show->link(), basename($video->uri));
-        }
-        update_post_meta($show->ID, 'vimeo_data', $videos);
     }
-
-    fclose($fh);
 }
 
 function zw_sort_videos(array $videos)
@@ -1180,7 +1191,7 @@ class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
-        $vimeo = get_post_meta(get_the_ID(), 'vimeo_data', true);
+        $vimeo = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
         if (!is_array($vimeo)) {
             $vimeo = [];
         }
