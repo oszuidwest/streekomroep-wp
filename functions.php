@@ -71,7 +71,7 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     return;
 }
 
-function zw_bunny_get($accessKey, $url)
+function zw_bunny_get(string $accessKey, string $url)
 {
     $args = [
         'timeout' => 30,
@@ -834,7 +834,7 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
     $data = [];
     while (true) {
         $query['page'] = $page;
-        $response = zw_bunny_get($credentials, $url . '?' . build_query($query));
+        $response = zw_bunny_get($credentials->apiKey, $url . '?' . build_query($query));
         if ($response instanceof WP_Error) {
             throw new Exception($response->get_error_message());
         }
