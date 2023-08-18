@@ -44,7 +44,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $deduplicate = $block['ontdubbel'] ? true : false;
             $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
-                $videos = $show->vimeo_data;
+                $videos = $show->meta(ZW_TV_META_VIDEOS);
                 if (!is_array($videos)) continue;
 
                 $videos_for_last_episode = $videos = zw_sort_videos($videos);

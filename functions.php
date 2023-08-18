@@ -160,6 +160,7 @@ Timber::$autoescape = false;
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
 require_once 'src/BunnyCredentials.php';
+require_once 'src/BunnyMeta.php';
 require_once 'src/BunnyVideo.php';
 require_once 'src/BunnyVideoId.php';
 require_once 'src/Post.php';
@@ -940,9 +941,15 @@ function zw_project_cron()
 
 function zw_sort_videos(array $videos)
 {
+    $environment = new League\CommonMark\Environment\Environment();
+    $environment->addExtension(new League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
+    $environment->addExtension(new League\CommonMark\Extension\FrontMatter\FrontMatterExtension());
+    $converter = new League\CommonMark\MarkdownConverter($environment);
+
+
     /** @var Video[] $vimeo */
-    $vimeo = array_map(function ($a) {
-        return new Video($a);
+    $vimeo = array_map(function ($a) use($converter) {
+        return new Video($a, $converter);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
