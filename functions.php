@@ -831,7 +831,7 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
         'collection' => $collectionId,
     ];
 
-    $page = 0;
+    $page = 1;
     $data = [];
     while (true) {
         $query['page'] = $page;
