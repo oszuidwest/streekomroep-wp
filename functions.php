@@ -827,7 +827,7 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
 {
     $url = 'https://video.bunnycdn.com/library/' . $credentials->libraryId . '/videos';
     $query = [
-        'itemsPerPage' => 10, // TODO: set to 100
+        'itemsPerPage' => 100,
         'collection' => $collectionId,
     ];
 
