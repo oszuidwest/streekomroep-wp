@@ -52,7 +52,7 @@
             "label": "URL",
             "name": "fragment_url",
             "type": "oembed",
-            "instructions": "Volledige link naar de Vimeo-video of .mp3 audio file",
+            "instructions": "Volledige link naar de Direct Play URL of .mp3 audio file",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {

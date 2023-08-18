@@ -72,14 +72,14 @@ if ($region && !isset($context['topical'])) {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $vimeo = get_post_meta($timber_post->ID, 'vimeo_data', true);
-    if (!is_array($vimeo)) {
-        $vimeo = [];
+    $videos = get_post_meta($timber_post->ID, ZW_TV_META_VIDEOS, true);
+    if (!is_array($videos)) {
+        $videos = [];
     }
-    $vimeo = zw_sort_videos($vimeo);
+    $videos = zw_sort_videos($videos);
 
     $seasons = [];
-    foreach ($vimeo as $video) {
+    foreach ($videos as $video) {
         $date = $video->getBroadcastDate();
 
         $year = $date->format('Y');
@@ -94,7 +94,7 @@ if ($timber_post->post_type == 'tv') {
     if (isset($_GET['v'])) {
         $videoId = $_GET['v'];
         $video = null;
-        foreach ($vimeo as $item) {
+        foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
                 $video = $item;
                 break;
@@ -107,18 +107,16 @@ if ($timber_post->post_type == 'tv') {
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
             $videoData->uploadDate = $video->getBroadcastDate()->format('c');
-            $videoData->thumbnailUrl = $video->getLargestThumbnail()->link;
+            $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getFile();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
-                $thumb = $video->getLargestThumbnail();
-                $data['url'] = $thumb->link;
-                $data['contentUrl'] = $thumb->link;
-                $data['width'] = $thumb->width;
-                $data['height'] = $thumb->height;
+                $thumb = $video->getThumbnail();
+                $data['url'] = $thumb;
+                $data['contentUrl'] = $thumb;
                 return $data;
             }, 10, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {

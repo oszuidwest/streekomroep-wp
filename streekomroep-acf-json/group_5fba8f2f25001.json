@@ -6,8 +6,9 @@
             "key": "field_5fba8f2f27aec",
             "label": "Actief",
             "name": "tv_show_actief",
+            "aria-label": "",
             "type": "true_false",
-            "instructions": "Indien actief: wordt in overzicht met programma's getoond. Indien niet actief: gearchiveerd programma.",
+            "instructions": "Indien actief: wordt in overzicht met programma's getoond. Indien niet actief: gearchiveerd programma. Wordt niet in overzichten getoond.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -23,10 +24,11 @@
         },
         {
             "key": "field_5fba8f630fd86",
-            "label": "Gemist locatie",
+            "label": "CDN locatie",
             "name": "tv_show_gemist_locatie",
-            "type": "number",
-            "instructions": "Vul het ID van de Vimeo-map waar de uitzendingen in staan in.",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Vul het ID van de Bunny CDN Collection waar de uitzendingen in staan in.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -35,17 +37,16 @@
                 "id": ""
             },
             "default_value": "",
+            "maxlength": "",
             "placeholder": "",
             "prepend": "",
-            "append": "",
-            "min": "",
-            "max": "",
-            "step": ""
+            "append": ""
         },
         {
             "key": "field_5fba8f2f27b2c",
             "label": "Presentator(en)",
             "name": "tv_show_presentator",
+            "aria-label": "",
             "type": "user",
             "instructions": "Presentator moet in WordPress bestaan als users.",
             "required": 0,
@@ -88,5 +89,6 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1615303633
+    "show_in_rest": 0,
+    "modified": 1691949197
 }

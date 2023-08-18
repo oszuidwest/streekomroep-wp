@@ -17,6 +17,8 @@
 use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
 
+const ZW_TV_META_VIDEOS = 'bunny_data';
+
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
     require_once $composer_autoload;
@@ -49,7 +51,9 @@ if (!class_exists('ACF')) {
     add_action(
         'admin_notices',
         function () {
-            echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+            echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(
+                    admin_url('plugins.php')
+                ) . '</a></p></div>';
         }
     );
     return;
@@ -59,88 +63,88 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     add_action(
         'admin_notices',
         function () {
-            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
+            echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(
+                    admin_url('plugins.php')
+                ) . '</a></p></div>';
         }
     );
     return;
 }
 
+function zw_bunny_get(string $accessKey, string $url)
+{
+    $args = [
+        'timeout' => 30,
+        'headers' => [
+            'AccessKey' => $accessKey,
+            'accept' => 'application/json',
+        ]
+    ];
+
+    return wp_remote_get($url, $args);
+}
+
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
 
+function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id)
+{
+    $response = zw_bunny_get($credentials->apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
+    if ($response instanceof WP_Error) {
+        return null;
+    }
+
+    if ($response['response']['code'] !== 200) {
+        return null;
+    }
+
+    /** @var \Streekomroep\BunnyVideo $video */
+    $video = json_decode($response['body']);
+
+    return $video;
+}
+
 function zw_filter_pre_oembed_result($default, $url, $args)
 {
-    $id = vimeo_id_from_url($url);
+    $id = zw_bunny_parse_url($url);
     if (!$id) {
         return $default;
     }
 
-    $response = vimeo_get('/videos/' . $id);
-    if ($response instanceof WP_Error) {
+    $credentials = zw_bunny_credentials_get($id->libraryId);
+    if (!$credentials) {
         return $default;
     }
 
-    if ($response['response']['code'] !== 200) {
+    $video = zw_bunny_get_video($credentials, $id);
+    if (!$video) {
         return $default;
     }
 
-    $body = json_decode($response['body']);
-
-    if ($body->status !== 'available') {
+    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
         return false;
     }
 
-    $m3u8 = null;
-    foreach ($body->files as $source) {
-        if ($source->quality === 'hls') {
-            $m3u8 = $source->link;
-            break;
-        }
-    }
+    $m3u8 = sprintf("%s/%s/playlist.m3u8", $credentials->hostname, $video->guid);
 
-    if ($m3u8 === null) {
-        return $default;
-    }
+    $sizes = explode(',', $video->availableResolutions);
+    $mp4 = sprintf("%s/%s/play_%s.mp4", $credentials->hostname, $video->guid, array_pop($sizes));
 
-    $mp4 = null;
-    foreach ($body->files as $source) {
-        if ($source->type !== "video/mp4") continue;
-
-		if (!isset($source->width)) {
-		    $source->width = 0;
-		}
-
-		if (!$mp4 || $source->width > $mp4->width) {
-            $mp4 = $source;
-        }
-    }
-
-    // Determine poster
-    $bestPic = null;
-    $bestWidth = -1;
-    foreach ($body->pictures->sizes as $size) {
-        if ($size->width > $bestWidth) {
-            $bestPic = $size;
-        }
-    }
+    $poster = sprintf("%s/%s/%s", $credentials->hostname, $video->guid, $video->thumbnailFileName);
 
     $out = '';
 
     $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
-    if ($bestPic) {
-        $out .= ' poster="' . htmlspecialchars($bestPic->link) . '"';
-    }
+    $out .= ' poster="' . htmlspecialchars($poster) . '"';
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($m3u8) . '" type="application/x-mpegURL">';
-	if ($mp4) {
-	        $out .= '<source src="' . htmlspecialchars($mp4->link) . '" type="video/mp4">';
-	    }
+    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
     $out .= '</video>';
 
     return $out;
 }
 
-require 'vimeo-thumbnail.php';
+require 'fragment-thumbnail.php';
 
 /**
  * Sets the directories (inside your theme) to find .twig files
@@ -155,6 +159,10 @@ Timber::$autoescape = false;
 
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
+require_once 'src/BunnyCredentials.php';
+require_once 'src/BunnyMeta.php';
+require_once 'src/BunnyVideo.php';
+require_once 'src/BunnyVideoId.php';
 require_once 'src/Post.php';
 require_once 'src/Fragment.php';
 require_once 'src/RadioBroadcast.php';
@@ -341,7 +349,7 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    return 'vimeo';
+                    return 'bunny';
                 }
 
                 return null;
@@ -354,11 +362,7 @@ function zw_rest_api_init()
         'vimeo_id',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    $url = get_field('fragment_url', $post_arr['id'], false);
-                    return vimeo_id_from_url($url);
-                }
-
+                // TODO: add support for Bunny to API
                 return null;
             },
         ]
@@ -370,20 +374,21 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 $data = [];
-                $vimeo = get_post_meta($post_arr['id'], 'vimeo_data', true);
-                if (!is_array($vimeo)) {
-                    $vimeo = [];
+                $videos = get_post_meta($post_arr['id'], ZW_TV_META_VIDEOS, true);
+                if (!is_array($videos)) {
+                    $videos = [];
                 }
-                $vimeo = zw_sort_videos($vimeo);
+                $videos = zw_sort_videos($videos);
 
-                foreach ($vimeo as $video) {
+                foreach ($videos as $video) {
                     $d = [];
-                    $d['source'] = 'vimeo';
-                    $d['vimeo_id'] = $video->getId();
+                    $d['source'] = 'videos';
+                    // TODO: use Bunny id
+                    $d['vimeo_id'] = null;
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
-                    $d['thumbnail'] = $video->getLargestThumbnail()->link;
+                    $d['thumbnail'] = $video->getThumbnail();
                     $data[] = $d;
                 }
 
@@ -611,10 +616,25 @@ function zw_rest_api_init()
     ]);
 }
 
-function vimeo_id_from_url($url)
+function zw_bunny_parse_url($url)
 {
-    if (preg_match('|^https://vimeo\.com/(\d+)|', $url, $m)) {
-        return (int)$m[1];
+    if (preg_match('|^https://iframe.mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
+        return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
+    }
+
+    return null;
+}
+
+function zw_bunny_credentials_get(int $libraryId)
+{
+    if ($libraryId == get_field('bunny_cdn_library_id', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname', 'option');
+        $apiKey = get_field('bunny_cdn_api_key', 'option');
+        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
+    } elseif ($libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+        $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
+        $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
+        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
     }
 
     return null;
@@ -778,49 +798,35 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri,duration,files,status&sizes=295x166,1920')
+function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $collectionId)
 {
-    $args = [
-        'timeout' => 30,
-        'headers' => [
-            'Authorization' => 'bearer ' . get_field('vimeo_access_token', 'option')
-        ]
+    $url = 'https://video.bunnycdn.com/library/' . $credentials->libraryId . '/videos';
+    $query = [
+        'itemsPerPage' => 100,
+        'collection' => $collectionId,
     ];
 
-    $url = 'https://api.vimeo.com' . $url;
-
-    if (!empty($fields)) {
-        $parsed = parse_url($url);
-        if (isset($parsed['query'])) {
-            $url .= '&';
-        } else {
-            $url .= '?';
-        }
-
-        $url .= 'fields=' . $fields;
-    }
-
-
-    return wp_remote_get($url, $args);
-}
-
-function vimeo_get_project_videos($project_id)
-{
-    $next = '/me/projects/' . $project_id . '/videos?per_page=100';
+    $page = 1;
     $data = [];
-    while ($next !== null) {
-        $response = vimeo_get($next);
+    while (true) {
+        $query['page'] = $page;
+        $response = zw_bunny_get($credentials->apiKey, $url . '?' . build_query($query));
         if ($response instanceof WP_Error) {
             throw new Exception($response->get_error_message());
         }
 
         if ($response['response']['code'] !== 200) {
-            throw new Exception('Error while fetching vimeo data: ' . $response['body']);
+            throw new Exception('Error while fetching bunny data: ' . $response['body']);
         }
 
         $body = json_decode($response['body']);;
-        $next = $body->paging->next;
-        $data = array_merge($data, $body->data);
+
+        $data = array_merge($data, $body->items);
+        if (count($data) >= $body->totalItems) {
+            break;
+        }
+
+        $page++;
     }
 
     return $data;
@@ -855,7 +861,7 @@ function zw_sort_fragments_selector($args, $field, $post_id)
 }
 
 /*
- * Create custom cron to refresh Vimeo content every 10min
+ * Create custom cron to refresh Bunny content every 10min
  */
 add_filter('cron_schedules', function ($schedules) {
     // add a '10mins' schedule to the existing set
@@ -890,46 +896,44 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
+    $credentials = zw_bunny_credentials_get(get_field('bunny_cdn_library_id', 'option'));
 
-    $fh = fopen(WP_CONTENT_DIR . '/zw_recrawl.txt', 'w+');
     foreach ($shows as $show) {
-
-        $project_id = $show->meta('tv_show_gemist_locatie');
-        if (empty($project_id)) {
-            update_post_meta($show->ID, 'vimeo_data', []);
+        $collectionId = $show->meta('tv_show_gemist_locatie');
+        if (empty($collectionId)) {
+            update_post_meta($show->ID, ZW_TV_META_VIDEOS, []);
             continue;
         }
 
-        $videos = [];
         try {
-            $videos = vimeo_get_project_videos($project_id);
+            $videos = zw_bunny_get_collection($credentials, $collectionId);
+            update_post_meta($show->ID, ZW_TV_META_VIDEOS, $videos);
         } catch (Exception $e) {
             error_log($e);
         }
-
-        foreach ($videos as $video) {
-            fprintf($fh, "%s?v=%s\n", $show->link(), basename($video->uri));
-        }
-        update_post_meta($show->ID, 'vimeo_data', $videos);
     }
-
-    fclose($fh);
 }
 
 function zw_sort_videos(array $videos)
 {
-    /** @var Video[] $vimeo */
-    $vimeo = array_map(function ($a) {
-        return new Video($a);
+    $environment = new League\CommonMark\Environment\Environment();
+    $environment->addExtension(new League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
+    $environment->addExtension(new League\CommonMark\Extension\FrontMatter\FrontMatterExtension());
+    $converter = new League\CommonMark\MarkdownConverter($environment);
+
+
+    /** @var Video[] $videos */
+    $videos = array_map(function ($a) use($converter) {
+        return new Video($a, $converter);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
-    $vimeo = array_filter($vimeo, function ($video) {
+    $videos = array_filter($videos, function ($video) {
         return $video->isAvailable();
     });
 
     $now = new DateTime('now', wp_timezone());
-    $vimeo = array_filter($vimeo, function ($video) use ($now) {
+    $videos = array_filter($videos, function ($video) use ($now) {
         $date = $video->getBroadcastDate();
 
         // Ignore videos with no valid date
@@ -941,11 +945,11 @@ function zw_sort_videos(array $videos)
         return true;
     });
 
-    usort($vimeo, function (Video $left, Video $right) {
+    usort($videos, function (Video $left, Video $right) {
         return $right->getBroadcastDate() <=> $left->getBroadcastDate();
     });
 
-    return $vimeo;
+    return $videos;
 }
 
 if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -954,36 +958,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
-
-function zw_fragment_get_file_url($post_id)
-{
-    $file = get_post_meta($post_id, 'fragment_vimeo_file', true);
-    if (!empty($file)) {
-        return $file;
-    }
-
-    $url = get_field('fragment_url', $post_id, false);
-    $url = trim($url);
-    if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
-        return '';
-    }
-    $vimeoId = $m[1];
-
-    $data = vimeo_get('/videos/' . $vimeoId, false);
-    $data = json_decode($data['body']);
-    $files = [];
-    if (isset($data->files)) {
-        $files = $data->files;
-    }
-
-    $file = '';
-    if (count($files) > 0) {
-        $file = $files[0]->link;
-    }
-
-    update_post_meta($post_id, 'fragment_vimeo_file', $file);
-    return $file;
-}
 
 class VideoData
 {
@@ -1004,7 +978,7 @@ function fragment_get_video($id)
     $video->description = get_the_content(null, false, $fragment);
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
-    $video->contentUrl = zw_fragment_get_file_url($fragment->ID);
+    $video->contentUrl = ''; // TODO: get video url
 
     return $video;
 }
@@ -1152,7 +1126,7 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
 
-class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
+class ZW_Video_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
 {
     public function __construct($date)
     {
@@ -1169,15 +1143,15 @@ class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
-        $vimeo = get_post_meta(get_the_ID(), 'vimeo_data', true);
-        if (!is_array($vimeo)) {
-            $vimeo = [];
+        $videos = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
+        if (!is_array($videos)) {
+            $videos = [];
         }
-        $vimeo = zw_sort_videos($vimeo);
+        $videos = zw_sort_videos($videos);
 
         $videoId = $_GET['v'];
         $video = null;
-        foreach ($vimeo as $item) {
+        foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
                 $video = $item;
                 break;
@@ -1198,7 +1172,7 @@ add_action('template_redirect', function () {
             };
 
             $thumbnail = function () use ($video) {
-                return $video->getLargestThumbnail()->link;
+                return $video->getThumbnail();
             };
 
             add_filter('wpseo_title', $title);
@@ -1211,8 +1185,7 @@ add_action('template_redirect', function () {
                 return 'video.episode';
             });
             add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-                $thumb = $video->getLargestThumbnail();
-                $images->add_image(['url' => $thumb->link, 'height' => $thumb->height, 'width' => $thumb->width]);
+                $images->add_image(['url' => $video->getThumbnail()]);
             });
             add_filter('wpseo_opengraph_url', $canonical);
 
@@ -1223,7 +1196,7 @@ add_action('template_redirect', function () {
             add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
                 foreach ($presenters as $i => $presenter) {
                     if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
-                        $presenters[$i] = new ZW_Vimeo_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
+                        $presenters[$i] = new ZW_Video_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
                     } else if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
                         unset($presenters[$i]);
                     }
