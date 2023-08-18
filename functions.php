@@ -387,7 +387,7 @@ function zw_rest_api_init()
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
-                    $d['thumbnail'] = $video->getLargestThumbnail()->link;
+                    $d['thumbnail'] = $video->getThumbnail();
                     $data[] = $d;
                 }
 
@@ -1227,7 +1227,7 @@ add_action('template_redirect', function () {
             };
 
             $thumbnail = function () use ($video) {
-                return $video->getLargestThumbnail()->link;
+                return $video->getThumbnail();
             };
 
             add_filter('wpseo_title', $title);
@@ -1240,8 +1240,7 @@ add_action('template_redirect', function () {
                 return 'video.episode';
             });
             add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-                $thumb = $video->getLargestThumbnail();
-                $images->add_image(['url' => $thumb->link, 'height' => $thumb->height, 'width' => $thumb->width]);
+                $images->add_image(['url' => $video->getThumbnail()]);
             });
             add_filter('wpseo_opengraph_url', $canonical);
 

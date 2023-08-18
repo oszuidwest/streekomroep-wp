@@ -107,14 +107,14 @@ if ($timber_post->post_type == 'tv') {
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
             $videoData->uploadDate = $video->getBroadcastDate()->format('c');
-            $videoData->thumbnailUrl = $video->getLargestThumbnail();
+            $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getFile();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
-                $thumb = $video->getLargestThumbnail();
+                $thumb = $video->getThumbnail();
                 $data['url'] = $thumb;
                 $data['contentUrl'] = $thumb;
                 return $data;

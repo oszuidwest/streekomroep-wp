@@ -53,10 +53,10 @@ class Video
         return basename($this->data->guid);
     }
 
-    public function getLargestThumbnail()
+    public function getThumbnail()
     {
         $cdnHostname = get_field('bunny_cdn_hostname', 'option');
-        return "https://{$cdnHostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
+        return "{$cdnHostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
     }
 
     public function getName()
