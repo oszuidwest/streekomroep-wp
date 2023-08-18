@@ -349,7 +349,7 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    return 'vimeo';
+                    return 'bunny';
                 }
 
                 return null;
@@ -374,16 +374,17 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 $data = [];
-                $vimeo = get_post_meta($post_arr['id'], ZW_TV_META_VIDEOS, true);
-                if (!is_array($vimeo)) {
-                    $vimeo = [];
+                $videos = get_post_meta($post_arr['id'], ZW_TV_META_VIDEOS, true);
+                if (!is_array($videos)) {
+                    $videos = [];
                 }
-                $vimeo = zw_sort_videos($vimeo);
+                $videos = zw_sort_videos($videos);
 
-                foreach ($vimeo as $video) {
+                foreach ($videos as $video) {
                     $d = [];
-                    $d['source'] = 'vimeo';
-                    $d['vimeo_id'] = $video->getId();
+                    $d['source'] = 'videos';
+                    // TODO: use Bunny id
+                    $d['vimeo_id'] = null;
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
@@ -797,32 +798,6 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function vimeo_get($url, $fields = 'name,description,uri,link,pictures,parent_folder.uri,duration,files,status&sizes=295x166,1920')
-{
-    $args = [
-        'timeout' => 30,
-        'headers' => [
-            'Authorization' => 'bearer ' . get_field('vimeo_access_token', 'option')
-        ]
-    ];
-
-    $url = 'https://api.vimeo.com' . $url;
-
-    if (!empty($fields)) {
-        $parsed = parse_url($url);
-        if (isset($parsed['query'])) {
-            $url .= '&';
-        } else {
-            $url .= '?';
-        }
-
-        $url .= 'fields=' . $fields;
-    }
-
-
-    return wp_remote_get($url, $args);
-}
-
 function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $collectionId)
 {
     $url = 'https://video.bunnycdn.com/library/' . $credentials->libraryId . '/videos';
@@ -886,7 +861,7 @@ function zw_sort_fragments_selector($args, $field, $post_id)
 }
 
 /*
- * Create custom cron to refresh Vimeo content every 10min
+ * Create custom cron to refresh Bunny content every 10min
  */
 add_filter('cron_schedules', function ($schedules) {
     // add a '10mins' schedule to the existing set
@@ -947,18 +922,18 @@ function zw_sort_videos(array $videos)
     $converter = new League\CommonMark\MarkdownConverter($environment);
 
 
-    /** @var Video[] $vimeo */
-    $vimeo = array_map(function ($a) use($converter) {
+    /** @var Video[] $videos */
+    $videos = array_map(function ($a) use($converter) {
         return new Video($a, $converter);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
-    $vimeo = array_filter($vimeo, function ($video) {
+    $videos = array_filter($videos, function ($video) {
         return $video->isAvailable();
     });
 
     $now = new DateTime('now', wp_timezone());
-    $vimeo = array_filter($vimeo, function ($video) use ($now) {
+    $videos = array_filter($videos, function ($video) use ($now) {
         $date = $video->getBroadcastDate();
 
         // Ignore videos with no valid date
@@ -970,11 +945,11 @@ function zw_sort_videos(array $videos)
         return true;
     });
 
-    usort($vimeo, function (Video $left, Video $right) {
+    usort($videos, function (Video $left, Video $right) {
         return $right->getBroadcastDate() <=> $left->getBroadcastDate();
     });
 
-    return $vimeo;
+    return $videos;
 }
 
 if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -983,36 +958,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
-
-function zw_fragment_get_file_url($post_id)
-{
-    $file = get_post_meta($post_id, 'fragment_vimeo_file', true);
-    if (!empty($file)) {
-        return $file;
-    }
-
-    $url = get_field('fragment_url', $post_id, false);
-    $url = trim($url);
-    if (!preg_match('|^https://vimeo.com/(\d+)$|', $url, $m)) {
-        return '';
-    }
-    $vimeoId = $m[1];
-
-    $data = vimeo_get('/videos/' . $vimeoId, false);
-    $data = json_decode($data['body']);
-    $files = [];
-    if (isset($data->files)) {
-        $files = $data->files;
-    }
-
-    $file = '';
-    if (count($files) > 0) {
-        $file = $files[0]->link;
-    }
-
-    update_post_meta($post_id, 'fragment_vimeo_file', $file);
-    return $file;
-}
 
 class VideoData
 {
@@ -1033,7 +978,7 @@ function fragment_get_video($id)
     $video->description = get_the_content(null, false, $fragment);
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
-    $video->contentUrl = zw_fragment_get_file_url($fragment->ID);
+    $video->contentUrl = ''; // TODO: get video url
 
     return $video;
 }
@@ -1181,7 +1126,7 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
 
-class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
+class ZW_Video_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
 {
     public function __construct($date)
     {
@@ -1198,15 +1143,15 @@ class ZW_Vimeo_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
-        $vimeo = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
-        if (!is_array($vimeo)) {
-            $vimeo = [];
+        $videos = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
+        if (!is_array($videos)) {
+            $videos = [];
         }
-        $vimeo = zw_sort_videos($vimeo);
+        $videos = zw_sort_videos($videos);
 
         $videoId = $_GET['v'];
         $video = null;
-        foreach ($vimeo as $item) {
+        foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
                 $video = $item;
                 break;
@@ -1251,7 +1196,7 @@ add_action('template_redirect', function () {
             add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
                 foreach ($presenters as $i => $presenter) {
                     if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
-                        $presenters[$i] = new ZW_Vimeo_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
+                        $presenters[$i] = new ZW_Video_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
                     } else if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
                         unset($presenters[$i]);
                     }

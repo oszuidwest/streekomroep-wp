@@ -50,11 +50,12 @@ class Video
 
     public function getId()
     {
-        return basename($this->data->guid);
+        return $this->data->guid;
     }
 
     public function getThumbnail()
     {
+        // TODO: inject hostname using constructor
         $cdnHostname = get_field('bunny_cdn_hostname', 'option');
         return "{$cdnHostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
     }
@@ -104,6 +105,7 @@ class Video
 
     public function getFile()
     {
+        // TODO: return mp4 url
         return '';
     }
 }
