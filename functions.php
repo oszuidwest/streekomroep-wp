@@ -916,11 +916,9 @@ function zw_project_cron()
 
 function zw_sort_videos(array $videos)
 {
-    $frontMatterParser = new \League\CommonMark\Extension\FrontMatter\FrontMatterParser(new \League\CommonMark\Extension\FrontMatter\Data\SymfonyYamlFrontMatterParser());
-
     /** @var Video[] $videos */
-    $videos = array_map(function ($a) use ($frontMatterParser) {
-        return new Video($a, $frontMatterParser);
+    $videos = array_map(function ($a) {
+        return new Video($a);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded

@@ -3,6 +3,7 @@
 namespace Streekomroep;
 
 use Exception;
+use League\CommonMark\Extension\FrontMatter\Data\SymfonyYamlFrontMatterParser;
 use League\CommonMark\Extension\FrontMatter\Exception\InvalidFrontMatterException;
 use League\CommonMark\Extension\FrontMatter\FrontMatterParser;
 
@@ -15,7 +16,7 @@ class Video
     private ?\DateTime $broadcastDate = null;
 
 
-    public function __construct($data, FrontMatterParser $frontMatterParser)
+    public function __construct($data)
     {
         $this->data = $data;
 
@@ -31,6 +32,7 @@ class Video
         }
 
         try {
+            $frontMatterParser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
             $result = $frontMatterParser->parse($description);
             $this->yaml = $result->getFrontMatter();
             $this->description = $result->getContent();
