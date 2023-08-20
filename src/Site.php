@@ -2,6 +2,11 @@
 
 namespace Streekomroep;
 
+use Twig\Extra\Markdown\DefaultMarkdown;
+use Twig\Extra\Markdown\MarkdownExtension;
+use Twig\Extra\Markdown\MarkdownRuntime;
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
+
 /**
  * We're going to configure our theme inside of a subclass of Timber\Site
  * You can move this to its own file and include here via php's include("MySite.php")
@@ -189,6 +194,15 @@ class Site extends \Timber\Site
      */
     public function add_to_twig($twig)
     {
+        $twig->addExtension(new MarkdownExtension());
+        $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
+            public function load($class) {
+                if (MarkdownRuntime::class === $class) {
+                    return new MarkdownRuntime(new DefaultMarkdown());
+                }
+            }
+        });
+
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));

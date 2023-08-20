@@ -13,7 +13,7 @@
         {% if video.description %}
             <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
                 <div class="prose dark:prose-invert md:prose-lg max-w-none text-black dark:text-white">
-                    {{ video.description | raw }}
+                    {{ video.description | markdown_to_html }}
                 </div>
             </div>
         {% endif %}

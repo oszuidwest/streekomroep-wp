@@ -4,6 +4,9 @@ namespace Streekomroep;
 
 use Exception;
 use League\CommonMark\ConverterInterface;
+use League\CommonMark\Extension\FrontMatter\Data\SymfonyYamlFrontMatterParser;
+use League\CommonMark\Extension\FrontMatter\Exception\InvalidFrontMatterException;
+use League\CommonMark\Extension\FrontMatter\FrontMatterParser;
 use League\CommonMark\Extension\FrontMatter\Output\RenderedContentWithFrontMatter;
 
 class Video
@@ -15,7 +18,7 @@ class Video
     private ?\DateTime $broadcastDate = null;
 
 
-    public function __construct($data, ConverterInterface $converter)
+    public function __construct($data)
     {
         $this->data = $data;
 
@@ -30,21 +33,27 @@ class Video
             return;
         }
 
-        $result = $converter->convert($description);
-        if ($result instanceof RenderedContentWithFrontMatter) {
+        try {
+            $frontMatterParser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
+            $result = $frontMatterParser->parse($description);
             $this->yaml = $result->getFrontMatter();
+            $this->description = $result->getContent();
+        } catch (InvalidFrontMatterException $e) {
+            $this->description = $description;
         }
-
-        $this->description = (string)$result;
 
         if (isset($this->yaml['broadcast_date'])) {
             $broadcast_date = $this->yaml['broadcast_date'];
             if (is_int($broadcast_date)) {
                 // Re-parse broadcast date with the currently configured timezone
-                $broadcast_date = date('Y-m-d H:i:s', $broadcast_date);
+                $broadcast_date = date('Y-m-dTH:i:s', $broadcast_date);
             }
 
-            $this->broadcastDate = new \DateTime($broadcast_date, wp_timezone());
+            try {
+                $this->broadcastDate = new \DateTime($broadcast_date, wp_timezone());
+            } catch (Exception $e) {
+                error_log('Failed to parse date for video with id: ' . $this->data->guid);
+            }
         }
     }
 

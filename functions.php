@@ -916,15 +916,9 @@ function zw_project_cron()
 
 function zw_sort_videos(array $videos)
 {
-    $environment = new League\CommonMark\Environment\Environment();
-    $environment->addExtension(new League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
-    $environment->addExtension(new League\CommonMark\Extension\FrontMatter\FrontMatterExtension());
-    $converter = new League\CommonMark\MarkdownConverter($environment);
-
-
     /** @var Video[] $videos */
-    $videos = array_map(function ($a) use($converter) {
-        return new Video($a, $converter);
+    $videos = array_map(function ($a) {
+        return new Video($a);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
