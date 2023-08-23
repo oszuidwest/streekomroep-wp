@@ -342,25 +342,50 @@ function zw_rest_api_init()
 
     register_rest_field(
         'fragment',
-        'source',
+        'fragment_type',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    return 'bunny';
-                }
-
-                return null;
+                return strtolower(get_field('fragment_type', $post_arr['id']));
             },
         ]
     );
 
     register_rest_field(
         'fragment',
-        'vimeo_id',
+        'sources',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                // TODO: add support for Bunny to API
-                return null;
+                $sources = [];
+                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
+                    $url = get_field('fragment_url', $post_arr['id'], false);
+                    $id = zw_bunny_parse_url(trim($url));
+                    if ($id) {
+                        $credentials = zw_bunny_credentials_get($id->libraryId);
+                        if ($credentials) {
+                            $video = zw_bunny_get_video($credentials, $id);
+                            if ($video) {
+                                $video = new Video($credentials, $video);
+                                if ($video->isAvailable()) {
+                                    $sources[] = [
+                                        'src' => $video->getMP4Url(),
+                                        'type' => 'video/mp4'
+                                    ];
+                                    $sources[] = [
+                                        'src' => $video->getPlaylistUrl(),
+                                        'type' => 'application/x-mpegURL'
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                } elseif (get_field('fragment_type', $post_arr['id']) === 'Audio') {
+                    $sources[] = [
+                        'type' => 'audio/mp3',
+                        'src' => get_field('fragment_url', $post_arr['id'], false)
+                    ];
+                }
+
+                return $sources;
             },
         ]
     );
