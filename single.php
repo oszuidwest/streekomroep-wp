@@ -118,10 +118,10 @@ if ($timber_post->post_type == 'tv') {
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
                 $thumb = $video->getThumbnail();
-                $data['url'] = $thumb;
 
                 $width = 1920;
                 $height = 1080;
+                $data['url'] = zw_thumbor($thumb, $width, $height);
                 $data['contentUrl'] = zw_thumbor($thumb, $width, $height);
                 $data['width'] = $width;
                 $data['height'] = $height;
