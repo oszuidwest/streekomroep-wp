@@ -160,32 +160,7 @@ class Site extends \Timber\Site
 
     public function thumbor($src, $width, $height)
     {
-        $key = get_option('imgproxy_key');
-        $salt = get_option('imgproxy_salt');
-        $host = get_option('imgproxy_url');
-
-        if (!$host)
-        {
-            return \Timber\ImageHelper::resize($src, $width, $height);
-        }
-
-        $resize = 'fill';
-        $gravity = 'ce'; // center
-        $enlarge = 1;
-        $extension = 'jpeg';
-
-        // Round dimensions
-        $width = (int)round($width);
-        $height = (int)round($height);
-
-        $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
-        $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
-
-        $keyBin = pack("H*" , $key);
-        $saltBin = pack("H*" , $salt);
-        $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
-
-        return $host . $signature . $path;
+        return zw_thumbor($src, $width, $height);
     }
 
     /** This is where you can add your own functions to twig.
