@@ -129,7 +129,7 @@ function zw_bunny_get_video_from_url(string $url)
 function zw_filter_pre_oembed_result($default, $url, $args)
 {
     $video = zw_bunny_get_video_from_url(trim($url));
-    if (!$video->isAvailable()) {
+    if (!$video || !$video->isAvailable()) {
         return false;
     }
 
