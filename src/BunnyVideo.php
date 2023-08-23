@@ -4,8 +4,7 @@ namespace Streekomroep;
 
 class BunnyVideo
 {
-    const STATUS_FINISHED = 3;
-    const STATUS_RESOLUTION_FINISHED = 4;
+    const STATUS_FINISHED = 4;
 
     public int $videoLibraryId;
     public string $guid;

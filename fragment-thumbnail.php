@@ -22,7 +22,7 @@ function zw_bunny_save_thumbnail($post_ID)
         return;
     }
 
-    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
+    if (!$video->status != \Streekomroep\BunnyVideo::STATUS_FINISHED) {
         return;
     }
 

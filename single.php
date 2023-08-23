@@ -76,7 +76,9 @@ if ($timber_post->post_type == 'tv') {
     if (!is_array($videos)) {
         $videos = [];
     }
-    $videos = zw_sort_videos($videos);
+
+    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+    $videos = zw_sort_videos($credentials, $videos);
 
     $seasons = [];
     foreach ($videos as $video) {

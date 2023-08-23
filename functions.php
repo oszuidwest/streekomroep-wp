@@ -18,6 +18,8 @@ use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
 
 const ZW_TV_META_VIDEOS = 'bunny_data';
+const ZW_BUNNY_LIBRARY_TV = -1;
+const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
@@ -121,24 +123,19 @@ function zw_filter_pre_oembed_result($default, $url, $args)
         return $default;
     }
 
-    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
+    $video = new Video($credentials, $video);
+
+    if (!$video->isAvailable()) {
         return false;
     }
-
-    $m3u8 = sprintf("%s/%s/playlist.m3u8", $credentials->hostname, $video->guid);
-
-    $sizes = explode(',', $video->availableResolutions);
-    $mp4 = sprintf("%s/%s/play_%s.mp4", $credentials->hostname, $video->guid, array_pop($sizes));
-
-    $poster = sprintf("%s/%s/%s", $credentials->hostname, $video->guid, $video->thumbnailFileName);
 
     $out = '';
 
     $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
-    $out .= ' poster="' . htmlspecialchars($poster) . '"';
+    $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
     $out .= '>';
-    $out .= '<source src="' . htmlspecialchars($m3u8) . '" type="application/x-mpegURL">';
-    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
+    $out .= '<source src="' . htmlspecialchars($video->getPlaylistUrl()) . '" type="application/x-mpegURL">';
+    $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
     $out .= '</video>';
 
     return $out;
@@ -378,12 +375,22 @@ function zw_rest_api_init()
                 if (!is_array($videos)) {
                     $videos = [];
                 }
-                $videos = zw_sort_videos($videos);
+                $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+                $videos = zw_sort_videos($credentials, $videos);
 
                 foreach ($videos as $video) {
                     $d = [];
-                    $d['source'] = 'videos';
-                    // TODO: use Bunny id
+                    $d['sources'] = [];
+                    $d['sources'][] = [
+                        'src' => $video->getMP4Url(),
+                        'type' => 'video/mp4'
+                    ];
+
+                    $d['sources'][] = [
+                        'src' => $video->getPlaylistUrl(),
+                        'type' => 'application/x-mpegURL'
+                    ];
+
                     $d['vimeo_id'] = null;
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
@@ -627,11 +634,13 @@ function zw_bunny_parse_url($url)
 
 function zw_bunny_credentials_get(int $libraryId)
 {
-    if ($libraryId == get_field('bunny_cdn_library_id', 'option')) {
+    if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field('bunny_cdn_library_id', 'option')) {
+        $libraryId = get_field('bunny_cdn_library_id', 'option');
         $hostname = get_field('bunny_cdn_hostname', 'option');
         $apiKey = get_field('bunny_cdn_api_key', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
-    } elseif ($libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+    } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+        $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option');
         $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
         $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
@@ -896,7 +905,7 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
-    $credentials = zw_bunny_credentials_get(get_field('bunny_cdn_library_id', 'option'));
+    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
 
     foreach ($shows as $show) {
         $collectionId = $show->meta('tv_show_gemist_locatie');
@@ -914,11 +923,11 @@ function zw_project_cron()
     }
 }
 
-function zw_sort_videos(array $videos)
+function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $videos)
 {
     /** @var Video[] $videos */
-    $videos = array_map(function ($a) {
-        return new Video($a);
+    $videos = array_map(function ($a) use ($credentials) {
+        return new Video($credentials, $a);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
@@ -1141,7 +1150,9 @@ add_action('template_redirect', function () {
         if (!is_array($videos)) {
             $videos = [];
         }
-        $videos = zw_sort_videos($videos);
+
+        $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+        $videos = zw_sort_videos($credentials, $videos);
 
         $videoId = $_GET['v'];
         $video = null;
