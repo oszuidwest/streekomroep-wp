@@ -1003,8 +1003,8 @@ function fragment_get_video($id)
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
-    $video = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
-    $video->contentUrl = $video->getMP4Url();
+    $bunnyVideo = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
+    $video->contentUrl = $bunnyVideo->getMP4Url();
 
     return $video;
 }
