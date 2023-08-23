@@ -35,7 +35,7 @@
                                 <article>
                                     <a href="?v={{ video.id }}">
                                         {% set width = 220 %}
-                                        <img class="w-full h-full object-contain" loading="lazy" alt="{{ video.name }}"
+                                        <img class="w-full object-contain" loading="lazy" alt="{{ video.name }}"
                                              width="{{ width }}" height="{{ (width / 16 * 9)|round }}"
                                              src="{{ video.thumbnail|thumbor(width, width / 16 * 9) }}"
                                              srcset="{{ video.thumbnail|thumbor(width * 2, (width * 2) / 16 * 9) }} 2x"/>
