@@ -391,7 +391,6 @@ function zw_rest_api_init()
                         'type' => 'application/x-mpegURL'
                     ];
 
-                    $d['vimeo_id'] = null;
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
