@@ -1213,7 +1213,7 @@ add_action('template_redirect', function () {
                 return 'video.episode';
             });
             add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-                $images->add_image(['url' => $video->getThumbnail()]);
+                $images->add_image(['url' => zw_thumbor($video->getThumbnail(), 1920, 1080)]);
             });
             add_filter('wpseo_opengraph_url', $canonical);
 
