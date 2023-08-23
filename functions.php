@@ -18,6 +18,8 @@ use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
 
 const ZW_TV_META_VIDEOS = 'bunny_data';
+const ZW_BUNNY_LIBRARY_TV = -1;
+const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
@@ -104,41 +106,40 @@ function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streek
     return $video;
 }
 
-function zw_filter_pre_oembed_result($default, $url, $args)
+function zw_bunny_get_video_from_url(string $url)
 {
-    $id = zw_bunny_parse_url($url);
+    $id = zw_bunny_parse_url(trim($url));
     if (!$id) {
-        return $default;
+        return null;
     }
 
     $credentials = zw_bunny_credentials_get($id->libraryId);
     if (!$credentials) {
-        return $default;
+        return;
     }
 
     $video = zw_bunny_get_video($credentials, $id);
     if (!$video) {
-        return $default;
+        return null;
     }
 
-    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
+    return new Video($credentials, $video);
+}
+
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    $video = zw_bunny_get_video_from_url(trim($url));
+    if (!$video || !$video->isAvailable()) {
         return false;
     }
-
-    $m3u8 = sprintf("%s/%s/playlist.m3u8", $credentials->hostname, $video->guid);
-
-    $sizes = explode(',', $video->availableResolutions);
-    $mp4 = sprintf("%s/%s/play_%s.mp4", $credentials->hostname, $video->guid, array_pop($sizes));
-
-    $poster = sprintf("%s/%s/%s", $credentials->hostname, $video->guid, $video->thumbnailFileName);
 
     $out = '';
 
     $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
-    $out .= ' poster="' . htmlspecialchars($poster) . '"';
+    $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
     $out .= '>';
-    $out .= '<source src="' . htmlspecialchars($m3u8) . '" type="application/x-mpegURL">';
-    $out .= '<source src="' . htmlspecialchars($mp4) . '" type="video/mp4">';
+    $out .= '<source src="' . htmlspecialchars($video->getPlaylistUrl()) . '" type="application/x-mpegURL">';
+    $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
     $out .= '</video>';
 
     return $out;
@@ -345,25 +346,43 @@ function zw_rest_api_init()
 
     register_rest_field(
         'fragment',
-        'source',
+        'fragment_type',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
-                    return 'bunny';
-                }
-
-                return null;
+                return strtolower(get_field('fragment_type', $post_arr['id']));
             },
         ]
     );
 
     register_rest_field(
         'fragment',
-        'vimeo_id',
+        'sources',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                // TODO: add support for Bunny to API
-                return null;
+                $sources = [];
+                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
+                    $url = get_field('fragment_url', $post_arr['id'], false);
+                    $video = zw_bunny_get_video_from_url($url);
+                    if ($video) {
+                        if ($video->isAvailable()) {
+                            $sources[] = [
+                                'src' => $video->getMP4Url(),
+                                'type' => 'video/mp4'
+                            ];
+                            $sources[] = [
+                                'src' => $video->getPlaylistUrl(),
+                                'type' => 'application/x-mpegURL'
+                            ];
+                        }
+                    }
+                } elseif (get_field('fragment_type', $post_arr['id']) === 'Audio') {
+                    $sources[] = [
+                        'type' => 'audio/mp3',
+                        'src' => get_field('fragment_url', $post_arr['id'], false)
+                    ];
+                }
+
+                return $sources;
             },
         ]
     );
@@ -378,13 +397,22 @@ function zw_rest_api_init()
                 if (!is_array($videos)) {
                     $videos = [];
                 }
-                $videos = zw_sort_videos($videos);
+                $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+                $videos = zw_sort_videos($credentials, $videos);
 
                 foreach ($videos as $video) {
                     $d = [];
-                    $d['source'] = 'videos';
-                    // TODO: use Bunny id
-                    $d['vimeo_id'] = null;
+                    $d['sources'] = [];
+                    $d['sources'][] = [
+                        'src' => $video->getMP4Url(),
+                        'type' => 'video/mp4'
+                    ];
+
+                    $d['sources'][] = [
+                        'src' => $video->getPlaylistUrl(),
+                        'type' => 'application/x-mpegURL'
+                    ];
+
                     $d['title'] = $video->getName();
                     $d['description'] = $video->getDescription();
                     $d['date'] = $video->getBroadcastDate()->format('c');
@@ -627,11 +655,13 @@ function zw_bunny_parse_url($url)
 
 function zw_bunny_credentials_get(int $libraryId)
 {
-    if ($libraryId == get_field('bunny_cdn_library_id', 'option')) {
+    if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field('bunny_cdn_library_id', 'option')) {
+        $libraryId = get_field('bunny_cdn_library_id', 'option');
         $hostname = get_field('bunny_cdn_hostname', 'option');
         $apiKey = get_field('bunny_cdn_api_key', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
-    } elseif ($libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+    } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
+        $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option');
         $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
         $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
@@ -896,7 +926,7 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
-    $credentials = zw_bunny_credentials_get(get_field('bunny_cdn_library_id', 'option'));
+    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
 
     foreach ($shows as $show) {
         $collectionId = $show->meta('tv_show_gemist_locatie');
@@ -914,17 +944,11 @@ function zw_project_cron()
     }
 }
 
-function zw_sort_videos(array $videos)
+function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $videos)
 {
-    $environment = new League\CommonMark\Environment\Environment();
-    $environment->addExtension(new League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
-    $environment->addExtension(new League\CommonMark\Extension\FrontMatter\FrontMatterExtension());
-    $converter = new League\CommonMark\MarkdownConverter($environment);
-
-
     /** @var Video[] $videos */
-    $videos = array_map(function ($a) use($converter) {
-        return new Video($a, $converter);
+    $videos = array_map(function ($a) use ($credentials) {
+        return new Video($credentials, $a);
     }, $videos);
 
     // Filter videos that are still being uploaded or transcoded
@@ -978,7 +1002,9 @@ function fragment_get_video($id)
     $video->description = get_the_content(null, false, $fragment);
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
-    $video->contentUrl = ''; // TODO: get video url
+
+    $bunnyVideo = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
+    $video->contentUrl = $bunnyVideo->getMP4Url();
 
     return $video;
 }
@@ -1147,7 +1173,9 @@ add_action('template_redirect', function () {
         if (!is_array($videos)) {
             $videos = [];
         }
-        $videos = zw_sort_videos($videos);
+
+        $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+        $videos = zw_sort_videos($credentials, $videos);
 
         $videoId = $_GET['v'];
         $video = null;
@@ -1185,7 +1213,13 @@ add_action('template_redirect', function () {
                 return 'video.episode';
             });
             add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-                $images->add_image(['url' => $video->getThumbnail()]);
+                $width = 1920;
+                $height = 1080;
+                $images->add_image([
+                    'url' => zw_thumbor($video->getThumbnail(), $width, $height),
+                    'width' => $width,
+                    'height' => $height
+                ]);
             });
             add_filter('wpseo_opengraph_url', $canonical);
 
@@ -1233,6 +1267,36 @@ function jetpack_photon_url($image_url, $args = array(), $scheme = null)
 {
 //    var_dump(__FUNCTION__);
     return $image_url;
+}
+
+function zw_thumbor($src, $width, $height)
+{
+    $key = get_option('imgproxy_key');
+    $salt = get_option('imgproxy_salt');
+    $host = get_option('imgproxy_url');
+
+    if (!$host)
+    {
+        return \Timber\ImageHelper::resize($src, $width, $height);
+    }
+
+    $resize = 'fill';
+    $gravity = 'ce'; // center
+    $enlarge = 1;
+    $extension = 'jpeg';
+
+    // Round dimensions
+    $width = (int)round($width);
+    $height = (int)round($height);
+
+    $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
+    $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
+
+    $keyBin = pack("H*" , $key);
+    $saltBin = pack("H*" , $salt);
+    $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
+
+    return $host . $signature . $path;
 }
 
 include 'modules/assets.php';

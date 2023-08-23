@@ -76,7 +76,9 @@ if ($timber_post->post_type == 'tv') {
     if (!is_array($videos)) {
         $videos = [];
     }
-    $videos = zw_sort_videos($videos);
+
+    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+    $videos = zw_sort_videos($credentials, $videos);
 
     $seasons = [];
     foreach ($videos as $video) {
@@ -93,6 +95,7 @@ if ($timber_post->post_type == 'tv') {
 
     if (isset($_GET['v'])) {
         $videoId = $_GET['v'];
+        /** @var \Streekomroep\Video $video */
         $video = null;
         foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
@@ -108,15 +111,20 @@ if ($timber_post->post_type == 'tv') {
             $videoData->duration = $video->getDuration();
             $videoData->uploadDate = $video->getBroadcastDate()->format('c');
             $videoData->thumbnailUrl = $video->getThumbnail();
-            $videoData->contentUrl = $video->getFile();
+            $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
                 $thumb = $video->getThumbnail();
-                $data['url'] = $thumb;
-                $data['contentUrl'] = $thumb;
+
+                $width = 1920;
+                $height = 1080;
+                $data['url'] = zw_thumbor($thumb, $width, $height);
+                $data['contentUrl'] = zw_thumbor($thumb, $width, $height);
+                $data['width'] = $width;
+                $data['height'] = $height;
                 return $data;
             }, 10, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {

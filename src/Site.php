@@ -2,6 +2,11 @@
 
 namespace Streekomroep;
 
+use Twig\Extra\Markdown\DefaultMarkdown;
+use Twig\Extra\Markdown\MarkdownExtension;
+use Twig\Extra\Markdown\MarkdownRuntime;
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
+
 /**
  * We're going to configure our theme inside of a subclass of Timber\Site
  * You can move this to its own file and include here via php's include("MySite.php")
@@ -155,32 +160,7 @@ class Site extends \Timber\Site
 
     public function thumbor($src, $width, $height)
     {
-        $key = get_option('imgproxy_key');
-        $salt = get_option('imgproxy_salt');
-        $host = get_option('imgproxy_url');
-
-        if (!$host)
-        {
-            return \Timber\ImageHelper::resize($src, $width, $height);
-        }
-
-        $resize = 'fill';
-        $gravity = 'ce'; // center
-        $enlarge = 1;
-        $extension = 'jpeg';
-
-        // Round dimensions
-        $width = (int)round($width);
-        $height = (int)round($height);
-
-        $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
-        $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
-
-        $keyBin = pack("H*" , $key);
-        $saltBin = pack("H*" , $salt);
-        $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
-
-        return $host . $signature . $path;
+        return zw_thumbor($src, $width, $height);
     }
 
     /** This is where you can add your own functions to twig.
@@ -189,6 +169,15 @@ class Site extends \Timber\Site
      */
     public function add_to_twig($twig)
     {
+        $twig->addExtension(new MarkdownExtension());
+        $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
+            public function load($class) {
+                if (MarkdownRuntime::class === $class) {
+                    return new MarkdownRuntime(new DefaultMarkdown());
+                }
+            }
+        });
+
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));

@@ -7,28 +7,15 @@ function zw_bunny_save_thumbnail($post_ID)
     if (get_post_type($post_ID) !== 'fragment') return;
 
     $url = get_field('fragment_url', $post_ID, false);
-    $id = zw_bunny_parse_url(trim($url));
-    if (!$id) {
+    $video = zw_bunny_get_video_from_url($url);
+
+    if (!$video->isAvailable()) {
         return;
     }
 
-    $credentials = zw_bunny_credentials_get($id->libraryId);
-    if (!$credentials) {
-        return;
-    }
+    update_field('fragment_duur', $video->getDuration(), $post_ID);
 
-    $video = zw_bunny_get_video($credentials, $id);
-    if (!$video) {
-        return;
-    }
-
-    if (!in_array($video->status, [\Streekomroep\BunnyVideo::STATUS_FINISHED, \Streekomroep\BunnyVideo::STATUS_RESOLUTION_FINISHED])) {
-        return;
-    }
-
-    update_field('fragment_duur', $video->length, $post_ID);
-
-    $poster = sprintf("%s/%s/%s", $credentials->hostname, $video->guid, $video->thumbnailFileName);
+    $poster = $video->getThumbnail();
 
     $thumbnail_id = get_post_thumbnail_id($post_ID);
     if ($thumbnail_id != 0) {
@@ -43,7 +30,7 @@ function zw_bunny_save_thumbnail($post_ID)
     }
 
     $file = [
-        'name' => $video->thumbnailFileName,
+        'name' => basename($poster),
         'tmp_name' => $tempPath,
     ];
 

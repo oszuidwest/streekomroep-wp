@@ -3,8 +3,9 @@
 namespace Streekomroep;
 
 use Exception;
-use League\CommonMark\ConverterInterface;
-use League\CommonMark\Extension\FrontMatter\Output\RenderedContentWithFrontMatter;
+use League\CommonMark\Extension\FrontMatter\Data\SymfonyYamlFrontMatterParser;
+use League\CommonMark\Extension\FrontMatter\Exception\InvalidFrontMatterException;
+use League\CommonMark\Extension\FrontMatter\FrontMatterParser;
 
 class Video
 {
@@ -13,10 +14,12 @@ class Video
     private $yaml = [];
     private $description = '';
     private ?\DateTime $broadcastDate = null;
+    private BunnyCredentials $credentials;
 
 
-    public function __construct($data, ConverterInterface $converter)
+    public function __construct(BunnyCredentials $credentials, $data)
     {
+        $this->credentials = $credentials;
         $this->data = $data;
 
         $description = null;
@@ -30,21 +33,27 @@ class Video
             return;
         }
 
-        $result = $converter->convert($description);
-        if ($result instanceof RenderedContentWithFrontMatter) {
+        try {
+            $frontMatterParser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
+            $result = $frontMatterParser->parse($description);
             $this->yaml = $result->getFrontMatter();
+            $this->description = $result->getContent();
+        } catch (InvalidFrontMatterException $e) {
+            $this->description = $description;
         }
-
-        $this->description = (string)$result;
 
         if (isset($this->yaml['broadcast_date'])) {
             $broadcast_date = $this->yaml['broadcast_date'];
             if (is_int($broadcast_date)) {
                 // Re-parse broadcast date with the currently configured timezone
-                $broadcast_date = date('Y-m-d H:i:s', $broadcast_date);
+                $broadcast_date = date('Y-m-dTH:i:s', $broadcast_date);
             }
 
-            $this->broadcastDate = new \DateTime($broadcast_date, wp_timezone());
+            try {
+                $this->broadcastDate = new \DateTime($broadcast_date, wp_timezone());
+            } catch (Exception $e) {
+                error_log('Failed to parse date for video with id: ' . $this->data->guid);
+            }
         }
     }
 
@@ -55,9 +64,7 @@ class Video
 
     public function getThumbnail()
     {
-        // TODO: inject hostname using constructor
-        $cdnHostname = get_field('bunny_cdn_hostname', 'option');
-        return "{$cdnHostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
+        return "{$this->credentials->hostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
     }
 
     public function getName()
@@ -85,7 +92,7 @@ class Video
 
     public function isAvailable()
     {
-        return in_array($this->data->status, [BunnyVideo::STATUS_FINISHED, BunnyVideo::STATUS_RESOLUTION_FINISHED]);
+        return $this->data->status === BunnyVideo::STATUS_FINISHED;
     }
 
     public function getBroadcastDate()
@@ -103,9 +110,26 @@ class Video
         return $this->data->length;
     }
 
-    public function getFile()
+    public function getPlaylistUrl()
     {
-        // TODO: return mp4 url
-        return '';
+        return sprintf("%s/%s/playlist.m3u8", $this->credentials->hostname, $this->data->guid);
+    }
+
+    public function getMP4Url()
+    {
+        $sizes = explode(',', $this->data->availableResolutions);
+
+        // Convert all sizes to numbers
+        $sizes = array_map(function ($size) {
+            preg_match('/^(\d+)p$/', $size, $m);
+            return intval($m[1]);
+        }, $sizes);
+
+        // Only keep sizes <= 720
+        $sizes = array_filter($sizes, function($size) {
+            return$size <= 720;
+        });
+
+        return sprintf("%s/%s/play_%dp.mp4", $this->credentials->hostname, $this->data->guid, max($sizes));
     }
 }
