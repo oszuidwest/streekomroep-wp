@@ -106,25 +106,29 @@ function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streek
     return $video;
 }
 
-function zw_filter_pre_oembed_result($default, $url, $args)
+function zw_bunny_get_video_from_url(string $url)
 {
-    $id = zw_bunny_parse_url($url);
+    $id = zw_bunny_parse_url(trim($url));
     if (!$id) {
-        return $default;
+        return null;
     }
 
     $credentials = zw_bunny_credentials_get($id->libraryId);
     if (!$credentials) {
-        return $default;
+        return;
     }
 
     $video = zw_bunny_get_video($credentials, $id);
     if (!$video) {
-        return $default;
+        return null;
     }
 
-    $video = new Video($credentials, $video);
+    return new Video($credentials, $video);
+}
 
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    $video = zw_bunny_get_video_from_url(trim($url));
     if (!$video->isAvailable()) {
         return false;
     }
@@ -358,24 +362,17 @@ function zw_rest_api_init()
                 $sources = [];
                 if (get_field('fragment_type', $post_arr['id']) === 'Video') {
                     $url = get_field('fragment_url', $post_arr['id'], false);
-                    $id = zw_bunny_parse_url(trim($url));
-                    if ($id) {
-                        $credentials = zw_bunny_credentials_get($id->libraryId);
-                        if ($credentials) {
-                            $video = zw_bunny_get_video($credentials, $id);
-                            if ($video) {
-                                $video = new Video($credentials, $video);
-                                if ($video->isAvailable()) {
-                                    $sources[] = [
-                                        'src' => $video->getMP4Url(),
-                                        'type' => 'video/mp4'
-                                    ];
-                                    $sources[] = [
-                                        'src' => $video->getPlaylistUrl(),
-                                        'type' => 'application/x-mpegURL'
-                                    ];
-                                }
-                            }
+                    $video = zw_bunny_get_video_from_url($url);
+                    if ($video) {
+                        if ($video->isAvailable()) {
+                            $sources[] = [
+                                'src' => $video->getMP4Url(),
+                                'type' => 'video/mp4'
+                            ];
+                            $sources[] = [
+                                'src' => $video->getPlaylistUrl(),
+                                'type' => 'application/x-mpegURL'
+                            ];
                         }
                     }
                 } elseif (get_field('fragment_type', $post_arr['id']) === 'Audio') {
@@ -1005,7 +1002,9 @@ function fragment_get_video($id)
     $video->description = get_the_content(null, false, $fragment);
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
-    $video->contentUrl = ''; // TODO: get video url
+
+    $video = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
+    $video->contentUrl = $video->getMP4Url();
 
     return $video;
 }

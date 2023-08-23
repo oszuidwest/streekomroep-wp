@@ -95,6 +95,7 @@ if ($timber_post->post_type == 'tv') {
 
     if (isset($_GET['v'])) {
         $videoId = $_GET['v'];
+        /** @var \Streekomroep\Video $video */
         $video = null;
         foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
@@ -110,7 +111,7 @@ if ($timber_post->post_type == 'tv') {
             $videoData->duration = $video->getDuration();
             $videoData->uploadDate = $video->getBroadcastDate()->format('c');
             $videoData->thumbnailUrl = $video->getThumbnail();
-            $videoData->contentUrl = $video->getFile();
+            $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new VideoObject($videoData);
                 return $pieces;

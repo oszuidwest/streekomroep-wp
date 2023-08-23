@@ -110,12 +110,6 @@ class Video
         return $this->data->length;
     }
 
-    public function getFile()
-    {
-        // TODO: return mp4 url
-        return '';
-    }
-
     public function getPlaylistUrl()
     {
         return sprintf("%s/%s/playlist.m3u8", $this->credentials->hostname, $this->data->guid);
