@@ -18,9 +18,11 @@
   "require": {
     "ext-fileinfo": "*",
     "ext-json": "*",
+    "league/commonmark": "^2.4",
     "nesbot/carbon": "^2.66",
-    "symfony/yaml": "^5.2",
-    "timber/timber": "1.*"
+    "symfony/yaml": "^5.4",
+    "timber/timber": "1.*",
+    "twig/markdown-extra": "^3.7"
   },
   "config": {
     "sort-packages": true,

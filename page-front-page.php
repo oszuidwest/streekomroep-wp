@@ -41,13 +41,14 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $episodes_with_duplicate_shows = [];
             $latest_episode_per_show = [];
 
+            $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
             $deduplicate = $block['ontdubbel'] ? true : false;
             $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
-                $videos = $show->vimeo_data;
+                $videos = $show->meta(ZW_TV_META_VIDEOS);
                 if (!is_array($videos)) continue;
 
-                $videos_for_last_episode = $videos = zw_sort_videos($videos);
+                $videos_for_last_episode = $videos = zw_sort_videos($credentials, $videos);
                 $lastEpisode = array_shift($videos_for_last_episode);
                 if ($lastEpisode === null) continue;
 
