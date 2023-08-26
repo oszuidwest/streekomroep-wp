@@ -1004,7 +1004,9 @@ function fragment_get_video($id)
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
     $bunnyVideo = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
-    $video->contentUrl = $bunnyVideo->getMP4Url();
+    if ($bunnyVideo) {
+        $video->contentUrl = $bunnyVideo->getMP4Url();
+    }
 
     return $video;
 }
