@@ -41,15 +41,15 @@ jobs:
         uses: easingthemes/ssh-deploy@v4
         with:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ github.ref == 'refs/heads/master' && secrets.REMOTE_USER || secrets.REMOTE_USER_DEV }}
+          REMOTE_USER: ${{ github.ref == 'refs/heads/main' && secrets.REMOTE_USER || secrets.REMOTE_USER_DEV }}
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-          TARGET: ${{ github.ref == 'refs/heads/master' && secrets.REMOTE_PATH || secrets.REMOTE_PATH_DEV }}
+          TARGET: ${{ github.ref == 'refs/heads/main' && secrets.REMOTE_PATH || secrets.REMOTE_PATH_DEV }}
           SSH_PRIVATE_KEY: ${{ secrets.REMOTE_KEY }}
           ARGS: '-avz --delete'
           EXCLUDE: '/node_modules/, /.git/, /.github'
 
       - name: Purge cache
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: nathanvaughn/actions-cloudflare-purge@master
         with:
           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
