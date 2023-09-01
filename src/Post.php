@@ -7,8 +7,8 @@ use Timber\Timber;
 
 class Post extends \Timber\Post
 {
-    var $_region;
-    var $_topic;
+    public $_region;
+    public $_topic;
 
     public function region()
     {

@@ -1045,16 +1045,16 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         return [
             '@type' => 'VideoObject',
             '@id' => $this->context->canonical . '#video',
-            "name" => $this->video->name,
-            "description" => $this->video->description,
-            "thumbnailUrl" => [
+            'name' => $this->video->name,
+            'description' => $this->video->description,
+            'thumbnailUrl' => [
                 $this->video->thumbnailUrl
             ],
-            "uploadDate" => $this->video->uploadDate,
-            "duration" => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
-            "isFamilyFriendly" => true,
-            "inLanguage" => 'nl',
-            "contentUrl" => $this->video->contentUrl,
+            'uploadDate' => $this->video->uploadDate,
+            'duration' => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
+            'isFamilyFriendly' => true,
+            'inLanguage' => 'nl',
+            'contentUrl' => $this->video->contentUrl,
         ];
     }
 
@@ -1309,8 +1309,8 @@ function zw_thumbor($src, $width, $height)
     $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
-    $keyBin = pack("H*", $key);
-    $saltBin = pack("H*", $salt);
+    $keyBin = pack('H*', $key);
+    $saltBin = pack('H*', $salt);
     $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
 
     return $host . $signature . $path;

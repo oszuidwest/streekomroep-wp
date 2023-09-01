@@ -64,7 +64,7 @@ class Video
 
     public function getThumbnail()
     {
-        return "{$this->credentials->hostname}/{$this->data->guid}/{$this->data->thumbnailFileName}";
+        return $this->credentials->hostname . '/' . $this->data->guid . '/' . $this->data->thumbnailFileName;
     }
 
     public function getName()
@@ -112,7 +112,7 @@ class Video
 
     public function getPlaylistUrl()
     {
-        return sprintf("%s/%s/playlist.m3u8", $this->credentials->hostname, $this->data->guid);
+        return sprintf('%s/%s/playlist.m3u8', $this->credentials->hostname, $this->data->guid);
     }
 
     public function getMP4Url()
@@ -127,9 +127,9 @@ class Video
 
         // Only keep sizes <= 720
         $sizes = array_filter($sizes, function ($size) {
-            return$size <= 720;
+            return $size <= 720;
         });
 
-        return sprintf("%s/%s/play_%dp.mp4", $this->credentials->hostname, $this->data->guid, max($sizes));
+        return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
     }
 }
