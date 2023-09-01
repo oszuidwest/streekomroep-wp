@@ -7,7 +7,6 @@ use Timber\Timber;
 
 class Post extends \Timber\Post
 {
-
     var $_region;
     var $_topic;
 
@@ -20,7 +19,6 @@ class Post extends \Timber\Post
             } else {
                 $this->_region = false;
             }
-
         }
         return $this->_region;
     }

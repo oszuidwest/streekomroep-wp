@@ -5,7 +5,7 @@ $region = new \Timber\Term(get_queried_object());
 $context['region'] = $region;
 
 global $paged;
-if (!isset($paged) || !$paged){
+if (!isset($paged) || !$paged) {
     $paged = 1;
 }
 

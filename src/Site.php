@@ -45,7 +45,6 @@ class Site extends \Timber\Site
     {
         include(get_template_directory() . '/lib/taxonomy_dossier.php');
         include(get_template_directory() . '/lib/taxonomy_regio.php');
-
     }
 
     /** This is where you add some context
@@ -171,7 +170,8 @@ class Site extends \Timber\Site
     {
         $twig->addExtension(new MarkdownExtension());
         $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
-            public function load($class) {
+            public function load($class)
+            {
                 if (MarkdownRuntime::class === $class) {
                     return new MarkdownRuntime(new DefaultMarkdown());
                 }
@@ -184,5 +184,4 @@ class Site extends \Timber\Site
         $twig->addFilter(new \Twig\TwigFilter('thumbor', [$this, 'thumbor']));
         return $twig;
     }
-
 }

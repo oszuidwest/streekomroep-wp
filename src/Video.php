@@ -126,7 +126,7 @@ class Video
         }, $sizes);
 
         // Only keep sizes <= 720
-        $sizes = array_filter($sizes, function($size) {
+        $sizes = array_filter($sizes, function ($size) {
             return$size <= 720;
         });
 

@@ -32,7 +32,6 @@ if (file_exists($composer_autoload)) {
  * If not, it gives an error message to help direct developers on where to activate
  */
 if (!class_exists('Timber')) {
-
     add_action(
         'admin_notices',
         function () {
@@ -54,8 +53,8 @@ if (!class_exists('ACF')) {
         'admin_notices',
         function () {
             echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(
-                    admin_url('plugins.php')
-                ) . '</a></p></div>';
+                admin_url('plugins.php')
+            ) . '</a></p></div>';
         }
     );
     return;
@@ -66,8 +65,8 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
         'admin_notices',
         function () {
             echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(
-                    admin_url('plugins.php')
-                ) . '</a></p></div>';
+                admin_url('plugins.php')
+            ) . '</a></p></div>';
         }
     );
     return;
@@ -190,7 +189,6 @@ new \Streekomroep\Site();
  * This is not a function of Timber so we declare them afer the Timber specific functions
  */
 if (function_exists('get_field')) {
-
     add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
 
     function streekomroep_acf_json_save_point($path)
@@ -201,7 +199,6 @@ if (function_exists('get_field')) {
 
         // return
         return $path;
-
     }
 
     add_filter('acf/settings/load_json', 'streekomroep_acf_json_load_point');
@@ -218,12 +215,10 @@ if (function_exists('get_field')) {
 
         // return
         return $paths;
-
     }
 }
 
 if (function_exists('acf_add_options_page')) {
-
     acf_add_options_page(array(
         'page_title' => 'Radio instellingen',
         'menu_title' => 'Radio instellingen',
@@ -235,7 +230,6 @@ if (function_exists('acf_add_options_page')) {
 }
 
 if (function_exists('acf_add_options_page')) {
-
     acf_add_options_page(array(
         'page_title' => 'TV instellingen',
         'menu_title' => 'TV instellingen',
@@ -247,7 +241,6 @@ if (function_exists('acf_add_options_page')) {
 }
 
 if (function_exists('acf_add_options_page')) {
-
     acf_add_options_page(array(
         'page_title' => 'Desking',
         'menu_title' => 'Desking',
@@ -260,7 +253,9 @@ if (function_exists('acf_add_options_page')) {
 
 function zw_parse_query(WP_Query $query)
 {
-    if (!$query->is_main_query() || $query->is_admin) return;
+    if (!$query->is_main_query() || $query->is_admin) {
+        return;
+    }
 
     if ($query->is_post_type_archive(['fm', 'tv'])) {
         $query->set('nopaging', 1);
@@ -302,7 +297,8 @@ function zw_rest_api_init()
 
                     return null;
                 }
-            ]);
+            ]
+        );
     }
 
     register_rest_field(
@@ -435,7 +431,8 @@ function zw_rest_api_init()
                 'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                     return get_field($object_type . '_show_actief', $post_arr['id']);
                 }
-            ]);
+            ]
+        );
 
         register_rest_field(
             $type,
@@ -448,7 +445,8 @@ function zw_rest_api_init()
                     }
                     return $data;
                 }
-            ]);
+            ]
+        );
     }
 
     register_rest_route('zw/v1', '/broadcast_data', [
@@ -512,13 +510,16 @@ function zw_rest_api_init()
 
             $commercials = [];
 
-            if (!is_array($options['tv_reclame_slides']))
+            if (!is_array($options['tv_reclame_slides'])) {
                 $options['tv_reclame_slides'] = [];
+            }
 
             $now = new DateTime('now', wp_timezone());
             foreach ($options['tv_reclame_slides'] as $slide) {
                 // Ignore slides with no image
-                if ($slide['tv_reclame_afbeelding'] === false) continue;
+                if ($slide['tv_reclame_afbeelding'] === false) {
+                    continue;
+                }
 
                 $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start'], wp_timezone());
                 $start->setTime(0, 0);
@@ -732,7 +733,6 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
         $out .= '</div>';
 
         return $out;
-
     }
 
     return $cache;
@@ -776,12 +776,14 @@ function zw_get_socials()
 
     $out = [];
     foreach ($socials as $item) {
-        if (!isset($seo_data[$item['field']]))
+        if (!isset($seo_data[$item['field']])) {
             continue;
+        }
 
         $value = trim($seo_data[$item['field']]);
-        if (empty($value))
+        if (empty($value)) {
             continue;
+        }
 
         if ($item['field'] == 'twitter_site') {
             $value = 'https://twitter.com/' . $value;
@@ -800,15 +802,18 @@ function zw_embed_handler($matches, $attr, $url, $rawattr)
 {
     $self = parse_url(get_site_url(), PHP_URL_HOST);
     $host = parse_url($url, PHP_URL_HOST);
-    if (!in_array($host, [$self, 'www.zuidwestfm.nl']))
+    if (!in_array($host, [$self, 'www.zuidwestfm.nl'])) {
         return false;
+    }
 
     $postId = url_to_postid($url);
-    if ($postId === 0)
+    if ($postId === 0) {
         return false;
+    }
 
-    if (get_post_type($postId) !== 'post')
+    if (get_post_type($postId) !== 'post') {
         return false;
+    }
 
     return '[zw_embed]' . $url . '[/zw_embed]';
 }
@@ -820,8 +825,9 @@ function zw_embed($atts, $content, $shortcode_tag)
     $url = $content;
 
     $postId = url_to_postid($url);
-    if ($postId === 0)
+    if ($postId === 0) {
         return false;
+    }
 
     $post = Timber::get_post($postId);
     $html = Timber::compile('embed.twig', ['post' => $post]);
@@ -850,7 +856,8 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
             throw new Exception('Error while fetching bunny data: ' . $response['body']);
         }
 
-        $body = json_decode($response['body']);;
+        $body = json_decode($response['body']);
+        ;
 
         $data = array_merge($data, $body->items);
         if (count($data) >= $body->totalItems) {
@@ -870,8 +877,9 @@ function zw_get_page_by_template($template)
         'meta_value' => $template
     ]);
 
-    if (count($pages) == 0)
+    if (count($pages) == 0) {
         return null;
+    }
 
     return Timber::get_post($pages[0]->ID);
 }
@@ -964,10 +972,14 @@ function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $vide
         $date = $video->getBroadcastDate();
 
         // Ignore videos with no valid date
-        if (!$date) return false;
+        if (!$date) {
+            return false;
+        }
 
         // Ignore videos with a date in the future
-        if ($date > $now) return false;
+        if ($date > $now) {
+            return false;
+        }
 
         return true;
     });
@@ -1086,12 +1098,14 @@ function add_custom_schema_piece($pieces, $context)
 
 function zw_seo_add_fragment_video($data, $context)
 {
-    if (!is_singular('fragment'))
+    if (!is_singular('fragment')) {
         return $data;
+    }
 
     $type = get_field('fragment_type', false, false);
-    if ($type !== 'Video')
+    if ($type !== 'Video') {
         return $data;
+    }
 
     $data['video'] = [
         ['@id' => $context->canonical . '#video']
@@ -1251,7 +1265,6 @@ add_action('template_redirect', function () {
                 return $presentation;
             }, 10, 2);
         }
-
     }
 });
 
@@ -1280,8 +1293,7 @@ function zw_thumbor($src, $width, $height)
     $salt = get_option('imgproxy_salt');
     $host = get_option('imgproxy_url');
 
-    if (!$host)
-    {
+    if (!$host) {
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
@@ -1297,8 +1309,8 @@ function zw_thumbor($src, $width, $height)
     $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
-    $keyBin = pack("H*" , $key);
-    $saltBin = pack("H*" , $salt);
+    $keyBin = pack("H*", $key);
+    $saltBin = pack("H*", $salt);
     $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
 
     return $host . $signature . $path;

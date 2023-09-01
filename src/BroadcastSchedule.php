@@ -28,7 +28,9 @@ class BroadcastSchedule
                 $dayname = $day->getName();
 
                 foreach ($week['tv_week_shows'] as $entry) {
-                    if ($entry['dag'] !== $dayname) continue;
+                    if ($entry['dag'] !== $dayname) {
+                        continue;
+                    }
 
                     if ($entry['show'] instanceof \WP_Post) {
                         $entry['show'] = Timber\Timber::get_post($entry['show']->ID);
@@ -61,14 +63,19 @@ class BroadcastSchedule
         foreach ($this->days as $day) {
             $dayname = $day->getName();
             foreach ($shows as $show) {
-                if (!$show->meta('fm_show_actief'))
+                if (!$show->meta('fm_show_actief')) {
                     continue;
+                }
 
                 $rules = $show->meta('fm_show_programmatie');
-                if (!$rules) continue;
+                if (!$rules) {
+                    continue;
+                }
 
                 foreach ($rules as $rule) {
-                    if (!in_array($dayname, $rule['fm_show_dagen'])) continue;
+                    if (!in_array($dayname, $rule['fm_show_dagen'])) {
+                        continue;
+                    }
                     $day->add(new RadioBroadcast($show, $rule['fm_show_starttijd'], $rule['fm_show_eindtijd']));
                 }
             }
@@ -103,7 +110,9 @@ class BroadcastSchedule
 
         while (true) {
             $day = current($this->days);
-            if ($day->date == $today) break;
+            if ($day->date == $today) {
+                break;
+            }
 
             array_shift($this->days);
         }
@@ -128,7 +137,9 @@ class BroadcastSchedule
 
         foreach ($this->days as $day) {
             foreach ($day->radio as $broadcast) {
-                if ($returnNext) return $broadcast;
+                if ($returnNext) {
+                    return $broadcast;
+                }
 
                 if ($broadcast == $current) {
                     $returnNext = true;
