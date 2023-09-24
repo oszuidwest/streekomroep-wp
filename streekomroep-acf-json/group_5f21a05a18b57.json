@@ -1,11 +1,12 @@
 {
     "key": "group_5f21a05a18b57",
-    "title": "Post - Kabelkrant",
+    "title": "Post - Distributie",
     "fields": [
         {
             "key": "field_5f74740c7f912",
             "label": "Toon in kabelkrant",
             "name": "post_in_kabelkrant",
+            "aria-label": "",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -22,9 +23,30 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_650f58331254f",
+            "label": "Pushbericht",
+            "name": "push_post",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_5f21a06d22c58",
             "label": "Versie voor TV",
             "name": "post_kabelkrant_content",
+            "aria-label": "",
             "type": "textarea",
             "instructions": "",
             "required": 1,
@@ -71,5 +93,6 @@
     ],
     "active": true,
     "description": "",
-    "modified": 1614209773
+    "show_in_rest": 0,
+    "modified": 1695505518
 }
