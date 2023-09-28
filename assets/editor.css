@@ -1,0 +1,16 @@
+@import "prose.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    @apply p-4;
+}
+
+body {
+    @apply prose font-sans;
+    @apply zw-prose;
+    @apply mx-auto;
+    box-sizing: content-box;
+}

@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch:tailwind": "npx tailwindcss -i assets/style.css -o dist/style.css --watch",
-    "build:tailwind": "npx tailwindcss -i assets/style.css -o dist/style.css --minify"
+    "watch:tailwind": "npx tailwindcss -i assets/editor.css -o dist/editor.css --watch & npx tailwindcss -i assets/style.css -o dist/style.css --watch",
+    "build:tailwind": "npx tailwindcss -i assets/editor.css -o dist/editor.css --minify && npx tailwindcss -i assets/style.css -o dist/style.css --minify"
   },
   "repository": {
     "type": "git",
