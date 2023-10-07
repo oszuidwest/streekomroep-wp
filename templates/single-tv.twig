@@ -6,7 +6,7 @@
             {% if post.thumbnail %}
                 <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
                      srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
-                     alt="{{ post.title }}" class="w-full">
+                     alt="{{ post.title }}" width="960" height="540" class="w-full">
             {% endif %}
 
             <h1 class="font-black font-round text-4xl md:text-5xl uppercase text-black dark:text-white">{{ post.title }}</h1>
