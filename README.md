@@ -28,8 +28,8 @@ These are tested plug-ins and are great additions to the theme:
 
 ### Extra funcitonality with first-party plug-ins
 There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed seperately:
-- ZuidWest Webapp [[on GitHub]](https://github.com/oszuidwest/zw-webapp): adds push messages and functionallity for a progressive web app using the service Progressier.
-- Tekst TV GPT [[on Github]](https://github.com/oszuidwest/teksttvgpt): adds a button that generated 'tekst tv' summaries for articles using the OpenAI GPT-models.
+- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: adds push messages and functionallity for a progressive web app using the service Progressier.
+- Tekst TV GPT [[on Github](https://github.com/oszuidwest/teksttvgpt)]: adds a button that generates 'tekst tv' summaries for articles using the OpenAI GPT-models.
 
 ## What's here?
 `static/` is where you can keep your static front-end scripts, styles, or images. In other words, your Sass files, JS files, fonts, and SVGs would live here.
