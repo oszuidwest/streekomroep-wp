@@ -6,7 +6,7 @@ This is a WordPress theme made for Streekomroep ZuidWest in The Netherlands. It'
 ## Installation
 This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
 
-1. Install WordPress 6.0.x
+1. Install WordPress 6.1.x
 2. Install and activate the hard dependencies
 3. Upload the theme to your `wp-content/themes`
 4. Switch to the `streekomroep` theme
@@ -17,17 +17,21 @@ This theme is not yet tested with PHP 8.0 or 8.1. This is mainly due to the rend
 ### Hard dependencies
 Install these before activating the theme:
 - Timber 1.x [Use composer]
-- Advanced Custom Fields Pro 5.x [[purchace](https://www.advancedcustomfields.com/pro/)]
+- Advanced Custom Fields Pro 6.x [[purchace](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor a bit more time to stabilize)_
-- Yoast SEO Premium 19.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 21.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These are tested plug-ins and are great additions to the theme:
-- Contact Form 7 5.5.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Contact Form 7 5.7.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x [[free download](https://wordpress.org/plugins/disable-comments/)]
 
-## What's here?
+### Extra funcitonality with first-party plug-ins
+There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed seperately:
+- ZuidWest Webapp [[on GitHub]](https://github.com/oszuidwest/zw-webapp): adds push messages and functionallity for a progressive web app using the service Progressier.
+- Tekst TV GPT [[on Github]](https://github.com/oszuidwest/teksttvgpt): adds a button that generated 'tekst tv' summaries for articles using the OpenAI GPT-models.
 
+## What's here?
 `static/` is where you can keep your static front-end scripts, styles, or images. In other words, your Sass files, JS files, fonts, and SVGs would live here.
 
 `templates/` contains all of your Twig templates. These pretty much correspond 1 to 1 with the PHP files that respond to the WordPress template hierarchy. At the end of each PHP template, you'll notice a `Timber::render()` function whose first parameter is the Twig file where that data (or `$context`) will be used. Just an FYI.
