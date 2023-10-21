@@ -1127,19 +1127,6 @@ function zw_seo_article_add_region($data, $context)
     return $data;
 }
 
-class Jetpack_Options
-{
-    public static function get_option_and_ensure_autoload()
-    {
-        return 'rectangular';
-    }
-
-    public static function get_option($option)
-    {
-        return get_option($option);
-    }
-}
-
 /**
  * Image handling filters
  * The first filter disables resizing of 'big' images by WordPress, since we do this in timber
@@ -1268,25 +1255,6 @@ add_action('template_redirect', function () {
     }
 });
 
-class Jetpack
-{
-    public static function get_content_width()
-    {
-        return 672;
-    }
-
-    public static function get_active_modules()
-    {
-        return ['carousel'];
-    }
-}
-
-function jetpack_photon_url($image_url, $args = array(), $scheme = null)
-{
-//    var_dump(__FUNCTION__);
-    return $image_url;
-}
-
 function zw_thumbor($src, $width, $height)
 {
     $key = get_option('imgproxy_key');
@@ -1316,5 +1284,6 @@ function zw_thumbor($src, $width, $height)
     return $host . $signature . $path;
 }
 
+include 'modules/jetpack.php';
 include 'modules/assets.php';
 include 'modules/tiled-gallery/tiled-gallery.php';
