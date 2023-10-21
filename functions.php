@@ -170,6 +170,7 @@ require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
 require_once 'src/Video.php';
+require_once 'src/VideoModifiedTimePresenter.php';
 require_once 'src/PushAdapter.php';
 
 // Use default class for all post types, except for pages.
@@ -1157,22 +1158,6 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
-
-class ZW_Video_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
-{
-    public function __construct($date)
-    {
-        $this->date = $date;
-    }
-
-    protected $tag_format = '<meta property="article:modified_time" content="%s" />';
-
-    public function get()
-    {
-        return $this->helpers->date->format($this->date);
-    }
-}
-
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
         $videos = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
@@ -1236,7 +1221,7 @@ add_action('template_redirect', function () {
             add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
                 foreach ($presenters as $i => $presenter) {
                     if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
-                        $presenters[$i] = new ZW_Video_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
+                        $presenters[$i] = new \Streekomroep\VideoModifiedTimePresenter($video->getBroadcastDate()->format('c'));
                     } else if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
                         unset($presenters[$i]);
                     }
