@@ -113,7 +113,7 @@ if ($timber_post->post_type == 'tv') {
             $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
-                $pieces[] = new VideoObject($videoData);
+                $pieces[] = new \Streekomroep\VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {

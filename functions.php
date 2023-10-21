@@ -171,6 +171,7 @@ require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
 require_once 'src/Video.php';
 require_once 'src/VideoModifiedTimePresenter.php';
+require_once 'src/VideoObject.php';
 require_once 'src/PushAdapter.php';
 
 // Use default class for all post types, except for pages.
@@ -1027,44 +1028,6 @@ function fragment_get_video($id)
     return $video;
 }
 
-class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
-{
-    public $video;
-
-    public function __construct(VideoData $video)
-    {
-        $this->video = $video;
-    }
-
-    public function generate()
-    {
-        $timespan = $this->video->duration;
-        $hour = floor($timespan / (60 * 60));
-        $min = floor($timespan / 60) % 60;
-        $sec = $timespan % 60;
-
-        return [
-            '@type' => 'VideoObject',
-            '@id' => $this->context->canonical . '#video',
-            'name' => $this->video->name,
-            'description' => $this->video->description,
-            'thumbnailUrl' => [
-                $this->video->thumbnailUrl
-            ],
-            'uploadDate' => $this->video->uploadDate,
-            'duration' => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
-            'isFamilyFriendly' => true,
-            'inLanguage' => 'nl',
-            'contentUrl' => $this->video->contentUrl,
-        ];
-    }
-
-    public function is_needed()
-    {
-        return true;
-    }
-}
-
 /**
  * @param $timber_post
  * @return mixed
@@ -1090,7 +1053,7 @@ function add_custom_schema_piece($pieces, $context)
         $type = get_field('fragment_type', false, false);
         if ($type === 'Video') {
             $video = fragment_get_video($context->post->ID);
-            $pieces[] = new VideoObject($video);
+            $pieces[] = new \Streekomroep\VideoObject($video);
         }
     }
 
