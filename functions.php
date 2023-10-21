@@ -909,7 +909,7 @@ add_filter('cron_schedules', function ($schedules) {
     // add a '10mins' schedule to the existing set
     $schedules['10mins'] = array(
         'interval' => 10 * 60,
-        'display' => __('Every 10 minutes')
+        'display' => __('Every 10 minutes', 'streekomroep'),
     );
     return $schedules;
 });
