@@ -2,8 +2,6 @@
 
 namespace Streekomroep;
 
-use VideoData;
-
 class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
 {
     public $video;

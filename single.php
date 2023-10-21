@@ -105,7 +105,7 @@ if ($timber_post->post_type == 'tv') {
         }
 
         if ($video) {
-            $videoData = new VideoData();
+            $videoData = new \Streekomroep\VideoData();
             $videoData->description = $video->getDescription();
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();

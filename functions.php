@@ -170,6 +170,7 @@ require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
 require_once 'src/Video.php';
+require_once 'src/VideoData.php';
 require_once 'src/VideoModifiedTimePresenter.php';
 require_once 'src/VideoObject.php';
 require_once 'src/PushAdapter.php';
@@ -1000,20 +1001,10 @@ add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
-class VideoData
-{
-    public $duration;
-    public $description;
-    public $name;
-    public $uploadDate;
-    public $thumbnailUrl;
-    public $contentUrl;
-}
-
 function fragment_get_video($id)
 {
     $fragment = get_post($id);
-    $video = new VideoData();
+    $video = new \Streekomroep\VideoData();
     $video->duration = (int)get_field('fragment_duur', $id, false);
     $video->name = get_the_title($fragment);
     $video->description = get_the_content(null, false, $fragment);
