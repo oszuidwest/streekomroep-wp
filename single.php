@@ -84,12 +84,12 @@ if ($timber_post->post_type == 'tv') {
     foreach ($videos as $video) {
         $date = $video->getBroadcastDate();
 
-        $year = $date->format('Y');
-        if (!isset($seasons[$year])) {
-            $seasons[$year] = [];
+        $broadcastYear = $date->format('Y');
+        if (!isset($seasons[$broadcastYear])) {
+            $seasons[$broadcastYear] = [];
         }
 
-        $seasons[$year][] = $video;
+        $seasons[$broadcastYear][] = $video;
     }
 
 
