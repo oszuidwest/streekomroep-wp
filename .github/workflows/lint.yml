@@ -19,6 +19,6 @@ jobs:
           coverage: none
           tools: composer:v2, cs2pr
 
-      - run: composer update --no-progress
+      - run: composer install --no-progress
 
       - run: vendor/bin/phpcs -q --report=checkstyle | cs2pr
