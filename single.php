@@ -128,12 +128,12 @@ if ($timber_post->post_type == 'tv') {
                 $data['height'] = $height;
                 return $data;
             }, 10, 2);
-            add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {
+            add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData, $videoId) {
                 $data['description'] = $video->getDescription();
                 $data['name'] = $videoData->name;
                 $data['datePublished'] = $videoData->uploadDate;
                 $data['dateModified'] = $videoData->uploadDate;
-                $data['url'] .= '?v=' . $_GET['v'];
+                $data['url'] .= '?v=' . $videoId;
                 $data['video'] = [
                     ['@id' => $context->canonical . '#video']
                 ];
