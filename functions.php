@@ -1122,7 +1122,8 @@ add_action('template_redirect', function () {
         $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
         $videos = zw_sort_videos($credentials, $videos);
 
-        $videoId = $_GET['v'];
+        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $videoId = wp_unslash($_GET['v']);
         $video = null;
         foreach ($videos as $item) {
             if ($item->getId() == $videoId) {

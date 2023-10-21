@@ -94,7 +94,8 @@ if ($timber_post->post_type == 'tv') {
 
 
     if (isset($_GET['v'])) {
-        $videoId = $_GET['v'];
+        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $videoId = wp_unslash($_GET['v']);
         /** @var \Streekomroep\Video $video */
         $video = null;
         foreach ($videos as $item) {
