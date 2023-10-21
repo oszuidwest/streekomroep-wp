@@ -1215,6 +1215,8 @@ function zw_thumbor($src, $width, $height)
     $height = (int)round($height);
 
     $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
+
+    // @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.ContainsVar
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
     $keyBin = pack('H*', $key);
