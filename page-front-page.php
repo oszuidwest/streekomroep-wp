@@ -142,8 +142,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossier':
-            $term = get_term($block['selecteer_dossier'], 'dossier');
-            if (!$term || is_wp_error($term)) {
+            $dossierTerm = get_term($block['selecteer_dossier'], 'dossier');
+            if (!$dossierTerm || is_wp_error($dossierTerm)) {
                 // Term does not exist
                 $block['acf_fc_layout'] = 'error';
                 $block['error'] = 'Er is geen dossier geselecteerd';
@@ -175,15 +175,15 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             ]);
 
             $minCount = 2;
-            foreach ($block['terms'] as $term) {
-                $term->posts = Timber::get_posts([
+            foreach ($block['terms'] as $dossierTerm) {
+                $dossierTerm->posts = Timber::get_posts([
                     'ignore_sticky_posts' => true,
                     'posts_per_page' => $minCount,
 
                     'tax_query' => [
                         [
-                            'taxonomy' => $term->taxonomy,
-                            'terms' => $term->id,
+                            'taxonomy' => $dossierTerm->taxonomy,
+                            'terms' => $dossierTerm->id,
                         ],
                     ],
                 ]);
