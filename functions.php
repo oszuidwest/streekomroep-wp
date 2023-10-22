@@ -1147,9 +1147,9 @@ function zw_remove_wp_block_library_css()
 
 function zw_add_videojs()
 {
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video.min.js');
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/lang/nl.min.js');
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js');
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js');
 }
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
