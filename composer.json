@@ -16,6 +16,7 @@
     }
   ],
   "require": {
+    "ext-dom": "*",
     "ext-fileinfo": "*",
     "ext-json": "*",
     "league/commonmark": "^2.4",
