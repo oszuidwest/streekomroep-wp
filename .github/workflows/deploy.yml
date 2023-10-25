@@ -3,8 +3,6 @@ name: Build and deploy dev and prod
 on:
   workflow_dispatch:
   push:
-    branches:
-      - '*'
 
 jobs:
   deploy:
