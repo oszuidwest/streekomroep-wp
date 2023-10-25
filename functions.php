@@ -860,7 +860,6 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
         }
 
         $body = json_decode($response['body']);
-        ;
 
         $data = array_merge($data, $body->items);
         if (count($data) >= $body->totalItems) {
