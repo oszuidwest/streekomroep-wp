@@ -27,6 +27,14 @@
 
     </rule>
 
+    <!-- Indentation -->
+    <rule ref="Generic.Arrays.ArrayIndent" />
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="exact" value="1"/>
+        </properties>
+    </rule>
+
     <!-- WordPress -->
     <rule ref="WordPress.WP.I18n">
         <properties>
