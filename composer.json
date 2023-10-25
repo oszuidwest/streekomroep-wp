@@ -24,13 +24,18 @@
     "timber/timber": "1.*",
     "twig/markdown-extra": "^3.7"
   },
+  "require-dev": {
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "wp-coding-standards/wpcs": "^3.0"
+  },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
-      "composer/installers": true
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "7.4.4"
     }
-  },
-  "require-dev": {
-    "symfony/var-dumper": "^5.4"
   }
 }

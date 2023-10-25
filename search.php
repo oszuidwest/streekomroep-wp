@@ -9,9 +9,9 @@
  * @since   Timber 0.1
  */
 
-$templates = array( 'search.twig', 'archive.twig', 'index.twig' );
+$templates = [ 'search.twig', 'archive.twig', 'index.twig' ];
 
 $context          = Timber::context();
 $context['posts'] = new Timber\PostQuery();
 
-Timber::render( $templates, $context );
+Timber::render($templates, $context);

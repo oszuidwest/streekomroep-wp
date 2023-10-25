@@ -31,7 +31,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_tv_gemist':
-
             $shows = Timber::get_posts([
                 'post_type' => 'tv',
                 'ignore_sticky_posts' => true,
@@ -46,11 +45,15 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
                 $videos = $show->meta(ZW_TV_META_VIDEOS);
-                if (!is_array($videos)) continue;
+                if (!is_array($videos)) {
+                    continue;
+                }
 
                 $videos_for_last_episode = $videos = zw_sort_videos($credentials, $videos);
                 $lastEpisode = array_shift($videos_for_last_episode);
-                if ($lastEpisode === null) continue;
+                if ($lastEpisode === null) {
+                    continue;
+                }
 
                 $show->lastEpisode = $lastEpisode;
 
@@ -81,7 +84,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             }
 
             /**
-             * We sort the candidates by broadcast date. 
+             * We sort the candidates by broadcast date.
              * The most recently broadcasted show is the first item in the array.
              */
             usort($latest_episode_per_show, function ($left, $right) {
@@ -95,7 +98,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             if (!empty($episodes_with_duplicate_shows)) {
 
                 /**
-                 * We sort the videos by broadcast date. 
+                 * We sort the videos by broadcast date.
                  * The most recently broadcasted show is the first item in the array.
                  */
                 usort($episodes_with_duplicate_shows, function ($left, $right) {
@@ -139,8 +142,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossier':
-            $term = get_term($block['selecteer_dossier'], 'dossier');
-            if (!$term || is_wp_error($term)) {
+            $dossierTerm = get_term($block['selecteer_dossier'], 'dossier');
+            if (!$dossierTerm || is_wp_error($dossierTerm)) {
                 // Term does not exist
                 $block['acf_fc_layout'] = 'error';
                 $block['error'] = 'Er is geen dossier geselecteerd';
@@ -172,15 +175,15 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             ]);
 
             $minCount = 2;
-            foreach ($block['terms'] as $term) {
-                $term->posts = Timber::get_posts([
+            foreach ($block['terms'] as $dossierTerm) {
+                $dossierTerm->posts = Timber::get_posts([
                     'ignore_sticky_posts' => true,
                     'posts_per_page' => $minCount,
 
                     'tax_query' => [
                         [
-                            'taxonomy' => $term->taxonomy,
-                            'terms' => $term->id,
+                            'taxonomy' => $dossierTerm->taxonomy,
+                            'terms' => $dossierTerm->id,
                         ],
                     ],
                 ]);
@@ -212,4 +215,4 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 }
 
 
-Timber::render(array('page-' . $timber_post->post_name . '.twig', 'page.twig'), $context);
+Timber::render(['page-' . $timber_post->post_name . '.twig', 'page.twig'], $context);

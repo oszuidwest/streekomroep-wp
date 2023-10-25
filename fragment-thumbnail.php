@@ -3,8 +3,12 @@
 // After save
 function zw_bunny_save_thumbnail($post_ID)
 {
-    if (!is_int($post_ID)) return;
-    if (get_post_type($post_ID) !== 'fragment') return;
+    if (!is_int($post_ID)) {
+        return;
+    }
+    if (get_post_type($post_ID) !== 'fragment') {
+        return;
+    }
 
     $url = get_field('fragment_url', $post_ID, false);
     $video = zw_bunny_get_video_from_url($url);

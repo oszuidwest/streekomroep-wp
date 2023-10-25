@@ -32,7 +32,6 @@ if (file_exists($composer_autoload)) {
  * If not, it gives an error message to help direct developers on where to activate
  */
 if (!class_exists('Timber')) {
-
     add_action(
         'admin_notices',
         function () {
@@ -54,8 +53,8 @@ if (!class_exists('ACF')) {
         'admin_notices',
         function () {
             echo '<div class="error"><p>ACF not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(
-                    admin_url('plugins.php')
-                ) . '</a></p></div>';
+                admin_url('plugins.php')
+            ) . '</a></p></div>';
         }
     );
     return;
@@ -66,8 +65,8 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
         'admin_notices',
         function () {
             echo '<div class="error"><p>Yoast not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_url(
-                    admin_url('plugins.php')
-                ) . '</a></p></div>';
+                admin_url('plugins.php')
+            ) . '</a></p></div>';
         }
     );
     return;
@@ -150,7 +149,7 @@ require 'fragment-thumbnail.php';
 /**
  * Sets the directories (inside your theme) to find .twig files
  */
-Timber::$dirname = array('templates', 'views');
+Timber::$dirname = ['templates', 'views'];
 
 /**
  * By default, Timber does NOT autoescape values. Want to enable Twig's autoescape?
@@ -171,6 +170,9 @@ require_once 'src/SafeObject.php';
 require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
 require_once 'src/Video.php';
+require_once 'src/VideoData.php';
+require_once 'src/VideoModifiedTimePresenter.php';
+require_once 'src/VideoObject.php';
 require_once 'src/PushAdapter.php';
 
 // Use default class for all post types, except for pages.
@@ -190,7 +192,6 @@ new \Streekomroep\Site();
  * This is not a function of Timber so we declare them afer the Timber specific functions
  */
 if (function_exists('get_field')) {
-
     add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
 
     function streekomroep_acf_json_save_point($path)
@@ -201,7 +202,6 @@ if (function_exists('get_field')) {
 
         // return
         return $path;
-
     }
 
     add_filter('acf/settings/load_json', 'streekomroep_acf_json_load_point');
@@ -218,49 +218,47 @@ if (function_exists('get_field')) {
 
         // return
         return $paths;
-
     }
 }
 
 if (function_exists('acf_add_options_page')) {
-
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'Radio instellingen',
         'menu_title' => 'Radio instellingen',
         'menu_slug' => 'radio-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-playlist-audio',
         'redirect' => false
-    ));
+    ]);
 }
 
 if (function_exists('acf_add_options_page')) {
-
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'TV instellingen',
         'menu_title' => 'TV instellingen',
         'menu_slug' => 'tv-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-format-video',
         'redirect' => false
-    ));
+    ]);
 }
 
 if (function_exists('acf_add_options_page')) {
-
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'Desking',
         'menu_title' => 'Desking',
         'menu_slug' => 'desking',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-layout',
         'redirect' => false
-    ));
+    ]);
 }
 
 function zw_parse_query(WP_Query $query)
 {
-    if (!$query->is_main_query() || $query->is_admin) return;
+    if (!$query->is_main_query() || $query->is_admin) {
+        return;
+    }
 
     if ($query->is_post_type_archive(['fm', 'tv'])) {
         $query->set('nopaging', 1);
@@ -302,7 +300,8 @@ function zw_rest_api_init()
 
                     return null;
                 }
-            ]);
+            ]
+        );
     }
 
     register_rest_field(
@@ -435,7 +434,8 @@ function zw_rest_api_init()
                 'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                     return get_field($object_type . '_show_actief', $post_arr['id']);
                 }
-            ]);
+            ]
+        );
 
         register_rest_field(
             $type,
@@ -448,7 +448,8 @@ function zw_rest_api_init()
                     }
                     return $data;
                 }
-            ]);
+            ]
+        );
     }
 
     register_rest_route('zw/v1', '/broadcast_data', [
@@ -512,13 +513,16 @@ function zw_rest_api_init()
 
             $commercials = [];
 
-            if (!is_array($options['tv_reclame_slides']))
+            if (!is_array($options['tv_reclame_slides'])) {
                 $options['tv_reclame_slides'] = [];
+            }
 
             $now = new DateTime('now', wp_timezone());
             foreach ($options['tv_reclame_slides'] as $slide) {
                 // Ignore slides with no image
-                if ($slide['tv_reclame_afbeelding'] === false) continue;
+                if ($slide['tv_reclame_afbeelding'] === false) {
+                    continue;
+                }
 
                 $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start'], wp_timezone());
                 $start->setTime(0, 0);
@@ -732,7 +736,6 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
         $out .= '</div>';
 
         return $out;
-
     }
 
     return $cache;
@@ -776,12 +779,14 @@ function zw_get_socials()
 
     $out = [];
     foreach ($socials as $item) {
-        if (!isset($seo_data[$item['field']]))
+        if (!isset($seo_data[$item['field']])) {
             continue;
+        }
 
         $value = trim($seo_data[$item['field']]);
-        if (empty($value))
+        if (empty($value)) {
             continue;
+        }
 
         if ($item['field'] == 'twitter_site') {
             $value = 'https://twitter.com/' . $value;
@@ -800,15 +805,18 @@ function zw_embed_handler($matches, $attr, $url, $rawattr)
 {
     $self = parse_url(get_site_url(), PHP_URL_HOST);
     $host = parse_url($url, PHP_URL_HOST);
-    if (!in_array($host, [$self, 'www.zuidwestfm.nl']))
+    if (!in_array($host, [$self, 'www.zuidwestfm.nl'])) {
         return false;
+    }
 
     $postId = url_to_postid($url);
-    if ($postId === 0)
+    if ($postId === 0) {
         return false;
+    }
 
-    if (get_post_type($postId) !== 'post')
+    if (get_post_type($postId) !== 'post') {
         return false;
+    }
 
     return '[zw_embed]' . $url . '[/zw_embed]';
 }
@@ -820,8 +828,9 @@ function zw_embed($atts, $content, $shortcode_tag)
     $url = $content;
 
     $postId = url_to_postid($url);
-    if ($postId === 0)
+    if ($postId === 0) {
         return false;
+    }
 
     $post = Timber::get_post($postId);
     $html = Timber::compile('embed.twig', ['post' => $post]);
@@ -850,7 +859,7 @@ function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $c
             throw new Exception('Error while fetching bunny data: ' . $response['body']);
         }
 
-        $body = json_decode($response['body']);;
+        $body = json_decode($response['body']);
 
         $data = array_merge($data, $body->items);
         if (count($data) >= $body->totalItems) {
@@ -870,8 +879,9 @@ function zw_get_page_by_template($template)
         'meta_value' => $template
     ]);
 
-    if (count($pages) == 0)
+    if (count($pages) == 0) {
         return null;
+    }
 
     return Timber::get_post($pages[0]->ID);
 }
@@ -896,10 +906,10 @@ function zw_sort_fragments_selector($args, $field, $post_id)
  */
 add_filter('cron_schedules', function ($schedules) {
     // add a '10mins' schedule to the existing set
-    $schedules['10mins'] = array(
+    $schedules['10mins'] = [
         'interval' => 10 * 60,
-        'display' => __('Every 10 minutes')
-    );
+        'display' => __('Every 10 minutes', 'streekomroep'),
+    ];
     return $schedules;
 });
 
@@ -964,10 +974,14 @@ function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $vide
         $date = $video->getBroadcastDate();
 
         // Ignore videos with no valid date
-        if (!$date) return false;
+        if (!$date) {
+            return false;
+        }
 
         // Ignore videos with a date in the future
-        if ($date > $now) return false;
+        if ($date > $now) {
+            return false;
+        }
 
         return true;
     });
@@ -986,20 +1000,10 @@ add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
 add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
-class VideoData
-{
-    public $duration;
-    public $description;
-    public $name;
-    public $uploadDate;
-    public $thumbnailUrl;
-    public $contentUrl;
-}
-
 function fragment_get_video($id)
 {
     $fragment = get_post($id);
-    $video = new VideoData();
+    $video = new \Streekomroep\VideoData();
     $video->duration = (int)get_field('fragment_duur', $id, false);
     $video->name = get_the_title($fragment);
     $video->description = get_the_content(null, false, $fragment);
@@ -1014,61 +1018,23 @@ function fragment_get_video($id)
     return $video;
 }
 
-class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
-{
-    public $video;
-
-    public function __construct(VideoData $video)
-    {
-        $this->video = $video;
-    }
-
-    public function generate()
-    {
-        $timespan = $this->video->duration;
-        $hour = floor($timespan / (60 * 60));
-        $min = floor($timespan / 60) % 60;
-        $sec = $timespan % 60;
-
-        return [
-            '@type' => 'VideoObject',
-            '@id' => $this->context->canonical . '#video',
-            "name" => $this->video->name,
-            "description" => $this->video->description,
-            "thumbnailUrl" => [
-                $this->video->thumbnailUrl
-            ],
-            "uploadDate" => $this->video->uploadDate,
-            "duration" => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
-            "isFamilyFriendly" => true,
-            "inLanguage" => 'nl',
-            "contentUrl" => $this->video->contentUrl,
-        ];
-    }
-
-    public function is_needed()
-    {
-        return true;
-    }
-}
-
 /**
  * @param $timber_post
  * @return mixed
  */
 function fragment_get_posts($fragmentID)
 {
-    return Timber::get_posts(array(
+    return Timber::get_posts([
         'post_type' => 'post',
         'ignore_sticky_posts' => true,
-        'meta_query' => array(
-            array(
+        'meta_query' => [
+            [
                 'key' => 'post_gekoppeld_fragment', // name of custom field
                 'value' => '"' . $fragmentID . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
                 'compare' => 'LIKE'
-            )
-        )
-    ));
+            ]
+        ]
+    ]);
 }
 
 function add_custom_schema_piece($pieces, $context)
@@ -1077,7 +1043,7 @@ function add_custom_schema_piece($pieces, $context)
         $type = get_field('fragment_type', false, false);
         if ($type === 'Video') {
             $video = fragment_get_video($context->post->ID);
-            $pieces[] = new VideoObject($video);
+            $pieces[] = new \Streekomroep\VideoObject($video);
         }
     }
 
@@ -1086,12 +1052,14 @@ function add_custom_schema_piece($pieces, $context)
 
 function zw_seo_add_fragment_video($data, $context)
 {
-    if (!is_singular('fragment'))
+    if (!is_singular('fragment')) {
         return $data;
+    }
 
     $type = get_field('fragment_type', false, false);
-    if ($type !== 'Video')
+    if ($type !== 'Video') {
         return $data;
+    }
 
     $data['video'] = [
         ['@id' => $context->canonical . '#video']
@@ -1111,19 +1079,6 @@ function zw_seo_article_add_region($data, $context)
     }
 
     return $data;
-}
-
-class Jetpack_Options
-{
-    public static function get_option_and_ensure_autoload()
-    {
-        return 'rectangular';
-    }
-
-    public static function get_option($option)
-    {
-        return get_option($option);
-    }
 }
 
 /**
@@ -1156,22 +1111,6 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
-
-class ZW_Video_Modified_Time_Presenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
-{
-    public function __construct($date)
-    {
-        $this->date = $date;
-    }
-
-    protected $tag_format = '<meta property="article:modified_time" content="%s" />';
-
-    public function get()
-    {
-        return $this->helpers->date->format($this->date);
-    }
-}
-
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
         $videos = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
@@ -1182,7 +1121,8 @@ add_action('template_redirect', function () {
         $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
         $videos = zw_sort_videos($credentials, $videos);
 
-        $videoId = $_GET['v'];
+        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $videoId = wp_unslash($_GET['v']);
         $video = null;
         foreach ($videos as $item) {
             if ($item->getId() == $videoId) {
@@ -1235,7 +1175,7 @@ add_action('template_redirect', function () {
             add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
                 foreach ($presenters as $i => $presenter) {
                     if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
-                        $presenters[$i] = new ZW_Video_Modified_Time_Presenter($video->getBroadcastDate()->format('c'));
+                        $presenters[$i] = new \Streekomroep\VideoModifiedTimePresenter($video->getBroadcastDate()->format('c'));
                     } else if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
                         unset($presenters[$i]);
                     }
@@ -1251,28 +1191,8 @@ add_action('template_redirect', function () {
                 return $presentation;
             }, 10, 2);
         }
-
     }
 });
-
-class Jetpack
-{
-    public static function get_content_width()
-    {
-        return 672;
-    }
-
-    public static function get_active_modules()
-    {
-        return ['carousel'];
-    }
-}
-
-function jetpack_photon_url($image_url, $args = array(), $scheme = null)
-{
-//    var_dump(__FUNCTION__);
-    return $image_url;
-}
 
 function zw_thumbor($src, $width, $height)
 {
@@ -1280,8 +1200,7 @@ function zw_thumbor($src, $width, $height)
     $salt = get_option('imgproxy_salt');
     $host = get_option('imgproxy_url');
 
-    if (!$host)
-    {
+    if (!$host) {
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
@@ -1295,14 +1214,17 @@ function zw_thumbor($src, $width, $height)
     $height = (int)round($height);
 
     $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
+
+    // @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.ContainsVar
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
-    $keyBin = pack("H*" , $key);
-    $saltBin = pack("H*" , $salt);
+    $keyBin = pack('H*', $key);
+    $saltBin = pack('H*', $salt);
     $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
 
     return $host . $signature . $path;
 }
 
+include 'modules/jetpack.php';
 include 'modules/assets.php';
 include 'modules/tiled-gallery/tiled-gallery.php';

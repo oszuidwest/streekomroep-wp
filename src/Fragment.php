@@ -8,7 +8,6 @@ use Timber\Twig;
 
 class Fragment extends Post
 {
-
     public function region()
     {
         if (!$this->_region) {
@@ -27,8 +26,8 @@ class Fragment extends Post
             return $wp_embed->shortcode([], $this->fragment_url);
         } else if ($this->meta('fragment_type') === 'Audio') {
             return Timber::compile('partial/player-audio-fragment.twig', [
-                    'fragment' => $this]
-            );
+                'fragment' => $this
+            ]);
         }
 
         return null;

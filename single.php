@@ -84,17 +84,18 @@ if ($timber_post->post_type == 'tv') {
     foreach ($videos as $video) {
         $date = $video->getBroadcastDate();
 
-        $year = $date->format('Y');
-        if (!isset($seasons[$year])) {
-            $seasons[$year] = [];
+        $broadcastYear = $date->format('Y');
+        if (!isset($seasons[$broadcastYear])) {
+            $seasons[$broadcastYear] = [];
         }
 
-        $seasons[$year][] = $video;
+        $seasons[$broadcastYear][] = $video;
     }
 
 
     if (isset($_GET['v'])) {
-        $videoId = $_GET['v'];
+        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $videoId = wp_unslash($_GET['v']);
         /** @var \Streekomroep\Video $video */
         $video = null;
         foreach ($videos as $item) {
@@ -105,7 +106,7 @@ if ($timber_post->post_type == 'tv') {
         }
 
         if ($video) {
-            $videoData = new VideoData();
+            $videoData = new \Streekomroep\VideoData();
             $videoData->description = $video->getDescription();
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
@@ -113,7 +114,7 @@ if ($timber_post->post_type == 'tv') {
             $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
-                $pieces[] = new VideoObject($videoData);
+                $pieces[] = new \Streekomroep\VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
@@ -127,12 +128,12 @@ if ($timber_post->post_type == 'tv') {
                 $data['height'] = $height;
                 return $data;
             }, 10, 2);
-            add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData) {
+            add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData, $videoId) {
                 $data['description'] = $video->getDescription();
                 $data['name'] = $videoData->name;
                 $data['datePublished'] = $videoData->uploadDate;
                 $data['dateModified'] = $videoData->uploadDate;
-                $data['url'] .= '?v=' . $_GET['v'];
+                $data['url'] .= '?v=' . $videoId;
                 $data['video'] = [
                     ['@id' => $context->canonical . '#video']
                 ];
@@ -218,5 +219,5 @@ if ($timber_post->post_gekoppeld_fragment) {
 if (post_password_required($timber_post->ID)) {
     Timber::render('single-password.twig', $context);
 } else {
-    Timber::render(array('single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig'), $context);
+    Timber::render(['single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig'], $context);
 }
