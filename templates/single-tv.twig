@@ -14,7 +14,7 @@
             {% if post.meta('tv_show_presentator') %}
                 {% set hosts = [] %}
                 {% for host in post.meta('tv_show_presentator') %}
-                    {% set hosts = hosts|merge([User(host)]) %}
+                    {% set hosts = hosts|merge([get_user(host)]) %}
                 {% endfor %}
                 <p class="text-sm md:text-base text-black dark:text-white">Met {{ hosts|join(', ', ' en ') }}</p>
             {% endif %}
