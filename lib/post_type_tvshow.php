@@ -1,6 +1,6 @@
 <?php
 // Register TV Shows Post Type
-$labels = array(
+$labels = [
     'name'                  => 'TV programma\'s',
     'singular_name'         => 'TV programma',
     'menu_name'             => 'TV programma\'s',
@@ -14,8 +14,8 @@ $labels = array(
     'view_item'             => 'Bekijk programma',
     'view_items'            => 'Bekijk programma',
     'search_items'          => 'Zoek programma\'s',
-);
-$args = array(
+];
+$args = [
     'label'                 => 'TV programma\'s',
     'description'           => 'programma\'s die op TV worden uitgezonden',
     'labels'                => $labels,
@@ -36,5 +36,5 @@ $args = array(
     'show_in_rest'          => true,
     'rest_base'             => 'tv',
     'rewrite'               => [ 'slug' => 'tv', 'with_front' => true ],
-);
+];
 register_post_type('tv', $args);

@@ -18,4 +18,4 @@ if (isset($wp_query->query_vars['author'])) {
     $context['author'] = $author;
     $context['title']  = 'Artikelen geschreven door ' . $author->name();
 }
-Timber::render(array( 'author.twig', 'archive.twig' ), $context);
+Timber::render([ 'author.twig', 'archive.twig' ], $context);

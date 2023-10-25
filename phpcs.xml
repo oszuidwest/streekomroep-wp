@@ -27,6 +27,10 @@
 
     </rule>
 
+    <!-- Make arrays more uniform -->
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing" />
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
     <!-- Indentation -->
     <rule ref="Generic.Arrays.ArrayIndent" />
     <rule ref="Generic.WhiteSpace.ScopeIndent">

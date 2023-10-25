@@ -1,6 +1,6 @@
 <?php
 // Register FM Shows Post Type
-$labels = array(
+$labels = [
     'name'                  => 'FM programma\'s',
     'singular_name'         => 'FM programma',
     'menu_name'             => 'FM programma\'s',
@@ -14,8 +14,8 @@ $labels = array(
     'view_item'             => 'Bekijk programma',
     'view_items'            => 'Bekijk programma\'s',
     'search_items'          => 'Zoek programma\'s',
-);
-$args = array(
+];
+$args = [
     'label'                 => 'FM programma\'s',
     'description'           => 'Programma\'s die op FM worden uitgezonden',
     'labels'                => $labels,
@@ -36,5 +36,5 @@ $args = array(
     'show_in_rest'          => true,
     'rest_base'             => 'fm',
     'rewrite'               => [ 'slug' => 'fm', 'with_front' => true ],
-);
+];
 register_post_type('fm', $args);

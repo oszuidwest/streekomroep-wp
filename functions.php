@@ -149,7 +149,7 @@ require 'fragment-thumbnail.php';
 /**
  * Sets the directories (inside your theme) to find .twig files
  */
-Timber::$dirname = array('templates', 'views');
+Timber::$dirname = ['templates', 'views'];
 
 /**
  * By default, Timber does NOT autoescape values. Want to enable Twig's autoescape?
@@ -222,36 +222,36 @@ if (function_exists('get_field')) {
 }
 
 if (function_exists('acf_add_options_page')) {
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'Radio instellingen',
         'menu_title' => 'Radio instellingen',
         'menu_slug' => 'radio-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-playlist-audio',
         'redirect' => false
-    ));
+    ]);
 }
 
 if (function_exists('acf_add_options_page')) {
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'TV instellingen',
         'menu_title' => 'TV instellingen',
         'menu_slug' => 'tv-instellingen',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-format-video',
         'redirect' => false
-    ));
+    ]);
 }
 
 if (function_exists('acf_add_options_page')) {
-    acf_add_options_page(array(
+    acf_add_options_page([
         'page_title' => 'Desking',
         'menu_title' => 'Desking',
         'menu_slug' => 'desking',
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-layout',
         'redirect' => false
-    ));
+    ]);
 }
 
 function zw_parse_query(WP_Query $query)
@@ -906,10 +906,10 @@ function zw_sort_fragments_selector($args, $field, $post_id)
  */
 add_filter('cron_schedules', function ($schedules) {
     // add a '10mins' schedule to the existing set
-    $schedules['10mins'] = array(
+    $schedules['10mins'] = [
         'interval' => 10 * 60,
         'display' => __('Every 10 minutes', 'streekomroep'),
-    );
+    ];
     return $schedules;
 });
 
@@ -1024,17 +1024,17 @@ function fragment_get_video($id)
  */
 function fragment_get_posts($fragmentID)
 {
-    return Timber::get_posts(array(
+    return Timber::get_posts([
         'post_type' => 'post',
         'ignore_sticky_posts' => true,
-        'meta_query' => array(
-            array(
+        'meta_query' => [
+            [
                 'key' => 'post_gekoppeld_fragment', // name of custom field
                 'value' => '"' . $fragmentID . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
                 'compare' => 'LIKE'
-            )
-        )
-    ));
+            ]
+        ]
+    ]);
 }
 
 function add_custom_schema_piece($pieces, $context)

@@ -1,6 +1,6 @@
 <?php
 // Register Fragment Post Type
-$labels = array(
+$labels = [
     'name'                  => 'Fragmenten',
     'singular_name'         => 'Fragment',
     'menu_name'             => 'Fragmenten',
@@ -14,13 +14,13 @@ $labels = array(
     'view_item'             => 'Bekijk fragment',
     'view_items'            => 'Bekijk fragmenten',
     'search_items'          => 'Zoek fragment',
-);
-$args = array(
+];
+$args = [
     'label'                 => 'Fragment',
     'description'           => 'Nieuwsfragmenten',
     'labels'                => $labels,
-    'supports'              => array( 'title', 'author', 'editor', 'thumbnail', 'comments', 'revisions', 'custom-fields', 'excerpt' ),
-    'taxonomies'            => array( 'category', 'post_tag', 'regio', 'dossier' ),
+    'supports'              => [ 'title', 'author', 'editor', 'thumbnail', 'comments', 'revisions', 'custom-fields', 'excerpt' ],
+    'taxonomies'            => [ 'category', 'post_tag', 'regio', 'dossier' ],
     'hierarchical'          => false,
     'public'                => true,
     'show_ui'               => true,
@@ -36,5 +36,5 @@ $args = array(
     'capability_type'       => 'post',
     'show_in_rest'          => true,
     'rest_base'             => 'fragmenten',
-);
+];
 register_post_type('fragment', $args);

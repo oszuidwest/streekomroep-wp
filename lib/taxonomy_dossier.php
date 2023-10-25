@@ -1,6 +1,6 @@
 <?php
 // Register Dossier Taxonomy
-$labels = array(
+$labels = [
     'name'                       => 'Dossiers',
     'singular_name'              => 'Dossier',
     'menu_name'                  => 'Dossiers',
@@ -11,8 +11,8 @@ $labels = array(
     'update_item'                => 'Update dossier',
     'view_item'                  => 'Bekijk dossier',
     'no_terms'                   => 'Geen dossiers',
-);
-$args = array(
+];
+$args = [
     'labels'                     => $labels,
     'hierarchical'               => true,
     'public'                     => true,
@@ -22,5 +22,5 @@ $args = array(
     'show_tagcloud'              => true,
     'show_in_rest'               => true,
     'rest_base'                  => 'dossier',
-);
-register_taxonomy('dossier', array( 'post', 'fragment' ), $args);
+];
+register_taxonomy('dossier', [ 'post', 'fragment' ], $args);

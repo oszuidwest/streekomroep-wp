@@ -1,6 +1,6 @@
 <?php
 // Register Regio Taxonomy
-$labels = array(
+$labels = [
     'name'                       => 'Regio\'s',
     'singular_name'              => 'Regio',
     'menu_name'                  => 'Regio\'s',
@@ -11,8 +11,8 @@ $labels = array(
     'update_item'                => 'Update regio',
     'view_item'                  => 'Bekijk regio',
     'no_terms'                   => 'Geen regio\'s',
-);
-$args = array(
+];
+$args = [
     'labels'                     => $labels,
     'hierarchical'               => true,
     'public'                     => true,
@@ -23,5 +23,5 @@ $args = array(
     'show_in_rest'               => true,
     'public'                     => true,
     'rest_base'                  => 'regio',
-);
-register_taxonomy('regio', array( 'post', 'fragment' ), $args);
+];
+register_taxonomy('regio', [ 'post', 'fragment' ], $args);
