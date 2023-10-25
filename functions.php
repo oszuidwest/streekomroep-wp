@@ -171,13 +171,15 @@ require_once 'src/VideoObject.php';
 require_once 'src/PushAdapter.php';
 
 // Use default class for all post types, except for pages.
-add_filter('timber/post/classmap', function () {
-    return [
+add_filter('timber/post/classmap', function ($base) {
+    $custom = [
         'post' => \Streekomroep\Post::class,
         'fragment' => \Streekomroep\Fragment::class,
         'fm' => \Streekomroep\Post::class,
         'tv' => \Streekomroep\Post::class,
     ];
+
+    return array_merge($base, $custom);
 });
 
 new \Streekomroep\Site();
