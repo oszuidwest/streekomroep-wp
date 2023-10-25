@@ -12,6 +12,6 @@
 $templates = [ 'search.twig', 'archive.twig', 'index.twig' ];
 
 $context          = Timber::context();
-$context['posts'] = new Timber\PostQuery();
+$context['posts'] = Timber::get_posts();
 
 Timber::render($templates, $context);

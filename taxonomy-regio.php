@@ -1,7 +1,7 @@
 <?php
 
 $context = Timber::context();
-$region = new \Timber\Term(get_queried_object());
+$region = Timber::get_term(get_queried_object());
 $context['region'] = $region;
 
 global $paged;
@@ -11,7 +11,7 @@ if (!isset($paged) || !$paged) {
 }
 
 // TODO: Check if we need to have a custom query here
-$context['news'] = new Timber\PostQuery([
+$context['news'] = Timber::get_posts([
     'post_type' => 'post',
     'ignore_sticky_posts' => true,
     'paged' => $paged,
