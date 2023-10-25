@@ -38,6 +38,6 @@ if (is_day()) {
     array_unshift($templates, 'dossier.twig');
 }
 
-$context['posts'] = new Timber\PostQuery();
+$context['posts'] = Timber::get_posts();
 
 Timber::render($templates, $context);
