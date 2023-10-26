@@ -22,7 +22,7 @@
                         <ul class="mb-4">
                             {% for child in item.children %}
                                 <li>
-                                    <a class="hover:underline focus:underline block py-1{{ child.classes|join(' ') }}" href="{{ child.link }}">{{ child.title }}</a>
+                                    <a class="hover:underline focus:underline block py-1 {{ child.classes|join(' ') }}" href="{{ child.link }}">{{ child.title }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
