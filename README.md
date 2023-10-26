@@ -1,26 +1,25 @@
-
 # The Streekomroep WordPress theme
 
-This is a WordPress theme made for Streekomroep ZuidWest in The Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts.
+This is a WordPress theme made for Streekomroep ZuidWest in the Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts.
 
 ## Installation
 This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
 
-1. Install WordPress 6.1.x
+1. Install WordPress 6.3.x
 2. Install and activate the hard dependencies
 3. Upload the theme to your `wp-content/themes`
 4. Switch to the `streekomroep` theme
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 1.x [Use composer]
+- Timber 2.x [Use composer]
 - Advanced Custom Fields Pro 6.x [[purchace](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor a bit more time to stabilize)_
 - Yoast SEO Premium 21.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These are tested plug-ins and are great additions to the theme:
-- Contact Form 7 5.7.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Contact Form 7 5.8.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x [[free download](https://wordpress.org/plugins/disable-comments/)]
 
 ### Extra funcitonality with first-party plug-ins
