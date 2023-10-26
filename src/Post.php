@@ -26,7 +26,7 @@ class Post extends \Timber\Post
     public function topic()
     {
         if (!$this->_topic) {
-            $topics = $this->get_terms(['query' => ['taxonomy' => 'dossier']]);
+            $topics = $this->terms(['query' => ['taxonomy' => 'dossier']]);
             if (is_array($topics) && count($topics)) {
                 $this->_topic = $topics[0];
             }
