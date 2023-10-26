@@ -5,7 +5,7 @@
 
 $context = Timber::context();
 
-$timber_post = new Timber\Post();
+$timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 $context['schedule'] = new \Streekomroep\BroadcastSchedule();
 $context['fm'] = zw_get_page_by_template('wp-page-fm-guide.php');

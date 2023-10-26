@@ -22,8 +22,7 @@ class Fragment extends Post
     public function getEmbed()
     {
         if ($this->meta('fragment_type') === 'Video') {
-            global $wp_embed;
-            return $wp_embed->shortcode([], $this->fragment_url);
+            return $this->meta('fragment_url');
         } else if ($this->meta('fragment_type') === 'Audio') {
             return Timber::compile('partial/player-audio-fragment.twig', [
                 'fragment' => $this

@@ -3,8 +3,6 @@ name: Build and deploy dev and prod
 on:
   workflow_dispatch:
   push:
-    branches:
-      - '*'
 
 jobs:
   deploy:
@@ -17,7 +15,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
           extensions: curl
           coverage: none
 
@@ -29,7 +27,7 @@ jobs:
       - name: Set-up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install Node dependencies
         run: npm install

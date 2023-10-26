@@ -2,6 +2,7 @@
 
 namespace Streekomroep;
 
+use Timber\Timber;
 use Twig\Extra\Markdown\DefaultMarkdown;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
@@ -56,9 +57,9 @@ class Site extends \Timber\Site
         $context['foo'] = 'bar';
         $context['stuff'] = 'I am a value set in your functions.php file';
         $context['notes'] = 'These values are available everytime you call Timber::context();';
-        $context['mainmenu'] = new \Timber\Menu('main');
-        $context['topmenu'] = new \Timber\Menu('top');
-        $context['footer'] = new \Timber\Menu('footer');
+        $context['mainmenu'] = Timber::get_menu('main');
+        $context['topmenu'] = Timber::get_menu('top');
+        $context['footer'] = Timber::get_menu('footer');
         $context['socials'] = zw_get_socials();
         $context['site'] = $this;
         $context['options'] = get_fields('option');

@@ -4,6 +4,6 @@
  */
 
 $context = Timber::context();
-$context['post'] = new Timber\Post();
+$context['post'] = Timber::get_post();
 
 Timber::render(['search-page.twig'], $context);

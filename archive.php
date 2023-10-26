@@ -34,10 +34,10 @@ if (is_day()) {
     $context['title'] = post_type_archive_title('', false);
     array_unshift($templates, 'archive-' . get_post_type() . '.twig');
 } elseif (is_tax('dossier')) {
-    $context['term'] = new \Timber\Term(get_queried_object());
+    $context['term'] = Timber::get_term(get_queried_object());
     array_unshift($templates, 'dossier.twig');
 }
 
-$context['posts'] = new Timber\PostQuery();
+$context['posts'] = Timber::get_posts();
 
 Timber::render($templates, $context);

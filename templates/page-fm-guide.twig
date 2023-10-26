@@ -31,7 +31,7 @@
                                     {% if broadcast.show.meta('fm_show_presentator') %}
                                         {% set hosts = [] %}
                                         {% for host in broadcast.show.meta('fm_show_presentator') %}
-                                            {% set hosts = hosts|merge([User(host)]) %}
+                                            {% set hosts = hosts|merge([get_user(host)]) %}
                                         {% endfor %}
                                         <p>{{ hosts|join(', ', ' en ') }}</p>
                                     {% endif %}

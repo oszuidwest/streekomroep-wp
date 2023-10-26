@@ -5,7 +5,7 @@ use Streekomroep\Video;
 
 $context = Timber::context();
 
-$timber_post = new Timber\Post();
+$timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
 if ($context['options']['desking_blokken_voorpagina'] === false) {

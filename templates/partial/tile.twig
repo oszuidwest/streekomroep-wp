@@ -2,7 +2,7 @@
 	{% block content %}
 		<code class='text-black dark:text-white'>{{ post.type }}</code>
 		<h2 class="h2 text-black dark:text-white"><a href="{{post.link}}">{{post.title}}</a></h2>
-		<p class='text-black dark:text-gray-200'>{{post.preview}}</p>
+		<p class='text-black dark:text-gray-200'>{{ post.excerpt }}</p>
 		{% if post.get_thumbnail %}
 			<img src="{{post.thumbnail.src}}" alt="{{post.thumbnail.alt}}" />
 		{% endif %}

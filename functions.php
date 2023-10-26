@@ -14,6 +14,7 @@
  * plug-in, you can safely delete this block.
  */
 
+use Timber\Timber;
 use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
 
@@ -24,7 +25,7 @@ const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 $composer_autoload = __DIR__ . '/vendor/autoload.php';
 if (file_exists($composer_autoload)) {
     require_once $composer_autoload;
-    $timber = new Timber\Timber();
+    Timber::init();
 }
 
 /**
@@ -151,12 +152,6 @@ require 'fragment-thumbnail.php';
  */
 Timber::$dirname = ['templates', 'views'];
 
-/**
- * By default, Timber does NOT autoescape values. Want to enable Twig's autoescape?
- * No prob! Just set this value to true
- */
-Timber::$autoescape = false;
-
 require_once 'src/BroadcastDay.php';
 require_once 'src/BroadcastSchedule.php';
 require_once 'src/BunnyCredentials.php';
@@ -176,13 +171,15 @@ require_once 'src/VideoObject.php';
 require_once 'src/PushAdapter.php';
 
 // Use default class for all post types, except for pages.
-add_filter('Timber\PostClassMap', function () {
-    return [
+add_filter('timber/post/classmap', function ($base) {
+    $custom = [
         'post' => \Streekomroep\Post::class,
         'fragment' => \Streekomroep\Fragment::class,
         'fm' => \Streekomroep\Post::class,
         'tv' => \Streekomroep\Post::class,
     ];
+
+    return array_merge($base, $custom);
 });
 
 new \Streekomroep\Site();

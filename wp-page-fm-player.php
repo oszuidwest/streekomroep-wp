@@ -4,7 +4,7 @@
  */
 
 $context = Timber::context();
-$context['post'] = new Timber\Post();
+$context['post'] = Timber::get_post();
 $schedule = new \Streekomroep\BroadcastSchedule();
 $context['current'] = $schedule->getCurrentRadioBroadcast();
 $context['next'] = $schedule->getNextRadioBroadcast();
