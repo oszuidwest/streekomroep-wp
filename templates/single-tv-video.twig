@@ -6,14 +6,44 @@
             <h1 class="mt-6 mb-8 text-4xl lg:text-5xl font-black font-round text-black dark:text-white">{{ video.name }}</h1>
         </div>
 
-        <div class="w-full mx-auto max-w-960 mt-8 mb-6">
+        <div class="w-full mx-auto max-w-960 mt-8 mb-4">
             {{ embed }}
         </div>
 
+        <nav class="w-full mx-auto max-w-960 grid grid-cols-2 gap-2 sm:gap-0 sm:flex justify-between items-center text-black dark:text-white mb-4 px-4 lg:px-0">
+            <div class="flex-1 sm:w-0 flex">
+                {% if older %}
+                    <a href="?v={{ older.id }}" class="inline-flex flex-1 sm:flex-none items-center py-2 px-4 rounded uppercase text-sm font-round font-bold bg-gray-100 dark:bg-gray-700 dark:text-gray-100 text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="mr-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clip-rule="evenodd"></path></svg>
+                        Ouder<span class="hidden sm:inline">e aflevering</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            <a href="{{ post.link }}" class="justify-center order-last sm:order-none col-span-2 inline-flex items-center py-2 px-4 rounded uppercase text-sm font-round font-bold bg-gray-100 dark:bg-gray-700 sm:bg-transparent sm:dark:bg-transparent dark:text-gray-100 text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mr-3 w-5 h-5">
+                    <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h2.25a3 3 0 013 3v2.25a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9.75 0a3 3 0 013-3H18a3 3 0 013 3v2.25a3 3 0 01-3 3h-2.25a3 3 0 01-3-3V6zM3 15.75a3 3 0 013-3h2.25a3 3 0 013 3V18a3 3 0 01-3 3H6a3 3 0 01-3-3v-2.25zm9.75 0a3 3 0 013-3H18a3 3 0 013 3V18a3 3 0 01-3 3h-2.25a3 3 0 01-3-3v-2.25z" clip-rule="evenodd" />
+                </svg>
+                <span class="inline sm:hidden md:inline">Alle afleveringen</span>
+                <span class="hidden sm:inline md:hidden">Overzicht</span>
+            </a>
+
+            <div class="flex-1 sm:w-0 flex justify-end">
+                {% if newer %}
+                    <a href="?v={{ newer.id }}" class="inline-flex justify-end flex-1 sm:flex-none items-center py-2 px-4 rounded uppercase text-sm font-round font-bold bg-gray-100 dark:bg-gray-700 dark:text-gray-100 text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                        Nieuwer<span class="hidden sm:inline">e aflevering</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="ml-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clip-rule="evenodd"></path></svg>
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+
         {% if video.description %}
-            <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
-                <div class="prose dark:prose-invert md:prose-lg max-w-none text-black dark:text-white">
-                    {{ video.description | markdown_to_html }}
+            <div class="border-t border-gray-200/50 dark:border-gray-700/50">
+                <div class="mx-auto max-w-3xl px-4 lg:px-0 py-6">
+                    <div class="prose dark:prose-invert md:prose-lg max-w-none text-black dark:text-white">
+                        {{ video.description | markdown_to_html }}
+                    </div>
                 </div>
             </div>
         {% endif %}
