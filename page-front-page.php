@@ -13,6 +13,7 @@ if ($context['options']['desking_blokken_voorpagina'] === false) {
 }
 
 foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
+    do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
             $block['posts'] = Timber::get_posts([
@@ -212,6 +213,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             ];
             break;
     }
+    do_action('qm/stop', $block['acf_fc_layout']);
 }
 
 
