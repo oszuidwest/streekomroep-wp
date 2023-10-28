@@ -98,9 +98,13 @@ if ($timber_post->post_type == 'tv') {
         $videoId = wp_unslash($_GET['v']);
         /** @var \Streekomroep\Video $video */
         $video = null;
-        foreach ($videos as $item) {
+        $newerVideo = null;
+        $olderVideo = null;
+        foreach ($videos as $i => $item) {
             if ($item->getId() == $videoId) {
                 $video = $item;
+                $newerVideo = $videos[$i - 1] ?? null;
+                $olderVideo = $videos[$i + 1] ?? null;
                 break;
             }
         }
@@ -141,6 +145,8 @@ if ($timber_post->post_type == 'tv') {
             }, 10, 2);
 
             $context['video'] = $video;
+            $context['older'] = $olderVideo;
+            $context['newer'] = $newerVideo;
             $context['embed'] = $wp_embed->shortcode([], $video->getLink());
             Timber::render('single-tv-video.twig', $context);
             return;

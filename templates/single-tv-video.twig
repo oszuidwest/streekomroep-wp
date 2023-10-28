@@ -11,26 +11,32 @@
         </div>
 
         <nav class="w-full mx-auto max-w-960 flex justify-between items-center text-black dark:text-white">
-            <div class="flex-1 w-0 flex">
-                <a href="#" class="inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="mr-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clip-rule="evenodd"></path></svg>
-                    Nieuwere aflevering
-                </a>
-            </div>
+            {% if newer %}
+                <div class="flex-1 w-0 flex">
+                    <a href="?v={{ newer.id }}" class="inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="mr-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clip-rule="evenodd"></path></svg>
+                        Nieuwere aflevering
+                    </a>
+                </div>
+            {% endif %}
 
-            <a href="#" class="inline-flex items-center">
+            <div class="flex-1 w-0 flex justify-center">
+            <a href="{{ post.url }}" class="inline-flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mr-3 w-5 h-5">
                     <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h2.25a3 3 0 013 3v2.25a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9.75 0a3 3 0 013-3H18a3 3 0 013 3v2.25a3 3 0 01-3 3h-2.25a3 3 0 01-3-3V6zM3 15.75a3 3 0 013-3h2.25a3 3 0 013 3V18a3 3 0 01-3 3H6a3 3 0 01-3-3v-2.25zm9.75 0a3 3 0 013-3H18a3 3 0 013 3V18a3 3 0 01-3 3h-2.25a3 3 0 01-3-3v-2.25z" clip-rule="evenodd" />
                 </svg>
                 Alle afleveringen
             </a>
-
-            <div class="flex-1 w-0 flex justify-end">
-                <a href="#" class="inline-flex items-center">
-                    Oudere aflevering
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="ml-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clip-rule="evenodd"></path></svg>
-                </a>
             </div>
+
+            {% if newer %}
+                <div class="flex-1 w-0 flex justify-end">
+                    <a href="?v={{ older.id }}" class="inline-flex items-center">
+                        Oudere aflevering
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="ml-3 h-5 w-5 accent-green-500"><path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clip-rule="evenodd"></path></svg>
+                    </a>
+                </div>
+            {% endif %}
         </nav>
 
         {% if video.description %}
