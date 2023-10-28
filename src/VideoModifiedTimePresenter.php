@@ -2,8 +2,12 @@
 
 namespace Streekomroep;
 
-class VideoModifiedTimePresenter extends \Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter
+use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
+
+class VideoModifiedTimePresenter extends Abstract_Indexable_Tag_Presenter
 {
+    private $date;
+
     public function __construct($date)
     {
         $this->date = $date;
