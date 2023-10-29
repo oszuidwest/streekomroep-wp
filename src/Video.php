@@ -46,7 +46,7 @@ class Video
             $broadcast_date = $this->yaml['broadcast_date'];
             if (is_int($broadcast_date)) {
                 // Re-parse broadcast date with the currently configured timezone
-                $broadcast_date = date('Y-m-dTH:i:s', $broadcast_date);
+                $broadcast_date = date('Y-m-d\TH:i:s', $broadcast_date);
             }
 
             try {
