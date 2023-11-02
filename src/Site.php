@@ -46,6 +46,7 @@ class Site extends \Timber\Site
     {
         include(get_template_directory() . '/lib/taxonomy_dossier.php');
         include(get_template_directory() . '/lib/taxonomy_regio.php');
+        include(get_template_directory() . '/lib/taxonomy_ranking.php');
     }
 
     /** This is where you add some context
