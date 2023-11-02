@@ -22,11 +22,12 @@ foreach ($rawRankings as $rawRanking) {
     $rankings[$rawRanking] = unserialize($rawRanking);
 }
 
-function zw_get_rankings_containing($list, ...$rankings) {
-    $out=[];
+function zw_get_rankings_containing($list, ...$rankings)
+{
+    $out = [];
     foreach ($list as $serialized => $unserialized) {
         foreach ($unserialized as $value) {
-            if(in_array($value, $rankings)) {
+            if (in_array($value, $rankings)) {
                 $out[] = $serialized;
                 break;
             }
@@ -49,7 +50,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'meta_query' => [
                     [
                         'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rawRankings, 2),
+                        'value' => zw_get_rankings_containing($rankings, 2),
                         'compare' => 'IN',
                     ]
                 ]
@@ -147,7 +148,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     'relation' => 'AND',
                     [
                         'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rawRankings, 2, 6),
+                        'value' => zw_get_rankings_containing($rankings, 2, 6),
                         'compare' => 'NOT IN',
                     ]
                 ]
