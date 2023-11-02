@@ -685,12 +685,13 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     if ($id === null) {
         return $url;
     }
-    $field = get_field('gebruiker_profielfoto', 'user_' . $id);
-    if ($field === null || $field === false) {
+
+    $imageId = get_field('gebruiker_profielfoto', 'user_' . $id);
+    if (!$imageId) {
         return $url;
     }
 
-    $src = wp_get_attachment_image_src($field['id'], [$args['size'], $args['size']]);
+    $src = wp_get_attachment_image_src($imageId, [$args['size'], $args['size']]);
     return $src[0];
 }
 
