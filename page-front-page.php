@@ -12,6 +12,31 @@ if ($context['options']['desking_blokken_voorpagina'] === false) {
     $context['options']['desking_blokken_voorpagina'] = [];
 }
 
+// Get all post_ranking values
+global $wpdb;
+$rawRankings = $wpdb->get_col("SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+			WHERE pm.meta_key = 'post_ranking' 
+			GROUP BY pm.meta_value");
+$rankings = [];
+foreach ($rawRankings as $rawRanking) {
+    $rankings[$rawRanking] = unserialize($rawRanking);
+}
+
+function zw_get_rankings_containing($list, ...$rankings) {
+    $out=[];
+    foreach ($list as $serialized => $unserialized) {
+        foreach ($unserialized as $value) {
+            if(in_array($value, $rankings)) {
+                $out[] = $serialized;
+                break;
+            }
+        }
+    }
+
+    return $out;
+}
+
+
 foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
@@ -24,8 +49,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'meta_query' => [
                     [
                         'key' => 'post_ranking',
-                        'value' => '2',
-                        'compare' => 'LIKE',
+                        'value' => zw_get_rankings_containing($rawRankings, 2),
+                        'compare' => 'IN',
                     ]
                 ]
             ]);
@@ -122,14 +147,9 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     'relation' => 'AND',
                     [
                         'key' => 'post_ranking',
-                        'value' => '2',
-                        'compare' => 'NOT LIKE',
-                    ],
-                    [
-                        'key' => 'post_ranking',
-                        'value' => '6',
-                        'compare' => 'NOT LIKE',
-                    ],
+                        'value' => zw_get_rankings_containing($rawRankings, 2, 6),
+                        'compare' => 'NOT IN',
+                    ]
                 ]
             ]);
             break;
