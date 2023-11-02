@@ -196,11 +196,16 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'hide_empty' => true,
             ]);
 
+            // Filter out terms with less than $count items
             $minCount = 2;
+            $block['terms'] = array_filter($block['terms'], function ($term) use ($minCount) {
+                return $term->count >= $minCount;
+            });
+
             foreach ($block['terms'] as $dossierTerm) {
                 $dossierTerm->posts = Timber::get_posts([
                     'ignore_sticky_posts' => true,
-                    'posts_per_page' => $minCount,
+                    'posts_per_page' => 1,
 
                     'tax_query' => [
                         [
@@ -210,11 +215,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     ],
                 ]);
             }
-
-            // Filter out terms with less than $count items
-            $block['terms'] = array_filter($block['terms'], function ($term) use ($minCount) {
-                return count($term->posts) == $minCount;
-            });
 
             // Sort on most recent post
             usort($block['terms'], function ($lhs, $rhs) {
