@@ -72,13 +72,7 @@ if ($region && !isset($context['topical'])) {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $videos = get_post_meta($timber_post->ID, ZW_TV_META_VIDEOS, true);
-    if (!is_array($videos)) {
-        $videos = [];
-    }
-
-    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
-    $videos = zw_sort_videos($credentials, $videos);
+    $videos = zw_get_tv_episodes($timber_post->ID);
 
     $seasons = [];
     foreach ($videos as $video) {

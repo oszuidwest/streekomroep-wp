@@ -390,12 +390,7 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 $data = [];
-                $videos = get_post_meta($post_arr['id'], ZW_TV_META_VIDEOS, true);
-                if (!is_array($videos)) {
-                    $videos = [];
-                }
-                $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
-                $videos = zw_sort_videos($credentials, $videos);
+                $videos = zw_get_tv_episodes($post_arr['id']);
 
                 foreach ($videos as $video) {
                     $d = [];
@@ -1110,13 +1105,7 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
-        $videos = get_post_meta(get_the_ID(), ZW_TV_META_VIDEOS, true);
-        if (!is_array($videos)) {
-            $videos = [];
-        }
-
-        $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
-        $videos = zw_sort_videos($credentials, $videos);
+        $videos = zw_get_tv_episodes(get_the_ID());
 
         // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $videoId = wp_unslash($_GET['v']);
@@ -1220,6 +1209,19 @@ function zw_thumbor($src, $width, $height)
     $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
 
     return $host . $signature . $path;
+}
+
+function zw_get_tv_episodes($id)
+{
+    $videos = get_post_meta($id, ZW_TV_META_VIDEOS, true);
+    if (!is_array($videos)) {
+        $videos = [];
+    }
+
+    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+    $videos = zw_sort_videos($credentials, $videos);
+
+    return $videos;
 }
 
 include 'modules/jetpack.php';

@@ -40,4 +40,16 @@ if (is_day()) {
 
 $context['posts'] = Timber::get_posts();
 
+if (is_post_type_archive() && get_post_type() === 'tv') {
+    $context['posts'] = $context['posts']->to_array();
+    foreach ($context['posts'] as $show) {
+        $videos = zw_get_tv_episodes($show->id);
+        $show->lastBroadcast = isset($videos[0]) ? $videos[0]->getBroadcastDate() : null;
+    }
+
+    usort($context['posts'], function ($lhs, $rhs) {
+        return $rhs->lastBroadcast <=> $lhs->lastBroadcast;
+    });
+}
+
 Timber::render($templates, $context);
