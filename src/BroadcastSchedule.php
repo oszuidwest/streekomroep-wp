@@ -16,11 +16,22 @@ class BroadcastSchedule
     {
         $this->days = [];
 
+        $scheduleStart = new DateTime('now', wp_timezone());
+        $scheduleStart->setTime(0, 0);
+        $scheduleEnd = clone $scheduleStart;
+        $scheduleEnd->add(new \DateInterval('P6D'));
+
         foreach (get_field('tv_week', 'option') as $week) {
             $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'], wp_timezone());
             $start->setTime(0, 0);
+            if ($start < $scheduleStart) {
+                $start = $scheduleStart;
+            }
             $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'], wp_timezone());
             $end->setTime(0, 0);
+            if ($end > $scheduleEnd) {
+                $end = $scheduleEnd;
+            }
 
             $date = clone $start;
             while ($date <= $end) {
@@ -49,13 +60,8 @@ class BroadcastSchedule
             'ignore_sticky_posts' => true,
         ]);
 
-        $start = new DateTime('now', wp_timezone());
-        $start->setTime(0, 0);
-        $end = clone $start;
-        $end->add(new \DateInterval('P6D'));
-
-        $date = clone $start;
-        while ($date <= $end) {
+        $date = clone $scheduleStart;
+        while ($date <= $scheduleEnd) {
             $day = $this->getBroadcastDay($date); // Make sure day gets created
             $date->add(new \DateInterval('P1D'));
         }
