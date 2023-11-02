@@ -14,9 +14,11 @@ if ($context['options']['desking_blokken_voorpagina'] === false) {
 
 // Get all post_ranking values
 global $wpdb;
-$rawRankings = $wpdb->get_col("SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
-			WHERE pm.meta_key = 'post_ranking' 
-			GROUP BY pm.meta_value");
+$rawRankings = $wpdb->get_col(<<<SQL
+SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+WHERE pm.meta_key = 'post_ranking' 
+GROUP BY pm.meta_value
+SQL);
 $rankings = [];
 foreach ($rawRankings as $rawRanking) {
     $rankings[$rawRanking] = unserialize($rawRanking);

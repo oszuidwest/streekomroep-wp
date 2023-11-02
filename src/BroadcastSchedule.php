@@ -24,7 +24,7 @@ class BroadcastSchedule
         foreach (get_field('tv_week', 'option') as $week) {
             $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'], wp_timezone());
             $start->setTime(0, 0);
-            if($start < $scheduleStart) {
+            if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
             $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'], wp_timezone());
