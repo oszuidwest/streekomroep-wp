@@ -46,13 +46,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'post_status' => 'publish',
                 'posts_per_page' => 3,
                 'ignore_sticky_posts' => true,
-                'meta_query' => [
+                'tax_query' => [
                     [
-                        'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rankings, 2),
-                        'compare' => 'IN',
-                    ]
-                ]
+                        'taxonomy' => 'rank',
+                        'field' => 'slug',
+                        'terms' => 'top-story',
+                    ],
+                ],
             ]);
             break;
 
@@ -143,13 +143,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
                 'ignore_sticky_posts' => true,
-                'meta_query' => [
-                    'relation' => 'AND',
+                'tax_query' => [
                     [
-                        'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rankings, 2, 6),
-                        'compare' => 'NOT IN',
-                    ]
+                        'taxonomy' => 'rank',
+                        'field' => 'slug',
+                        'operator' => 'NOT IN',
+                        'terms' => ['top-story', 'achterkant'],
+                    ],
                 ]
             ]);
             break;
