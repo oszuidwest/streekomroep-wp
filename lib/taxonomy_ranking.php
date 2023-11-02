@@ -18,7 +18,10 @@ $args = [
     'public' => false,
     'show_ui' => true,
     'show_in_nav_menus' => true,
-    'rewrite'=>false,
+    'rewrite' => false,
+    'default_term' => [
+        'name' => 'Nieuws'
+    ],
     'meta_box_cb' => 'post_categories_meta_box', // re-use category checkbox list
 ];
 register_taxonomy('rank', ['post'], $args);
