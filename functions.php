@@ -1093,14 +1093,20 @@ function zw_remove_wp_block_library_css()
     wp_dequeue_style('wc-block-style');
 }
 
+add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
+
+/**
+ * Add VideoJS player
+ * This function enqueues the JS and CSS for VideoJS, which is used for livestreams, on-demand video's and fragments
+ */
 function zw_add_videojs()
 {
     wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js');
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js');
+     // TODO: Can we defer loading of the css too?
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
-add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 
