@@ -1103,8 +1103,11 @@ function zw_add_videojs()
 {
     wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video-js.min.css');
      // TODO: Can we defer loading of the css too?
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js', args:['strategy'  => 'defer']);
+    // wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js', args:['strategy'  => 'defer']);
+    // wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js', args:['strategy'  => 'defer']);
+    // TODO: Prevent CLS when loading VJS defer
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video.min.js');
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/lang/nl.min.js');
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
