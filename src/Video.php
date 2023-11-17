@@ -132,4 +132,9 @@ class Video
 
         return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
     }
+
+    public function getAspectRatio(): float
+    {
+        return $this->data->width / $this->data->height;
+    }
 }

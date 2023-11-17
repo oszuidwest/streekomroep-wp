@@ -136,12 +136,14 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $out = '';
 
+    $out = sprintf('<div style="aspect-ratio: %f;">', $video->getAspectRatio());
     $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($video->getPlaylistUrl()) . '" type="application/x-mpegURL">';
     $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
     $out .= '</video>';
+    $out .= '</div>';
 
     return $out;
 }
