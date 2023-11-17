@@ -93,7 +93,7 @@ class BroadcastSchedule
 
         $fillerTitle = get_field('radio_geen_programma_naam', 'option');
         foreach ($this->days as $day) {
-            $time = (new Carbon($day->date))->setTime(0,0,0);
+            $time = (new Carbon($day->date))->setTime(0, 0, 0);
             $newBroadcasts = [];
             foreach ($day->radio as $broadcast) {
                 if ($broadcast->start != $time) {
