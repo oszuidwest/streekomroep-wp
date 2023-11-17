@@ -162,14 +162,11 @@ class BroadcastSchedule
 
     public function getCurrentRadioBroadcast()
     {
-        $now = new DateTime('now', wp_timezone());
-        $hour = intval($now->format('G'));
+        $now = Carbon::now(wp_timezone());
 
         $today = $this->getToday();
         foreach ($today->radio as $broadcast) {
-            $startHour = intval(substr($broadcast->start, 0, 2));
-            $endHour = intval(substr($broadcast->end, 0, 2));
-            if ($hour >= $startHour && $hour < $endHour) {
+            if ($now->isBetween($broadcast->start, $broadcast->end)) {
                 return $broadcast;
             }
         }
