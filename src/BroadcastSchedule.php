@@ -103,7 +103,7 @@ class BroadcastSchedule
             }
 
             if (!$time->isEndOfDay()) {
-                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $time->endOfDay());
+                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $time->copy()->endOfDay());
             }
 
             foreach ($newBroadcasts as $broadcast) {
