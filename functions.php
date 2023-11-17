@@ -136,12 +136,14 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $out = '';
 
-    $out .= '<video class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" controls';
+    $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
+    $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" data-setup="{}" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
     $out .= '>';
     $out .= '<source src="' . htmlspecialchars($video->getPlaylistUrl()) . '" type="application/x-mpegURL">';
     $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
     $out .= '</video>';
+    $out .= '</div>';
 
     return $out;
 }
@@ -1098,13 +1100,10 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
  */
 function zw_add_videojs()
 {
+    // TODO: Defer loading of Video.js CSS
     wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video-js.min.css');
-     // TODO: Can we defer loading of the css too?
-    // wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/video.min.js', args:['strategy'  => 'defer']);
-    // wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.5.2/lang/nl.min.js', args:['strategy'  => 'defer']);
-    // TODO: Prevent CLS when loading VJS defer
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video.min.js');
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/lang/nl.min.js');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
