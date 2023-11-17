@@ -136,7 +136,7 @@ function zw_filter_pre_oembed_result($default, $url, $args)
 
     $out = '';
 
-    $out = sprintf('<div style="aspect-ratio: %f;">', $video->getAspectRatio());
+    $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
     $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" data-setup="{}" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
     $out .= '>';
