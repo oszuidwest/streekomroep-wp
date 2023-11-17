@@ -93,7 +93,7 @@ class BroadcastSchedule
 
         $fillerTitle = get_field('radio_geen_programma_naam', 'option');
         foreach ($this->days as $day) {
-            $time = '00:00:00';
+            $time = (new Carbon($day->date))->setTime(0,0,0);
             $newBroadcasts = [];
             foreach ($day->radio as $broadcast) {
                 if ($broadcast->start != $time) {
@@ -102,8 +102,8 @@ class BroadcastSchedule
                 $time = $broadcast->end;
             }
 
-            if ($time != '24:00:00') {
-                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, '24:00:00');
+            if (!$time->isEndOfDay()) {
+                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $time->endOfDay());
             }
 
             foreach ($newBroadcasts as $broadcast) {
