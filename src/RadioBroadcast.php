@@ -2,7 +2,7 @@
 
 namespace Streekomroep;
 
-use Timber\Timber;
+use Carbon\Carbon;
 
 class RadioBroadcast
 {
@@ -11,23 +11,24 @@ class RadioBroadcast
     /** @var \Timber\Post */
     public $show;
 
-    public $startTime;
-    public $endTime;
+    public Carbon $start;
+    public Carbon $end;
 
-    public function __construct($show, $startTime, $endTime)
+    public function __construct($show, Carbon $start, Carbon $end)
     {
         if (is_string($show)) {
             $this->title = $show;
         } else {
             $this->show = $show;
         }
-        $this->startTime = $startTime;
-        $this->endTime = $endTime;
+
+        $this->start = $start;
+        $this->end = $end;
     }
 
     public static function sort(RadioBroadcast $lhs, RadioBroadcast $rhs)
     {
-        return strcmp($lhs->startTime, $rhs->startTime);
+        return $lhs->start <=> $rhs->start;
     }
 
     public function getName()
