@@ -24,7 +24,7 @@
                                 <i class="absolute left-0 block w-4 mt-1">
                                     <div class="w-2 h-2 m-1 bg-roze rounded-full"></div>
                                 </i>
-                                {{ broadcast.startTime|date('H:i') }}</time>
+                                {{ broadcast.start|date('H:i') }}</time>
                             {% if broadcast.show %}
                                 <a class="block hover:underline text-black dark:text-gray-200" href="{{ broadcast.show.link }}">
                                     <span class="block font-bold">{{ broadcast.show.title }}</span>

@@ -2,6 +2,7 @@
 
 namespace Streekomroep;
 
+use Carbon\Carbon;
 use Cassandra\Date;
 use DateTime;
 use DateTimeImmutable;
@@ -82,24 +83,27 @@ class BroadcastSchedule
                     if (!in_array($dayname, $rule['fm_show_dagen'])) {
                         continue;
                     }
-                    $day->add(new RadioBroadcast($show, $rule['fm_show_starttijd'], $rule['fm_show_eindtijd']));
+
+                    $start = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_starttijd']);
+                    $end = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_eindtijd']);
+                    $day->add(new RadioBroadcast($show, $start, $end));
                 }
             }
         }
 
         $fillerTitle = get_field('radio_geen_programma_naam', 'option');
         foreach ($this->days as $day) {
-            $time = '00:00:00';
+            $time = (new Carbon($day->date))->setTime(0, 0, 0);
             $newBroadcasts = [];
             foreach ($day->radio as $broadcast) {
-                if ($broadcast->startTime != $time) {
-                    $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $broadcast->startTime);
+                if ($broadcast->start != $time) {
+                    $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $broadcast->start);
                 }
-                $time = $broadcast->endTime;
+                $time = $broadcast->end;
             }
 
-            if ($time != '24:00:00') {
-                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, '24:00:00');
+            if (!$time->isEndOfDay()) {
+                $newBroadcasts[] = new RadioBroadcast($fillerTitle, $time, $time->copy()->endOfDay());
             }
 
             foreach ($newBroadcasts as $broadcast) {
@@ -158,14 +162,11 @@ class BroadcastSchedule
 
     public function getCurrentRadioBroadcast()
     {
-        $now = new DateTime('now', wp_timezone());
-        $hour = intval($now->format('G'));
+        $now = Carbon::now(wp_timezone());
 
         $today = $this->getToday();
         foreach ($today->radio as $broadcast) {
-            $startHour = intval(substr($broadcast->startTime, 0, 2));
-            $endHour = intval(substr($broadcast->endTime, 0, 2));
-            if ($hour >= $startHour && $hour < $endHour) {
+            if ($now->isBetween($broadcast->start, $broadcast->end)) {
                 return $broadcast;
             }
         }

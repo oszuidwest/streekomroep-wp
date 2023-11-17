@@ -14,6 +14,7 @@
  * plug-in, you can safely delete this block.
  */
 
+use Timber\PostCollectionInterface;
 use Timber\Timber;
 use Streekomroep\Video;
 use Yoast\WP\SEO\Config\Schema_IDs;
@@ -336,7 +337,7 @@ function zw_rest_api_init()
                 $posts = fragment_get_posts($post_arr['id']);
                 return array_map(function ($post) {
                     return $post->id;
-                }, $posts);
+                }, $posts->to_array());
             },
         ]
     );
@@ -1011,10 +1012,6 @@ function fragment_get_video($id)
     return $video;
 }
 
-/**
- * @param $timber_post
- * @return mixed
- */
 function fragment_get_posts($fragmentID)
 {
     return Timber::get_posts([
