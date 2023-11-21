@@ -1,3 +1,4 @@
+
 # The Streekomroep WordPress theme
 
 This is a WordPress theme made for Streekomroep ZuidWest in the Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts.
@@ -19,20 +20,20 @@ Use `apt` or `yum` instead of Homebrew if you use Linux. This theme was never bu
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.x [Use composer]
-- Advanced Custom Fields Pro 6.x [[purchace](https://www.advancedcustomfields.com/pro/)]
+- Timber 2.0 [Use composer](https://timber.github.io/docs/v2/installation/installation/)
+- Advanced Custom Fields Pro 6.2.x [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor a bit more time to stabilize)_
-- Yoast SEO Premium 21.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 21.x [[purchase](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These are tested plug-ins and are great additions to the theme:
 - Contact Form 7 5.8.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x [[free download](https://wordpress.org/plugins/disable-comments/)]
 
-## Extra funcitonality with first-party plug-ins
-There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed seperately:
-- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: adds push messages and functionallity for a progressive web app using the service Progressier.
-- Tekst TV GPT [[on Github](https://github.com/oszuidwest/teksttvgpt)]: adds a button that generates 'tekst tv' summaries for articles using the OpenAI GPT-models.
+## Extra functionality with first-party plug-ins
+There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed separately:
+- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: adds push messages and functionality for a progressive web app using the service Progressier.
+- Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: adds a button that generates 'tekst tv' summaries for articles using the OpenAI GPT-models.
 
 ## What's here?
 `static/` is where you can keep your static front-end scripts, styles, or images. In other words, your Sass files, JS files, fonts, and SVGs would live here.
