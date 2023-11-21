@@ -10,10 +10,10 @@ Instructions for macOS:
 - Download the theme from GitHub to a local folder
 - Open the folder in a terminal and execute the following commands:
 
-\```bash
+```bash
 NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
-\```
+```
 - Upload the theme to `/wp-content/themes/` and activate it.
 
 For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
