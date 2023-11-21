@@ -165,6 +165,7 @@ require_once 'src/Post.php';
 require_once 'src/Fragment.php';
 require_once 'src/RadioBroadcast.php';
 require_once 'src/SafeObject.php';
+require_once 'src/InputSanitizer.php';
 require_once 'src/Site.php';
 require_once 'src/TelevisionBroadcast.php';
 require_once 'src/Video.php';
