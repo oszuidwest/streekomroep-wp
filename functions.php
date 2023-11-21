@@ -25,7 +25,7 @@ const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 require __DIR__ . '/vendor/autoload.php';
 
-if (class_exists('Timber')) {
+if (class_exists('Timber\Timber')) {
     Timber::init();
 }
 
@@ -33,7 +33,7 @@ if (class_exists('Timber')) {
  * This ensures that Timber is loaded and available as a PHP class.
  * If not, it gives an error message to help direct developers on where to activate
  */
-if (!class_exists('Timber')) {
+if (!class_exists('Timber\Timber')) {
     add_action(
         'admin_notices',
         function () {
