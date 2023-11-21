@@ -1,3 +1,5 @@
+<?php
+
 /**
  * Sanitizes post content to remove unwanted HTML elements.
  *
