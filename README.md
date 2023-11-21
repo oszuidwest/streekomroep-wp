@@ -29,7 +29,7 @@ These are tested plug-ins and are great additions to the theme:
 - Contact Form 7 5.8.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x [[free download](https://wordpress.org/plugins/disable-comments/)]
 
-### Extra funcitonality with first-party plug-ins
+## Extra funcitonality with first-party plug-ins
 There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed seperately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: adds push messages and functionallity for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on Github](https://github.com/oszuidwest/teksttvgpt)]: adds a button that generates 'tekst tv' summaries for articles using the OpenAI GPT-models.
