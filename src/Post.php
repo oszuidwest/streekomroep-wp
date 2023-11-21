@@ -2,7 +2,6 @@
 
 namespace Streekomroep;
 
-use Timber\Term;
 use Timber\Timber;
 
 class Post extends \Timber\Post

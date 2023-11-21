@@ -2,9 +2,7 @@
 
 namespace Streekomroep;
 
-use Timber\Term;
 use Timber\Timber;
-use Timber\Twig;
 
 class Fragment extends Post
 {

@@ -3,7 +3,6 @@
 namespace Streekomroep;
 
 use Carbon\Carbon;
-use Cassandra\Date;
 use DateTime;
 use DateTimeImmutable;
 use Timber;
