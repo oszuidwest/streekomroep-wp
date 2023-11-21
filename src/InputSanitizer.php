@@ -12,7 +12,8 @@
  *
  * @return array Sanitized data with only allowed HTML elements.
  */
-function zw_sanitize_post_content( array $data, array $postarr ) : array {
+function zw_sanitize_post_content(array $data, array $postarr): array
+{
     // Define allowed HTML elements and attributes.
     $allowed_elements = [
         'a'          => [
@@ -63,11 +64,11 @@ function zw_sanitize_post_content( array $data, array $postarr ) : array {
     ];
 
     // Validate and sanitize post content.
-    if ( isset( $data['post_content'] ) ) {
-        $data['post_content'] = wp_kses( $data['post_content'], $allowed_elements );
+    if (isset($data['post_content'])) {
+        $data['post_content'] = wp_kses($data['post_content'], $allowed_elements);
     }
 
     return $data;
 }
 
-add_filter( 'wp_insert_post_data', 'zw_sanitize_post_content', 10, 2 );
+add_filter('wp_insert_post_data', 'zw_sanitize_post_content', 10, 2);
