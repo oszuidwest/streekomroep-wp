@@ -3,8 +3,8 @@
 {% block content %}
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         <div class="flex flex-col items-center">
-            <img src="{{ author.avatar|thumbor(32, 32) }}"
-                 srcset="{{ author.avatar|thumbor(32*2, 32*2) }} 2x"
+            <img src="{{ author.avatar|thumbor(96, 96) }}"
+                 srcset="{{ author.avatar|thumbor(96*2, 96*2) }} 2x"
                  alt="{{ author.name }}" class="h-24 w-24 rounded">
             <h1 class="font-bold text-3xl my-2 text-gray-800 dark:text-white">{{ author.name }}</h1>
             <p class="text-gray-800 dark:text-white mb-8 max-w-[60ch] text-center">{{ author.description }}</p>
