@@ -1,7 +1,4 @@
-{% extends "base.twig" %}
+{% extends "index.twig" %}
 
 {% block content %}
-	{% for post in posts %}
-		{% include ["partial/tile-"~post.post_type~".twig", "partial/tile.twig"] %}
-	{% endfor %}
 {% endblock %}
