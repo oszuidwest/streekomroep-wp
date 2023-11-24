@@ -20,7 +20,7 @@ For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.0: [Use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Timber 2.0: [[Use composer](https://timber.github.io/docs/v2/installation/installation/)]
 - Advanced Custom Fields Pro 6.2.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
 - Yoast SEO Premium 21.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
