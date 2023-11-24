@@ -1,5 +1,19 @@
 {% extends "index.twig" %}
 
 {% block content %}
-    {{ parent() }}
+    <div class="w-full mx-auto max-w-960 py-4 px-4">
+        <img src="{{ author.avatar|thumbor(32, 32) }}"
+             srcset="{{ author.avatar|thumbor(32*2, 32*2) }} 2x"
+             alt="{{ author.name }}" class="h-8 w-8 rounded">
+        <h1 class="font-bold text-3xl pb-4 text-gray-800 dark:text-white">{{ author.name }}</h1>
+        <p>{{ author.description }}</p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for post in posts %}
+                {% include 'partial/tile-post.twig' with { post: post } %}
+            {% endfor %}
+        </div>
+
+        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+    </div>
 {% endblock %}
