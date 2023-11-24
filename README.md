@@ -1,40 +1,11 @@
-# The Streekomroep WordPress theme
 
-This is a WordPress theme made for Streekomroep ZuidWest in the Netherlands. It's made using Timber and Tailwind CSS and provides functionality for regional news, radio and tv broadcasts.
+# The Streekomroep WordPress Theme
 
-## Installation
-This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
-
-1. Install WordPress 6.3.x
-2. Install and activate the hard dependencies
-3. Upload the theme to your `wp-content/themes`
-4. Switch to the `streekomroep` theme
-
-### Hard dependencies
-Install these before activating the theme:
-- Timber 2.x [Use composer]
-- Advanced Custom Fields Pro 6.x [[purchace](https://www.advancedcustomfields.com/pro/)]
-- Classic Editor 1.x [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor a bit more time to stabilize)_
-- Yoast SEO Premium 21.x [[purchace](https://yoast.com/wordpress/plugins/seo/)]
-
-### Soft dependencies
-These are tested plug-ins and are great additions to the theme:
-- Contact Form 7 5.8.x [[free download](https://wordpress.org/plugins/contact-form-7/)]
-- Disable Comments 2.x [[free download](https://wordpress.org/plugins/disable-comments/)]
-
-### Extra funcitonality with first-party plug-ins
-There are some first party plug-ins developed by Streekomroep ZuidWest that add extra functionality to this theme. They are optional and can be installed seperately:
-- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: adds push messages and functionallity for a progressive web app using the service Progressier.
-- Tekst TV GPT [[on Github](https://github.com/oszuidwest/teksttvgpt)]: adds a button that generates 'tekst tv' summaries for articles using the OpenAI GPT-models.
-
-## What's here?
-`static/` is where you can keep your static front-end scripts, styles, or images. In other words, your Sass files, JS files, fonts, and SVGs would live here.
-
-`templates/` contains all of your Twig templates. These pretty much correspond 1 to 1 with the PHP files that respond to the WordPress template hierarchy. At the end of each PHP template, you'll notice a `Timber::render()` function whose first parameter is the Twig file where that data (or `$context`) will be used. Just an FYI.
+This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts.
 
 ## How to build/install
 Instructions for macOS:
-- Install Homebrew (https://brew.sh)
+- Install Homebrew ([https://brew.sh](https://brew.sh))
 - Install Composer and Node with `brew install composer node`
 - Download the theme from GitHub to a local folder
 - Open the folder in a terminal and execute the following commands:
@@ -45,4 +16,26 @@ composer install --prefer-dist --no-dev --optimize-autoloader
 ```
 - Upload the theme to `/wp-content/themes/` and activate it.
 
-Use `apt` or `yum` instead of Homebrew if you use Linux. This theme was never built on Windows, but you should be able to do so if your Composer and Node version are somewhat up-to-date. If you don't want to build it locally, we suggest using GitHub Actions or [Buddy CI/CD](https://buddy.works/) to handle the building and uploading.
+For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
+
+### Hard dependencies
+Install these before activating the theme:
+- Timber 2.0: [Use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Advanced Custom Fields Pro 6.2.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
+- Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
+- Yoast SEO Premium 21.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
+
+### Soft dependencies
+These tested plugins enhance the theme:
+- Contact Form 7 5.8.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Disable Comments 2.x: [[free download](https://wordpress.org/plugins/disable-comments/)]
+
+## Extra functionality with first-party plugins
+Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
+- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
+- Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
+
+## What's here?
+`static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.
+
+`templates/`: Contains all Twig templates, corresponding closely with the PHP files in the WordPress template hierarchy. Each PHP template ends with a `Timber::render()` function, linking to the Twig file where the data (or `$context`) is used.

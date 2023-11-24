@@ -15,6 +15,11 @@
       "url": "https://wpackagist.org"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Streekomroep\\": "src/"
+    }
+  },
   "require": {
     "ext-dom": "*",
     "ext-fileinfo": "*",

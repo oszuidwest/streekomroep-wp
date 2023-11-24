@@ -23,9 +23,9 @@ const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
-$composer_autoload = __DIR__ . '/vendor/autoload.php';
-if (file_exists($composer_autoload)) {
-    require_once $composer_autoload;
+require __DIR__ . '/vendor/autoload.php';
+
+if (class_exists('Timber\Timber')) {
     Timber::init();
 }
 
@@ -33,7 +33,7 @@ if (file_exists($composer_autoload)) {
  * This ensures that Timber is loaded and available as a PHP class.
  * If not, it gives an error message to help direct developers on where to activate
  */
-if (!class_exists('Timber')) {
+if (!class_exists('Timber\Timber')) {
     add_action(
         'admin_notices',
         function () {
@@ -155,23 +155,8 @@ require 'fragment-thumbnail.php';
  */
 Timber::$dirname = ['templates', 'views'];
 
-require_once 'src/BroadcastDay.php';
-require_once 'src/BroadcastSchedule.php';
-require_once 'src/BunnyCredentials.php';
-require_once 'src/BunnyMeta.php';
-require_once 'src/BunnyVideo.php';
-require_once 'src/BunnyVideoId.php';
-require_once 'src/Post.php';
-require_once 'src/Fragment.php';
-require_once 'src/RadioBroadcast.php';
-require_once 'src/SafeObject.php';
-require_once 'src/Site.php';
-require_once 'src/TelevisionBroadcast.php';
-require_once 'src/Video.php';
-require_once 'src/VideoData.php';
-require_once 'src/VideoModifiedTimePresenter.php';
-require_once 'src/VideoObject.php';
-require_once 'src/PushAdapter.php';
+require_once 'lib/input_sanitizer.php';
+require_once 'lib/push_adapter.php';
 
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
