@@ -1,7 +1,7 @@
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
     <div class="grid grid-stories gap-0.5">
         {% for post in block.posts %}
-            <article class="{{ loop.first? 'main' }} flex flex-col">
+            <article class="{{ loop.first? 'main' }} flex flex-col" data-post-id="{{ post.ID }}">
                 <a class="block relative flex-grow bg-gray-200 dark:bg-gray-800 {{ loop.first? 'sm:stories-pad' }}" href="{{ post.link }}">
                     <img class="object-cover w-full h-full absolute inset-0" loading="lazy" alt="{{ post.thumbnail.alt }}"
                          src="{{ post.thumbnail.src|thumbor(455, 384) }}"
