@@ -48,7 +48,7 @@
     </article>
 
     {% if local %}
-        <div class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
+        <aside class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
             <div class="w-full mx-auto max-w-960 py-4 px-4">
                 <h2 class="font-bold text-3xl pb-4">Meer reportages uit {{ local.region }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -57,7 +57,7 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        </aside>
     {% endif %}
 
 {% endblock %}
