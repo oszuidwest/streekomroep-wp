@@ -55,7 +55,7 @@
 
     {% if topical %}
         {% set term = topical.topic %}
-        <div class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
+        <aside class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
             <div class="px-6 md:px-12 py-4 max-w-3xl mx-auto">
                 <h2 class="font-bold pb-4">
                     <span class="block text-sm tracking-wide uppercase font-round">Meer uit dossier</span>
@@ -71,11 +71,11 @@
                     <a href="{{ term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded">Bekijk het volledige dossier →</a>
                 </div>
             </div>
-        </div>
+        </aside>
     {% endif %}
 
     {% if local %}
-        <div class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
+        <aside class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
             <div class="w-full mx-auto max-w-960 py-4 px-4">
                 <h2 class="font-bold text-3xl pb-4">Laatste nieuws uit {{ local.region }}</h2>
                 <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -84,7 +84,7 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        </aside>
     {% endif %}
 
 {% endblock %}
