@@ -11,13 +11,6 @@
             <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words text-black dark:text-white">{{ post.title }}</h1>
             <time class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-gray-200"
                   datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
-            <p class="flex items-center mt-6">
-                <img src="{{ post.author.avatar|thumbor(32, 32) }}"
-                     srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
-                     alt="{{ post.author.name }}" class="h-8 w-8 rounded">
-                <a href="{{ post.author.path }}"
-                   class="ml-3 text-xs tracking-wide uppercase font-black font-round text-black dark:text-white"> {{ post.author.name }} </a>
-            </p>
         </div>
 
         <div class="px-6 md:px-12 max-w-3xl mx-auto">
