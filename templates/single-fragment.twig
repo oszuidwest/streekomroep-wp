@@ -20,7 +20,7 @@
 
             {% if posts %}
                 <aside class="mt-8">
-                    <p class="font-black font-round text-sm uppercase text-black dark:text-white">Artikelen bij deze video</p>
+                    <p class="font-black font-round text-sm uppercase text-black dark:text-white">Artikelen bij deze {% if (fragment.meta('fragment_type') == 'video')%} video {%else%} audio{%endif%}</p>
                     {% for post in posts %}
                         <a class="flex py-2 hover:bg-gray-50 dark:hover:bg-gray-700" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
