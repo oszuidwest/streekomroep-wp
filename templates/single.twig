@@ -30,13 +30,15 @@
             </div>
         </div>
         <div class="px-6 md:px-12 max-w-3xl mx-auto pt-4">
-            <p class="flex items-center mb-6">
-                <img src="{{ post.author.avatar|thumbor(32, 32) }}"
-                     srcset="{{ post.author.avatar|thumbor(32*2, 32*2) }} 2x"
-                     alt="{{ post.author.name }}" class="h-8 w-8 rounded">
-                <a href="{{ post.author.path }}"
-                   class="ml-3 text-xs tracking-wide uppercase font-black font-round text-black dark:text-white">{{ post.author.name }} </a>
-            </p>
+            {% for author in post.authors %}
+                <p class="flex items-center mb-6">
+                    <img src="{{ author.avatar|thumbor(32, 32) }}"
+                        srcset="{{ author.avatar|thumbor(32*2, 32*2) }} 2x"
+                        alt="{{ author.name }}" class="h-8 w-8 rounded">
+                    <a href="{{ author.path }}"
+                    class="ml-3 text-xs tracking-wide uppercase font-black font-round text-black dark:text-white">{{ author.name }} </a>
+                </p>
+            {% endfor %}
 
 
             <div class="prose dark:prose-invert md:prose-lg max-w-none zw-prose">
