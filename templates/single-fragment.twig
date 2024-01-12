@@ -7,7 +7,17 @@
         </div>
 
         <div class="px-6 md:px-12 max-w-3xl mx-auto mt-6 pb-6">
-            {% include 'partial/tag-region.twig' with { region: post.region } %}
+            <div class="flex gap-2">
+                {% if post.meta('fragment_type') == 'Video' %}
+                    <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-blauw text-white">Video</span>
+                {% else %}
+                    <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-roze text-white">Audio</span>
+                {% endif %}
+
+                {% if post.region %}
+                    <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">{{ post.region.title}}</span>
+                {% endif %}
+            </div>
             <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words text-black dark:text-white">{{ post.title }}</h1>
             <time class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-gray-200"
                   datetime="{{ post.date|date('Y-m-d H:i:s') }}">{{ post.date }}</time>
@@ -43,7 +53,7 @@
     {% if local %}
         <aside class="bg-gray-800 text-white border-t border-transparent dark:border-gray-700/50">
             <div class="w-full mx-auto max-w-960 py-4 px-4">
-                <h2 class="font-bold text-3xl pb-4">Meer reportages uit {{ local.region }}</h2>
+                <h2 class="font-bold text-3xl pb-4">Meer video's en reportages uit {{ local.region }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {% for post in local.posts %}
                         {% include 'partial/tile-fragment.twig' with { post: post, region: false } %}
