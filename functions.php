@@ -1038,9 +1038,6 @@ function zw_seo_add_fragment_video($data, $context)
         return $data;
     }
 
-    $data['video'] = [
-        ['@id' => $context->canonical . '#video']
-    ];
     return $data;
 }
 

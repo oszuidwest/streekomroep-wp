@@ -21,6 +21,9 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         return [
             '@type' => 'VideoObject',
             '@id' => $this->context->canonical . '#video',
+            'isPartOf' => [
+                '@id' => $this->context->main_schema_id
+            ],
             'name' => $this->video->name,
             'description' => $this->video->description,
             'thumbnailUrl' => [
