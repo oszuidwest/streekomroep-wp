@@ -1212,6 +1212,14 @@ function zw_get_tv_episodes($id)
     return $videos;
 }
 
+add_filter('wpseo_opengraph_type', function($type) {
+    if (is_singular('fragment')) {
+        return 'video.episode';
+    }
+
+   return $type;
+});
+
 include 'modules/jetpack.php';
 include 'modules/assets.php';
 include 'modules/tiled-gallery/tiled-gallery.php';
