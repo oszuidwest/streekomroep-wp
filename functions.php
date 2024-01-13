@@ -1038,9 +1038,6 @@ function zw_seo_add_fragment_video($data, $context)
         return $data;
     }
 
-    $data['video'] = [
-        ['@id' => $context->canonical . '#video']
-    ];
     return $data;
 }
 
@@ -1214,6 +1211,14 @@ function zw_get_tv_episodes($id)
 
     return $videos;
 }
+
+add_filter('wpseo_opengraph_type', function ($type) {
+    if (is_singular('fragment')) {
+        return 'video.episode';
+    }
+
+    return $type;
+});
 
 include 'modules/jetpack.php';
 include 'modules/assets.php';
