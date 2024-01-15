@@ -36,5 +36,6 @@ $args = [
     'capability_type'       => 'post',
     'show_in_rest'          => true,
     'rest_base'             => 'fragmenten',
+    'rewrite'               => ['slug' => 'nieuwsvideo'],
 ];
 register_post_type('fragment', $args);
