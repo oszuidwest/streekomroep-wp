@@ -34,6 +34,7 @@ These tested plugins enhance the theme:
 Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
+- ZuidWest Cache Manager [[on GitHub](https://github.com/oszuidwest/zw-cacheman)]: Integrates with Cloudflare full page cache, clearing key URLs instantly and batching others for efficient processing.
 
 ## What's here?
 `static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.
