@@ -1083,9 +1083,9 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 function zw_add_videojs()
 {
     // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.9.0/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.9.0/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.9.0/lang/nl.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.10.0/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.10.0/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.10.0/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
