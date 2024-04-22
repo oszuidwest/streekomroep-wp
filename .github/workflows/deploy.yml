@@ -25,7 +25,7 @@ jobs:
           composer install --no-dev --optimize-autoloader
 
       - name: Set-up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -40,7 +40,7 @@ jobs:
           NODE_ENV: production
 
       - name: Deploy to remote server
-        uses: easingthemes/ssh-deploy@v4
+        uses: easingthemes/ssh-deploy@main
         with:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ github.ref == 'refs/heads/main' && secrets.REMOTE_USER || secrets.REMOTE_USER_DEV }}
