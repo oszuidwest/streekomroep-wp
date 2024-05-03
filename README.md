@@ -11,6 +11,7 @@ Instructions for macOS:
 - Open the folder in a terminal and execute the following commands:
 
 ```bash
+npm install
 NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
