@@ -1,7 +1,7 @@
 
 # The Streekomroep WordPress Theme
 
-This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts.
+This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.5+ and PHP 8.1+.
 
 ## How to build/install
 Instructions for macOS:
@@ -20,21 +20,20 @@ For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.0: [[Use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Timber 2.1: [[Use composer](https://timber.github.io/docs/v2/installation/installation/)]
 - Advanced Custom Fields Pro 6.2.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
-- Yoast SEO Premium 21.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 22.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These tested plugins enhance the theme:
-- Contact Form 7 5.8.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Contact Form 7 5.9.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x: [[free download](https://wordpress.org/plugins/disable-comments/)]
 
 ## Extra functionality with first-party plugins
 Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
-- ZuidWest Cache Manager [[on GitHub](https://github.com/oszuidwest/zw-cacheman)]: Integrates with Cloudflare full page cache, clearing key URLs instantly and batching others for efficient processing.
 
 ## What's here?
 `static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.
