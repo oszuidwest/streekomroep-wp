@@ -4,6 +4,8 @@
 This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.5+ and PHP 8.1+.
 
 ## How to build/install
+It's not enough to download the theme and upload is to a server. The dependencies must be built first. Otherwise it will not work.
+
 Instructions for macOS:
 - Install Homebrew ([https://brew.sh](https://brew.sh))
 - Install Composer and Node with `brew install composer node`
