@@ -1,216 +1,215 @@
-[
-    {
-        "key": "group_5f21a05a18b57",
-        "title": "Post - Distributie",
-        "fields": [
-            {
-                "key": "field_5f74740c7f912",
-                "label": "Toon in kabelkrant",
-                "name": "post_in_kabelkrant",
-                "aria-label": "",
-                "type": "true_false",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "20",
-                    "class": "",
-                    "id": ""
-                },
-                "message": "",
-                "default_value": 1,
-                "ui": 0,
-                "ui_on_text": "",
-                "ui_off_text": ""
+{
+    "key": "group_5f21a05a18b57",
+    "title": "Post - Distributie",
+    "fields": [
+        {
+            "key": "field_5f74740c7f912",
+            "label": "Toon in kabelkrant",
+            "name": "post_in_kabelkrant",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_650f58331254f",
-                "label": "Pushbericht",
-                "name": "push_post",
-                "aria-label": "",
-                "type": "true_false",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "20",
-                    "class": "",
-                    "id": ""
-                },
-                "message": "",
-                "default_value": 0,
-                "ui": 0,
-                "ui_on_text": "",
-                "ui_off_text": ""
+            "message": "",
+            "default_value": 1,
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_650f58331254f",
+            "label": "Pushbericht",
+            "name": "push_post",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_5f21a06d22c58",
-                "label": "Versie voor TV",
-                "name": "post_kabelkrant_content",
-                "aria-label": "",
-                "type": "textarea",
-                "instructions": "",
-                "required": 1,
-                "conditional_logic": [
-                    [
-                        {
-                            "field": "field_5f74740c7f912",
-                            "operator": "==",
-                            "value": "1"
-                        }
-                    ]
-                ],
-                "wrapper": {
-                    "width": "80",
-                    "class": "",
-                    "id": ""
-                },
-                "default_value": "",
-                "placeholder": "Vul de versie voor op teksttv in",
-                "maxlength": "",
-                "rows": 7,
-                "new_lines": ""
+            "message": "",
+            "default_value": 0,
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_5f21a06d22c58",
+            "label": "Versie voor TV",
+            "name": "post_kabelkrant_content",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "80",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_665f73aa4951f",
-                "label": "Geavanceerde planning kabelkrant",
-                "name": "",
-                "aria-label": "",
-                "type": "accordion",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": [
-                    [
-                        {
-                            "field": "field_5f74740c7f912",
-                            "operator": "==",
-                            "value": "1"
-                        }
-                    ]
-                ],
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "open": 0,
-                "multi_expand": 1,
-                "endpoint": 0
+            "default_value": "",
+            "placeholder": "Vul de versie voor op teksttv in",
+            "maxlength": "",
+            "rows": 7,
+            "new_lines": ""
+        },
+        {
+            "key": "field_665f73aa4951f",
+            "label": "Geavanceerde planning kabelkrant",
+            "name": "",
+            "aria-label": "",
+            "type": "accordion",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_665f7219edaef",
-                "label": "Startdatum",
-                "name": "post_kabelkrant_datum_in",
-                "aria-label": "",
-                "type": "date_time_picker",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": [
-                    [
-                        {
-                            "field": "field_5f74740c7f912",
-                            "operator": "==",
-                            "value": "1"
-                        }
-                    ]
-                ],
-                "wrapper": {
-                    "width": "25",
-                    "class": "",
-                    "id": ""
-                },
-                "display_format": "Y-m-d H:i",
-                "return_format": "d\/m\/Y g:i a",
-                "first_day": 1
+            "open": 0,
+            "multi_expand": 1,
+            "endpoint": 0
+        },
+        {
+            "key": "field_665f7219edaef",
+            "label": "Startdatum",
+            "name": "post_kabelkrant_datum_in",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_665f7258edaf1",
-                "label": "Einddatum",
-                "name": "post_kabelkrant_datum_uit",
-                "aria-label": "",
-                "type": "date_time_picker",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": [
-                    [
-                        {
-                            "field": "field_5f74740c7f912",
-                            "operator": "==",
-                            "value": "1"
-                        }
-                    ]
-                ],
-                "wrapper": {
-                    "width": "25",
-                    "class": "",
-                    "id": ""
-                },
-                "display_format": "Y-m-d H:i",
-                "return_format": "d\/m\/Y g:i a",
-                "first_day": 1
+            "display_format": "Y-m-d H:i",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 1
+        },
+        {
+            "key": "field_665f7258edaf1",
+            "label": "Einddatum",
+            "name": "post_kabelkrant_datum_uit",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
             },
+            "display_format": "Y-m-d H:i",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 1
+        },
+        {
+            "key": "field_665f7426c46ce",
+            "label": "Dagen",
+            "name": "post_kabelkrant_dagen",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "ma": "ma",
+                "di": "di",
+                "wo": "wo",
+                "do": "do",
+                "vrij": "vrij",
+                "za": "za",
+                "zo": "zo"
+            },
+            "default_value": [],
+            "return_format": "value",
+            "allow_custom": 0,
+            "layout": "horizontal",
+            "toggle": 0,
+            "save_custom": 0,
+            "custom_choice_button_text": "Nieuwe keuze toevoegen"
+        }
+    ],
+    "location": [
+        [
             {
-                "key": "field_665f7426c46ce",
-                "label": "Dagen",
-                "name": "post_kabelkrant_dagen",
-                "aria-label": "",
-                "type": "checkbox",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": [
-                    [
-                        {
-                            "field": "field_5f74740c7f912",
-                            "operator": "==",
-                            "value": "1"
-                        }
-                    ]
-                ],
-                "wrapper": {
-                    "width": "100",
-                    "class": "",
-                    "id": ""
-                },
-                "choices": {
-                    "ma": "ma",
-                    "di": "di",
-                    "wo": "wo",
-                    "do": "do",
-                    "vrij": "vrij",
-                    "za": "za",
-                    "zo": "zo"
-                },
-                "default_value": [],
-                "return_format": "value",
-                "allow_custom": 0,
-                "layout": "horizontal",
-                "toggle": 0,
-                "save_custom": 0,
-                "custom_choice_button_text": "Nieuwe keuze toevoegen"
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
             }
-        ],
-        "location": [
-            [
-                {
-                    "param": "post_type",
-                    "operator": "==",
-                    "value": "post"
-                }
-            ]
-        ],
-        "menu_order": 0,
-        "position": "normal",
-        "style": "default",
-        "label_placement": "top",
-        "instruction_placement": "label",
-        "hide_on_screen": [
-            "discussion",
-            "comments",
-            "author",
-            "send-trackbacks"
-        ],
-        "active": true,
-        "description": "",
-        "show_in_rest": 0
-    }
-]
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "discussion",
+        "comments",
+        "author",
+        "send-trackbacks"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1720961704
+}
