@@ -12,7 +12,7 @@
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "20",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -32,7 +32,7 @@
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "20",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -60,15 +60,176 @@
                 ]
             ],
             "wrapper": {
-                "width": "80",
+                "width": "100",
                 "class": "",
                 "id": ""
             },
             "default_value": "",
-            "placeholder": "Vul de versie voor op teksttv in",
             "maxlength": "",
             "rows": 7,
+            "placeholder": "Vul de versie voor op teksttv in",
             "new_lines": ""
+        },
+        {
+            "key": "field_665f73aa4951f",
+            "label": "Extra opties kabelkrant",
+            "name": "",
+            "aria-label": "",
+            "type": "accordion",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "open": 0,
+            "multi_expand": 1,
+            "endpoint": 0
+        },
+        {
+            "key": "field_665f7219edaef",
+            "label": "Startdatum",
+            "name": "post_kabelkrant_datum_in",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "Y-m-d H:i",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 1
+        },
+        {
+            "key": "field_665f7258edaf1",
+            "label": "Einddatum",
+            "name": "post_kabelkrant_datum_uit",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "Y-m-d H:i",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 1
+        },
+        {
+            "key": "field_665f7426c46ce",
+            "label": "Dagen",
+            "name": "post_kabelkrant_dagen",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "ma": "ma",
+                "di": "di",
+                "wo": "wo",
+                "do": "do",
+                "vrij": "vrij",
+                "za": "za",
+                "zo": "zo"
+            },
+            "default_value": [
+                "ma",
+                "di",
+                "wo",
+                "do",
+                "vrij",
+                "za",
+                "zo"
+            ],
+            "return_format": "value",
+            "allow_custom": 0,
+            "layout": "horizontal",
+            "toggle": 0,
+            "save_custom": 0,
+            "custom_choice_button_text": "Nieuwe keuze toevoegen"
+        },
+        {
+            "key": "field_6693cc8b7ce26",
+            "label": "Extra afbeelding(en)",
+            "name": "post_kabelkrant_extra_afbeeldingen",
+            "aria-label": "",
+            "type": "gallery",
+            "instructions": "Selecteer een of meer afbeeldingen die na het artikel op teksttv worden getoond.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "library": "all",
+            "min": "",
+            "max": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "",
+            "insert": "append",
+            "preview_size": "thumbnail"
         }
     ],
     "location": [
@@ -94,5 +255,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1695505518
+    "modified": 1720984501
 }
