@@ -72,7 +72,7 @@
         },
         {
             "key": "field_665f73aa4951f",
-            "label": "Geavanceerde planning kabelkrant",
+            "label": "Extra opties kabelkrant",
             "name": "",
             "aria-label": "",
             "type": "accordion",
@@ -186,6 +186,42 @@
             "toggle": 0,
             "save_custom": 0,
             "custom_choice_button_text": "Nieuwe keuze toevoegen"
+        },
+        {
+            "key": "field_6693cc8b7ce26",
+            "label": "Extra afbeelding(en)",
+            "name": "post_kabelkrant_extra_afbeeldingen",
+            "aria-label": "",
+            "type": "gallery",
+            "instructions": "Selecteer een of meer afbeeldingen die na het artikel op teksttv worden getoond.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "library": "all",
+            "min": "",
+            "max": "",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "",
+            "insert": "append",
+            "preview_size": "thumbnail"
         }
     ],
     "location": [
@@ -211,5 +247,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1720961704
+    "modified": 1720962373
 }
