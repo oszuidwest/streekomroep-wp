@@ -14,3 +14,8 @@ body {
     @apply mx-auto;
     box-sizing: content-box;
 }
+
+/* Reduces the height of the ACF component for kabelkrant images */
+#acf-field_6693cc8b7ce26.acf-gallery.ui-resizable {
+    height: 200px !important;
+}
