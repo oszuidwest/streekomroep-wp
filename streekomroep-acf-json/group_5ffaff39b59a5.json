@@ -1,13 +1,32 @@
 {
     "key": "group_5ffaff39b59a5",
-    "title": "Desking - Blokken voorpagina",
+    "title": "Desking – Content",
     "fields": [
+        {
+            "key": "field_669d3c51d150e",
+            "label": "Voorpagina",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 1,
+            "selected": 0
+        },
         {
             "key": "field_5ffaff7110349",
             "label": "Blokken voorpagina",
             "name": "desking_blokken_voorpagina",
+            "aria-label": "",
             "type": "flexible_content",
-            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder het menu",
+            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder het menu.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -35,6 +54,7 @@
                             "key": "field_5ffb0008390b6",
                             "label": "Tekst boven artikelen",
                             "name": "tekst_boven_artikelen",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -54,6 +74,7 @@
                             "key": "field_5ffb0022390b7",
                             "label": "Aantal artikelen",
                             "name": "aantal_artikelen",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -75,6 +96,7 @@
                             "key": "field_5ffb004a390b8",
                             "label": "Offset",
                             "name": "offset",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -115,6 +137,7 @@
                             "key": "field_6005b3bfd89cc",
                             "label": "Tekst boven fragmenten",
                             "name": "tekst_boven_fragmenten",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -144,6 +167,7 @@
                             "key": "field_6005b4076cce9",
                             "label": "Tekst boven artikelen",
                             "name": "tekst_boven_artikelen",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -173,6 +197,7 @@
                             "key": "field_619263fbc2e11",
                             "label": "Tekst boven video's",
                             "name": "tekst_boven_videos",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -192,6 +217,7 @@
                             "key": "field_6212542c5d300",
                             "label": "Ontdubbel programma's",
                             "name": "ontdubbel",
+                            "aria-label": "",
                             "type": "true_false",
                             "instructions": "Als ingeschakeld: toont alleen de laatste aflevering van ieder programma. Als uitgeschakeld: toont video's op volgorde van uitzenddatum. Onafhankelijk van programma.",
                             "required": 0,
@@ -211,6 +237,7 @@
                             "key": "field_621254d01d730",
                             "label": "Aantal video's",
                             "name": "aantal_videos",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -242,6 +269,7 @@
                             "key": "field_6192689323212",
                             "label": "Tekst boven audio",
                             "name": "tekst_boven_audio",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -271,6 +299,7 @@
                             "key": "field_6005b638746d2",
                             "label": "Tekst boven dossiers",
                             "name": "tekst_boven_dossiers",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -300,6 +329,7 @@
                             "key": "field_600d8cd21a6bf",
                             "label": "Tekst boven dossier",
                             "name": "tekst_boven_dossier",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -319,6 +349,7 @@
                             "key": "field_6005b45e6cced",
                             "label": "Selecteer dossier",
                             "name": "selecteer_dossier",
+                            "aria-label": "",
                             "type": "taxonomy",
                             "instructions": "",
                             "required": 0,
@@ -335,12 +366,14 @@
                             "save_terms": 0,
                             "load_terms": 0,
                             "return_format": "id",
-                            "multiple": 0
+                            "multiple": 0,
+                            "bidirectional_target": []
                         },
                         {
                             "key": "field_6233477e5ac55",
                             "label": "Aantal artikelen",
                             "name": "aantal_artikelen",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -362,6 +395,7 @@
                             "key": "field_623347af5ac56",
                             "label": "Offset",
                             "name": "offset",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -384,9 +418,387 @@
                     "max": ""
                 }
             },
-            "button_label": "Nieuw blok",
             "min": "",
-            "max": ""
+            "max": "",
+            "button_label": "Nieuw blok"
+        },
+        {
+            "key": "field_669d3e27e49ca",
+            "label": "Tekst TV",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_669d3e44fbe9c",
+            "label": "Blokken Tekst TV",
+            "name": "desking_blokken_teksttv",
+            "aria-label": "",
+            "type": "flexible_content",
+            "instructions": "Stel de carroussel samen aan de hand van verschillende blokken.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layouts": {
+                "layout_669d45f7f950f": {
+                    "key": "layout_669d45f7f950f",
+                    "name": "blok_weer",
+                    "label": "Weersverwachting",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_669d4603f9511",
+                            "label": "Coördinaat (lat)",
+                            "name": "coordinaat_lat",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "25",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "51.5308",
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_669d46370c2b7",
+                            "label": "Coördinaat (lon)",
+                            "name": "coordinaat_lon",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "25",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "4.4653",
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_669d465eaa31f",
+                            "label": "Naam weerstation",
+                            "name": "naam_weerstation",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "Roosendaal",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_669d473b2d988": {
+                    "key": "layout_669d473b2d988",
+                    "name": "blok_artikelen",
+                    "label": "Artikelen",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_669d47472d98a",
+                            "label": "Aantal artikelen",
+                            "name": "aantal_artikelen",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "20",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": 15,
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_669d47e93b56a",
+                            "label": "Offset",
+                            "name": "offset",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "20",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_669d48068a773",
+                            "label": "Categoriefilter",
+                            "name": "categoriefilter",
+                            "aria-label": "",
+                            "type": "taxonomy",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "30",
+                                "class": "",
+                                "id": ""
+                            },
+                            "taxonomy": "category",
+                            "add_term": 0,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "object",
+                            "field_type": "multi_select",
+                            "allow_null": 0,
+                            "bidirectional": 0,
+                            "multiple": 0,
+                            "bidirectional_target": []
+                        },
+                        {
+                            "key": "field_669d484763ed7",
+                            "label": "Regiofilter",
+                            "name": "Regiofilter",
+                            "aria-label": "",
+                            "type": "taxonomy",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "30",
+                                "class": "",
+                                "id": ""
+                            },
+                            "taxonomy": "regio",
+                            "add_term": 0,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "object",
+                            "field_type": "multi_select",
+                            "allow_null": 0,
+                            "bidirectional": 0,
+                            "multiple": 0,
+                            "bidirectional_target": []
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_669d49698fbbe": {
+                    "key": "layout_669d49698fbbe",
+                    "name": "blok_afbeelding",
+                    "label": "Afbeelding",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_669d497a8fbc2",
+                            "label": "Afbeelding",
+                            "name": "afbeelding",
+                            "aria-label": "",
+                            "type": "image",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "30",
+                                "class": "",
+                                "id": ""
+                            },
+                            "return_format": "array",
+                            "library": "all",
+                            "min_width": "",
+                            "min_height": "",
+                            "min_size": "",
+                            "max_width": "",
+                            "max_height": "",
+                            "max_size": "",
+                            "mime_types": "",
+                            "preview_size": "thumbnail"
+                        },
+                        {
+                            "key": "field_669d49968fbc3",
+                            "label": "Datum in",
+                            "name": "datum_in",
+                            "aria-label": "",
+                            "type": "date_picker",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "27.5",
+                                "class": "",
+                                "id": ""
+                            },
+                            "display_format": "d\/m\/Y",
+                            "return_format": "d\/m\/Y",
+                            "first_day": 1
+                        },
+                        {
+                            "key": "field_669d49a58fbc4",
+                            "label": "Datum uit",
+                            "name": "datum_uit",
+                            "aria-label": "",
+                            "type": "date_picker",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "27.5",
+                                "class": "",
+                                "id": ""
+                            },
+                            "display_format": "d\/m\/Y",
+                            "return_format": "d\/m\/Y",
+                            "first_day": 1
+                        },
+                        {
+                            "key": "field_669d49c2261cd",
+                            "label": "Seconden",
+                            "name": "seconden",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "15",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_669d4a096c532": {
+                    "key": "layout_669d4a096c532",
+                    "name": "blok_reclame",
+                    "label": "Reclame",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_669d4a0e6c534",
+                            "label": "Afbeelding voor reclame",
+                            "name": "afbeelding_in",
+                            "aria-label": "",
+                            "type": "image",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "return_format": "array",
+                            "library": "all",
+                            "min_width": "",
+                            "min_height": "",
+                            "min_size": "",
+                            "max_width": "",
+                            "max_height": "",
+                            "max_size": "",
+                            "mime_types": "",
+                            "preview_size": "medium"
+                        },
+                        {
+                            "key": "field_669d4a3123880",
+                            "label": "Afbeelding na reclame",
+                            "name": "afbeelding_uit",
+                            "aria-label": "",
+                            "type": "image",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "return_format": "array",
+                            "library": "all",
+                            "min_width": "",
+                            "min_height": "",
+                            "min_size": "",
+                            "max_width": "",
+                            "max_height": "",
+                            "max_size": "",
+                            "mime_types": "",
+                            "preview_size": "thumbnail"
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_669d4b4f84db3": {
+                    "key": "layout_669d4b4f84db3",
+                    "name": "blok_fm_programmering",
+                    "label": "FM programmering",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                }
+            },
+            "min": "",
+            "max": "",
+            "button_label": "Nieuw blok"
         }
     ],
     "location": [
@@ -407,5 +819,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1647772742
+    "modified": 1721584771
 }
