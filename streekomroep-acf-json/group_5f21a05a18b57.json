@@ -71,6 +71,34 @@
             "new_lines": ""
         },
         {
+            "key": "field_66ad2a3105371",
+            "label": "GPT-versie",
+            "name": "post_kabelkrant_content_gpt",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5f74740c7f912",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "post_kabelkrant_content_gpt",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": 7,
+            "placeholder": "Vul de versie voor op teksttv in",
+            "new_lines": ""
+        },
+        {
             "key": "field_665f73aa4951f",
             "label": "Extra opties kabelkrant",
             "name": "",
@@ -255,5 +283,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1720984501
+    "modified": 1722624623
 }
