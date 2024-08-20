@@ -1,11 +1,11 @@
 {
     "key": "group_66c5010145df1",
-    "title": "Desking – Tekst TV",
+    "title": "Tekst TV - Inhoud",
     "fields": [
         {
             "key": "field_669d3e44fbe9c",
             "label": "Blokken Tekst TV",
-            "name": "desking_blokken_teksttv",
+            "name": "teksttv_blokken",
             "aria-label": "",
             "type": "flexible_content",
             "instructions": "Stel de carroussel samen aan de hand van verschillende blokken.",
