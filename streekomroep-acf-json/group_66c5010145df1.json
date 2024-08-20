@@ -304,7 +304,7 @@
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "50",
+                                "width": "45",
                                 "class": "",
                                 "id": ""
                             },
@@ -329,7 +329,7 @@
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "50",
+                                "width": "45",
                                 "class": "",
                                 "id": ""
                             },
@@ -343,6 +343,28 @@
                             "max_size": "",
                             "mime_types": "",
                             "preview_size": "thumbnail"
+                        },
+                        {
+                            "key": "field_66c511bbf12b2",
+                            "label": "Groep",
+                            "name": "groep",
+                            "aria-label": "",
+                            "type": "number",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "10",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "min": "",
+                            "max": "",
+                            "placeholder": "",
+                            "step": "",
+                            "prepend": "",
+                            "append": ""
                         }
                     ],
                     "min": "",
@@ -381,5 +403,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1724187037
+    "modified": 1724192998
 }
