@@ -239,6 +239,17 @@ if (function_exists('acf_add_options_page')) {
     ]);
 }
 
+if (function_exists('acf_add_options_page')) {
+    acf_add_options_page([
+        'page_title' => 'Tekst TV',
+        'menu_title' => 'Tekst TV',
+        'menu_slug' => 'teksttv',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-media-interactive',
+        'redirect' => false
+    ]);
+}
+
 function zw_parse_query(WP_Query $query)
 {
     if (!$query->is_main_query() || $query->is_admin) {

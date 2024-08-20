@@ -368,7 +368,7 @@
             {
                 "param": "options_page",
                 "operator": "==",
-                "value": "desking"
+                "value": "teksttv"
             }
         ]
     ],
