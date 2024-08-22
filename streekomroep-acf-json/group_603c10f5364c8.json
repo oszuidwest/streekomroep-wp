@@ -119,7 +119,7 @@
                     "label": "Groep",
                     "name": "groep",
                     "aria-label": "",
-                    "type": "number",
+                    "type": "checkbox",
                     "instructions": "Om te voorkomen dat bepaalde campagnes in hetzelfde blok zitten, bijvoorbeeld twee slagers, kunnen campagnes gegroepeerd worden. Zorg dat iedere groep minimaal één keer in de carroussel ingepland wordt.",
                     "required": 0,
                     "conditional_logic": 0,
@@ -128,13 +128,27 @@
                         "class": "",
                         "id": ""
                     },
-                    "default_value": 1,
-                    "min": 0,
-                    "max": "",
-                    "placeholder": "",
-                    "step": "",
-                    "prepend": "",
-                    "append": "",
+                    "choices": {
+                        "1": "1",
+                        "2": "2",
+                        "3": "3",
+                        "4": "4",
+                        "5": "5",
+                        "6": "6",
+                        "7": "7",
+                        "8": "8",
+                        "9": "9",
+                        "10": "10"
+                    },
+                    "default_value": [
+                        1
+                    ],
+                    "return_format": "value",
+                    "allow_custom": 0,
+                    "layout": "horizontal",
+                    "toggle": 0,
+                    "save_custom": 0,
+                    "custom_choice_button_text": "Nieuwe keuze toevoegen",
                     "parent_repeater": "field_603c11fdf28cd"
                 }
             ]
@@ -158,5 +172,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1724193317
+    "modified": 1724348609
 }
