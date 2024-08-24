@@ -14,6 +14,7 @@ Instructions for macOS:
 
 ```bash
 npm install
+npx browserslist@latest --update-db
 NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
