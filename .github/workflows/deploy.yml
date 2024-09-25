@@ -30,9 +30,7 @@ jobs:
           node-version: '20'
 
       - name: Install Node dependencies
-        run: |
-          npm install
-          npx browserslist@latest --update-db
+        run: npm install
 
       - name: Build CSS
         run: |
