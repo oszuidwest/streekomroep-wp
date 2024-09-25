@@ -230,17 +230,6 @@ if (function_exists('acf_add_options_page')) {
 
 if (function_exists('acf_add_options_page')) {
     acf_add_options_page([
-        'page_title' => 'Tekst TV',
-        'menu_title' => 'Tekst TV',
-        'menu_slug' => 'teksttv',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-welcome-view-site',
-        'redirect' => false
-    ]);
-}
-
-if (function_exists('acf_add_options_page')) {
-    acf_add_options_page([
         'page_title' => 'Desking',
         'menu_title' => 'Desking',
         'menu_slug' => 'desking',
@@ -1094,9 +1083,9 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 function zw_add_videojs()
 {
     // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.16.1/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.16.1/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.16.1/lang/nl.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
