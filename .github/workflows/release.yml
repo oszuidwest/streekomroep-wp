@@ -1,0 +1,112 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse version number from style.css
+        id: get_version
+        run: |
+          VERSION=$(grep -oP '(?<=^ \* Version: ).*' style.css | head -1)
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Fetch latest tag
+        id: fetch_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) || echo "none")
+          echo "Latest tag: $LATEST_TAG"
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Compare versions and decide if a new tag is needed
+        id: compare_versions
+        run: |
+          if [ "$LATEST_TAG" = "none" ]; then
+            echo "No previous tag found. Proceeding with new tag and release."
+            echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
+          elif [ "$(printf '%s\n' "$VERSION" "$LATEST_TAG" | sort -V | head -n1)" != "$VERSION" ]; then
+            echo "New version detected. Proceeding with new tag and release."
+            echo "RELEASE_NEEDED=true" >> $GITHUB_ENV
+          else
+            echo "No new version. Skipping release."
+            echo "RELEASE_NEEDED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Stop job if no release needed
+        if: env.RELEASE_NEEDED == 'false'
+        run: |
+          echo "Skipping further steps as no new release is needed."
+        continue-on-error: false
+
+      # Dependency Setup and Build Steps - Only Run if Release is Needed
+      - name: Set up PHP
+        if: env.RELEASE_NEEDED == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl
+          coverage: none
+
+      - name: Set up Node
+        if: env.RELEASE_NEEDED == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          composer install --no-dev --optimize-autoloader
+          npm install
+          npx browserslist@latest --update-db
+          npx tailwindcss -i assets/style.css -o dist/style.css --minify
+          npx tailwindcss -i assets/editor.css -o dist/editor.css --minify
+
+      - name: Tag and release if needed
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          git tag ${{ env.VERSION }}
+          git push origin ${{ env.VERSION }}
+          echo "Tag created and pushed: ${{ env.VERSION }}"
+
+      - name: Prepare subdirectory for release
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          mkdir -p release  # Ensure the directory is created
+          rsync -av --progress . ./release --exclude release --exclude .git --exclude .github --exclude node_modules --exclude .gitignore
+
+      - name: List contents of release directory for debugging
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          echo "Listing contents of release directory:"
+          ls -la ./release
+
+      - name: Compress release directory contents
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          echo "Compressing contents of release directory..."
+          cd release
+          zip -r ../streekomroep-wp-theme-${{ env.VERSION }}.zip ./* 
+
+      - name: List contents of current directory after compression
+        if: env.RELEASE_NEEDED == 'true'
+        run: |
+          echo "Listing contents of current directory:"
+          ls -la
+
+      - name: Create GitHub Release and upload compressed file
+        if: env.RELEASE_NEEDED == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading streekomroep-wp-theme-${{ env.VERSION }}.zip to GitHub release..."
+          gh release create ${{ env.VERSION }} streekomroep-wp-theme-${{ env.VERSION }}.zip --title "${{ env.VERSION }}" --notes "Automated release for version ${{ env.VERSION }}"
