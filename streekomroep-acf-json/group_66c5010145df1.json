@@ -107,7 +107,7 @@
                             "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "20",
+                                "width": "50",
                                 "class": "",
                                 "id": ""
                             },
@@ -129,7 +129,7 @@
                             "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "20",
+                                "width": "50",
                                 "class": "",
                                 "id": ""
                             },
@@ -142,6 +142,49 @@
                             "append": ""
                         },
                         {
+                            "key": "field_66eee12f32fc8",
+                            "label": "Geavanceerde opties",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "accordion",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "open": 0,
+                            "multi_expand": 0,
+                            "endpoint": 0
+                        },
+                        {
+                            "key": "field_669d484763ed7",
+                            "label": "Regiofilter",
+                            "name": "Regiofilter",
+                            "aria-label": "",
+                            "type": "taxonomy",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "33",
+                                "class": "",
+                                "id": ""
+                            },
+                            "taxonomy": "regio",
+                            "add_term": 0,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "object",
+                            "field_type": "multi_select",
+                            "allow_null": 0,
+                            "bidirectional": 0,
+                            "multiple": 0,
+                            "bidirectional_target": []
+                        },
+                        {
                             "key": "field_669d48068a773",
                             "label": "Categoriefilter",
                             "name": "categoriefilter",
@@ -151,7 +194,7 @@
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "30",
+                                "width": "33",
                                 "class": "",
                                 "id": ""
                             },
@@ -167,29 +210,24 @@
                             "bidirectional_target": []
                         },
                         {
-                            "key": "field_669d484763ed7",
-                            "label": "Regiofilter",
-                            "name": "Regiofilter",
+                            "key": "field_66eee0b232fc7",
+                            "label": "Template",
+                            "name": "template",
                             "aria-label": "",
-                            "type": "taxonomy",
+                            "type": "text",
                             "instructions": "",
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "30",
+                                "width": "33",
                                 "class": "",
                                 "id": ""
                             },
-                            "taxonomy": "regio",
-                            "add_term": 0,
-                            "save_terms": 0,
-                            "load_terms": 0,
-                            "return_format": "object",
-                            "field_type": "multi_select",
-                            "allow_null": 0,
-                            "bidirectional": 0,
-                            "multiple": 0,
-                            "bidirectional_target": []
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
                         }
                     ],
                     "min": "",
@@ -415,5 +453,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1724348870
+    "modified": 1726931472
 }

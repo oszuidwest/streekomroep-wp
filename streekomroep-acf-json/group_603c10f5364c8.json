@@ -5,7 +5,7 @@
         {
             "key": "field_603c11fdf28cd",
             "label": "Campagnes",
-            "name": "teksttv_reclame_campagnes",
+            "name": "teksttv_reclame",
             "aria-label": "",
             "type": "repeater",
             "instructions": "Reclameblokken worden samengesteld uit campagnes. Een campagne kan een of meerdere slides bevatten.",
@@ -27,7 +27,7 @@
                 {
                     "key": "field_603c120ff28ce",
                     "label": "Slides",
-                    "name": "slides",
+                    "name": "campagne_slides",
                     "aria-label": "",
                     "type": "gallery",
                     "instructions": "Kies een of meerdere afbeeldingen die na elkaar getoond worden. De volgorde kan later ook nog aangepast worden.",
@@ -56,7 +56,7 @@
                 {
                     "key": "field_603c1232f28cf",
                     "label": "Datum in",
-                    "name": "datum_in",
+                    "name": "campagne_datum_in",
                     "aria-label": "",
                     "type": "date_picker",
                     "instructions": "",
@@ -75,7 +75,7 @@
                 {
                     "key": "field_603c126bf28d0",
                     "label": "Datum uit",
-                    "name": "datum_uit",
+                    "name": "campagne_datum_uit",
                     "aria-label": "",
                     "type": "date_picker",
                     "instructions": "",
@@ -94,7 +94,7 @@
                 {
                     "key": "field_66c50b0158e39",
                     "label": "Seconden per slide",
-                    "name": "seconden",
+                    "name": "campagne_seconden",
                     "aria-label": "",
                     "type": "number",
                     "instructions": "",
@@ -117,7 +117,7 @@
                 {
                     "key": "field_66c510307dd5d",
                     "label": "Groep",
-                    "name": "groep",
+                    "name": "campagne_groep",
                     "aria-label": "",
                     "type": "checkbox",
                     "instructions": "Om te voorkomen dat bepaalde campagnes in hetzelfde blok zitten, bijvoorbeeld twee slagers, kunnen campagnes gegroepeerd worden. Zorg dat iedere groep minimaal één keer in de carroussel ingepland wordt.",
@@ -172,5 +172,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1724348609
+    "modified": 1726937726
 }
