@@ -8,7 +8,7 @@
             "name": "teksttv_categorie_afbeelding",
             "aria-label": "",
             "type": "image",
-            "instructions": "Selecteer een afbeelding die in de sidebar bij teksttv getoond zal worden wanneer een bericht uit deze categorie getoond wordt.",
+            "instructions": "Selecteer een afbeelding die in de sidebar bij teksttv getoond wordt wanneer een bericht uit deze categorie getoond wordt.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
