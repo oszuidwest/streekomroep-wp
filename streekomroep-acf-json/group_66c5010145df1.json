@@ -17,80 +17,6 @@
                 "id": ""
             },
             "layouts": {
-                "layout_669d45f7f950f": {
-                    "key": "layout_669d45f7f950f",
-                    "name": "blok_weer",
-                    "label": "Weersverwachting",
-                    "display": "block",
-                    "sub_fields": [
-                        {
-                            "key": "field_669d4603f9511",
-                            "label": "Coördinaat (lat)",
-                            "name": "coordinaat_lat",
-                            "aria-label": "",
-                            "type": "number",
-                            "instructions": "",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "25",
-                                "class": "",
-                                "id": ""
-                            },
-                            "default_value": "51.5308",
-                            "min": "",
-                            "max": "",
-                            "placeholder": "",
-                            "step": "",
-                            "prepend": "",
-                            "append": ""
-                        },
-                        {
-                            "key": "field_669d46370c2b7",
-                            "label": "Coördinaat (lon)",
-                            "name": "coordinaat_lon",
-                            "aria-label": "",
-                            "type": "number",
-                            "instructions": "",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "25",
-                                "class": "",
-                                "id": ""
-                            },
-                            "default_value": "4.4653",
-                            "min": "",
-                            "max": "",
-                            "placeholder": "",
-                            "step": "",
-                            "prepend": "",
-                            "append": ""
-                        },
-                        {
-                            "key": "field_669d465eaa31f",
-                            "label": "Naam weerstation",
-                            "name": "naam_weerstation",
-                            "aria-label": "",
-                            "type": "text",
-                            "instructions": "",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "50",
-                                "class": "",
-                                "id": ""
-                            },
-                            "default_value": "Roosendaal",
-                            "maxlength": "",
-                            "placeholder": "",
-                            "prepend": "",
-                            "append": ""
-                        }
-                    ],
-                    "min": "",
-                    "max": ""
-                },
                 "layout_669d473b2d988": {
                     "key": "layout_669d473b2d988",
                     "name": "blok_artikelen",
@@ -208,26 +134,6 @@
                             "bidirectional": 0,
                             "multiple": 0,
                             "bidirectional_target": []
-                        },
-                        {
-                            "key": "field_66eee0b232fc7",
-                            "label": "Template",
-                            "name": "template",
-                            "aria-label": "",
-                            "type": "text",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "33",
-                                "class": "",
-                                "id": ""
-                            },
-                            "default_value": "",
-                            "maxlength": "",
-                            "placeholder": "",
-                            "prepend": "",
-                            "append": ""
                         }
                     ],
                     "min": "",
@@ -453,5 +359,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1726931472
+    "modified": 1727807051
 }

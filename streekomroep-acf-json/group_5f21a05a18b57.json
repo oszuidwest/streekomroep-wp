@@ -125,32 +125,6 @@
             "endpoint": 0
         },
         {
-            "key": "field_665f7219edaef",
-            "label": "Startdatum",
-            "name": "post_kabelkrant_datum_in",
-            "aria-label": "",
-            "type": "date_time_picker",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_5f74740c7f912",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "display_format": "Y-m-d H:i",
-            "return_format": "d\/m\/Y g:i a",
-            "first_day": 1
-        },
-        {
             "key": "field_665f7258edaf1",
             "label": "Einddatum",
             "name": "post_kabelkrant_datum_uit",
@@ -194,7 +168,7 @@
                 ]
             ],
             "wrapper": {
-                "width": "100",
+                "width": "50",
                 "class": "",
                 "id": ""
             },
@@ -218,6 +192,7 @@
             ],
             "return_format": "value",
             "allow_custom": 0,
+            "allow_in_bindings": 1,
             "layout": "horizontal",
             "toggle": 0,
             "save_custom": 0,
@@ -283,5 +258,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1722624623
+    "modified": 1727802903
 }
