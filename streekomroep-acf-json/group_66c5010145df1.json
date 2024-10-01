@@ -33,57 +33,18 @@
                             "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "50",
+                                "width": "33",
                                 "class": "",
                                 "id": ""
                             },
                             "default_value": 15,
                             "min": "",
                             "max": "",
+                            "allow_in_bindings": 1,
                             "placeholder": "",
                             "step": "",
                             "prepend": "",
                             "append": ""
-                        },
-                        {
-                            "key": "field_669d47e93b56a",
-                            "label": "Offset",
-                            "name": "offset",
-                            "aria-label": "",
-                            "type": "number",
-                            "instructions": "",
-                            "required": 1,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "50",
-                                "class": "",
-                                "id": ""
-                            },
-                            "default_value": 0,
-                            "min": "",
-                            "max": "",
-                            "placeholder": "",
-                            "step": "",
-                            "prepend": "",
-                            "append": ""
-                        },
-                        {
-                            "key": "field_66eee12f32fc8",
-                            "label": "Geavanceerde opties",
-                            "name": "",
-                            "aria-label": "",
-                            "type": "accordion",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "",
-                                "id": ""
-                            },
-                            "open": 0,
-                            "multi_expand": 0,
-                            "endpoint": 0
                         },
                         {
                             "key": "field_669d484763ed7",
@@ -359,5 +320,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1727807051
+    "modified": 1727807462
 }
