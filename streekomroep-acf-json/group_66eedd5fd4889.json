@@ -1,0 +1,93 @@
+{
+    "key": "group_66eedd5fd4889",
+    "title": "Tekst TV - Ticker",
+    "fields": [
+        {
+            "key": "field_66eedd609ee7e",
+            "label": "Inhoud ticker",
+            "name": "teksttv_ticker",
+            "aria-label": "",
+            "type": "flexible_content",
+            "instructions": "De tickerbalk wordt doorlopend getoond en werkt deze lijst van boven tot onder af.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layouts": {
+                "layout_66eedf08724f1": {
+                    "key": "layout_66eedf08724f1",
+                    "name": "ticker_nufm",
+                    "label": "Nu op FM",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_66eedf4f560af": {
+                    "key": "layout_66eedf4f560af",
+                    "name": "ticker_straksfm",
+                    "label": "Straks op FM",
+                    "display": "block",
+                    "sub_fields": [],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_66eedf55560b1": {
+                    "key": "layout_66eedf55560b1",
+                    "name": "ticker_tekst",
+                    "label": "Vrije tekst",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_66eedf5d560b3",
+                            "label": "Tekst",
+                            "name": "ticker_tekst_tekst",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                }
+            },
+            "min": "",
+            "max": "",
+            "button_label": "Voeg toe"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "teksttv"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1726937813
+}

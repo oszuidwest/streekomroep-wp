@@ -230,6 +230,17 @@ if (function_exists('acf_add_options_page')) {
 
 if (function_exists('acf_add_options_page')) {
     acf_add_options_page([
+        'page_title' => 'Tekst TV',
+        'menu_title' => 'Tekst TV',
+        'menu_slug' => 'teksttv',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-welcome-view-site',
+        'redirect' => false
+    ]);
+}
+
+if (function_exists('acf_add_options_page')) {
+    acf_add_options_page([
         'page_title' => 'Desking',
         'menu_title' => 'Desking',
         'menu_slug' => 'desking',
