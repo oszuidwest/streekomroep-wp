@@ -68,8 +68,9 @@
                         "id": ""
                     },
                     "display_format": "d\/m\/Y",
-                    "return_format": "d\/m\/Y",
+                    "return_format": "Y-m-d",
                     "first_day": 1,
+                    "allow_in_bindings": 1,
                     "parent_repeater": "field_603c11fdf28cd"
                 },
                 {
@@ -87,8 +88,9 @@
                         "id": ""
                     },
                     "display_format": "d\/m\/Y",
-                    "return_format": "d\/m\/Y",
+                    "return_format": "Y-m-d",
                     "first_day": 1,
+                    "allow_in_bindings": 1,
                     "parent_repeater": "field_603c11fdf28cd"
                 },
                 {
@@ -172,5 +174,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1726937726
+    "modified": 1728829904
 }
