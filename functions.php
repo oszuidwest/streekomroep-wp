@@ -302,22 +302,6 @@ function zw_rest_api_init()
 
     register_rest_field(
         'post',
-        'kabelkrant_text',
-        [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $data = null;
-                $show = (bool)get_field('post_in_kabelkrant', $post_arr['id']);
-                if ($show) {
-                    $data = get_field('post_kabelkrant_content', $post_arr['id']);
-                }
-
-                return $data;
-            },
-        ]
-    );
-
-    register_rest_field(
-        'post',
         'ranking',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
