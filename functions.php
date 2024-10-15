@@ -157,6 +157,7 @@ Timber::$dirname = ['templates', 'views'];
 
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
+require_once 'lib/teksttv.php';
 
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
@@ -299,22 +300,6 @@ function zw_rest_api_init()
             ]
         );
     }
-
-    register_rest_field(
-        'post',
-        'kabelkrant_text',
-        [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $data = null;
-                $show = (bool)get_field('post_in_kabelkrant', $post_arr['id']);
-                if ($show) {
-                    $data = get_field('post_kabelkrant_content', $post_arr['id']);
-                }
-
-                return $data;
-            },
-        ]
-    );
 
     register_rest_field(
         'post',
@@ -502,140 +487,7 @@ function zw_rest_api_init()
                 }, $schedule->getTomorrow()->television),
             ];
 
-            $commercials = [];
-
-            if (!is_array($options['tv_reclame_slides'])) {
-                $options['tv_reclame_slides'] = [];
-            }
-
-            $now = new DateTime('now', wp_timezone());
-            foreach ($options['tv_reclame_slides'] as $slide) {
-                // Ignore slides with no image
-                if ($slide['tv_reclame_afbeelding'] === false) {
-                    continue;
-                }
-
-                $start = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_start'], wp_timezone());
-                $start->setTime(0, 0);
-                // TODO: is end date inclusive?
-                $end = DateTime::createFromFormat('d/m/Y', $slide['tv_reclame_eind'], wp_timezone());
-                $end->setTime(24, 0);
-
-                if ($now >= $start && $now < $end) {
-                    $commercials[] = $slide['tv_reclame_afbeelding']['url'];
-                }
-            }
-
-            $response['commercials'] = $commercials;
-
             return $response;
-        }
-    ]);
-
-    register_rest_route('zw/v1', '/desking', [
-        'methods' => 'GET',
-        'permission_callback' => '__return_true',
-        'callback' => function (WP_REST_Request $request) {
-            $output = [];
-            $blocks = get_field('desking_blokken_voorpagina', 'option');
-
-            foreach ($blocks as $block) {
-                switch ($block['acf_fc_layout']) {
-                    case 'blok_top_stories':
-                        $output[] = [
-                            'type' => 'topstories',
-                        ];
-                        break;
-
-                    case 'blok_tv_gemist':
-                        $output[] = [
-                            'type' => 'recent_tv',
-                            'title' => trim($block['tekst_boven_videos']),
-                            'deduplicate' => $block['ontdubbel'],
-                            'count' => $block['aantal_videos'],
-                        ];
-                        break;
-
-                    case 'blok_fm_gemist':
-                        $output[] = [
-                            'type' => 'recent_fm',
-                            'title' => trim($block['tekst_boven_audio']),
-                        ];
-                        break;
-
-                    case 'blok_fragmenten_carrousel':
-                        $title = $block['tekst_boven_fragmenten'];
-                        if (empty($title)) {
-                            $title = null;
-                        }
-                        $output[] = [
-                            'type' => 'fragments',
-                            'title' => $title,
-                        ];
-                        break;
-
-                    case 'blok_artikel_lijst':
-                        $title = $block['tekst_boven_artikelen'];
-                        if (empty($title)) {
-                            $title = null;
-                        }
-                        $output[] = [
-                            'type' => 'posts',
-                            'title' => $title,
-                            'count' => $block['aantal_artikelen'],
-                            'offset' => $block['offset'],
-                        ];
-                        break;
-
-                    case 'blok_dossier':
-                        $term = get_term($block['selecteer_dossier'], 'dossier');
-                        $title = $block['tekst_boven_dossier'];
-                        if (empty($title)) {
-                            $title = $term->name;
-                        }
-
-                        $output[] = [
-                            'type' => 'dossier',
-                            'title' => $title,
-                            'count' => $block['aantal_artikelen'],
-                            'offset' => $block['offset'],
-                            'term_id' => $term->term_id,
-                        ];
-                        break;
-
-                    case 'blok_dossiers_carrousel':
-                        $title = $block['tekst_boven_dossiers'];
-                        if (empty($title)) {
-                            $title = 'Dossiers';
-                        }
-
-                        $output[] = [
-                            'type' => 'dossier_carousel',
-                            'title' => $title,
-                        ];
-                        break;
-
-                    case 'blok_nu_op_fmtv':
-                        $output[] = [
-                            'type' => 'now_onair'
-                        ];
-                        break;
-
-                    case 'blok_meest_gelezen':
-                        $title = $block['tekst_boven_artikelen'];
-                        if (empty($title)) {
-                            $title = null;
-                        }
-
-                        $output[] = [
-                            'type' => 'popular',
-                            'title' => $title,
-                        ];
-                        break;
-                }
-            }
-
-            return $output;
         }
     ]);
 }
