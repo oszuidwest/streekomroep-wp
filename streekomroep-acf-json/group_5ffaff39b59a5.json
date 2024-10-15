@@ -1,13 +1,14 @@
 {
     "key": "group_5ffaff39b59a5",
-    "title": "Desking - Blokken voorpagina",
+    "title": "Desking – Voorpagina",
     "fields": [
         {
             "key": "field_5ffaff7110349",
             "label": "Blokken voorpagina",
             "name": "desking_blokken_voorpagina",
+            "aria-label": "",
             "type": "flexible_content",
-            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder het menu",
+            "instructions": "Stel de voorpagina samen aan de hand van verschillende blokken die beginnen onder het menu.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -35,6 +36,7 @@
                             "key": "field_5ffb0008390b6",
                             "label": "Tekst boven artikelen",
                             "name": "tekst_boven_artikelen",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -54,6 +56,7 @@
                             "key": "field_5ffb0022390b7",
                             "label": "Aantal artikelen",
                             "name": "aantal_artikelen",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -75,6 +78,7 @@
                             "key": "field_5ffb004a390b8",
                             "label": "Offset",
                             "name": "offset",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -115,6 +119,7 @@
                             "key": "field_6005b3bfd89cc",
                             "label": "Tekst boven fragmenten",
                             "name": "tekst_boven_fragmenten",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -144,6 +149,7 @@
                             "key": "field_6005b4076cce9",
                             "label": "Tekst boven artikelen",
                             "name": "tekst_boven_artikelen",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -173,6 +179,7 @@
                             "key": "field_619263fbc2e11",
                             "label": "Tekst boven video's",
                             "name": "tekst_boven_videos",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -192,6 +199,7 @@
                             "key": "field_6212542c5d300",
                             "label": "Ontdubbel programma's",
                             "name": "ontdubbel",
+                            "aria-label": "",
                             "type": "true_false",
                             "instructions": "Als ingeschakeld: toont alleen de laatste aflevering van ieder programma. Als uitgeschakeld: toont video's op volgorde van uitzenddatum. Onafhankelijk van programma.",
                             "required": 0,
@@ -211,6 +219,7 @@
                             "key": "field_621254d01d730",
                             "label": "Aantal video's",
                             "name": "aantal_videos",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -242,6 +251,7 @@
                             "key": "field_6192689323212",
                             "label": "Tekst boven audio",
                             "name": "tekst_boven_audio",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -271,6 +281,7 @@
                             "key": "field_6005b638746d2",
                             "label": "Tekst boven dossiers",
                             "name": "tekst_boven_dossiers",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -300,6 +311,7 @@
                             "key": "field_600d8cd21a6bf",
                             "label": "Tekst boven dossier",
                             "name": "tekst_boven_dossier",
+                            "aria-label": "",
                             "type": "text",
                             "instructions": "",
                             "required": 0,
@@ -319,6 +331,7 @@
                             "key": "field_6005b45e6cced",
                             "label": "Selecteer dossier",
                             "name": "selecteer_dossier",
+                            "aria-label": "",
                             "type": "taxonomy",
                             "instructions": "",
                             "required": 0,
@@ -335,12 +348,14 @@
                             "save_terms": 0,
                             "load_terms": 0,
                             "return_format": "id",
-                            "multiple": 0
+                            "multiple": 0,
+                            "bidirectional_target": []
                         },
                         {
                             "key": "field_6233477e5ac55",
                             "label": "Aantal artikelen",
                             "name": "aantal_artikelen",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -362,6 +377,7 @@
                             "key": "field_623347af5ac56",
                             "label": "Offset",
                             "name": "offset",
+                            "aria-label": "",
                             "type": "number",
                             "instructions": "",
                             "required": 0,
@@ -384,9 +400,9 @@
                     "max": ""
                 }
             },
-            "button_label": "Nieuw blok",
             "min": "",
-            "max": ""
+            "max": "",
+            "button_label": "Nieuw blok"
         }
     ],
     "location": [
@@ -407,5 +423,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1647772742
+    "modified": 1724186997
 }

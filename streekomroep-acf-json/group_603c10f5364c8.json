@@ -1,13 +1,14 @@
 {
     "key": "group_603c10f5364c8",
-    "title": "TV - Kabelkrant reclame",
+    "title": "Tekst TV - Reclame",
     "fields": [
         {
             "key": "field_603c11fdf28cd",
-            "label": "Slides",
-            "name": "tv_reclame_slides",
+            "label": "Campagnes",
+            "name": "teksttv_reclame",
+            "aria-label": "",
             "type": "repeater",
-            "instructions": "",
+            "instructions": "Reclameblokken worden samengesteld uit campagnes. Een campagne kan een of meerdere slides bevatten.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -15,18 +16,21 @@
                 "class": "",
                 "id": ""
             },
-            "collapsed": "",
+            "layout": "row",
+            "pagination": 0,
             "min": 0,
             "max": 0,
-            "layout": "table",
-            "button_label": "Nieuwe slide",
+            "collapsed": "field_603c120ff28ce",
+            "button_label": "Nieuwe campagne",
+            "rows_per_page": 20,
             "sub_fields": [
                 {
                     "key": "field_603c120ff28ce",
-                    "label": "Afbeelding",
-                    "name": "tv_reclame_afbeelding",
-                    "type": "image",
-                    "instructions": "",
+                    "label": "Slides",
+                    "name": "campagne_slides",
+                    "aria-label": "",
+                    "type": "gallery",
+                    "instructions": "Kies een of meerdere afbeeldingen die na elkaar getoond worden. De volgorde kan later ook nog aangepast worden.",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -35,49 +39,119 @@
                         "id": ""
                     },
                     "return_format": "array",
-                    "preview_size": "medium",
                     "library": "all",
+                    "min": "",
+                    "max": "",
                     "min_width": "",
                     "min_height": "",
                     "min_size": "",
                     "max_width": "",
                     "max_height": "",
                     "max_size": "",
-                    "mime_types": ""
+                    "mime_types": "",
+                    "insert": "prepend",
+                    "preview_size": "thumbnail",
+                    "parent_repeater": "field_603c11fdf28cd"
                 },
                 {
                     "key": "field_603c1232f28cf",
-                    "label": "Begindatum",
-                    "name": "tv_reclame_start",
+                    "label": "Datum in",
+                    "name": "campagne_datum_in",
+                    "aria-label": "",
                     "type": "date_picker",
                     "instructions": "",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
-                        "width": "",
+                        "width": "27.5",
                         "class": "",
                         "id": ""
                     },
                     "display_format": "d\/m\/Y",
-                    "return_format": "d\/m\/Y",
-                    "first_day": 1
+                    "return_format": "Y-m-d",
+                    "first_day": 1,
+                    "allow_in_bindings": 1,
+                    "parent_repeater": "field_603c11fdf28cd"
                 },
                 {
                     "key": "field_603c126bf28d0",
-                    "label": "Eindddatum",
-                    "name": "tv_reclame_eind",
+                    "label": "Datum uit",
+                    "name": "campagne_datum_uit",
+                    "aria-label": "",
                     "type": "date_picker",
                     "instructions": "",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
-                        "width": "",
+                        "width": "27.5",
                         "class": "",
                         "id": ""
                     },
                     "display_format": "d\/m\/Y",
-                    "return_format": "d\/m\/Y",
-                    "first_day": 1
+                    "return_format": "Y-m-d",
+                    "first_day": 1,
+                    "allow_in_bindings": 1,
+                    "parent_repeater": "field_603c11fdf28cd"
+                },
+                {
+                    "key": "field_66c50b0158e39",
+                    "label": "Seconden per slide",
+                    "name": "campagne_seconden",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "9",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": 10,
+                    "min": 1,
+                    "max": "",
+                    "placeholder": "",
+                    "step": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_603c11fdf28cd"
+                },
+                {
+                    "key": "field_66c510307dd5d",
+                    "label": "Groep",
+                    "name": "campagne_groep",
+                    "aria-label": "",
+                    "type": "checkbox",
+                    "instructions": "Om te voorkomen dat bepaalde campagnes in hetzelfde blok zitten, bijvoorbeeld twee slagers, kunnen campagnes gegroepeerd worden. Zorg dat iedere groep minimaal één keer in de carroussel ingepland wordt.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "6",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "1": "1",
+                        "2": "2",
+                        "3": "3",
+                        "4": "4",
+                        "5": "5",
+                        "6": "6",
+                        "7": "7",
+                        "8": "8",
+                        "9": "9",
+                        "10": "10"
+                    },
+                    "default_value": [
+                        1
+                    ],
+                    "return_format": "value",
+                    "allow_custom": 0,
+                    "layout": "horizontal",
+                    "toggle": 0,
+                    "save_custom": 0,
+                    "custom_choice_button_text": "Nieuwe keuze toevoegen",
+                    "parent_repeater": "field_603c11fdf28cd"
                 }
             ]
         }
@@ -87,11 +161,11 @@
             {
                 "param": "options_page",
                 "operator": "==",
-                "value": "tv-instellingen"
+                "value": "teksttv"
             }
         ]
     ],
-    "menu_order": 0,
+    "menu_order": 1,
     "position": "normal",
     "style": "default",
     "label_placement": "top",
@@ -99,5 +173,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1615031430
+    "show_in_rest": 0,
+    "modified": 1728829904
 }
