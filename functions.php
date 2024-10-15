@@ -157,6 +157,7 @@ Timber::$dirname = ['templates', 'views'];
 
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
+require_once 'lib/kabelkrant.php';
 
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
