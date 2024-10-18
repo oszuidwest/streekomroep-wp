@@ -137,7 +137,7 @@ class TekstTVAPI
                 foreach ($pages as $index => $page_content) {
                     $slides[] = [
                         'type' => 'text',
-                        'duration' => 10000, // 10 seconds, adjust as needed
+                        'duration' => 15000, // 15 seconds, adjust as needed
                         'title' => get_the_title(),
                         'body' => wpautop(trim($page_content)),
                         'image' => $slide_image,
@@ -151,7 +151,7 @@ class TekstTVAPI
                     foreach ($extra_images as $image) {
                         $slides[] = [
                             'type' => 'image',
-                            'duration' => 5000, // 5 seconds, adjust as needed
+                            'duration' => 7000, // 7 seconds, adjust as needed
                             'url' => $image['url'],
                         ];
                     }
