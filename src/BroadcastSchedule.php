@@ -21,12 +21,7 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        $tvWeeks = get_field('tv_week', 'option');
-        if (empty($tvWeeks)) {
-            return;
-        }
-
-        foreach ($tvWeeks as $week) {
+        foreach (get_field('tv_week', 'option') as $week) {
             $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'], wp_timezone());
             $start->setTime(0, 0);
             if ($start < $scheduleStart) {
