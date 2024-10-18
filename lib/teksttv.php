@@ -8,32 +8,36 @@
 
 defined('ABSPATH') or die('Direct access not allowed');
 
-class Narrowcasting_API {
-    public function __construct() {
-        add_action('rest_api_init', array($this, 'register_api_routes'));
+class Narrowcasting_API
+{
+    public function __construct()
+    {
+        add_action('rest_api_init', [$this, 'register_api_routes']);
     }
 
-    public function register_api_routes() {
-        register_rest_route('narrowcasting/v1', '/slides', array(
+    public function register_api_routes()
+    {
+        register_rest_route('narrowcasting/v1', '/slides', [
             'methods' => 'GET',
-            'callback' => array($this, 'get_slides'),
+            'callback' => [$this, 'get_slides'],
             'permission_callback' => '__return_true'
-        ));
+        ]);
 
-        register_rest_route('narrowcasting/v1', '/ticker', array(
+        register_rest_route('narrowcasting/v1', '/ticker', [
             'methods' => 'GET',
-            'callback' => array($this, 'get_ticker_messages'),
+            'callback' => [$this, 'get_ticker_messages'],
             'permission_callback' => '__return_true'
-        ));
+        ]);
     }
 
-    public function get_slides() {
-        $slides = array();
-        
+    public function get_slides()
+    {
+        $slides = [];
+
         if (function_exists('get_field')) {
             $blocks = get_field('teksttv_blokken', 'option');
             $ad_campaigns = $this->get_ad_campaigns();
-            
+
             if ($blocks) {
                 foreach ($blocks as $block) {
                     switch ($block['acf_fc_layout']) {
@@ -52,62 +56,61 @@ class Narrowcasting_API {
                     }
                 }
             }
-            
-            
         }
 
         return new WP_REST_Response($slides, 200);
     }
 
-    private function get_article_slides($block) {
-        $slides = array();
-        $args = array(
+    private function get_article_slides($block)
+    {
+        $slides = [];
+        $args = [
             'post_type' => 'post',
             'posts_per_page' => $block['aantal_artikelen'],
-            'meta_query' => array(
-                array(
+            'meta_query' => [
+                [
                     'key' => 'post_in_kabelkrant',
                     'value' => '1',
                     'compare' => '='
-                )
-            )
-        );
+                ]
+            ]
+        ];
 
         if (!empty($block['Regiofilter'])) {
-            $region_ids = array_map(function($term) {
+            $region_ids = array_map(function ($term) {
                 return $term->term_id;
             }, $block['Regiofilter']);
-            
-            $args['tax_query'][] = array(
+
+            $args['tax_query'][] = [
                 'taxonomy' => 'regio',
                 'field' => 'term_id',
                 'terms' => $region_ids,
-            );
+            ];
         }
 
         if (!empty($block['categoriefilter'])) {
-            $category_ids = array_map(function($term) {
+            $category_ids = array_map(function ($term) {
                 return $term->term_id;
             }, $block['categoriefilter']);
-            
-            $args['tax_query'][] = array(
+
+            $args['tax_query'][] = [
                 'taxonomy' => 'category',
                 'field' => 'term_id',
                 'terms' => $category_ids,
-            );
+            ];
         }
-        
+
 
         $query = new WP_Query($args);
 
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $p = $query->the_post();
-                
+
                 // Check if the post should be displayed today
                 $display_days = get_field('post_kabelkrant_dagen', get_the_ID());
                 $today = date('N');
-                
+
                 if (!empty($display_days) && !in_array($today, $display_days)) {
                     continue;
                 }
@@ -119,36 +122,36 @@ class Narrowcasting_API {
                 }
 
                 $kabelkrant_content = get_field('post_kabelkrant_content', get_the_ID());
-                if(empty($kabelkrant_content)) {
+                if (empty($kabelkrant_content)) {
                     continue;
                 }
-                
+
                 // Get the image based on Yoast primary category
                 $slide_image = $this->get_primary_category_image(get_the_ID());
-                
+
                 // Split content into pages
                 $pages = preg_split('/\n*-{3,}\n*/', $kabelkrant_content);
-                
+
                 foreach ($pages as $index => $page_content) {
-                    $slides[] = array(
+                    $slides[] = [
                         'type' => 'text',
                         'duration' => 10000, // 10 seconds, adjust as needed
                         'title' => get_the_title(),
                         'body' => wpautop(trim($page_content)),
                         'image' => $slide_image,
-                    );
+                    ];
                 }
-                
+
 
                 // Add extra images if any
                 $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', get_the_ID());
                 if (!empty($extra_images)) {
                     foreach ($extra_images as $image) {
-                        $slides[] = array(
+                        $slides[] = [
                             'type' => 'image',
                             'duration' => 5000, // 5 seconds, adjust as needed
                             'url' => $image['url'],
-                        );
+                        ];
                     }
                 }
             }
@@ -159,31 +162,34 @@ class Narrowcasting_API {
     }
 
 
-    private function get_primary_category_image($post_id) {
+    private function get_primary_category_image($post_id)
+    {
         $primary_term_id = get_post_meta($post_id, '_yoast_wpseo_primary_category', true);
-        
+
         if ($primary_term_id) {
             $term_image = get_field('teksttv_categorie_afbeelding', 'category_' . $primary_term_id);
             if ($term_image) {
                 return $term_image['url'];
             }
         }
-        
+
         // Fallback to post thumbnail if no primary category image
         return get_the_post_thumbnail_url($post_id, 'medium');
     }
 
 
-    private function get_image_slide($block) {
-        return array(
+    private function get_image_slide($block)
+    {
+        return [
             'type' => 'image',
             'duration' => intval($block['seconden']) * 1000,
             'url' => $block['afbeelding']['url'],
-        );
+        ];
     }
 
-    private function get_ad_campaigns() {
-        $campaigns = array();
+    private function get_ad_campaigns()
+    {
+        $campaigns = [];
         if (function_exists('get_field')) {
             $all_campaigns = get_field('teksttv_reclame', 'option');
             if ($all_campaigns) {
@@ -194,7 +200,7 @@ class Narrowcasting_API {
 
                     // Convert start date to timestamp (beginning of the day)
                     $start_timestamp = $start_date ? strtotime($start_date . ' 00:00:00') : 0;
-                
+
                     // Convert end date to timestamp (end of the day)
                     $end_timestamp = $end_date ? strtotime($end_date . ' 23:59:59') : PHP_INT_MAX;
 
@@ -207,78 +213,80 @@ class Narrowcasting_API {
         return $campaigns;
     }
 
-    private function get_ad_slides($block, $campaigns) {
-        $slides = array();
+    private function get_ad_slides($block, $campaigns)
+    {
+        $slides = [];
         $group = $block['groep'];
 
         foreach ($campaigns as $campaign) {
             if (in_array($group, $campaign['campagne_groep'])) {
                 foreach ($campaign['campagne_slides'] as $slide) {
-                    $slides[] = array(
+                    $slides[] = [
                         'type' => 'image',
                         'duration' => intval($campaign['campagne_seconden']) * 1000,
                         'url' => $slide['url'],
-                    );
+                    ];
                 }
             }
         }
-    
+
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in'])) {
-                array_unshift($slides, array(
+                array_unshift($slides, [
                     'type' => 'image',
                     'duration' => 5000, // 5 seconds, adjust as needed
                     'url' => $block['afbeelding_in']['url'],
-                ));
+                ]);
             }
 
             if (!empty($block['afbeelding_uit'])) {
-                $slides[] = array(
+                $slides[] = [
                     'type' => 'image',
                     'duration' => 5000, // 5 seconds, adjust as needed
                     'url' => $block['afbeelding_uit']['url'],
-                );
+                ];
             }
         }
 
         return $slides;
     }
 
-    public function get_ticker_messages() {
-        $ticker_messages = array();
-        
+    public function get_ticker_messages()
+    {
+        $ticker_messages = [];
+
         if (function_exists('get_field')) {
             $ticker_content = get_field('teksttv_ticker', 'option');
-            
+
             if ($ticker_content) {
                 foreach ($ticker_content as $item) {
                     switch ($item['acf_fc_layout']) {
                         case 'ticker_nufm':
                             $message = $this->get_current_fm_program();
                             if ($message) {
-                                $ticker_messages[] = array(
+                                $ticker_messages[] = [
                                     'message' => $message,
                                     'duration' => 10 // Adjust duration as needed
-                                );
+                                ];
                             }
                             break;
-                        
+
                         case 'ticker_straksfm':
                             $message = $this->get_next_fm_program();
                             if ($message) {
-                                $ticker_messages[] = array(
+                                $ticker_messages[] = [
                                     'message' => $message,
                                     'duration' => 10 // Adjust duration as needed
-                                );
+                                ];
                             }
                             break;
-                        
+
                         case 'ticker_tekst':
                             if (!empty($item['ticker_tekst_tekst'])) {
-                                $ticker_messages[] = array(
+                                $ticker_messages[] = [
                                     'message' => $item['ticker_tekst_tekst'],
                                     'duration' => 10 // Adjust duration as needed
-                                );
+                                ];
                             }
                             break;
                     }
@@ -289,19 +297,20 @@ class Narrowcasting_API {
         return new WP_REST_Response($ticker_messages, 200);
     }
 
-    private function get_current_fm_program() {
-            $schedule = new \Streekomroep\BroadcastSchedule();
+    private function get_current_fm_program()
+    {
+        $schedule = new \Streekomroep\BroadcastSchedule();
         // Implement logic to get current FM program
         // This is a placeholder and should be replaced with actual logic
-        return "Nu op Radio Rucphen: " . $schedule->getCurrentRadioBroadcast()->getName();
+        return 'Nu op Radio Rucphen: ' . $schedule->getCurrentRadioBroadcast()->getName();
     }
 
-    private function get_next_fm_program() {
-            $schedule = new \Streekomroep\BroadcastSchedule();
-            
-        return "Straks op Radio Rucphen: " . $schedule->getNextRadioBroadcast()->getName();
-    }
+    private function get_next_fm_program()
+    {
+        $schedule = new \Streekomroep\BroadcastSchedule();
 
+        return 'Straks op Radio Rucphen: ' . $schedule->getNextRadioBroadcast()->getName();
+    }
 }
 
 $narrowcasting_api = new Narrowcasting_API();
