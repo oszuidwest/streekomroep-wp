@@ -1,10 +1,13 @@
 
 # The Streekomroep WordPress Theme
 
-This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.6+ and PHP 8.2+.
+This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.6+ and PHP 8.2.
 
-## How to build/install
-It's not enough to download the theme and upload is to a server. The dependencies must be built first. Otherwise it will not work.
+## How to install
+Get the latest version from the [Releases tab](https://github.com/oszuidwest/streekomroep-wp/releases) and upload it as theme to your WordPress installation. Ensure to install all the hard dependencies too.
+
+## How to manually build
+You can also build the theme yourself.
 
 Instructions for macOS:
 - Install Homebrew ([https://brew.sh](https://brew.sh))
@@ -14,6 +17,7 @@ Instructions for macOS:
 
 ```bash
 npm install
+npx browserslist@latest --update-db
 NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
@@ -23,7 +27,7 @@ For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.2.x: [[Use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Timber 2.2: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]
 - Advanced Custom Fields Pro 6.3.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
 - Yoast SEO Premium 23.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
