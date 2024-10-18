@@ -17,13 +17,13 @@ class Narrowcasting_API
 
     public function register_api_routes()
     {
-        register_rest_route('narrowcasting/v1', '/slides', [
+        register_rest_route('zw/v1', '/teksttv-slides', [
             'methods' => 'GET',
             'callback' => [$this, 'get_slides'],
             'permission_callback' => '__return_true'
         ]);
 
-        register_rest_route('narrowcasting/v1', '/ticker', [
+        register_rest_route('zw/v1', '/teksttv-ticker', [
             'methods' => 'GET',
             'callback' => [$this, 'get_ticker_messages'],
             'permission_callback' => '__return_true'
