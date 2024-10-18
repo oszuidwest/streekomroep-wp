@@ -1,12 +1,4 @@
 <?php
-/**
- * Plugin Name: Narrowcasting API
- * Description: Provides REST API endpoints for narrowcasting slides and ticker messages.
- * Version: 1.3
- * Author: Your Name
- */
-
-defined('ABSPATH') or die('Direct access not allowed');
 
 namespace Streekomroep;
 
