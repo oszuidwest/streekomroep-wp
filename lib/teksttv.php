@@ -268,7 +268,6 @@ class TekstTVAPI
                             if ($message) {
                                 $ticker_messages[] = [
                                     'message' => $message,
-                                    'duration' => 10 // Adjust duration as needed
                                 ];
                             }
                             break;
@@ -278,7 +277,6 @@ class TekstTVAPI
                             if ($message) {
                                 $ticker_messages[] = [
                                     'message' => $message,
-                                    'duration' => 10 // Adjust duration as needed
                                 ];
                             }
                             break;
@@ -287,7 +285,6 @@ class TekstTVAPI
                             if (!empty($item['ticker_tekst_tekst'])) {
                                 $ticker_messages[] = [
                                     'message' => $item['ticker_tekst_tekst'],
-                                    'duration' => 10 // Adjust duration as needed
                                 ];
                             }
                             break;
