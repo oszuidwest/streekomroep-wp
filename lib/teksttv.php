@@ -8,7 +8,9 @@
 
 defined('ABSPATH') or die('Direct access not allowed');
 
-class Narrowcasting_API
+namespace Streekomroep;
+
+class TekstTVAPI
 {
     public function __construct()
     {
@@ -313,4 +315,4 @@ class Narrowcasting_API
     }
 }
 
-$narrowcasting_api = new Narrowcasting_API();
+$teksttv_api = new TekstTVAPI();
