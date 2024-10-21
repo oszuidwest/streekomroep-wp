@@ -61,12 +61,12 @@ class TekstTVAPI
     {
         $slides = [];
         $args   = [
-            'post_type'      => 'post',
+            'post_type' => 'post',
             'posts_per_page' => $block['aantal_artikelen'],
-            'meta_query'     => [
+            'meta_query' => [
                 [
-                    'key'     => 'post_in_kabelkrant',
-                    'value'   => '1',
+                    'key'  => 'post_in_kabelkrant',
+                    'value' => '1',
                     'compare' => '=',
                 ],
             ],
@@ -78,19 +78,19 @@ class TekstTVAPI
             }, $block['Regiofilter']);
             $args['tax_query'][] = [
                 'taxonomy' => 'regio',
-                'field'    => 'term_id',
-                'terms'    => $region_ids,
+                'field' => 'term_id',
+                'terms' => $region_ids,
             ];
         }
 
         if (!empty($block['categoriefilter'])) {
-            $category_ids         = \array_map(function ($term) {
+            $category_ids = \array_map(function ($term) {
                 return $term->term_id;
             }, $block['categoriefilter']);
             $args['tax_query'][] = [
                 'taxonomy' => 'category',
-                'field'    => 'term_id',
-                'terms'    => $category_ids,
+                'field' => 'term_id',
+                'terms' => $category_ids,
             ];
         }
 
@@ -102,7 +102,7 @@ class TekstTVAPI
 
                 // Check if the post should be displayed today
                 $display_days = \get_field('post_kabelkrant_dagen', \get_the_ID());
-                $today        = \date('N');
+                $today = \date('N');
 
                 if (!empty($display_days) && !\in_array($today, $display_days)) {
                     continue;
@@ -127,11 +127,11 @@ class TekstTVAPI
 
                 foreach ($pages as $index => $page_content) {
                     $slides[] = [
-                        'type'     => 'text',
+                        'type' => 'text',
                         'duration' => 15000, // 15 seconds, adjust as needed
-                        'title'    => \get_the_title(),
-                        'body'     => \wpautop(\trim($page_content)),
-                        'image'    => $slide_image,
+                        'title' => \get_the_title(),
+                        'body' => \wpautop(\trim($page_content)),
+                        'image' => $slide_image,
                     ];
                 }
 
@@ -140,9 +140,9 @@ class TekstTVAPI
                 if (!empty($extra_images)) {
                     foreach ($extra_images as $image) {
                         $slides[] = [
-                            'type'     => 'image',
+                            'type' => 'image',
                             'duration' => 7000, // 7 seconds, adjust as needed
-                            'url'      => $image['url'],
+                            'url' => $image['url'],
                         ];
                     }
                 }
@@ -170,16 +170,16 @@ class TekstTVAPI
 
     private function get_image_slide($block)
     {
-        // Check if the image exists
+        $slide = [
+            'type' => 'image',
+            'duration' => \intval($block['seconden']) * 1000,
+        ];
+
         if (!empty($block['afbeelding']) && !empty($block['afbeelding']['url'])) {
-            return [
-                'type'     => 'image',
-                'duration' => \intval($block['seconden']) * 1000,
-                'url'      => $block['afbeelding']['url'],
-            ];
+            $slide['url'] = $block['afbeelding']['url'];
         }
-        // If no image exists, return null or an empty array, depending on your needs
-        return null;
+
+        return $slide;
     }
 
     private function get_ad_campaigns()
@@ -217,9 +217,9 @@ class TekstTVAPI
             if (\in_array($group, $campaign['campagne_groep'])) {
                 foreach ($campaign['campagne_slides'] as $slide) {
                     $slides[] = [
-                        'type'     => 'image',
+                        'type' => 'image',
                         'duration' => \intval($campaign['campagne_seconden']) * 1000,
-                        'url'      => $slide['url'],
+                        'url' => $slide['url'],
                     ];
                 }
             }
@@ -228,17 +228,17 @@ class TekstTVAPI
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in'])) {
                 \array_unshift($slides, [
-                    'type'     => 'image',
+                    'type' => 'image',
                     'duration' => 5000, // 5 seconds, adjust as needed
-                    'url'      => $block['afbeelding_in']['url'],
+                    'url' => $block['afbeelding_in']['url'],
                 ]);
             }
 
             if (!empty($block['afbeelding_uit'])) {
                 $slides[] = [
-                    'type'     => 'image',
+                    'type' => 'image',
                     'duration' => 5000, // 5 seconds, adjust as needed
-                    'url'      => $block['afbeelding_uit']['url'],
+                    'url' => $block['afbeelding_uit']['url'],
                 ];
             }
         }
