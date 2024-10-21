@@ -170,11 +170,16 @@ class TekstTVAPI
 
     private function get_image_slide($block)
     {
-        return [
-            'type'     => 'image',
-            'duration' => \intval($block['seconden']) * 1000,
-            'url'      => $block['afbeelding']['url'],
-        ];
+        // Check if the image exists
+        if (!empty($block['afbeelding']) && !empty($block['afbeelding']['url'])) {
+            return [
+                'type'     => 'image',
+                'duration' => \intval($block['seconden']) * 1000,
+                'url'      => $block['afbeelding']['url'],
+            ];
+        }
+        // If no image exists, return null or an empty array, depending on your needs
+        return null;
     }
 
     private function get_ad_campaigns()
