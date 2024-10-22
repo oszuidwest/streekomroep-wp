@@ -7,11 +7,13 @@ use WP_REST_Response;
 
 class TekstTVAPI
 {
+    // Constructor to hook the API routes into WordPress' REST API initialization
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'register_api_routes']);
     }
 
+    // Register custom API routes for TekstTV slides and ticker messages
     public function register_api_routes()
     {
         register_rest_route('zw/v1', '/teksttv-slides', [
@@ -27,14 +29,17 @@ class TekstTVAPI
         ]);
     }
 
+    // Callback for the '/teksttv-slides' endpoint - generates an array of slides
     public function get_slides()
     {
         $slides = [];
 
+        // Check if Advanced Custom Fields (ACF) plugin is active and the 'teksttv_blokken' field exists
         if (function_exists('get_field')) {
             $blocks = get_field('teksttv_blokken', 'option');
             $ad_campaigns = $this->get_ad_campaigns();
 
+            // If blocks are available, process each one
             if ($blocks) {
                 foreach ($blocks as $block) {
                     switch ($block['acf_fc_layout']) {
@@ -51,7 +56,7 @@ class TekstTVAPI
                             $slides = array_merge($slides, $this->get_ad_slides($block, $ad_campaigns));
                             break;
                         case 'blok_fm_programmering':
-                            // Implement FM programming slide if needed
+                            // Placeholder for FM programming slides (not yet implemented)
                             break;
                     }
                 }
@@ -61,6 +66,7 @@ class TekstTVAPI
         return new WP_REST_Response($slides, 200);
     }
 
+    // Generate slides based on posts filtered by regions and categories
     private function get_article_slides($block)
     {
         $slides = [];
@@ -76,6 +82,7 @@ class TekstTVAPI
             ],
         ];
 
+        // Add region filters if specified
         if (!empty($block['Regiofilter'])) {
             $region_ids = array_map(function ($term) {
                 return $term->term_id;
@@ -88,6 +95,7 @@ class TekstTVAPI
             ];
         }
 
+        // Add category filters if specified
         if (!empty($block['categoriefilter'])) {
             $category_ids = array_map(function ($term) {
                 return $term->term_id;
@@ -100,50 +108,59 @@ class TekstTVAPI
             ];
         }
 
+        // Run the custom query to fetch posts
         $query = new WP_Query($args);
 
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
 
+                // Check if the post should be displayed on this day of the week
                 $display_days = get_field('post_kabelkrant_dagen', get_the_ID());
                 $today = date('N');
 
+                // Skip if today is not a display day
                 if (!empty($display_days) && !in_array($today, $display_days, true)) {
                     continue;
                 }
 
+                // Skip if the post's expiration date has passed
                 $end_date = get_field('post_kabelkrant_datum_uit', get_the_ID());
                 if (!empty($end_date) && strtotime($end_date) < current_time('timestamp')) {
                     continue;
                 }
 
+                // Skip if this post isn't for TekstTV
                 $kabelkrant_content = get_field('post_kabelkrant_content', get_the_ID());
                 if (empty($kabelkrant_content)) {
                     continue;
                 }
 
+                // Get the primary category image for the post
                 $slide_image = $this->get_primary_category_image(get_the_ID());
 
+                // Split content by pages using "---" as a delimiter
                 $pages = preg_split('/\n*-{3,}\n*/', $kabelkrant_content);
 
+                // Generate a slide for each page of content
                 foreach ($pages as $index => $page_content) {
                     $slides[] = [
                         'type'     => 'text',
-                        'duration' => 15000, // 15 seconds, adjust as needed
+                        'duration' => 25000, // 25 seconds per slide, adjust as needed
                         'title'    => get_the_title(),
                         'body'     => wpautop(trim($page_content)),
                         'image'    => !empty($slide_image) ? $slide_image : null,
                     ];
                 }
 
+                // Add extra images (if any) as separate slides
                 $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', get_the_ID());
                 if (!empty($extra_images)) {
                     foreach ($extra_images as $image) {
                         if (!empty($image['url'])) {
                             $slides[] = [
                                 'type'     => 'image',
-                                'duration' => 7000, // 7 seconds, adjust as needed
+                                'duration' => 7000, // 7 seconds per image, adjust as needed
                                 'url'      => $image['url'],
                             ];
                         }
@@ -156,10 +173,12 @@ class TekstTVAPI
         return $slides;
     }
 
+    // Get the primary category image with a fallback
     private function get_primary_category_image($post_id)
     {
         $primary_term_id = get_post_meta($post_id, '_yoast_wpseo_primary_category', true);
 
+        // Get image from the primary category
         if ($primary_term_id) {
             $term_image = get_field('teksttv_categorie_afbeelding', 'category_' . $primary_term_id);
             if ($term_image) {
@@ -167,10 +186,11 @@ class TekstTVAPI
             }
         }
 
-        // Fallback to post thumbnail if no primary category image
+        // We fall back to post thumbnail if no primary category image
         return get_the_post_thumbnail_url($post_id, 'large');
     }
 
+    // Generate an image slide from a block
     private function get_image_slide($block)
     {
         if (!empty($block['afbeelding']) && !empty($block['afbeelding']['url'])) {
@@ -184,6 +204,7 @@ class TekstTVAPI
         return null;
     }
 
+    // Retrieve active ad campaigns for display
     private function get_ad_campaigns()
     {
         $campaigns = [];
@@ -192,9 +213,11 @@ class TekstTVAPI
             if ($all_campaigns) {
                 $current_timestamp = current_time('timestamp');
                 foreach ($all_campaigns as $campaign) {
+                    // Get start and end timestamps for the campaign
                     $start_timestamp = !empty($campaign['campagne_datum_in']) ? strtotime($campaign['campagne_datum_in'] . ' 00:00:00') : 0;
                     $end_timestamp = !empty($campaign['campagne_datum_uit']) ? strtotime($campaign['campagne_datum_uit'] . ' 23:59:59') : PHP_INT_MAX;
 
+                    // Check if the campaign is active
                     if ($current_timestamp >= $start_timestamp && $current_timestamp <= $end_timestamp) {
                         $campaigns[] = $campaign;
                     }
@@ -204,11 +227,13 @@ class TekstTVAPI
         return $campaigns;
     }
 
+    // Generate ad slides from campaigns
     private function get_ad_slides($block, $campaigns)
     {
         $slides = [];
         $group  = $block['groep'];
 
+        // Loop through each campaign and get the slides
         foreach ($campaigns as $campaign) {
             if (in_array($group, $campaign['campagne_groep'], true)) {
                 foreach ($campaign['campagne_slides'] as $slide) {
@@ -223,6 +248,7 @@ class TekstTVAPI
             }
         }
 
+        // Add intro and outro images if available
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in']) && !empty($block['afbeelding_in']['url'])) {
                 array_unshift($slides, [
@@ -244,13 +270,16 @@ class TekstTVAPI
         return $slides;
     }
 
+    // Callback for the '/teksttv-ticker' endpoint - generates ticker messages
     public function get_ticker_messages()
     {
         $ticker_messages = [];
 
+        // Check if ACF is active and 'teksttv_ticker' field exists
         if (function_exists('get_field')) {
             $ticker_content = get_field('teksttv_ticker', 'option');
 
+            // If ticker content is available, process each item
             if ($ticker_content) {
                 foreach ($ticker_content as $item) {
                     switch ($item['acf_fc_layout']) {
@@ -287,12 +316,14 @@ class TekstTVAPI
         return new WP_REST_Response($ticker_messages, 200);
     }
 
+    // Get the current FM program
     private function get_current_fm_program()
     {
         $schedule = new BroadcastSchedule();
         return 'Nu op Radio Rucphen: ' . $schedule->getCurrentRadioBroadcast()->getName();
     }
 
+    // Get the next FM program
     private function get_next_fm_program()
     {
         $schedule = new BroadcastSchedule();
@@ -300,4 +331,5 @@ class TekstTVAPI
     }
 }
 
+// Instantiate the API class
 $teksttv_api = new TekstTVAPI();
