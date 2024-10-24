@@ -116,7 +116,7 @@
                             "required": 1,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "30",
+                                "width": "20",
                                 "class": "",
                                 "id": ""
                             },
@@ -129,43 +129,8 @@
                             "max_height": "",
                             "max_size": "",
                             "mime_types": "",
+                            "allow_in_bindings": 1,
                             "preview_size": "thumbnail"
-                        },
-                        {
-                            "key": "field_669d49968fbc3",
-                            "label": "Datum in",
-                            "name": "datum_in",
-                            "aria-label": "",
-                            "type": "date_picker",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "27.5",
-                                "class": "",
-                                "id": ""
-                            },
-                            "display_format": "d\/m\/Y",
-                            "return_format": "d\/m\/Y",
-                            "first_day": 1
-                        },
-                        {
-                            "key": "field_669d49a58fbc4",
-                            "label": "Datum uit",
-                            "name": "datum_uit",
-                            "aria-label": "",
-                            "type": "date_picker",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "27.5",
-                                "class": "",
-                                "id": ""
-                            },
-                            "display_format": "d\/m\/Y",
-                            "return_format": "d\/m\/Y",
-                            "first_day": 1
                         },
                         {
                             "key": "field_669d49c2261cd",
@@ -184,10 +149,89 @@
                             "default_value": 10,
                             "min": "",
                             "max": "",
+                            "allow_in_bindings": 1,
                             "placeholder": "",
                             "step": "",
                             "prepend": "",
                             "append": ""
+                        },
+                        {
+                            "key": "field_669d49968fbc3",
+                            "label": "Datum in",
+                            "name": "datum_in",
+                            "aria-label": "",
+                            "type": "date_picker",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "15",
+                                "class": "",
+                                "id": ""
+                            },
+                            "display_format": "d\/m\/Y",
+                            "return_format": "d\/m\/Y",
+                            "first_day": 1,
+                            "allow_in_bindings": 1
+                        },
+                        {
+                            "key": "field_669d49a58fbc4",
+                            "label": "Datum uit",
+                            "name": "datum_uit",
+                            "aria-label": "",
+                            "type": "date_picker",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "15",
+                                "class": "",
+                                "id": ""
+                            },
+                            "display_format": "d\/m\/Y",
+                            "return_format": "d\/m\/Y",
+                            "first_day": 1,
+                            "allow_in_bindings": 1
+                        },
+                        {
+                            "key": "field_671ab2972f163",
+                            "label": "Dagen",
+                            "name": "dagen",
+                            "aria-label": "",
+                            "type": "checkbox",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "30",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "1": "ma",
+                                "2": "di",
+                                "3": "wo",
+                                "4": "do",
+                                "5": "vr",
+                                "6": "za",
+                                "7": "zo"
+                            },
+                            "default_value": [
+                                "ma",
+                                "di",
+                                "wo",
+                                "do",
+                                "vr",
+                                "za",
+                                "zo"
+                            ],
+                            "return_format": "value",
+                            "allow_custom": 0,
+                            "allow_in_bindings": 0,
+                            "layout": "horizontal",
+                            "toggle": 0,
+                            "save_custom": 0,
+                            "custom_choice_button_text": "Nieuwe keuze toevoegen"
                         }
                     ],
                     "min": "",
@@ -320,5 +364,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1727807462
+    "modified": 1729803241
 }
