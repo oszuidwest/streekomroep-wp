@@ -134,31 +134,30 @@ class TekstTVAPI
                     }
                 }
 
-                // Skip if this post isn't for TekstTV
-                $kabelkrant_content = get_field('post_kabelkrant_content', get_the_ID());
-                if (empty($kabelkrant_content)) {
-                    continue;
-                }
-
                 // Get the primary category image for the post
                 $slide_image = $this->get_primary_category_image(get_the_ID());
 
-                // Split content by pages using "---" as a delimiter
-                $pages = preg_split('/\n*-{3,}\n*/', $kabelkrant_content);
+                // Check for content or extra images
+                $kabelkrant_content = get_field('post_kabelkrant_content', get_the_ID());
+                $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', get_the_ID());
 
-                // Generate a slide for each page of content
-                foreach ($pages as $index => $page_content) {
-                    $slides[] = [
-                        'type'     => 'text',
-                        'duration' => 25000, // 25 seconds per slide, adjust as needed
-                        'title'    => get_the_title(),
-                        'body'     => wpautop(trim($page_content)),
-                        'image'    => !empty($slide_image) ? $slide_image : null,
-                    ];
+                if (!empty($kabelkrant_content)) {
+                    // Split content by pages using "---" as a delimiter
+                    $pages = preg_split('/\n*-{3,}\n*/', $kabelkrant_content);
+
+                    // Generate a slide for each page of content
+                    foreach ($pages as $index => $page_content) {
+                        $slides[] = [
+                            'type'     => 'text',
+                            'duration' => 20000, // 20 seconds per slide, adjust as needed
+                            'title'    => get_the_title(),
+                            'body'     => wpautop(trim($page_content)),
+                            'image'    => !empty($slide_image) ? $slide_image : null,
+                        ];
+                    }
                 }
 
-                // Add extra images (if any) as separate slides
-                $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', get_the_ID());
+                // Add extra images (if any) as separate slides, even if content is empty
                 if (!empty($extra_images)) {
                     foreach ($extra_images as $image) {
                         if (!empty($image['url'])) {
@@ -190,7 +189,7 @@ class TekstTVAPI
             }
         }
 
-        // We fall back to post thumbnail if no primary category image
+        // Fall back to post thumbnail if no primary category image
         return get_the_post_thumbnail_url($post_id, 'large');
     }
 

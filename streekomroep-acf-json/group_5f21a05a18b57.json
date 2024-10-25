@@ -49,7 +49,7 @@
             "aria-label": "",
             "type": "textarea",
             "instructions": "",
-            "required": 1,
+            "required": 0,
             "conditional_logic": [
                 [
                     {
@@ -66,6 +66,7 @@
             },
             "default_value": "",
             "maxlength": "",
+            "allow_in_bindings": 1,
             "rows": 7,
             "placeholder": "Vul de versie voor op teksttv in",
             "new_lines": ""
@@ -259,5 +260,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1728769658
+    "modified": 1729879906
 }
