@@ -189,7 +189,7 @@ class TekstTVAPI
             }
         }
 
-        // Fallback to post thumbnail if no primary category image
+        // Fall back to post thumbnail if no primary category image
         return get_the_post_thumbnail_url($post_id, 'large');
     }
 
@@ -220,7 +220,7 @@ class TekstTVAPI
             $today = date('N'); // 1 (Monday) to 7 (Sunday)
             $allowed_days = $block['dagen']; // Array of strings ["1", "2", ..., "7"]
 
-            if (!in_array((string) $today, $allowed_days, true)) {
+            if (!in_array((string)$today, $allowed_days, true)) {
                 // Today is not in the allowed days
                 return null;
             }
@@ -248,12 +248,8 @@ class TekstTVAPI
                 $current_timestamp = current_time('timestamp');
                 foreach ($all_campaigns as $campaign) {
                     // Get start and end timestamps for the campaign
-                    $start_timestamp = !empty($campaign['campagne_datum_in']) 
-                        ? strtotime($campaign['campagne_datum_in'] . ' 00:00:00') 
-                        : 0;
-                    $end_timestamp = !empty($campaign['campagne_datum_uit']) 
-                        ? strtotime($campaign['campagne_datum_uit'] . ' 23:59:59') 
-                        : PHP_INT_MAX;
+                    $start_timestamp = !empty($campaign['campagne_datum_in']) ? strtotime($campaign['campagne_datum_in'] . ' 00:00:00') : 0;
+                    $end_timestamp = !empty($campaign['campagne_datum_uit']) ? strtotime($campaign['campagne_datum_uit'] . ' 23:59:59') : PHP_INT_MAX;
 
                     // Check if the campaign is active
                     if ($current_timestamp >= $start_timestamp && $current_timestamp <= $end_timestamp) {
