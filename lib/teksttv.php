@@ -128,7 +128,7 @@ class TekstTVAPI
                 // Skip if the post's expiration date has passed
                 $end_date = get_field('post_kabelkrant_datum_uit', get_the_ID());
                 if (!empty($end_date)) {
-                    $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date);
+                    $end_date_obj = DateTime::createFromFormat('Y-m-d H:i:s', $end_date);
                     if ($end_date_obj && $end_date_obj->getTimestamp() < current_time('timestamp')) {
                         continue;
                     }
