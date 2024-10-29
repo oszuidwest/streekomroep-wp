@@ -132,7 +132,7 @@ class TekstTVAPI
                 $end_date = get_field('post_kabelkrant_datum_uit', $post_id);
                 if (!empty($end_date)) {
                     $end_date = trim($end_date); // Remove any extra whitespace
-                    // Use the correct date format matching your database
+
                     $wp_timezone = new DateTimeZone(wp_timezone_string());
                     $end_date_obj = DateTime::createFromFormat('Y-m-d H:i:s', $end_date, $wp_timezone);
 
