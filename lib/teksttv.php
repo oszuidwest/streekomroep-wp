@@ -9,14 +9,9 @@ use DateTimeZone;
 
 class TekstTVAPI
 {
-    protected $timezone;
-
     // Constructor to hook the API routes into WordPress' REST API initialization
     public function __construct()
     {
-        // Cache the WordPress timezone
-        $this->timezone = wp_timezone();
-
         add_action('rest_api_init', [$this, 'register_api_routes']);
     }
 
@@ -122,9 +117,11 @@ class TekstTVAPI
             while ($query->have_posts()) {
                 $query->the_post();
 
+                $post_id = get_the_ID();
+
                 // Check if the post should be displayed on this day of the week
-                $display_days = get_field('post_kabelkrant_dagen', get_the_ID());
-                $today = intval($this->get_current_datetime()->format('N'));
+                $display_days = get_field('post_kabelkrant_dagen', $post_id);
+                $today = date('N');
 
                 // Skip if today is not a display day
                 if (!empty($display_days) && !in_array($today, $display_days, true)) {
@@ -132,20 +129,32 @@ class TekstTVAPI
                 }
 
                 // Skip if the post's expiration date has passed
-                $end_date = get_field('post_kabelkrant_datum_uit', get_the_ID());
+                $end_date = get_field('post_kabelkrant_datum_uit', $post_id);
                 if (!empty($end_date)) {
-                    $end_date_obj = $this->create_datetime_from_format('Y-m-d H:i:s', $end_date);
-                    if ($end_date_obj && $end_date_obj < $this->get_current_datetime()) {
+                    $end_date = trim($end_date); // Remove any extra whitespace
+                    // Use the correct date format matching your database
+                    $wp_timezone = new DateTimeZone(wp_timezone_string());
+                    $end_date_obj = DateTime::createFromFormat('Y-m-d H:i:s', $end_date, $wp_timezone);
+
+                    if ($end_date_obj) {
+                        $end_timestamp = $end_date_obj->getTimestamp();
+                        $current_timestamp = current_time('timestamp');
+
+                        if ($end_timestamp < $current_timestamp) {
+                            continue;
+                        }
+                    } else {
+                        // Date parsing failed, skip the post or handle the error
                         continue;
                     }
                 }
 
                 // Get the primary category image for the post
-                $slide_image = $this->get_primary_category_image(get_the_ID());
+                $slide_image = $this->get_primary_category_image($post_id);
 
                 // Check for content or extra images
-                $kabelkrant_content = get_field('post_kabelkrant_content', get_the_ID());
-                $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', get_the_ID());
+                $kabelkrant_content = get_field('post_kabelkrant_content', $post_id);
+                $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', $post_id);
 
                 if (!empty($kabelkrant_content)) {
                     // Split content by pages using "---" as a delimiter
@@ -202,20 +211,23 @@ class TekstTVAPI
     // Generate an image slide from a block with day and date filtering
     private function get_image_slide($block)
     {
-        $current_datetime = $this->get_current_datetime();
+        $current_timestamp = current_time('timestamp');
+        $wp_timezone = new DateTimeZone(wp_timezone_string());
 
         // Check date range if 'datum_in' or 'datum_uit' is set
         if (!empty($block['datum_in'])) {
-            $start_date = $this->create_datetime_from_format('d/m/Y', $block['datum_in']);
-            if ($start_date && $current_datetime < $start_date) {
+            $start_date = trim($block['datum_in']);
+            $start_date_obj = DateTime::createFromFormat('d/m/Y', $start_date, $wp_timezone);
+            if ($start_date_obj && $current_timestamp < $start_date_obj->getTimestamp()) {
                 // Current date is before the start date
                 return null;
             }
         }
 
         if (!empty($block['datum_uit'])) {
-            $end_date = $this->create_datetime_from_format('d/m/Y', $block['datum_uit']);
-            if ($end_date && $current_datetime > $end_date) {
+            $end_date = trim($block['datum_uit']);
+            $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date, $wp_timezone);
+            if ($end_date_obj && $current_timestamp > $end_date_obj->getTimestamp()) {
                 // Current date is after the end date
                 return null;
             }
@@ -223,7 +235,7 @@ class TekstTVAPI
 
         // Check day filter if 'dagen' is set
         if (!empty($block['dagen'])) {
-            $today = intval($current_datetime->format('N')); // 1 (Monday) to 7 (Sunday)
+            $today = date('N'); // 1 (Monday) to 7 (Sunday)
             $allowed_days = $block['dagen']; // Array of strings ["1", "2", ..., "7"]
 
             if (!in_array((string)$today, $allowed_days, true)) {
@@ -251,30 +263,31 @@ class TekstTVAPI
         if (function_exists('get_field')) {
             $all_campaigns = get_field('teksttv_reclame', 'option');
             if ($all_campaigns) {
-                $current_datetime = $this->get_current_datetime();
+                $current_timestamp = current_time('timestamp');
+                $wp_timezone = new DateTimeZone(wp_timezone_string());
+
                 foreach ($all_campaigns as $campaign) {
-                    // Get start and end DateTime objects for the campaign
+                    // Get start and end timestamps for the campaign
+                    $start_timestamp = 0;
                     if (!empty($campaign['campagne_datum_in'])) {
-                        $start_date = $this->create_datetime_from_format('Y-m-d', $campaign['campagne_datum_in']);
-                    } else {
-                        $start_date = null;
+                        $start_date = trim($campaign['campagne_datum_in']);
+                        $start_date_obj = DateTime::createFromFormat('d/m/Y', $start_date, $wp_timezone);
+                        if ($start_date_obj) {
+                            $start_timestamp = $start_date_obj->getTimestamp();
+                        }
                     }
 
+                    $end_timestamp = PHP_INT_MAX;
                     if (!empty($campaign['campagne_datum_uit'])) {
-                        $end_date = $this->create_datetime_from_format('Y-m-d', $campaign['campagne_datum_uit']);
-                        // Set time to end of day
-                        if ($end_date) {
-                            $end_date->setTime(23, 59, 59);
+                        $end_date = trim($campaign['campagne_datum_uit']);
+                        $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date, $wp_timezone);
+                        if ($end_date_obj) {
+                            $end_timestamp = $end_date_obj->getTimestamp();
                         }
-                    } else {
-                        $end_date = null;
                     }
 
                     // Check if the campaign is active
-                    if (
-                        ($start_date === null || $current_datetime >= $start_date) &&
-                        ($end_date === null || $current_datetime <= $end_date)
-                    ) {
+                    if ($current_timestamp >= $start_timestamp && $current_timestamp <= $end_timestamp) {
                         $campaigns[] = $campaign;
                     }
                 }
@@ -384,18 +397,6 @@ class TekstTVAPI
     {
         $schedule = new BroadcastSchedule();
         return 'Straks op Radio Rucphen: ' . $schedule->getNextRadioBroadcast()->getName();
-    }
-
-    // Helper method to get current DateTime in WordPress timezone
-    private function get_current_datetime()
-    {
-        return new DateTime('now', $this->timezone);
-    }
-
-    // Helper method to create DateTime from a format in WordPress timezone
-    private function create_datetime_from_format($format, $time_string)
-    {
-        return DateTime::createFromFormat($format, $time_string, $this->timezone);
     }
 }
 
