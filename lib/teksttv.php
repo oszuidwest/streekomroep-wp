@@ -401,4 +401,3 @@ class TekstTVAPI
 
 // Instantiate the API class
 $teksttv_api = new TekstTVAPI();
-o
