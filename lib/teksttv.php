@@ -1,32 +1,30 @@
 <?php
 
-namespace ZW\TekstTV;
-
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Streekomroep;
 
 use DateTime;
 use DateTimeZone;
 use WP_Query;
 use WP_REST_Response;
-use ZW\Radio\BroadcastSchedule;
 
+/**
+ * Text TV API handler - manages content for Tekst TV system at https://github.com/oszuidwest/teksttv
+ */
 class TekstTVAPI
 {
     private static $instance = null;
 
+
     private $wp_timezone;
 
+    // Slide durations in milliseconds
     private const SLIDE_DURATIONS = [
-        'text' => 20000,    // 20 seconds for text slides
-        'image' => 7000,    // 7 seconds for image slides
-        'ad_transition' => 5000  // 5 seconds for ad transitions
+        'text' => 20000,
+        'image' => 7000,
+        'ad_transition' => 5000
     ];
 
-    /**
-     * Singleton pattern implementatie
-     */
+    // Singleton pattern implementation
     public static function get_instance()
     {
         if (null === self::$instance) {
@@ -35,18 +33,14 @@ class TekstTVAPI
         return self::$instance;
     }
 
-    /**
-     * Constructor - initialiseert de API
-     */
+    // Initialize the API and register hooks
     private function __construct()
     {
         $this->wp_timezone = new DateTimeZone(wp_timezone_string());
         add_action('rest_api_init', [$this, 'register_api_routes']);
     }
 
-    /**
-     * Registreert de API endpoints
-     */
+    // Register REST API endpoints
     public function register_api_routes()
     {
         register_rest_route('zw/v1', '/teksttv-slides', [
@@ -62,15 +56,12 @@ class TekstTVAPI
         ]);
     }
 
-    /**
-     * Haalt alle slides op voor de TekstTV weergave
-     */
+    // Retrieve all slides for text TV display
     public function get_slides()
     {
         if (!function_exists('get_field')) {
             return new WP_REST_Response([
                 'slides' => [],
-                '_debug' => $this->get_debug_info(),
                 'error' => 'ACF plugin is niet actief'
             ], 200);
         }
@@ -79,14 +70,11 @@ class TekstTVAPI
         $slides = $this->process_blocks($blocks);
 
         return new WP_REST_Response([
-            'slides' => $slides,
-            '_debug' => $this->get_debug_info()
+            'slides' => $slides
         ], 200);
     }
 
-    /**
-     * Verwerkt verschillende type content blokken naar slides
-     */
+    // Process different types of content blocks into slides
     private function process_blocks($blocks)
     {
         $slides = [];
@@ -114,9 +102,7 @@ class TekstTVAPI
         return array_filter($slides);
     }
 
-    /**
-     * Genereert slides van artikelen
-     */
+    // Generate slides from articles with filter support
     private function get_article_slides($block)
     {
         $slides = [];
@@ -132,7 +118,7 @@ class TekstTVAPI
             ]
         ];
 
-        // Add region filters if specified
+        // Add region filter if specified
         if (!empty($block['Regiofilter'])) {
             $args['tax_query'][] = [
                 'taxonomy' => 'regio',
@@ -143,7 +129,7 @@ class TekstTVAPI
             ];
         }
 
-        // Add category filters if specified
+        // Add category filter if specified
         if (!empty($block['categoriefilter'])) {
             $args['tax_query'][] = [
                 'taxonomy' => 'category',
@@ -178,7 +164,7 @@ class TekstTVAPI
                     }
                 }
 
-                // Get content and images
+                // Create slides from content and images
                 $content = get_field('post_kabelkrant_content', $post_id);
                 $slide_image = $this->get_primary_category_image($post_id);
 
@@ -195,7 +181,7 @@ class TekstTVAPI
                     }
                 }
 
-                // Add extra images
+                // Add extra images as separate slides
                 $extra_images = get_field('post_kabelkrant_extra_afbeeldingen', $post_id);
                 if (!empty($extra_images)) {
                     foreach ($extra_images as $image) {
@@ -215,9 +201,7 @@ class TekstTVAPI
         return $slides;
     }
 
-    /**
-     * Haalt de primaire categorie afbeelding op
-     */
+    // Get primary category image or fallback to post thumbnail
     private function get_primary_category_image($post_id)
     {
         $primary_term_id = get_post_meta($post_id, '_yoast_wpseo_primary_category', true);
@@ -232,14 +216,12 @@ class TekstTVAPI
         return get_the_post_thumbnail_url($post_id, 'large');
     }
 
-    /**
-     * Genereert een image slide
-     */
+    // Generate image slide with date range and day restrictions
     private function get_image_slide($block)
     {
         $current_date = new DateTime('now', $this->wp_timezone);
 
-        // Check date range
+        // Check start date if set
         if (!empty($block['datum_in'])) {
             $start_date = DateTime::createFromFormat('d/m/Y', trim($block['datum_in']), $this->wp_timezone);
             if ($start_date && $current_date < $start_date) {
@@ -247,6 +229,7 @@ class TekstTVAPI
             }
         }
 
+        // Check end date if set
         if (!empty($block['datum_uit'])) {
             $end_date = DateTime::createFromFormat('d/m/Y', trim($block['datum_uit']), $this->wp_timezone);
             if ($end_date && $current_date > $end_date) {
@@ -273,9 +256,7 @@ class TekstTVAPI
         return null;
     }
 
-    /**
-     * Haalt actieve advertentie campagnes op
-     */
+    // Retrieve active advertising campaigns
     private function get_ad_campaigns()
     {
         $campaigns = [];
@@ -294,9 +275,7 @@ class TekstTVAPI
         return $campaigns;
     }
 
-    /**
-     * Controleert of een campagne actief is
-     */
+    // Check if campaign is currently active based on date range
     private function is_campaign_active($campaign, $current_date)
     {
         if (!empty($campaign['campagne_datum_in'])) {
@@ -316,9 +295,7 @@ class TekstTVAPI
         return true;
     }
 
-    /**
-     * Genereert advertentie slides
-     */
+    // Generate advertisement slides with intro and outro transitions
     private function get_ad_slides($block, $campaigns)
     {
         $slides = [];
@@ -338,7 +315,7 @@ class TekstTVAPI
             }
         }
 
-        // Add intro and outro images
+        // Add transition slides if main slides exist
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in']) && !empty($block['afbeelding_in']['url'])) {
                 array_unshift($slides, [
@@ -360,13 +337,10 @@ class TekstTVAPI
         return $slides;
     }
 
-    /**
-     * Haalt ticker berichten op
-     */
+    // Retrieve ticker messages including radio program info
     public function get_ticker_messages()
     {
         $messages = [];
-        $debug_info = $this->get_debug_info();
 
         if (function_exists('get_field')) {
             $ticker_content = get_field('teksttv_ticker', 'option');
@@ -399,48 +373,34 @@ class TekstTVAPI
         }
 
         return new WP_REST_Response([
-            'messages' => $messages,
-            '_debug' => $debug_info
+            'messages' => $messages
         ], 200);
     }
 
-    /**
-     * Haalt het huidige FM programma op
-     */
+    // Get current radio program name
     private function get_current_fm_program()
     {
-        $schedule = new BroadcastSchedule();
-        return 'Nu op Radio Rucphen: ' . $schedule->getCurrentRadioBroadcast()->getName();
+        try {
+            $schedule = new BroadcastSchedule();
+            return 'Nu op Radio Rucphen: ' . $schedule->getCurrentRadioBroadcast()->getName();
+        } catch (\Exception $e) {
+            return 'Radio Rucphen - Altijd nieuws, altijd muziek';
+        }
     }
 
-    /**
-     * Haalt het volgende FM programma op
-     */
+    // Get next radio program name
     private function get_next_fm_program()
     {
-        $schedule = new BroadcastSchedule();
-        return 'Straks op Radio Rucphen: ' . $schedule->getNextRadioBroadcast()->getName();
-    }
-
-    /**
-     * Verzamelt debug informatie
-     */
-    private function get_debug_info()
-    {
-        $current_date = new DateTime('now', $this->wp_timezone);
-        return [
-            'current_time' => $current_date->format('Y-m-d H:i:s'),
-            'timezone' => [
-                'wp_timezone_string' => wp_timezone_string(),
-                'wp_timezone_offset' => get_option('gmt_offset'),
-                'php_timezone' => date_default_timezone_get(),
-                'server_time' => date('Y-m-d H:i:s')
-            ]
-        ];
+        try {
+            $schedule = new BroadcastSchedule();
+            return 'Straks op Radio Rucphen: ' . $schedule->getNextRadioBroadcast()->getName();
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 }
 
-// Initialiseer de plugin
+// Initialize the TekstTV API
 add_action('init', function () {
     TekstTVAPI::get_instance();
 });
