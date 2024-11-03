@@ -14,7 +14,6 @@ class TekstTVAPI
 {
     private static $instance = null;
 
-
     private $wp_timezone;
 
     // Slide durations in milliseconds
@@ -60,18 +59,13 @@ class TekstTVAPI
     public function get_slides()
     {
         if (!function_exists('get_field')) {
-            return new WP_REST_Response([
-                'slides' => [],
-                'error' => 'ACF plugin is niet actief'
-            ], 200);
+            return new WP_REST_Response([], 200);
         }
 
         $blocks = get_field('teksttv_blokken', 'option') ?: [];
         $slides = $this->process_blocks($blocks);
 
-        return new WP_REST_Response([
-            'slides' => $slides
-        ], 200);
+        return new WP_REST_Response($slides, 200);
     }
 
     // Process different types of content blocks into slides
