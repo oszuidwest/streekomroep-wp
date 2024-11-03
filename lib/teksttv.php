@@ -366,9 +366,7 @@ class TekstTVAPI
             }
         }
 
-        return new WP_REST_Response([
-            'messages' => $messages
-        ], 200);
+        return new WP_REST_Response($messages, 200);
     }
 
     // Get current radio program name
