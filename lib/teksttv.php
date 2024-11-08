@@ -273,15 +273,15 @@ class TekstTVAPI
     private function is_campaign_active($campaign, $current_date)
     {
         if (!empty($campaign['campagne_datum_in'])) {
-            $start_date = DateTime::createFromFormat('d/m/Y', trim($campaign['campagne_datum_in']), $this->wp_timezone);
-            if ($start_date && $current_date < $start_date) {
+            $start_date = DateTime::createFromFormat('Y-m-d', trim($campaign['campagne_datum_in']), $this->wp_timezone);
+            if ($start_date && $current_date < $start_date->setTime(0, 0)) {
                 return false;
             }
         }
 
         if (!empty($campaign['campagne_datum_uit'])) {
-            $end_date = DateTime::createFromFormat('d/m/Y', trim($campaign['campagne_datum_uit']), $this->wp_timezone);
-            if ($end_date && $current_date > $end_date) {
+            $end_date = DateTime::createFromFormat('Y-m-d', trim($campaign['campagne_datum_uit']), $this->wp_timezone);
+            if ($end_date && $current_date > $end_date->setTime(23, 59, 59)) {
                 return false;
             }
         }
