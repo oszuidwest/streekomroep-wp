@@ -175,7 +175,7 @@ new \Streekomroep\Site();
 
 /**
  * Include ACF Fields. These are saved as local JSON
- * This is not a function of Timber so we declare them afer the Timber specific functions
+ * This is not a function of Timber so we declare them after the Timber specific functions
  */
 if (function_exists('get_field')) {
     add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
