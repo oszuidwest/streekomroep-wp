@@ -175,7 +175,7 @@ new \Streekomroep\Site();
 
 /**
  * Include ACF Fields. These are saved as local JSON
- * This is not a function of Timber so we declare them afer the Timber specific functions
+ * This is not a function of Timber so we declare them after the Timber specific functions
  */
 if (function_exists('get_field')) {
     add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
@@ -442,21 +442,21 @@ function zw_rest_api_init()
 
             switch ($options['radio_rds_rt_optie']) {
                 case 1: // Statische tekst
-                    $radiotext = $options['radio_rds_rt_statische_tekst'];
+                    $radiotext = html_entity_decode($options['radio_rds_rt_statische_tekst'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
                     break;
                 case 2: // Programmanaam
                 case 3: // Programmanaam en presentator(en)
-                    $title = $currentRadioBroadcast->getName();
+                    $title = html_entity_decode($currentRadioBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                     $hosts = [];
                     if ($currentRadioBroadcast->show) {
                         $overrule = get_field('fm_show_overschrijf_programmanaam', $currentRadioBroadcast->show->ID);
                         if (!empty($overrule)) {
-                            $title = $overrule;
+                            $title = html_entity_decode($overrule, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                         }
 
                         foreach (get_field('fm_show_presentator', $currentRadioBroadcast->show->ID) as $user) {
                             $user = get_user_by('id', $user);
-                            $hosts[] = $user->display_name;
+                            $hosts[] = html_entity_decode($user->display_name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                         }
                     }
 
@@ -470,20 +470,20 @@ function zw_rest_api_init()
             };
 
             $response['fm'] = [
-                'now' => $currentRadioBroadcast->getName(),
-                'next' => $schedule->getNextRadioBroadcast()->getName(),
+                'now' => html_entity_decode($currentRadioBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                'next' => html_entity_decode($schedule->getNextRadioBroadcast()->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                 'rds' => [
-                    'program' => $options['radio_rds_zendernaam'],
+                    'program' => html_entity_decode($options['radio_rds_zendernaam'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                     'radiotext' => $radiotext,
                 ]
             ];
 
             $response['tv'] = [
                 'today' => array_map(function ($item) {
-                    return $item->name;
+                    return html_entity_decode($item->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 }, $schedule->getToday()->television),
                 'tomorrow' => array_map(function ($item) {
-                    return $item->name;
+                    return html_entity_decode($item->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 }, $schedule->getTomorrow()->television),
             ];
 
@@ -946,9 +946,9 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 function zw_add_videojs()
 {
     // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/lang/nl.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.21.1/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.21.1/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.21.1/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');

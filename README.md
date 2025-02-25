@@ -27,14 +27,14 @@ For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.2: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Timber 2.3: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]
 - Advanced Custom Fields Pro 6.3.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
-- Yoast SEO Premium 23.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 24.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These tested plugins enhance the theme:
-- Contact Form 7 5.9.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Contact Form 7 6.0.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x: [[free download](https://wordpress.org/plugins/disable-comments/)]
 
 ## Extra functionality with first-party plugins
