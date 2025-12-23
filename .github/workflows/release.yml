@@ -58,7 +58,7 @@ jobs:
 
       - name: Set up Node
         if: env.RELEASE_NEEDED == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
