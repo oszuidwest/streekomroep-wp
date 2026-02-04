@@ -34,7 +34,7 @@
 
         {% set email_title = function('html_entity_decode', post.title) %}
         {% set email_url = base_url ~ 'utm_source=email&utm_medium=social&utm_campaign=sharebutton' %}
-        {% set email_body = 'Lees dit artikel op ' ~ site.name ~ ': ' ~ email_title ~ "\n\n" ~ email_url %}
+        {% set email_body = 'Lees dit artikel op ' ~ site.name ~ ': ' ~ email_title ~ '\n\n' ~ email_url %}
         <a href="mailto:?subject={{ email_title|url_encode }}&body={{ email_body|url_encode }}"
            class="border border-gray-400 text-gray-600 dark:text-gray-200 flex items-center pl-1 pr-3 m-1 rounded hover:bg-gray-400 hover:text-white transition-colors">
             <svg width="32" height="32" viewBox="0 0 32 32" class="fill-current" xmlns="http://www.w3.org/2000/svg">

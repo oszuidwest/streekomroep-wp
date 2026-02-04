@@ -1,4 +1,4 @@
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% block content %}
     <article id="post-{{ post.id }}" class="{{ post.class }}">
@@ -39,7 +39,7 @@
                         {% for recording in recordings %}
                             <li>
                                 <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded p-2"
-                                   href="{{ options.radio_gemist_baseurl|replace({"<date>":recording.format(options.radio_gemist_file)}) }}"
+                                   href="{{ options.radio_gemist_baseurl|replace({'<date>': recording.format(options.radio_gemist_file)}) }}"
                                    target="_blank">
                                     <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
                                     <span class="block">{{ recording.locale('nl').isoFormat('HH:mm') }} uur</span>

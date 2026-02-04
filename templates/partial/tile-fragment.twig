@@ -1,9 +1,9 @@
 <article data-post-id="{{ post.id }}">
-	<a class="block" href="{{ post.link }}">
-    {% include 'partial/post-thumbnail.twig' with { post: post } %}
+    <a class="block" href="{{ post.link }}">
+    {{ include('partial/post-thumbnail.twig', {post: post}) }}
     <div class="pt-2">
         {% if region ?? true %}
-            {% include 'partial/tag-region.twig' with { region: post.region } %}
+            {{ include('partial/tag-region.twig', {region: post.region}) }}
         {% endif %}
         <h2 class="sm:text-xl font-semibold my-1">{{ post.title }}</h2>
     </div>

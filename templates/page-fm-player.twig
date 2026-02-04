@@ -1,11 +1,11 @@
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% block content %}
     <div class="bg-black text-white">
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-w-16 aspect-h-9 ">
                 <div>
-                    <audio class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline 
+                    <audio class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline
                            poster="{{ get_image(options.radio_webplayer_poster)|thumbor(1280, 720) }}">
                         {% if options.radio_webplayer_aac_stream %}
                             <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">

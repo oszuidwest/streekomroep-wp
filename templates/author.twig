@@ -1,10 +1,10 @@
-{% extends "index.twig" %}
+{% extends 'index.twig' %}
 
 {% block content %}
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         <div class="flex flex-col items-center mb-6">
             <img src="{{ author.avatar|thumbor(96, 96) }}"
-                 srcset="{{ author.avatar|thumbor(96*2, 96*2) }} 2x"
+                 srcset="{{ author.avatar|thumbor(96 * 2, 96 * 2) }} 2x"
                  alt="{{ author.name }}" class="h-24 w-24 rounded">
             <h1 class="font-bold text-3xl my-2 text-gray-800 dark:text-white">{{ author.name }}</h1>
             {% if author.description %}
@@ -14,10 +14,10 @@
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for post in posts %}
-                {% include 'partial/tile-post.twig' with { post: post } %}
+                {{ include('partial/tile-post.twig', {post: post}) }}
             {% endfor %}
         </div>
 
-        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+        {{ include('partial/pagination.twig', {pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1})}) }}
     </div>
 {% endblock %}

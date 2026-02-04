@@ -7,25 +7,25 @@
 
         {% set post = block.posts[0] %}
         <article>
-			<a href="{{ post.link }}" class="grid sm:grid-cols-2 gap-4">
+            <a href="{{ post.link }}" class="grid sm:grid-cols-2 gap-4">
             <div>
-                {% include 'partial/post-thumbnail.twig' with { post: post, width: 472 } %}
+                {{ include('partial/post-thumbnail.twig', {post: post, width: 472}) }}
             </div>
 
             <div>
-                {% include 'partial/tag-region.twig' with { region: post.region } %}
+                {{ include('partial/tag-region.twig', {region: post.region}) }}
                 <h2 class="font-bold text-xl sm:text-3xl">{{ post.title }}</h2>
                 <p class="prose text-white hidden sm:block">{{ post.excerpt.read_more(false) }}</p>
             </div>
         </a>
-	</article>
+    </article>
     </div>
     <div class="overflow-x-auto clear-left sm:hidden">
         <div class="flex float-left px-2 py-4">
             {% for post in block.posts[1:] %}
                 <div class="block w-96 flex-none mx-2 !text-white"
                      style="width: calc((100vw - (1rem * 2) - (1rem * 2)) /2); min-width: 160px; max-width: 220px">
-                    {% include 'partial/tile-fragment.twig' with { post: post } %}
+                    {{ include('partial/tile-fragment.twig', {post: post}) }}
                     {{ color }}
                 </div>
             {% endfor %}
@@ -36,7 +36,7 @@
 
         <div class="grid grid-cols-4 gap-4 !text-white">
             {% for post in block.posts[1:] %}
-                {% include 'partial/tile-fragment.twig' with { post: post } %}
+                {{ include('partial/tile-fragment.twig', {post: post}) }}
             {% endfor %}
         </div>
     </div>

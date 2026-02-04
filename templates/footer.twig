@@ -42,7 +42,7 @@
             </ul>
             <div class="py-4 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <p class="text-sm">
-                    Copyright © {{ ""|date('Y') }} Streekomroep ZuidWest
+                    Copyright © {{ ''|date('Y') }} Streekomroep ZuidWest
                 </p>
 
                 <div class="flex items-center gap-4">
@@ -50,21 +50,21 @@
                     {% if socials %}
                     <div class="flex items-center gap-3">
                         {% for social in socials %}
-                            {% set icon_class = "w-5 h-5" %}
-                            {% set hover_class = "hover:text-gray-900 dark:hover:text-white" %}
+                            {% set icon_class = 'w-5 h-5' %}
+                            {% set hover_class = 'hover:text-gray-900 dark:hover:text-white' %}
 
                             {% if social.name == 'Facebook' %}
-                                {% set hover_class = "hover:text-facebook" %}
+                                {% set hover_class = 'hover:text-facebook' %}
                             {% elseif social.name == 'Instagram' %}
-                                {% set hover_class = "hover:text-instagram" %}
+                                {% set hover_class = 'hover:text-instagram' %}
                             {% elseif social.name == 'Bluesky' %}
-                                {% set hover_class = "hover:text-bluesky" %}
+                                {% set hover_class = 'hover:text-bluesky' %}
                             {% elseif social.name == 'YouTube' %}
-                                {% set hover_class = "hover:text-youtube" %}
+                                {% set hover_class = 'hover:text-youtube' %}
                             {% elseif social.name == 'LinkedIn' %}
-                                {% set hover_class = "hover:text-linkedin" %}
+                                {% set hover_class = 'hover:text-linkedin' %}
                             {% elseif social.name == 'TikTok' %}
-                                {% set hover_class = "hover:text-tiktok" %}
+                                {% set hover_class = 'hover:text-tiktok' %}
                             {% endif %}
 
                             <a href="{{ social.link }}" target="_blank" rel="noopener" class="text-gray-500 {{ hover_class }} transition-colors" title="{{ social.name }}">

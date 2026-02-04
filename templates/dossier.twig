@@ -1,7 +1,7 @@
 {# This file demonstrates using most of the index.twig template and modifying
    just a small part. See `search.twig` for an example of another approach #}
 
-{% extends "archive.twig" %}
+{% extends 'archive.twig' %}
 
 {% block content %}
     <div class="lg:hidden">
@@ -9,7 +9,7 @@
             <div>
                 <img class="object-cover absolute inset-0 w-full h-full" alt="{{ term.name }}"
                      src="{{ get_image(term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
-                     srcset="{{ get_image(term.dossier_afbeelding_breed).src|thumbor(1024*2, 439*2) }} 2x"
+                     srcset="{{ get_image(term.dossier_afbeelding_breed).src|thumbor(1024 * 2, 439 * 2) }} 2x"
                      />
                 <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white dark:from-gray-800"></div>
             </div>
@@ -30,7 +30,7 @@
                     <div class="aspect-h-16 aspect-w-9">
                         <div>
                             <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.name }}"
-                                 src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|thumbor(9*48,16*48) }}"/>
+                                 src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|thumbor(9 * 48, 16 * 48) }}"/>
                         </div>
                     </div>
                 </div>
@@ -39,12 +39,11 @@
 
             <div class="lg:col-start-2 lg:col-span-2 grid sm:grid-cols-2 gap-4">
                 {% for post in posts %}
-                    {% include 'partial/tile-post.twig' with { post: post } %}
+                    {{ include('partial/tile-post.twig', {post: post}) }}
                 {% endfor %}
             </div>
         </div>
 
-
-        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+        {{ include('partial/pagination.twig', {pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1})}) }}
     </div>
 {% endblock %}
