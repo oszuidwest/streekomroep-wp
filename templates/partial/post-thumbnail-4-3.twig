@@ -6,7 +6,7 @@
 {% endif %}
 {% set width = width|default(228) %}
 <div class="aspect-[4/3] sm:aspect-video relative">
-    <div class="{% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
+    <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <img class="w-full h-full object-cover" loading="lazy" alt="{{ post.thumbnail.alt }}"
                  src="{{ post.thumbnail.src|thumbor(width, width / 16 * 9) }}"
