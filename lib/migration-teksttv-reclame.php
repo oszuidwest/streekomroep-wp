@@ -45,7 +45,7 @@ class TekstTVReclameMigration
 
     public function __construct()
     {
-        add_action('admin_menu', [$this, 'add_admin_page']);
+        add_action('admin_menu', [$this, 'add_admin_page'], 99);
         add_action('admin_init', [$this, 'handle_migration']);
     }
 
