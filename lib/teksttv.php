@@ -39,6 +39,63 @@ class TekstTVAPI
         add_action('rest_api_init', [$this, 'register_api_routes']);
     }
 
+    /**
+     * Check if content should be displayed on the given day.
+     *
+     * ACF checkbox fields return values as strings ("1", "2", etc.).
+     * We normalize both sides to strings for reliable comparison.
+     *
+     * @param array|null $allowed_days Array of day numbers (1=Mon, 7=Sun) or null/empty for all days
+     * @param \DateTimeInterface|null $date Date to check, defaults to current date
+     * @return bool True if content should be displayed
+     */
+    private function is_allowed_on_day(?array $allowed_days, ?\DateTimeInterface $date = null): bool
+    {
+        if (empty($allowed_days)) {
+            return true;
+        }
+
+        $date = $date ?? current_datetime();
+        $current_day = $date->format('N'); // Returns "1" (Mon) through "7" (Sun)
+
+        // Normalize to strings for consistent comparison
+        $allowed_days_normalized = array_map('strval', $allowed_days);
+
+        return in_array($current_day, $allowed_days_normalized, true);
+    }
+
+    /**
+     * Check if current date falls within an optional date range.
+     *
+     * All ACF date fields use Y-m-d format. Start dates are compared from 00:00:00,
+     * end dates until 23:59:59.
+     *
+     * @param string|null $start_date Start date (Y-m-d format)
+     * @param string|null $end_date End date (Y-m-d format)
+     * @return bool True if within range (or no range specified)
+     */
+    private function is_within_date_range(?string $start_date, ?string $end_date): bool
+    {
+        $now = current_datetime();
+        $timezone = wp_timezone();
+
+        if (!empty($start_date)) {
+            $start = DateTime::createFromFormat('Y-m-d', trim($start_date), $timezone);
+            if ($start && $now < $start->setTime(0, 0, 0)) {
+                return false;
+            }
+        }
+
+        if (!empty($end_date)) {
+            $end = DateTime::createFromFormat('Y-m-d', trim($end_date), $timezone);
+            if ($end && $now > $end->setTime(23, 59, 59)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // Register REST API endpoints
     public function register_api_routes()
     {
@@ -182,20 +239,13 @@ class TekstTVAPI
                 $post_id = get_the_ID();
 
                 // Check display days
-                $current_date = current_datetime();
-                $display_days = get_field('post_kabelkrant_dagen', $post_id);
-                if (!empty($display_days) && !in_array($current_date->format('N'), $display_days, true)) {
+                if (!$this->is_allowed_on_day(get_field('post_kabelkrant_dagen', $post_id))) {
                     continue;
                 }
 
                 // Check end date
-                $end_date = get_field('post_kabelkrant_datum_uit', $post_id);
-                if (!empty($end_date)) {
-                    $end_date = trim($end_date);
-                    $end_date_obj = DateTime::createFromFormat('Y-m-d H:i:s', $end_date, wp_timezone());
-                    if ($end_date_obj && $current_date > $end_date_obj) {
-                        continue;
-                    }
+                if (!$this->is_within_date_range(null, get_field('post_kabelkrant_datum_uit', $post_id))) {
+                    continue;
                 }
 
                 // Create slides from content and images
@@ -253,30 +303,14 @@ class TekstTVAPI
     // Generate image slide with date range and day restrictions
     private function get_image_slide($block)
     {
-        $current_date = current_datetime();
-
-        // Check start date if set
-        if (!empty($block['datum_in'])) {
-            $start_date = DateTime::createFromFormat('d/m/Y', trim($block['datum_in']), wp_timezone());
-            if ($start_date && $current_date < $start_date) {
-                return null;
-            }
-        }
-
-        // Check end date if set
-        if (!empty($block['datum_uit'])) {
-            $end_date = DateTime::createFromFormat('d/m/Y', trim($block['datum_uit']), wp_timezone());
-            if ($end_date && $current_date > $end_date) {
-                return null;
-            }
+        // Check date range
+        if (!$this->is_within_date_range($block['datum_in'] ?? null, $block['datum_uit'] ?? null)) {
+            return null;
         }
 
         // Check display days
-        if (!empty($block['dagen'])) {
-            $today = $current_date->format('N');
-            if (!in_array($today, $block['dagen'], true)) {
-                return null;
-            }
+        if (!$this->is_allowed_on_day($block['dagen'] ?? null)) {
+            return null;
         }
 
         if (!empty($block['afbeelding']) && !empty($block['afbeelding']['url'])) {
@@ -297,10 +331,8 @@ class TekstTVAPI
         if (function_exists('get_field')) {
             $all_campaigns = get_field('teksttv_reclame', $options_id);
             if ($all_campaigns) {
-                $current_date = current_datetime();
-
                 foreach ($all_campaigns as $campaign) {
-                    if ($this->is_campaign_active($campaign, $current_date)) {
+                    if ($this->is_campaign_active($campaign)) {
                         $campaigns[] = $campaign;
                     }
                 }
@@ -310,23 +342,12 @@ class TekstTVAPI
     }
 
     // Check if campaign is currently active based on date range
-    private function is_campaign_active($campaign, $current_date)
+    private function is_campaign_active(array $campaign): bool
     {
-        if (!empty($campaign['campagne_datum_in'])) {
-            $start_date = DateTime::createFromFormat('Y-m-d', trim($campaign['campagne_datum_in']), wp_timezone());
-            if ($start_date && $current_date < $start_date->setTime(0, 0)) {
-                return false;
-            }
-        }
-
-        if (!empty($campaign['campagne_datum_uit'])) {
-            $end_date = DateTime::createFromFormat('Y-m-d', trim($campaign['campagne_datum_uit']), wp_timezone());
-            if ($end_date && $current_date > $end_date->setTime(23, 59, 59)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->is_within_date_range(
+            $campaign['campagne_datum_in'] ?? null,
+            $campaign['campagne_datum_uit'] ?? null
+        );
     }
 
     // Generate advertisement slides with intro and outro transitions

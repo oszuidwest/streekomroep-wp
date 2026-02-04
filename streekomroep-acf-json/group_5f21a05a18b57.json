@@ -130,7 +130,7 @@
             "label": "Einddatum",
             "name": "post_kabelkrant_datum_uit",
             "aria-label": "",
-            "type": "date_time_picker",
+            "type": "date_picker",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
@@ -147,8 +147,8 @@
                 "class": "",
                 "id": ""
             },
-            "display_format": "Y-m-d H:i",
-            "return_format": "Y-m-d H:i:s",
+            "display_format": "d/m/Y",
+            "return_format": "Y-m-d",
             "first_day": 1,
             "allow_in_bindings": 1
         },

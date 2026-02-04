@@ -170,7 +170,7 @@
                                 "id": ""
                             },
                             "display_format": "d\/m\/Y",
-                            "return_format": "d\/m\/Y",
+                            "return_format": "Y-m-d",
                             "first_day": 1,
                             "allow_in_bindings": 1
                         },
@@ -189,7 +189,7 @@
                                 "id": ""
                             },
                             "display_format": "d\/m\/Y",
-                            "return_format": "d\/m\/Y",
+                            "return_format": "Y-m-d",
                             "first_day": 1,
                             "allow_in_bindings": 1
                         },
