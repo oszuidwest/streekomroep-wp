@@ -209,8 +209,8 @@ if (function_exists('get_field')) {
 
 // Tekst TV channel configuration - add new channels here
 define('ZW_TEKSTTV_CHANNELS', [
-    'breda' => 'Breda',
-    'roosendaal' => 'Roosendaal',
+    'tv1' => 'ZuidWest TV 1',
+    'tv2' => 'ZuidWest TV 2',
     // Add more channels: 'slug' => 'Name'
 ]);
 
@@ -653,32 +653,51 @@ function zw_get_socials()
         return [];
     }
 
-    $socials = [
-        ['name' => 'Facebook', 'class' => 'facebook', 'field' => 'facebook_site'],
-        ['name' => 'Instagram', 'class' => 'instagram', 'field' => 'instagram_url'],
-        ['name' => 'LinkedIN', 'class' => 'linkedin', 'field' => 'linkedin_url'],
-        ['name' => 'Pinterest', 'class' => 'pinterest', 'field' => 'pinterest_url'],
-        ['name' => 'Twitter', 'class' => 'twitter', 'field' => 'twitter_site'],
-        ['name' => 'YouTube', 'class' => 'youtube', 'field' => 'youtube_url']
-    ];
-
     $out = [];
-    foreach ($socials as $item) {
-        if (!isset($seo_data[$item['field']])) {
-            continue;
-        }
 
-        $value = trim($seo_data[$item['field']]);
-        if (empty($value)) {
-            continue;
-        }
+    // Facebook - stored as facebook_site
+    if (!empty($seo_data['facebook_site'])) {
+        $out[] = [
+            'name' => 'Facebook',
+            'class' => 'facebook',
+            'link' => $seo_data['facebook_site']
+        ];
+    }
 
-        if ($item['field'] == 'twitter_site') {
-            $value = 'https://twitter.com/' . $value;
-        }
+    // X/Twitter - stored as twitter_site (handle only, not full URL)
+    if (!empty($seo_data['twitter_site'])) {
+        $out[] = [
+            'name' => 'X',
+            'class' => 'twitter',
+            'link' => 'https://x.com/' . $seo_data['twitter_site']
+        ];
+    }
 
-        $item['link'] = $value;
-        $out[] = $item;
+    // Other social URLs - Yoast stores Instagram, LinkedIn, YouTube, etc. here
+    $other_urls = $seo_data['other_social_urls'] ?? [];
+    if (is_array($other_urls)) {
+        foreach ($other_urls as $url) {
+            $url = trim($url);
+            if (empty($url)) {
+                continue;
+            }
+
+            if (strpos($url, 'instagram.com') !== false) {
+                $out[] = ['name' => 'Instagram', 'class' => 'instagram', 'link' => $url];
+            } elseif (strpos($url, 'linkedin.com') !== false) {
+                $out[] = ['name' => 'LinkedIn', 'class' => 'linkedin', 'link' => $url];
+            } elseif (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
+                $out[] = ['name' => 'YouTube', 'class' => 'youtube', 'link' => $url];
+            } elseif (strpos($url, 'pinterest.com') !== false) {
+                $out[] = ['name' => 'Pinterest', 'class' => 'pinterest', 'link' => $url];
+            } elseif (strpos($url, 'tiktok.com') !== false) {
+                $out[] = ['name' => 'TikTok', 'class' => 'tiktok', 'link' => $url];
+            } elseif (strpos($url, 'mastodon') !== false) {
+                $out[] = ['name' => 'Mastodon', 'class' => 'mastodon', 'link' => $url];
+            } elseif (strpos($url, 'bsky.app') !== false) {
+                $out[] = ['name' => 'Bluesky', 'class' => 'bluesky', 'link' => $url];
+            }
+        }
     }
 
     return $out;
