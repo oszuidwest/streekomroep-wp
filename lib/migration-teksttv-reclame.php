@@ -85,25 +85,23 @@ class TekstTVReclameMigration
 
             <h2>Oude reclame data (tv-instellingen)</h2>
 
-        <?php if (isset($_GET['debug'])) : ?>
-                <h3>Debug: Ruwe data uit options tabel</h3>
-                <pre style="background: #f5f5f5; padding: 10px; max-height: 400px; overflow: auto;"><?php
-                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-                print_r($old_data);
-                ?></pre>
-                <h3>Debug: Raw option values (eerste 3)</h3>
-                <pre style="background: #f5f5f5; padding: 10px; max-height: 200px; overflow: auto;"><?php
-                $debug_count = get_option('options_tv_reclame_slides');
-                echo 'options_tv_reclame_slides = ' . esc_html(var_export($debug_count, true)) . "\n";
-                if ($debug_count && is_numeric($debug_count)) {
-                    for ($di = 0; $di < min((int) $debug_count, 3); $di++) {
-                        $debug_prefix = 'options_tv_reclame_slides_' . $di . '_';
-                        echo esc_html($debug_prefix . 'tv_reclame_start') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_start'), true)) . "\n";
-                        echo esc_html($debug_prefix . 'tv_reclame_eind') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_eind'), true)) . "\n";
-                    }
+            <h3>Debug: Ruwe data uit options tabel</h3>
+            <pre style="background: #f5f5f5; padding: 10px; max-height: 400px; overflow: auto;"><?php
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+            print_r($old_data);
+            ?></pre>
+            <h3>Debug: Raw option values (eerste 3)</h3>
+            <pre style="background: #f5f5f5; padding: 10px; max-height: 200px; overflow: auto;"><?php
+            $debug_count = get_option('options_tv_reclame_slides');
+            echo 'options_tv_reclame_slides = ' . esc_html(var_export($debug_count, true)) . "\n";
+            if ($debug_count && is_numeric($debug_count)) {
+                for ($di = 0; $di < min((int) $debug_count, 3); $di++) {
+                    $debug_prefix = 'options_tv_reclame_slides_' . $di . '_';
+                    echo esc_html($debug_prefix . 'tv_reclame_start') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_start'), true)) . "\n";
+                    echo esc_html($debug_prefix . 'tv_reclame_eind') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_eind'), true)) . "\n";
                 }
-                ?></pre>
-        <?php endif; ?>
+            }
+            ?></pre>
 
         <?php if (empty($old_data)) : ?>
                 <p>Geen oude reclame data gevonden in <code>tv-instellingen</code>.</p>
