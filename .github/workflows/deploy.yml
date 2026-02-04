@@ -1,4 +1,4 @@
-name: Build and deploy dev and prod
+name: Build and deploy dev
 
 on:
   workflow_dispatch:
@@ -46,16 +46,9 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         with:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ github.ref == 'refs/heads/main' && secrets.REMOTE_USER || secrets.REMOTE_USER_DEV }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER_DEV }}
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-          TARGET: ${{ github.ref == 'refs/heads/main' && secrets.REMOTE_PATH || secrets.REMOTE_PATH_DEV }}
+          TARGET: ${{ secrets.REMOTE_PATH_DEV }}
           SSH_PRIVATE_KEY: ${{ secrets.REMOTE_KEY }}
           ARGS: '-avz --delete'
           EXCLUDE: '/node_modules/, /.git/, /.github'
-
-      - name: Purge cache
-        if: github.ref == 'refs/heads/main'
-        uses: nathanvaughn/actions-cloudflare-purge@master
-        with:
-          cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
-          cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
