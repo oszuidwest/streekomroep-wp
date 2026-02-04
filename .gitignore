@@ -12,3 +12,4 @@ yarn.lock
 !README.md
 !INSTALL.md
 .twig-cs-fixer.cache
+bin/
