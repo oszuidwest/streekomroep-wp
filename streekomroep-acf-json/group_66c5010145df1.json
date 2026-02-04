@@ -339,6 +339,58 @@
                     "sub_fields": [],
                     "min": "",
                     "max": ""
+                },
+                "layout_67a26e8f4c5d1": {
+                    "key": "layout_67a26e8f4c5d1",
+                    "name": "blok_weer",
+                    "label": "Weerbericht",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_67a26ea04c5d3",
+                            "label": "Titel",
+                            "name": "titel",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Titel van de weerbericht slide",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "Weerbericht",
+                            "maxlength": "",
+                            "allow_in_bindings": 1,
+                            "placeholder": "Weerbericht",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_67a26e9f4c5d2",
+                            "label": "Plaats",
+                            "name": "plaats",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Stad en landcode, bijv. 'Breda,NL' of 'Roosendaal,NL'",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "50",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "Breda,NL",
+                            "maxlength": "",
+                            "allow_in_bindings": 1,
+                            "placeholder": "Breda,NL",
+                            "prepend": "",
+                            "append": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
                 }
             },
             "min": "",
@@ -351,7 +403,7 @@
             {
                 "param": "options_page",
                 "operator": "==",
-                "value": "teksttv"
+                "value": "teksttv_kanaal"
             }
         ]
     ],

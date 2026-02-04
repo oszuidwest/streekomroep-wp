@@ -33,9 +33,11 @@ set -e
         wp language core install nl_NL --allow-root
         wp site switch-language nl_NL --allow-root
 
-        # Install Yoast plugins
-        echo "Installing Yoast plugins..."
+        # Install Yoast plugins (sequential to avoid conflicts)
+        echo "Installing Yoast SEO Premium..."
         wp plugin install "https://yoast.com/app/uploads/2026/02/wordpress-seo-premium-26.9.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
+
+        echo "Installing Yoast News SEO..."
         wp plugin install "https://yoast.com/app/uploads/2025/02/wpseo-news-13.3.zip" --activate --allow-root || echo "Failed to install Yoast News SEO"
 
         # Activate theme if exists
