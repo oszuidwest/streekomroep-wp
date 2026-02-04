@@ -38,10 +38,9 @@ class KabelkrantDagenMigration
 
     public function add_admin_page(): void
     {
-        add_submenu_page(
-            'teksttv',
+        add_management_page(
             'Migratie: Kabelkrant Dagen',
-            'Dagen Migratie',
+            'Kabelkrant Dagen Migratie',
             'manage_options',
             'migrate-kabelkrant-dagen',
             [$this, 'render_admin_page']

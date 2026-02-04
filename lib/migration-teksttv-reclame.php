@@ -51,10 +51,9 @@ class TekstTVReclameMigration
 
     public function add_admin_page(): void
     {
-        add_submenu_page(
-            'teksttv',
-            'Migratie: Reclame',
-            'Reclame Migratie',
+        add_management_page(
+            'Migratie: Tekst TV Reclame',
+            'Tekst TV Reclame Migratie',
             'manage_options',
             'migrate-teksttv-reclame',
             [$this, 'render_admin_page']
