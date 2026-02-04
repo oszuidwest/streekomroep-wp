@@ -86,10 +86,22 @@ class TekstTVReclameMigration
             <h2>Oude reclame data (tv-instellingen)</h2>
 
         <?php if (isset($_GET['debug'])) : ?>
-                <h3>Debug: Ruwe data</h3>
+                <h3>Debug: Ruwe data uit options tabel</h3>
                 <pre style="background: #f5f5f5; padding: 10px; max-height: 400px; overflow: auto;"><?php
                     // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
                 print_r($old_data);
+                ?></pre>
+                <h3>Debug: Raw option values (eerste 3)</h3>
+                <pre style="background: #f5f5f5; padding: 10px; max-height: 200px; overflow: auto;"><?php
+                $debug_count = get_option('options_tv_reclame_slides');
+                echo 'options_tv_reclame_slides = ' . esc_html(var_export($debug_count, true)) . "\n";
+                if ($debug_count && is_numeric($debug_count)) {
+                    for ($di = 0; $di < min((int) $debug_count, 3); $di++) {
+                        $debug_prefix = 'options_tv_reclame_slides_' . $di . '_';
+                        echo esc_html($debug_prefix . 'tv_reclame_start') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_start'), true)) . "\n";
+                        echo esc_html($debug_prefix . 'tv_reclame_eind') . ' = ' . esc_html(var_export(get_option($debug_prefix . 'tv_reclame_eind'), true)) . "\n";
+                    }
+                }
                 ?></pre>
         <?php endif; ?>
 
@@ -246,16 +258,26 @@ class TekstTVReclameMigration
             return '';
         }
 
-        // Try d/m/Y format first
-        $parsed = \DateTime::createFromFormat('d/m/Y', $date);
-        if ($parsed) {
-            return $parsed->format('Y-m-d');
+        // Try various date formats that ACF might have stored
+        $formats = [
+            'd/m/Y',    // European format with slashes
+            'Ymd',      // ACF internal format (no separators)
+            'Y-m-d',    // ISO format
+            'd-m-Y',    // European format with dashes
+            'm/d/Y',    // US format
+        ];
+
+        foreach ($formats as $format) {
+            $parsed = \DateTime::createFromFormat($format, $date);
+            if ($parsed && $parsed->format($format) === $date) {
+                return $parsed->format('Y-m-d');
+            }
         }
 
-        // Already in Y-m-d format?
-        $parsed = \DateTime::createFromFormat('Y-m-d', $date);
-        if ($parsed) {
-            return $date;
+        // Try strtotime as last resort
+        $timestamp = strtotime($date);
+        if ($timestamp !== false) {
+            return gmdate('Y-m-d', $timestamp);
         }
 
         return '';
