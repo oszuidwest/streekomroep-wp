@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/oszuidwest/streekomroep#readme",
   "dependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.0",
-    "@tailwindcss/typography": "^0.5.2",
-    "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
-    "postcss-cli": "^8.3.1",
-    "tailwindcss": "^3.1.2"
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.1.18"
   }
 }
