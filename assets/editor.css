@@ -18,25 +18,27 @@ body p:first-child {
 }
 
 /* Pullquote styles for editor */
-.prose blockquote {
-    @apply border-none font-round text-xl text-gray-600 dark:text-white;
+/* Using body instead of .prose because @apply prose doesn't add the class */
+body blockquote {
+    @apply border-0 font-round text-xl text-gray-600 dark:text-white;
     text-transform: none;
     text-align: center;
     line-height: 1em;
     padding: 2em 1em;
     position: relative;
     font-style: normal;
+    font-weight: normal;
     margin-top: 1em;
     margin-bottom: 1em;
 }
 
-.prose blockquote p:first-of-type::before,
-.prose blockquote p:last-of-type::after {
-    content: none;
+body blockquote p:first-of-type::before,
+body blockquote p:last-of-type::after {
+    content: none !important;
 }
 
-.prose blockquote:before,
-.prose blockquote:after {
+body blockquote::before,
+body blockquote::after {
     display: block;
     position: absolute;
     text-align: center;
@@ -47,30 +49,30 @@ body p:first-child {
     line-height: 1;
 }
 
-.prose blockquote:before {
+body blockquote::before {
     content: open-quote;
     top: 0;
 }
 
-.prose blockquote:after {
+body blockquote::after {
     content: close-quote;
 }
 
-.prose blockquote p {
+body blockquote p {
     font-size: 1.3em;
     line-height: 1.3;
     margin: 0;
 }
 
-.prose .wp-caption * {
+body .wp-caption * {
     margin: 0;
 }
 
-.prose .wp-caption-text,
-.prose .wp-caption-dd {
+body .wp-caption-text,
+body .wp-caption-dd {
     @apply text-sm text-gray-500 text-center pt-2;
 }
 
-.prose .video-js video {
+body .video-js video {
     margin: 0;
 }
