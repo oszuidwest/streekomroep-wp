@@ -510,9 +510,10 @@ function zw_rest_api_init()
                     break;
             };
 
+            $nextBroadcast = $schedule->getNextRadioBroadcast();
             $response['fm'] = [
                 'now' => html_entity_decode($currentRadioBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                'next' => html_entity_decode($schedule->getNextRadioBroadcast()->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                'next' => $nextBroadcast ? html_entity_decode($nextBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8') : null,
                 'rds' => [
                     'program' => html_entity_decode($options['radio_rds_zendernaam'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                     'radiotext' => $radiotext,
