@@ -5,7 +5,7 @@
   "description": "WordPress theme for Streekomroep ZuidWest",
   "scripts": {
     "watch:tailwind": "npx @tailwindcss/cli -i assets/style.css -o dist/style.css --watch & npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --watch",
-    "build:tailwind": "npx @tailwindcss/cli -i assets/style.css -o dist/style.css && npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css"
+    "build:tailwind": "npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify && npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify"
   },
   "license": "ISC",
   "dependencies": {
