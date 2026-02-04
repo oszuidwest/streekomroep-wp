@@ -52,6 +52,25 @@ set -e
         wp option patch update wpseo_social twitter_site 'zwupdate' --allow-root
         wp option patch update wpseo_social other_social_urls --format=json '["https://www.instagram.com/zuidwestupdate/","https://www.tiktok.com/@zuidwestupdate"]' --allow-root
 
+        # Create top menu (icons for Radio, TV, Search)
+        echo "Creating top menu..."
+        wp menu create "Top" --allow-root
+        wp menu location assign Top top --allow-root
+        wp menu item add-custom Top "Radio" "http://localhost:8080/radio/" --classes="icon-radio" --allow-root
+        wp menu item add-custom Top "TV" "http://localhost:8080/tv/" --classes="icon-tv" --allow-root
+        wp menu item add-custom Top "Zoeken" "http://localhost:8080/zoeken/" --classes="icon-search" --allow-root
+
+        # Create main menu
+        echo "Creating main menu..."
+        wp menu create "Main" --allow-root
+        wp menu location assign Main main --allow-root
+        wp menu item add-custom Main "Nieuws" "http://localhost:8080/nieuws/" --allow-root
+        wp menu item add-custom Main "Sport" "http://localhost:8080/sport/" --allow-root
+        wp menu item add-custom Main "112" "http://localhost:8080/112/" --allow-root
+        wp menu item add-custom Main "Cultuur" "http://localhost:8080/cultuur/" --allow-root
+        wp menu item add-custom Main "Economie" "http://localhost:8080/economie/" --allow-root
+        wp menu item add-custom Main "Politiek" "http://localhost:8080/politiek/" --allow-root
+
         # Create footer menu
         echo "Creating footer menu..."
         wp menu create "Footer" --allow-root
