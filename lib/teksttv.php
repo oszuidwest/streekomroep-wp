@@ -42,10 +42,11 @@ class TekstTVAPI
     /**
      * Check if content should be displayed on the given day.
      *
-     * ACF checkbox fields return values as strings ("1", "2", etc.).
-     * We normalize both sides to strings for reliable comparison.
+     * ACF checkbox fields may return values as:
+     * - Numeric strings ("1", "2", etc.) where 1=Mon, 7=Sun
+     * - Dutch abbreviations ("ma", "di", "wo", "do", "vrij", "za", "zo")
      *
-     * @param array|null $allowed_days Array of day numbers (1=Mon, 7=Sun) or null/empty for all days
+     * @param array|null $allowed_days Array of day identifiers or null/empty for all days
      * @param \DateTimeInterface|null $date Date to check, defaults to current date
      * @return bool True if content should be displayed
      */
@@ -56,10 +57,26 @@ class TekstTVAPI
         }
 
         $date = $date ?? current_datetime();
+
+        // Map Dutch abbreviations to numeric day values (ISO-8601: 1=Mon, 7=Sun)
+        $dutch_to_numeric = [
+            'ma' => '1',
+            'di' => '2',
+            'wo' => '3',
+            'do' => '4',
+            'vrij' => '5',
+            'vr' => '5',
+            'za' => '6',
+            'zo' => '7'
+        ];
+
         $current_day = $date->format('N'); // Returns "1" (Mon) through "7" (Sun)
 
-        // Normalize to strings for consistent comparison
-        $allowed_days_normalized = array_map('strval', $allowed_days);
+        // Normalize allowed days to numeric strings
+        $allowed_days_normalized = array_map(function ($day) use ($dutch_to_numeric) {
+            $day_lower = strtolower(trim($day));
+            return $dutch_to_numeric[$day_lower] ?? strval($day);
+        }, $allowed_days);
 
         return in_array($current_day, $allowed_days_normalized, true);
     }
