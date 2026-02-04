@@ -10,6 +10,7 @@
     <exclude-pattern>*/wp-content/*\.php$</exclude-pattern>
     <exclude-pattern>*/modules/*\.php$</exclude-pattern>
     <exclude-pattern>*/vendor/*\.php$</exclude-pattern>
+    <exclude-pattern>*/bin/*\.php$</exclude-pattern>
 
     <!-- Fix crash on PHP 8 -->
     <ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED"/>
