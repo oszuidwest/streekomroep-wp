@@ -1,7 +1,7 @@
 
 # The Streekomroep WordPress Theme
 
-This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.6+ and PHP 8.2.
+This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.9+ and PHP 8.3+.
 
 ## How to install
 Get the latest version from the [Releases tab](https://github.com/oszuidwest/streekomroep-wp/releases) and upload it as theme to your WordPress installation. Ensure to install all the hard dependencies too.
@@ -57,6 +57,24 @@ These tested plugins enhance the theme:
 Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
+
+## REST API Endpoints
+
+The theme provides REST API endpoints for external integrations:
+
+### Tekst TV
+```
+GET /wp-json/zw/v1/teksttv?kanaal={channel}
+```
+Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `kanaal` parameter must match a configured channel (e.g., `tv1`).
+
+Response:
+```json
+{
+  "slides": [...],
+  "ticker": [...]
+}
+```
 
 ## What's here?
 `static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.
