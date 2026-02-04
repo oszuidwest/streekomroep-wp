@@ -158,13 +158,26 @@ class TekstTVReclameMigration
 
             <hr style="margin: 30px 0;">
 
-            <form method="post">
+            <h2>Acties</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <form method="post">
         <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
-                <input type="hidden" name="action" value="reset_migration">
-                <button type="submit" class="button" onclick="return confirm('Weet je zeker dat je de migratie status wilt resetten?');">
-                    Reset Migratie Status
-                </button>
-            </form>
+                    <input type="hidden" name="action" value="reset_migration">
+                    <button type="submit" class="button" onclick="return confirm('Weet je zeker dat je de migratie status wilt resetten?');">
+                        Reset Migratie Status
+                    </button>
+                </form>
+
+        <?php if (!empty($old_data)) : ?>
+                <form method="post">
+            <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
+                    <input type="hidden" name="action" value="delete_old_data">
+                    <button type="submit" class="button button-link-delete" onclick="return confirm('Weet je zeker dat je alle oude reclame data wilt verwijderen? Dit kan niet ongedaan worden!');">
+                        🗑️ Verwijder Oude Data
+                    </button>
+                </form>
+        <?php endif; ?>
+            </div>
         </div>
         <?php
     }
@@ -276,7 +289,40 @@ class TekstTVReclameMigration
                 delete_option(self::OPTION_KEY);
                 add_settings_error('teksttv_reclame_migration', 'reset', 'Migratie status gereset.', 'info');
                 break;
+            case 'delete_old_data':
+                $this->delete_old_data();
+                break;
         }
+    }
+
+    private function delete_old_data(): void
+    {
+        $count = get_option('options_tv_reclame_slides');
+        $deleted = 0;
+
+        if ($count && is_numeric($count)) {
+            for ($i = 0; $i < (int) $count; $i++) {
+                $prefix = 'options_tv_reclame_slides_' . $i . '_';
+                delete_option($prefix . 'tv_reclame_afbeelding');
+                delete_option($prefix . 'tv_reclame_start');
+                delete_option($prefix . 'tv_reclame_eind');
+                // Also delete ACF's internal field references
+                delete_option('_' . $prefix . 'tv_reclame_afbeelding');
+                delete_option('_' . $prefix . 'tv_reclame_start');
+                delete_option('_' . $prefix . 'tv_reclame_eind');
+                $deleted++;
+            }
+        }
+
+        delete_option('options_tv_reclame_slides');
+        delete_option('_options_tv_reclame_slides');
+
+        add_settings_error(
+            'teksttv_reclame_migration',
+            'deleted',
+            sprintf('Oude data verwijderd (%d slides).', $deleted),
+            'success'
+        );
     }
 
     private function run_migration(): void
