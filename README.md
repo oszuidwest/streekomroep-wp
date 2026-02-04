@@ -1,7 +1,7 @@
 
 # The Streekomroep WordPress Theme
 
-This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.6+ and PHP 8.2.
+This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.9+ and PHP 8.3+.
 
 ## How to install
 Get the latest version from the [Releases tab](https://github.com/oszuidwest/streekomroep-wp/releases) and upload it as theme to your WordPress installation. Ensure to install all the hard dependencies too.
@@ -25,22 +25,56 @@ composer install --prefer-dist --no-dev --optimize-autoloader
 
 For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
 
+## Local development with Docker
+A Docker setup is included for local development. It provides WordPress with the theme mounted, a MariaDB database, and phpMyAdmin.
+
+```bash
+docker compose up -d
+```
+
+This starts:
+- WordPress at http://localhost:8080 (admin/admin)
+- phpMyAdmin at http://localhost:8081
+
+The theme folder is mounted into the container, so changes are reflected immediately. On first run, WordPress is automatically installed with Dutch locale and the theme activated.
+
+To stop: `docker compose down`
+To reset: `docker compose down -v` (removes database)
+
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.2: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]
+- Timber 2.3: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]
 - Advanced Custom Fields Pro 6.3.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
-- Yoast SEO Premium 23.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 24.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These tested plugins enhance the theme:
-- Contact Form 7 5.9.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
+- Contact Form 7 6.0.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
 - Disable Comments 2.x: [[free download](https://wordpress.org/plugins/disable-comments/)]
 
 ## Extra functionality with first-party plugins
 Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
+
+## REST API Endpoints
+
+The theme provides REST API endpoints for external integrations:
+
+### Tekst TV
+```
+GET /wp-json/zw/v1/teksttv?kanaal={channel}
+```
+Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `kanaal` parameter must match a configured channel (e.g., `tv1`).
+
+Response:
+```json
+{
+  "slides": [...],
+  "ticker": [...]
+}
+```
 
 ## What's here?
 `static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.

@@ -1,15 +1,15 @@
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
-        {% embed "partial/tabs.twig" %}
+        {% embed 'partial/tabs.twig' %}
             {% block title %}
                 De programmering van
             {% endblock %}
 
             {% block content %}
                 {{ _self.tab_active('ZuidWest TV', 'icon-tv') }}
-                {{ _self.tab('ZuidWest FM', 'icon-radio', fm.link ) }}
+                {{ _self.tab('ZuidWest FM', 'icon-radio', fm.link) }}
             {% endblock %}
         {% endembed %}
     </div>

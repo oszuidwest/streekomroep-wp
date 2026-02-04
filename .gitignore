@@ -1,9 +1,15 @@
 vendor
 wp-content
-composer.lock
 .DS_Store
 package-lock.json
 yarn.lock
 
 /node_modules
 /dist
+
+# Markdown files (except docs)
+*.md
+!README.md
+!INSTALL.md
+.twig-cs-fixer.cache
+bin/

@@ -76,7 +76,7 @@
             {
                 "param": "options_page",
                 "operator": "==",
-                "value": "teksttv"
+                "value": "teksttv_kanaal"
             }
         ]
     ],

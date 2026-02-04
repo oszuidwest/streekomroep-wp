@@ -22,6 +22,15 @@ module.exports = {
         blauw: {
           DEFAULT: '#009fe3',
         },
+        // Social media brand colors
+        facebook: '#1877F2',
+        whatsapp: '#25D366',
+        linkedin: '#0A66C2',
+        instagram: '#E4405F',
+        bluesky: '#0085FF',
+        youtube: '#FF0000',
+        tiktok: '#00f2ea',
+        x: '#000000',
       },
     },
   },

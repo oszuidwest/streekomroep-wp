@@ -21,13 +21,20 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        foreach (get_field('tv_week', 'option') as $week) {
-            $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'], wp_timezone());
+        $tv_weeks = get_field('tv_week', 'option') ?: [];
+        foreach ($tv_weeks as $week) {
+            $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'] ?? '', wp_timezone());
+            if ($start === false) {
+                continue;
+            }
             $start->setTime(0, 0);
             if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
-            $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'], wp_timezone());
+            $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'] ?? '', wp_timezone());
+            if ($end === false) {
+                continue;
+            }
             $end->setTime(0, 0);
             if ($end > $scheduleEnd) {
                 $end = $scheduleEnd;

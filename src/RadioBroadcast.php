@@ -35,8 +35,12 @@ class RadioBroadcast
     {
         if ($this->title) {
             return $this->title;
-        } else {
-            return $this->show->post_title;
         }
+
+        if (!$this->show) {
+            throw new \RuntimeException('RadioBroadcast has no title or show set');
+        }
+
+        return $this->show->post_title;
     }
 }

@@ -48,15 +48,8 @@ class Site extends \Timber\Site
         include(get_template_directory() . '/lib/taxonomy_regio.php');
     }
 
-    /** This is where you add some context
-     *
-     * @param string $context context['this'] Being the Twig's {{ this }}.
-     */
     public function add_to_context($context)
     {
-        $context['foo'] = 'bar';
-        $context['stuff'] = 'I am a value set in your functions.php file';
-        $context['notes'] = 'These values are available everytime you call Timber::context();';
         $context['mainmenu'] = Timber::get_menu('main');
         $context['topmenu'] = Timber::get_menu('top');
         $context['footer'] = Timber::get_menu('footer');
@@ -125,24 +118,17 @@ class Site extends \Timber\Site
 
     public function format_schedule($entry)
     {
-        $dayString = '';
         $days = $entry['fm_show_dagen'];
-        if (count($days) == 1) {
+        if (empty($days)) {
+            $dayString = '';
+        } elseif (count($days) === 1) {
             $dayString = $days[0];
         } else {
-            for ($i = 0; $i < count($days); $i++) {
-                if ($i == count($days) - 1) {
-                    $dayString .= ' en ';
-                } else if ($i != 0) {
-                    $dayString .= ', ';
-                }
-
-                $dayString .= $days[$i];
-            }
+            $lastDay = array_pop($days);
+            $dayString = implode(', ', $days) . ' en ' . $lastDay;
         }
 
-        $out = sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
-        return $out;
+        return sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
     }
 
     public function get_icon($name)

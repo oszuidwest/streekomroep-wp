@@ -1,5 +1,5 @@
 {# see `archive.twig` for an alternative strategy of extending templates #}
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% block content %}
     <div class="bg-white dark:bg-gray-800 text-black dark:text-white border-b border-gray-300/50 dark:border-gray-700">
@@ -17,9 +17,9 @@
     <div class="max-w-960 mx-auto p-4">
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for post in posts %}
-                {% include ['partial/tile-' ~ post.post_type ~ '.twig', 'partial/tile.twig'] with { post: post } %}
+                {{ include(['partial/tile-' ~ post.post_type ~ '.twig', 'partial/tile.twig'], {post: post}) }}
             {% endfor %}
         </div>
-        {% include 'partial/pagination.twig' with { pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+        {{ include('partial/pagination.twig', {pagination: posts.pagination({show_all: false, mid_size: 1, end_size: 1})}) }}
     </div>
 {% endblock %}

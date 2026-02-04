@@ -1,9 +1,9 @@
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% set showArchive = false %}
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
-        {% embed "partial/tabs.twig" %}
+        {% embed 'partial/tabs.twig' %}
             {% block title %}
                 De programma's van
             {% endblock %}
@@ -21,7 +21,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-8">
             {% for post in posts %}
                 {% if post.meta('fm_show_actief') %}
-                    {% include 'partial/tile-fm-show.twig' with { post: post } %}
+                    {{ include('partial/tile-fm-show.twig', {post: post}) }}
                 {% else %}
                     {% set showArchive = true %}
                 {% endif %}
@@ -37,7 +37,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-8">
                 {% for post in posts %}
                     {% if not post.meta('fm_show_actief') %}
-                        {% include 'partial/tile-fm-show.twig' with { post: post } %}
+                        {{ include('partial/tile-fm-show.twig', {post: post}) }}
                     {% endif %}
                 {% endfor %}
             </div>

@@ -1,4 +1,4 @@
-{% extends "base.twig" %}
+{% extends 'base.twig' %}
 
 {% block content %}
     <div class="w-full mx-auto max-w-960 py-4 px-4">
@@ -6,11 +6,11 @@
 
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {% for post in news %}
-                {% include 'partial/tile-post.twig' with { post: post } %}
+                {{ include('partial/tile-post.twig', {post: post}) }}
             {% endfor %}
         </div>
 
-        {% include 'partial/pagination.twig' with { pagination: news.pagination({show_all: false, mid_size: 1, end_size: 1}) } %}
+        {{ include('partial/pagination.twig', {pagination: news.pagination({show_all: false, mid_size: 1, end_size: 1})}) }}
     </div>
 
 {% endblock %}

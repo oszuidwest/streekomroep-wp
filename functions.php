@@ -116,7 +116,7 @@ function zw_bunny_get_video_from_url(string $url)
 
     $credentials = zw_bunny_credentials_get($id->libraryId);
     if (!$credentials) {
-        return;
+        return null;
     }
 
     $video = zw_bunny_get_video($credentials, $id);
@@ -175,7 +175,7 @@ new \Streekomroep\Site();
 
 /**
  * Include ACF Fields. These are saved as local JSON
- * This is not a function of Timber so we declare them afer the Timber specific functions
+ * This is not a function of Timber so we declare them after the Timber specific functions
  */
 if (function_exists('get_field')) {
     add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
@@ -207,49 +207,90 @@ if (function_exists('get_field')) {
     }
 }
 
-if (function_exists('acf_add_options_page')) {
-    acf_add_options_page([
-        'page_title' => 'Radio instellingen',
-        'menu_title' => 'Radio instellingen',
-        'menu_slug' => 'radio-instellingen',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-playlist-audio',
-        'redirect' => false
-    ]);
-}
+// Tekst TV channel configuration - add new channels here
+define('ZW_TEKSTTV_CHANNELS', [
+    'tv1' => 'ZuidWest TV 1',
+    'tv2' => 'ZuidWest TV 2',
+    // Add more channels: 'slug' => 'Name'
+]);
 
-if (function_exists('acf_add_options_page')) {
-    acf_add_options_page([
-        'page_title' => 'TV instellingen',
-        'menu_title' => 'TV instellingen',
-        'menu_slug' => 'tv-instellingen',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-format-video',
-        'redirect' => false
-    ]);
-}
+// Dynamic ACF location matching for Tekst TV channels
+// Makes "teksttv_kanaal" in ACF location rules match all channels from ZW_TEKSTTV_CHANNELS
+add_filter('acf/location/rule_match/options_page', function ($match, $rule, $screen) {
+    if ($rule['value'] === 'teksttv_kanaal' && $rule['operator'] === '==') {
+        $current_page = $screen['options_page'] ?? '';
+        foreach (array_keys(ZW_TEKSTTV_CHANNELS) as $slug) {
+            if ($current_page === 'teksttv_' . $slug) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return $match;
+}, 10, 3);
 
-if (function_exists('acf_add_options_page')) {
-    acf_add_options_page([
-        'page_title' => 'Tekst TV',
-        'menu_title' => 'Tekst TV',
-        'menu_slug' => 'teksttv',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-welcome-view-site',
-        'redirect' => false
-    ]);
-}
+add_action('acf/init', function () {
+    if (function_exists('acf_add_options_page')) {
+        acf_add_options_page([
+            'page_title' => 'Radio instellingen',
+            'menu_title' => 'Radio instellingen',
+            'menu_slug' => 'radio-instellingen',
+            'capability' => 'manage_options',
+            'icon_url' => 'dashicons-playlist-audio',
+            'redirect' => false
+        ]);
 
-if (function_exists('acf_add_options_page')) {
-    acf_add_options_page([
-        'page_title' => 'Desking',
-        'menu_title' => 'Desking',
-        'menu_slug' => 'desking',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-layout',
-        'redirect' => false
-    ]);
-}
+        acf_add_options_page([
+            'page_title' => 'TV instellingen',
+            'menu_title' => 'TV instellingen',
+            'menu_slug' => 'tv-instellingen',
+            'capability' => 'manage_options',
+            'icon_url' => 'dashicons-format-video',
+            'redirect' => false
+        ]);
+
+        // Tekst TV main menu (redirects to first channel)
+        acf_add_options_page([
+            'page_title' => 'Tekst TV',
+            'menu_title' => 'Tekst TV',
+            'menu_slug' => 'teksttv',
+            'capability' => 'manage_options',
+            'icon_url' => 'dashicons-welcome-view-site',
+            'redirect' => true
+        ]);
+
+        // Sub-page for each channel with unique post_id for separate data storage
+        foreach (ZW_TEKSTTV_CHANNELS as $slug => $name) {
+            acf_add_options_sub_page([
+                'page_title' => 'Tekst TV - ' . $name,
+                'menu_title' => $name,
+                'menu_slug' => 'teksttv_' . $slug,
+                'parent_slug' => 'teksttv',
+                'capability' => 'manage_options',
+                'post_id' => 'teksttv_' . $slug
+            ]);
+        }
+
+        // Settings sub-page (API keys etc.)
+        acf_add_options_sub_page([
+            'page_title' => 'Tekst TV - Instellingen',
+            'menu_title' => 'Instellingen',
+            'menu_slug' => 'teksttv_instellingen',
+            'parent_slug' => 'teksttv',
+            'capability' => 'manage_options',
+            'post_id' => 'teksttv_instellingen'
+        ]);
+
+        acf_add_options_page([
+            'page_title' => 'Desking',
+            'menu_title' => 'Desking',
+            'menu_slug' => 'desking',
+            'capability' => 'manage_options',
+            'icon_url' => 'dashicons-layout',
+            'redirect' => false
+        ]);
+    }
+});
 
 function zw_parse_query(WP_Query $query)
 {
@@ -432,62 +473,22 @@ function zw_rest_api_init()
         'methods' => 'GET',
         'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
+            $decode = fn($text) => html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
             $schedule = new \Streekomroep\BroadcastSchedule();
-            $response = [];
-
-            $options = get_fields('option');
-
-            $radiotext = '';
             $currentRadioBroadcast = $schedule->getCurrentRadioBroadcast();
+            $nextBroadcast = $schedule->getNextRadioBroadcast();
 
-            switch ($options['radio_rds_rt_optie']) {
-                case 1: // Statische tekst
-                    $radiotext = $options['radio_rds_rt_statische_tekst'];
-                    break;
-                case 2: // Programmanaam
-                case 3: // Programmanaam en presentator(en)
-                    $title = $currentRadioBroadcast->getName();
-                    $hosts = [];
-                    if ($currentRadioBroadcast->show) {
-                        $overrule = get_field('fm_show_overschrijf_programmanaam', $currentRadioBroadcast->show->ID);
-                        if (!empty($overrule)) {
-                            $title = $overrule;
-                        }
-
-                        foreach (get_field('fm_show_presentator', $currentRadioBroadcast->show->ID) as $user) {
-                            $user = get_user_by('id', $user);
-                            $hosts[] = $user->display_name;
-                        }
-                    }
-
-                    if ($options['radio_rds_rt_optie'] == 3 && count($hosts) > 0) {
-                        $radiotext = sprintf('%s met %s', $title, implode(' ', $hosts));
-                    } else {
-                        $radiotext = $title;
-                    }
-
-                    break;
-            };
-
-            $response['fm'] = [
-                'now' => $currentRadioBroadcast->getName(),
-                'next' => $schedule->getNextRadioBroadcast()->getName(),
-                'rds' => [
-                    'program' => $options['radio_rds_zendernaam'],
-                    'radiotext' => $radiotext,
-                ]
+            return [
+                'fm' => [
+                    'now' => $decode($currentRadioBroadcast->getName()),
+                    'next' => $nextBroadcast ? $decode($nextBroadcast->getName()) : null,
+                ],
+                'tv' => [
+                    'today' => array_map(fn($item) => $decode($item->name), $schedule->getToday()->television),
+                    'tomorrow' => array_map(fn($item) => $decode($item->name), $schedule->getTomorrow()->television),
+                ],
             ];
-
-            $response['tv'] = [
-                'today' => array_map(function ($item) {
-                    return $item->name;
-                }, $schedule->getToday()->television),
-                'tomorrow' => array_map(function ($item) {
-                    return $item->name;
-                }, $schedule->getTomorrow()->television),
-            ];
-
-            return $response;
         }
     ]);
 }
@@ -509,7 +510,7 @@ function zw_bunny_credentials_get(int $libraryId)
         $apiKey = get_field('bunny_cdn_api_key', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
     } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
-        $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option');
+        $libraryId = get_field('bunny_cdn_library_id_fragmenten', 'option');
         $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
         $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
@@ -612,32 +613,47 @@ function zw_get_socials()
         return [];
     }
 
-    $socials = [
-        ['name' => 'Facebook', 'class' => 'facebook', 'field' => 'facebook_site'],
-        ['name' => 'Instagram', 'class' => 'instagram', 'field' => 'instagram_url'],
-        ['name' => 'LinkedIN', 'class' => 'linkedin', 'field' => 'linkedin_url'],
-        ['name' => 'Pinterest', 'class' => 'pinterest', 'field' => 'pinterest_url'],
-        ['name' => 'Twitter', 'class' => 'twitter', 'field' => 'twitter_site'],
-        ['name' => 'YouTube', 'class' => 'youtube', 'field' => 'youtube_url']
+    $out = [];
+
+    if (!empty($seo_data['facebook_site'])) {
+        $out[] = [
+            'name' => 'Facebook',
+            'class' => 'facebook',
+            'link' => $seo_data['facebook_site']
+        ];
+    }
+
+    if (!empty($seo_data['twitter_site'])) {
+        $out[] = [
+            'name' => 'X',
+            'class' => 'twitter',
+            'link' => 'https://x.com/' . $seo_data['twitter_site']
+        ];
+    }
+
+    $social_patterns = [
+        'instagram.com' => ['name' => 'Instagram', 'class' => 'instagram'],
+        'linkedin.com' => ['name' => 'LinkedIn', 'class' => 'linkedin'],
+        'youtube.com' => ['name' => 'YouTube', 'class' => 'youtube'],
+        'youtu.be' => ['name' => 'YouTube', 'class' => 'youtube'],
+        'pinterest.com' => ['name' => 'Pinterest', 'class' => 'pinterest'],
+        'tiktok.com' => ['name' => 'TikTok', 'class' => 'tiktok'],
+        'mastodon' => ['name' => 'Mastodon', 'class' => 'mastodon'],
+        'bsky.app' => ['name' => 'Bluesky', 'class' => 'bluesky'],
     ];
 
-    $out = [];
-    foreach ($socials as $item) {
-        if (!isset($seo_data[$item['field']])) {
+    foreach ((array) ($seo_data['other_social_urls'] ?? []) as $url) {
+        $url = trim($url);
+        if (empty($url)) {
             continue;
         }
 
-        $value = trim($seo_data[$item['field']]);
-        if (empty($value)) {
-            continue;
+        foreach ($social_patterns as $pattern => $meta) {
+            if (strpos($url, $pattern) !== false) {
+                $out[] = ['name' => $meta['name'], 'class' => $meta['class'], 'link' => $url];
+                break;
+            }
         }
-
-        if ($item['field'] == 'twitter_site') {
-            $value = 'https://twitter.com/' . $value;
-        }
-
-        $item['link'] = $value;
-        $out[] = $item;
     }
 
     return $out;
@@ -803,36 +819,22 @@ function zw_project_cron()
 
 function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $videos)
 {
-    /** @var Video[] $videos */
-    $videos = array_map(function ($a) use ($credentials) {
-        return new Video($credentials, $a);
-    }, $videos);
-
-    // Filter videos that are still being uploaded or transcoded
-    $videos = array_filter($videos, function ($video) {
-        return $video->isAvailable();
-    });
-
     $now = new DateTime('now', wp_timezone());
+
+    /** @var Video[] $videos */
+    $videos = array_map(fn($a) => new Video($credentials, $a), $videos);
+
+    // Filter unavailable videos and those without valid past dates
     $videos = array_filter($videos, function ($video) use ($now) {
+        if (!$video->isAvailable()) {
+            return false;
+        }
+
         $date = $video->getBroadcastDate();
-
-        // Ignore videos with no valid date
-        if (!$date) {
-            return false;
-        }
-
-        // Ignore videos with a date in the future
-        if ($date > $now) {
-            return false;
-        }
-
-        return true;
+        return $date && $date <= $now;
     });
 
-    usort($videos, function (Video $left, Video $right) {
-        return $right->getBroadcastDate() <=> $left->getBroadcastDate();
-    });
+    usort($videos, fn(Video $left, Video $right) => $right->getBroadcastDate() <=> $left->getBroadcastDate());
 
     return $videos;
 }
@@ -841,7 +843,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
-add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function fragment_get_video($id)
@@ -890,20 +891,6 @@ function add_custom_schema_piece($pieces, $context)
     return $pieces;
 }
 
-function zw_seo_add_fragment_video($data, $context)
-{
-    if (!is_singular('fragment')) {
-        return $data;
-    }
-
-    $type = get_field('fragment_type', false, false);
-    if ($type !== 'Video') {
-        return $data;
-    }
-
-    return $data;
-}
-
 function zw_seo_article_add_region($data, $context)
 {
     /** @var WP_Term[] $terms */
@@ -946,9 +933,9 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 function zw_add_videojs()
 {
     // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/lang/nl.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video-js.min.css');
+    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/lang/nl.min.js', args:['strategy'  => 'defer']);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
