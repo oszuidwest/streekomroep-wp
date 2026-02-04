@@ -32,7 +32,7 @@
             "label": "Geen programma naam",
             "name": "radio_geen_programma_naam",
             "type": "text",
-            "instructions": "Naam die getoond wordt in de programmering en RDS output wanneer er voor dit uur geen gepland programma is.",
+            "instructions": "Naam die getoond wordt in de programmering wanneer er voor dit uur geen gepland programma is.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {

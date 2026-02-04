@@ -131,26 +131,6 @@
                 }
             ],
             "rows_per_page": 20
-        },
-        {
-            "key": "field_5ff211a0746d3",
-            "label": "Overschrijf programmanaam",
-            "name": "fm_show_overschrijf_programmanaam",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "Overschrijf de naam van het programma op RDS. Bijvoorbeeld wanneer er een speciale editie van het programma is.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "Bijvoorbeeld: ZuidWest in de morgen - feestelijke 100e aflevering!",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
         }
     ],
     "location": [
