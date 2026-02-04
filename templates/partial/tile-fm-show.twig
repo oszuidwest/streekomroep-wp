@@ -1,5 +1,5 @@
 <a class="block aspect-video relative" href="{{ post.link }}">
-    <div class="bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
+    <div class="absolute inset-0 bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
         {% if post.thumbnail %}
             <img class="absolute inset-0 w-full h-full object-cover"
                  src="{{ post.thumbnail.src|thumbor(320, 180) }}"/>
