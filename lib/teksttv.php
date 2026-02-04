@@ -203,25 +203,19 @@ class TekstTVAPI
             ]
         ];
 
-        // Add region filter if specified
         if (!empty($block['Regiofilter'])) {
             $args['tax_query'][] = [
                 'taxonomy' => 'regio',
                 'field' => 'term_id',
-                'terms' => array_map(function ($term) {
-                    return $term->term_id;
-                }, $block['Regiofilter'])
+                'terms' => wp_list_pluck($block['Regiofilter'], 'term_id')
             ];
         }
 
-        // Add category filter if specified
         if (!empty($block['categoriefilter'])) {
             $args['tax_query'][] = [
                 'taxonomy' => 'category',
                 'field' => 'term_id',
-                'terms' => array_map(function ($term) {
-                    return $term->term_id;
-                }, $block['categoriefilter'])
+                'terms' => wp_list_pluck($block['categoriefilter'], 'term_id')
             ];
         }
 

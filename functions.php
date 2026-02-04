@@ -116,7 +116,7 @@ function zw_bunny_get_video_from_url(string $url)
 
     $credentials = zw_bunny_credentials_get($id->libraryId);
     if (!$credentials) {
-        return;
+        return null;
     }
 
     $video = zw_bunny_get_video($credentials, $id);
@@ -551,7 +551,7 @@ function zw_bunny_credentials_get(int $libraryId)
         $apiKey = get_field('bunny_cdn_api_key', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
     } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
-        $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option');
+        $libraryId = get_field('bunny_cdn_library_id_fragmenten', 'option');
         $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
         $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
         return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
@@ -656,7 +656,6 @@ function zw_get_socials()
 
     $out = [];
 
-    // Facebook - stored as facebook_site
     if (!empty($seo_data['facebook_site'])) {
         $out[] = [
             'name' => 'Facebook',
@@ -665,7 +664,6 @@ function zw_get_socials()
         ];
     }
 
-    // X/Twitter - stored as twitter_site (handle only, not full URL)
     if (!empty($seo_data['twitter_site'])) {
         $out[] = [
             'name' => 'X',
@@ -674,7 +672,17 @@ function zw_get_socials()
         ];
     }
 
-    // Other social URLs - Yoast stores Instagram, LinkedIn, YouTube, etc. here
+    $social_patterns = [
+        'instagram.com' => ['name' => 'Instagram', 'class' => 'instagram'],
+        'linkedin.com' => ['name' => 'LinkedIn', 'class' => 'linkedin'],
+        'youtube.com' => ['name' => 'YouTube', 'class' => 'youtube'],
+        'youtu.be' => ['name' => 'YouTube', 'class' => 'youtube'],
+        'pinterest.com' => ['name' => 'Pinterest', 'class' => 'pinterest'],
+        'tiktok.com' => ['name' => 'TikTok', 'class' => 'tiktok'],
+        'mastodon' => ['name' => 'Mastodon', 'class' => 'mastodon'],
+        'bsky.app' => ['name' => 'Bluesky', 'class' => 'bluesky'],
+    ];
+
     $other_urls = $seo_data['other_social_urls'] ?? [];
     if (is_array($other_urls)) {
         foreach ($other_urls as $url) {
@@ -683,20 +691,11 @@ function zw_get_socials()
                 continue;
             }
 
-            if (strpos($url, 'instagram.com') !== false) {
-                $out[] = ['name' => 'Instagram', 'class' => 'instagram', 'link' => $url];
-            } elseif (strpos($url, 'linkedin.com') !== false) {
-                $out[] = ['name' => 'LinkedIn', 'class' => 'linkedin', 'link' => $url];
-            } elseif (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
-                $out[] = ['name' => 'YouTube', 'class' => 'youtube', 'link' => $url];
-            } elseif (strpos($url, 'pinterest.com') !== false) {
-                $out[] = ['name' => 'Pinterest', 'class' => 'pinterest', 'link' => $url];
-            } elseif (strpos($url, 'tiktok.com') !== false) {
-                $out[] = ['name' => 'TikTok', 'class' => 'tiktok', 'link' => $url];
-            } elseif (strpos($url, 'mastodon') !== false) {
-                $out[] = ['name' => 'Mastodon', 'class' => 'mastodon', 'link' => $url];
-            } elseif (strpos($url, 'bsky.app') !== false) {
-                $out[] = ['name' => 'Bluesky', 'class' => 'bluesky', 'link' => $url];
+            foreach ($social_patterns as $pattern => $meta) {
+                if (strpos($url, $pattern) !== false) {
+                    $out[] = ['name' => $meta['name'], 'class' => $meta['class'], 'link' => $url];
+                    break;
+                }
             }
         }
     }
@@ -902,7 +901,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 add_filter('wpseo_schema_graph_pieces', 'add_custom_schema_piece', 11, 2);
-add_filter('wpseo_schema_webpage', 'zw_seo_add_fragment_video', 10, 2);
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function fragment_get_video($id)
@@ -949,20 +947,6 @@ function add_custom_schema_piece($pieces, $context)
     }
 
     return $pieces;
-}
-
-function zw_seo_add_fragment_video($data, $context)
-{
-    if (!is_singular('fragment')) {
-        return $data;
-    }
-
-    $type = get_field('fragment_type', false, false);
-    if ($type !== 'Video') {
-        return $data;
-    }
-
-    return $data;
 }
 
 function zw_seo_article_add_region($data, $context)
