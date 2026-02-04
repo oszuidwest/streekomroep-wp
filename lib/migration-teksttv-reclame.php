@@ -256,26 +256,19 @@ class TekstTVReclameMigration
             return '';
         }
 
-        // Try various date formats that ACF might have stored
-        $formats = [
-            'd/m/Y',    // European format with slashes
-            'Ymd',      // ACF internal format (no separators)
-            'Y-m-d',    // ISO format
-            'd-m-Y',    // European format with dashes
-            'm/d/Y',    // US format
-        ];
-
-        foreach ($formats as $format) {
-            $parsed = \DateTime::createFromFormat($format, $date);
-            if ($parsed && $parsed->format($format) === $date) {
-                return $parsed->format('Y-m-d');
-            }
+        // ACF stores dates in Ymd format (e.g., 20241201)
+        if (preg_match('/^(\d{4})(\d{2})(\d{2})$/', $date, $matches)) {
+            return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
 
-        // Try strtotime as last resort
-        $timestamp = strtotime($date);
-        if ($timestamp !== false) {
-            return gmdate('Y-m-d', $timestamp);
+        // Already in Y-m-d format
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date;
+        }
+
+        // European format d/m/Y
+        if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $date, $matches)) {
+            return $matches[3] . '-' . $matches[2] . '-' . $matches[1];
         }
 
         return '';
