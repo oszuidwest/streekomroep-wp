@@ -20,10 +20,10 @@
         <div class="flex flex-wrap -mx-3">
             {% for item in block.shows %}
                  <a href="{{ item.show.link }}"
-                   class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">{{ item.show.title }}</a>
+                   class="text-gray-200 hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded-sm">{{ item.show.title }}</a>
             {% endfor %}
             <a href="{{ function('get_post_type_archive_link', 'tv') }}"
-               class="text-blauw hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded">→ Alle programma's</a>
+               class="text-blauw hover:bg-gray-700 block px-2 mx-1 my-0.5 rounded-sm">→ Alle programma's</a>
         </div>
     </div>
 </div>

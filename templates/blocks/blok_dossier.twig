@@ -1,6 +1,6 @@
 <div class="bg-gray-800 text-white my-4">
     <div class="lg:hidden">
-        <div class="aspect-w-21 aspect-h-9">
+        <div class="aspect-[21/9]">
             <div>
                 <img
                     class="object-cover absolute inset-0 w-full h-full" loading="lazy" alt="{{ block.term.name }}"
@@ -29,7 +29,7 @@
                     {% for post in block.posts %} {{ include('partial/dossier-post-tile.twig', {post: post}) }} {% endfor %}
                 </ul>
                 <div class="block px-2 pb-4">
-                    <a href="{{ block.term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded">→ Alles over {{ block.term.name }}</a>
+                    <a href="{{ block.term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded-sm">→ Alles over {{ block.term.name }}</a>
                 </div>
             </div>
             <div class="col-start-1 row-start-1 relative z-10">

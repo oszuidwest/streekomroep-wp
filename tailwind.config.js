@@ -1,11 +1,9 @@
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: ['./templates/**/*.twig'],
   darkMode: 'class',
   theme: {
     extend: {
-      aspectRatio: {
-        21: '21',
-      },
       fontFamily: {
         round: ['Nunito', 'sans-serif'],
       },
@@ -35,7 +33,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/typography'),
   ],
 };

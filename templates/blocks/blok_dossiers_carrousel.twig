@@ -53,8 +53,8 @@
 </style>
 
 {% macro render_term(term) %}
-    <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded">
-        <div class="aspect-h-16 aspect-w-9">
+    <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded-sm">
+        <div class="aspect-[9/16]">
             <div>
                 <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.title }}"
                      src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|thumbor(9 * 48, 16 * 48) }}"/>

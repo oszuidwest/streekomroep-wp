@@ -5,10 +5,10 @@
             {# Previous #}
             <li class="p-2 flex-none">
                 {% if pagination.prev %}
-                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
+                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
                        href="{{ pagination.prev.link }}">&lt; Vorige</a>
                 {% else %}
-                    <button class="min-w-12 h-12 px-4  flex justify-center items-center rounded text-gray-400 dark:text-gray-500" disabled>
+                    <button class="min-w-12 h-12 px-4  flex justify-center items-center rounded-sm text-gray-400 dark:text-gray-500" disabled>
                         &lt; Vorige
                     </button>
                 {% endif %}
@@ -22,10 +22,10 @@
             {% for page in pagination.pages %}
                 <li class="p-2 hidden sm:block">
                     {% if page.link %}
-                        <a class="w-12 h-12 flex justify-center items-center rounded border-2 border-gray-200 dark:border-gray-700 dark:text-gray-200"
+                        <a class="w-12 h-12 flex justify-center items-center rounded-sm border-2 border-gray-200 dark:border-gray-700 dark:text-gray-200"
                            href="{{ page.link }}" class="{{ page.class }}">{{ page.title }}</a>
                     {% elseif page.current %}
-                        <span class="w-12 h-12 flex justify-center items-center rounded border-2 text-black dark:text-white border-groen {{ page.class }}">{{ page.title }}</span>
+                        <span class="w-12 h-12 flex justify-center items-center rounded-sm border-2 text-black dark:text-white border-groen {{ page.class }}">{{ page.title }}</span>
                     {% else %}
                         {# dots #}
                         <span class="h-12 flex justify-center items-center text-gray-400 dark:text-gray-500">...</span>
@@ -36,10 +36,10 @@
             {# Next #}
             <li class="p-2 flex-none">
                 {% if pagination.next %}
-                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
+                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
                        href="{{ pagination.next.link }}">Volgende &gt;</a>
                 {% else %}
-                    <button class="min-w-12 h-12 px-4 flex justify-center items-center rounded text-gray-400 dark:text-gray-500" disabled>
+                    <button class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm text-gray-400 dark:text-gray-500" disabled>
                         Volgende &gt;
                     </button>
                 {% endif %}

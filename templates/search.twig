@@ -6,10 +6,10 @@
         <div class="px-4 mx-auto max-w-xl">
             <form class="flex items-center justify-center py-4" role="search" method="get" id="searchform"
                   action="{{ function('home_url', '/') }}">
-                <input class="appearance-none bg-transparent border border-gray-400 dark:border-gray-600 rounded-md focus:outline-0 focus:ring focus:ring-blauw focus:ring-opacity-20 focus:border-blauw block w-full text-lg p-2 text-black dark:text-white transition" placeholder='Zoek naar...' type="search"
+                <input class="appearance-none bg-transparent border border-gray-400 dark:border-gray-600 rounded-md focus:outline-0 focus:ring-3 focus:ring-blauw/20 focus:border-blauw block w-full text-lg p-2 text-black dark:text-white transition" placeholder='Zoek naar...' type="search"
                        value="{{ function('get_search_query') }}" name="s" id="s"/>
 
-                <input class="flex-none appearance-none block text-lg rounded p-2 sm:px-8 ml-4 uppercase bg-blauw hover:brightness-110 cursor-pointer"
+                <input class="flex-none appearance-none block text-lg rounded-sm p-2 sm:px-8 ml-4 uppercase bg-blauw hover:brightness-110 cursor-pointer"
                        type="submit" value="Zoeken">
             </form>
         </div>

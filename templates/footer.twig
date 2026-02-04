@@ -6,7 +6,7 @@
             <div class="py-3 sm:py-4">
                 <div class="bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-3">
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-groen/20 to-groen/5 border border-groen/20 flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-groen/20 to-groen/5 border border-groen/20 flex items-center justify-center shrink-0">
                             {% set site_icon = function('get_site_icon_url', 64) %}
                             {% if site_icon %}
                                 <img src="{{ site_icon }}" alt="" class="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg">
@@ -21,7 +21,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">Altijd het laatste nieuws bij de hand</p>
                         </div>
                     </div>
-                    <a href="{{ site.url }}/?pswutlzoq=install" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-groen text-gray-900 text-xs sm:text-sm font-bold rounded-md sm:rounded-lg hover:bg-groen/90 transition flex-shrink-0">
+                    <a href="{{ site.url }}/?pswutlzoq=install" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-groen text-gray-900 text-xs sm:text-sm font-bold rounded-md sm:rounded-lg hover:bg-groen/90 transition shrink-0">
                         Installeren
                     </a>
                 </div>

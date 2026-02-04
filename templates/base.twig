@@ -21,7 +21,7 @@
                                 class="sm:hidden"/>West</a>
                 {% endif %}
 
-                <div class="flex-grow"></div>
+                <div class="grow"></div>
                 {% for item in topmenu.items %}
                     {% set icon = null %}
                     {% for class in item.classes %}
@@ -29,7 +29,7 @@
                     {% endfor %}
 
                     {% if icon %}
-                        <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded"
+                        <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded-sm"
                            href="{{ item.link }}">
                             {{ icon }}
                             <span class="hidden sm:block ml-2 text-sm font-round font-bold uppercase">{{ item.title }}</span>
