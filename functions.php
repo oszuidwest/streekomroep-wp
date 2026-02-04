@@ -642,7 +642,7 @@ function zw_get_socials()
         'bsky.app' => ['name' => 'Bluesky', 'class' => 'bluesky'],
     ];
 
-    foreach ($seo_data['other_social_urls'] ?? [] as $url) {
+    foreach ((array) ($seo_data['other_social_urls'] ?? []) as $url) {
         $url = trim($url);
         if (empty($url)) {
             continue;
