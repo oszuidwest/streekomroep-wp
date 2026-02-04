@@ -76,19 +76,19 @@ class TekstTVReclameMigration
                 <code>functions.php</code> zodra de migratie compleet is!
             </div>
 
-            <?php settings_errors('teksttv_reclame_migration'); ?>
+        <?php settings_errors('teksttv_reclame_migration'); ?>
 
-            <?php if ($is_migrated): ?>
+        <?php if ($is_migrated) : ?>
                 <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
                     <strong>✅ Migratie voltooid op <?php echo esc_html($is_migrated); ?></strong>
                 </div>
-            <?php endif; ?>
+        <?php endif; ?>
 
             <h2>Oude reclame data (tv-instellingen)</h2>
 
-            <?php if (empty($old_data)): ?>
+        <?php if (empty($old_data)) : ?>
                 <p>Geen oude reclame data gevonden in <code>tv-instellingen</code>.</p>
-            <?php else: ?>
+        <?php else : ?>
                 <p>Gevonden: <strong><?php echo count($old_data); ?></strong> oude reclame slides</p>
 
                 <table class="widefat" style="max-width: 800px;">
@@ -101,43 +101,43 @@ class TekstTVReclameMigration
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($old_data as $index => $slide): ?>
+            <?php foreach ($old_data as $index => $slide) : ?>
                             <tr>
                                 <td>
-                                    <?php if (!empty($slide['tv_reclame_afbeelding']['url'])): ?>
+                <?php if (!empty($slide['tv_reclame_afbeelding']['url'])) : ?>
                                         <img src="<?php echo esc_url($slide['tv_reclame_afbeelding']['sizes']['thumbnail'] ?? $slide['tv_reclame_afbeelding']['url']); ?>"
                                              style="max-width: 100px; max-height: 60px;">
-                                    <?php else: ?>
+                <?php else : ?>
                                         <em>Geen afbeelding</em>
-                                    <?php endif; ?>
+                <?php endif; ?>
                                 </td>
                                 <td><?php echo esc_html($slide['tv_reclame_start'] ?? '-'); ?></td>
                                 <td><?php echo esc_html($slide['tv_reclame_eind'] ?? '-'); ?></td>
                                 <td>
-                                    <?php
-                                    $converted = $this->convert_slide($slide);
-                                    echo esc_html($converted['campagne_datum_in'] ?? '-');
-                                    echo ' → ';
-                                    echo esc_html($converted['campagne_datum_uit'] ?? '-');
-                                    ?>
+                <?php
+                $converted = $this->convert_slide($slide);
+                echo esc_html($converted['campagne_datum_in'] ?? '-');
+                echo ' → ';
+                echo esc_html($converted['campagne_datum_uit'] ?? '-');
+                ?>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+            <?php endforeach; ?>
                     </tbody>
                 </table>
 
-                <?php if (!empty($channels)): ?>
+            <?php if (!empty($channels)) : ?>
                     <h2>Migreren naar kanaal</h2>
                     <form method="post" style="margin-top: 20px;">
-                        <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
+                <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
                         <input type="hidden" name="action" value="run_migration">
 
                         <p>
                             <label for="target_channel"><strong>Doelkanaal:</strong></label><br>
                             <select name="target_channel" id="target_channel" style="min-width: 200px;">
-                                <?php foreach ($channels as $slug => $name): ?>
+                <?php foreach ($channels as $slug => $name) : ?>
                                     <option value="<?php echo esc_attr($slug); ?>"><?php echo esc_html($name); ?></option>
-                                <?php endforeach; ?>
+                <?php endforeach; ?>
                             </select>
                         </p>
 
@@ -152,15 +152,15 @@ class TekstTVReclameMigration
                             🚀 Start Migratie
                         </button>
                     </form>
-                <?php else: ?>
+            <?php else : ?>
                     <p style="color: red;"><strong>Fout:</strong> Geen kanalen geconfigureerd (ZW_TEKSTTV_CHANNELS).</p>
-                <?php endif; ?>
             <?php endif; ?>
+        <?php endif; ?>
 
             <hr style="margin: 30px 0;">
 
             <form method="post">
-                <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
+        <?php wp_nonce_field('teksttv_reclame_migration', 'migration_nonce'); ?>
                 <input type="hidden" name="action" value="reset_migration">
                 <button type="submit" class="button" onclick="return confirm('Weet je zeker dat je de migratie status wilt resetten?');">
                     Reset Migratie Status
@@ -230,7 +230,7 @@ class TekstTVReclameMigration
 
     public function handle_migration(): void
     {
-        if (!isset($_POST['migration_nonce']) || !wp_verify_nonce($_POST['migration_nonce'], 'teksttv_reclame_migration')) {
+        if (!isset($_POST['migration_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['migration_nonce'])), 'teksttv_reclame_migration')) {
             return;
         }
 
@@ -238,7 +238,7 @@ class TekstTVReclameMigration
             return;
         }
 
-        $action = $_POST['action'] ?? '';
+        $action = isset($_POST['action']) ? sanitize_text_field(wp_unslash($_POST['action'])) : '';
 
         switch ($action) {
             case 'run_migration':
@@ -263,7 +263,9 @@ class TekstTVReclameMigration
             return;
         }
 
-        $target_channel = sanitize_text_field($_POST['target_channel'] ?? '');
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_migration()
+        $target_channel = isset($_POST['target_channel']) ? sanitize_text_field(wp_unslash($_POST['target_channel'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_migration()
         $keep_old = !empty($_POST['keep_old']);
 
         if (empty($target_channel)) {

@@ -55,18 +55,20 @@ class KabelkrantDagenMigration
         $is_migrated = get_option(self::OPTION_KEY, false);
 
         // Quick count using SQL LIKE for Dutch abbreviations
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $needs_migration = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->postmeta}
+            'SELECT COUNT(*) FROM ' . $wpdb->postmeta . '
              WHERE meta_key = %s
-             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)",
+             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)',
             self::META_KEY,
             '%"ma"%',
             '%"di"%',
             '%"wo"%'
         ));
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $total = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s",
+            'SELECT COUNT(*) FROM ' . $wpdb->postmeta . ' WHERE meta_key = %s',
             self::META_KEY
         ));
 
@@ -79,7 +81,7 @@ class KabelkrantDagenMigration
                 <code>functions.php</code> zodra de migratie compleet is!
             </div>
 
-            <?php settings_errors('kabelkrant_migration'); ?>
+        <?php settings_errors('kabelkrant_migration'); ?>
 
             <h2>Status</h2>
             <table class="widefat" style="max-width: 500px;">
@@ -90,44 +92,44 @@ class KabelkrantDagenMigration
                 <tr>
                     <td>Te migreren (oude format):</td>
                     <td><strong style="color: <?php echo $needs_migration > 0 ? '#dc3545' : '#28a745'; ?>">
-                        <?php echo esc_html($needs_migration); ?>
+        <?php echo esc_html($needs_migration); ?>
                     </strong></td>
                 </tr>
             </table>
 
-            <?php if ($needs_migration > 0): ?>
+        <?php if ($needs_migration > 0) : ?>
                 <div style="background: #e7f3ff; border: 1px solid #0073aa; padding: 15px; margin: 20px 0; border-radius: 4px;">
                     <strong>ℹ️ Info:</strong> De migratie gebruikt directe SQL REPLACE queries en is snel.
                 </div>
 
                 <form method="post" style="margin-top: 20px;">
-                    <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
+            <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
                     <input type="hidden" name="action" value="run_migration">
                     <button type="submit" class="button button-primary button-hero">
                         🚀 Start Migratie
                     </button>
                 </form>
-            <?php elseif ($is_migrated): ?>
+        <?php elseif ($is_migrated) : ?>
                 <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
                     <strong>✅ Migratie voltooid op <?php echo esc_html($is_migrated); ?></strong>
                 </div>
-            <?php else: ?>
+        <?php else : ?>
                 <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
                     <strong>✅ Alle posts zijn al in het correcte formaat!</strong>
                 </div>
                 <form method="post" style="margin-top: 20px;">
-                    <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
+            <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
                     <input type="hidden" name="action" value="mark_complete">
                     <button type="submit" class="button button-primary">
                         Markeer als Voltooid
                     </button>
                 </form>
-            <?php endif; ?>
+        <?php endif; ?>
 
             <hr style="margin: 30px 0;">
 
             <form method="post">
-                <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
+        <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
                 <input type="hidden" name="action" value="reset_migration">
                 <button type="submit" class="button" onclick="return confirm('Weet je zeker dat je de migratie status wilt resetten?');">
                     Reset Migratie Status
@@ -139,7 +141,7 @@ class KabelkrantDagenMigration
 
     public function handle_migration(): void
     {
-        if (!isset($_POST['migration_nonce']) || !wp_verify_nonce($_POST['migration_nonce'], 'kabelkrant_dagen_migration')) {
+        if (!isset($_POST['migration_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['migration_nonce'])), 'kabelkrant_dagen_migration')) {
             return;
         }
 
@@ -147,7 +149,7 @@ class KabelkrantDagenMigration
             return;
         }
 
-        $action = $_POST['action'] ?? '';
+        $action = isset($_POST['action']) ? sanitize_text_field(wp_unslash($_POST['action'])) : '';
 
         switch ($action) {
             case 'run_migration':
@@ -186,11 +188,12 @@ class KabelkrantDagenMigration
         $updated = 0;
 
         foreach ($replacements as $old => $new) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $result = $wpdb->query($wpdb->prepare(
-                "UPDATE {$wpdb->postmeta}
+                'UPDATE ' . $wpdb->postmeta . '
                  SET meta_value = REPLACE(meta_value, %s, %s)
                  WHERE meta_key = %s
-                 AND meta_value LIKE %s",
+                 AND meta_value LIKE %s',
                 $old,
                 $new,
                 self::META_KEY,
@@ -206,10 +209,11 @@ class KabelkrantDagenMigration
         wp_cache_flush();
 
         // Check remaining
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $remaining = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->postmeta}
+            'SELECT COUNT(*) FROM ' . $wpdb->postmeta . '
              WHERE meta_key = %s
-             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)",
+             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)',
             self::META_KEY,
             '%"ma"%',
             '%"di"%',
