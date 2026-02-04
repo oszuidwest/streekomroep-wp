@@ -85,6 +85,14 @@ class TekstTVReclameMigration
 
             <h2>Oude reclame data (tv-instellingen)</h2>
 
+            <?php if (isset($_GET['debug'])) : ?>
+                <h3>Debug: Ruwe data</h3>
+                <pre style="background: #f5f5f5; padding: 10px; max-height: 400px; overflow: auto;"><?php
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+                    print_r($old_data);
+                ?></pre>
+            <?php endif; ?>
+
         <?php if (empty($old_data)) : ?>
                 <p>Geen oude reclame data gevonden in <code>tv-instellingen</code>.</p>
         <?php else : ?>
