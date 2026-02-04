@@ -1,0 +1,43 @@
+{
+    "key": "group_67a26f0a4c5d6",
+    "title": "Tekst TV - OpenWeather API",
+    "fields": [
+        {
+            "key": "field_67a26f1a4c5d7",
+            "label": "OpenWeather API Key",
+            "name": "openweather_api_key",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "API key van OpenWeather. Aan te maken via <a href=\"https://openweathermap.org/api\" target=\"_blank\">openweathermap.org/api</a>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "teksttv_instellingen"
+            }
+        ]
+    ],
+    "menu_order": 10,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1738670000
+}
