@@ -99,23 +99,9 @@ class TekstTVAPI
     // Register REST API endpoints
     public function register_api_routes()
     {
-        register_rest_route('zw/v1', '/teksttv-slides', [
+        register_rest_route('zw/v1', '/teksttv', [
             'methods' => 'GET',
-            'callback' => [$this, 'get_slides'],
-            'permission_callback' => '__return_true',
-            'args' => [
-                'kanaal' => [
-                    'required' => true,
-                    'type' => 'string',
-                    'description' => 'Kanaal slug (bijv. breda, roosendaal)',
-                    'validate_callback' => [$this, 'validate_channel']
-                ]
-            ]
-        ]);
-
-        register_rest_route('zw/v1', '/teksttv-ticker', [
-            'methods' => 'GET',
-            'callback' => [$this, 'get_ticker_messages'],
+            'callback' => [$this, 'get_teksttv'],
             'permission_callback' => '__return_true',
             'args' => [
                 'kanaal' => [
@@ -143,20 +129,28 @@ class TekstTVAPI
         return 'teksttv_' . $channel;
     }
 
-    // Retrieve all slides for text TV display
-    public function get_slides(\WP_REST_Request $request)
+    // Main endpoint returning slides and ticker
+    public function get_teksttv(\WP_REST_Request $request)
+    {
+        $channel = $request->get_param('kanaal');
+
+        return new WP_REST_Response([
+            'slides' => $this->build_slides($channel),
+            'ticker' => $this->build_ticker($channel)
+        ], 200);
+    }
+
+    // Build slides array for a channel
+    private function build_slides(string $channel): array
     {
         if (!function_exists('get_field')) {
-            return new WP_REST_Response([], 200);
+            return [];
         }
 
-        $channel = $request->get_param('kanaal');
         $options_id = $this->get_channel_options_id($channel);
-
         $blocks = get_field('teksttv_blokken', $options_id) ?: [];
-        $slides = $this->process_blocks($blocks, $options_id);
 
-        return new WP_REST_Response($slides, 200);
+        return $this->process_blocks($blocks, $options_id);
     }
 
     // Process different types of content blocks into slides
@@ -392,67 +386,74 @@ class TekstTVAPI
         return $slides;
     }
 
-    // Retrieve ticker messages including radio program info
-    public function get_ticker_messages(\WP_REST_Request $request)
+    // Build ticker messages array for a channel
+    private function build_ticker(string $channel): array
     {
+        if (!function_exists('get_field')) {
+            return [];
+        }
+
         $messages = [];
+        $options_id = $this->get_channel_options_id($channel);
+        $ticker_content = get_field('teksttv_ticker', $options_id);
 
-        if (function_exists('get_field')) {
-            $channel = $request->get_param('kanaal');
-            $options_id = $this->get_channel_options_id($channel);
+        if ($ticker_content) {
+            foreach ($ticker_content as $item) {
+                switch ($item['acf_fc_layout']) {
+                    case 'ticker_nufm':
+                        $message = $this->get_current_fm_program();
+                        if ($message) {
+                            $messages[] = ['message' => $message];
+                        }
+                        break;
 
-            $ticker_content = get_field('teksttv_ticker', $options_id);
+                    case 'ticker_straksfm':
+                        $message = $this->get_next_fm_program();
+                        if ($message) {
+                            $messages[] = ['message' => $message];
+                        }
+                        break;
 
-            if ($ticker_content) {
-                foreach ($ticker_content as $item) {
-                    switch ($item['acf_fc_layout']) {
-                        case 'ticker_nufm':
-                            $message = $this->get_current_fm_program();
-                            if ($message) {
-                                $messages[] = ['message' => $message];
-                            }
-                            break;
-
-                        case 'ticker_straksfm':
-                            $message = $this->get_next_fm_program();
-                            if ($message) {
-                                $messages[] = ['message' => $message];
-                            }
-                            break;
-
-                        case 'ticker_tekst':
-                            if (!empty($item['ticker_tekst_tekst'])) {
-                                $messages[] = ['message' => $item['ticker_tekst_tekst']];
-                            }
-                            break;
-                    }
+                    case 'ticker_tekst':
+                        if (!empty($item['ticker_tekst_tekst'])) {
+                            $messages[] = ['message' => $item['ticker_tekst_tekst']];
+                        }
+                        break;
                 }
             }
         }
 
-        return new WP_REST_Response($messages, 200);
+        return $messages;
     }
 
     // Get current radio program name
-    private function get_current_fm_program()
+    private function get_current_fm_program(): ?string
     {
         try {
             $schedule = new BroadcastSchedule();
-            return 'Nu op Radio Rucphen: ' . $schedule->getCurrentRadioBroadcast()->getName();
-        } catch (\Exception $e) {
-            return 'Radio Rucphen - Altijd nieuws, altijd muziek';
+            $broadcast = $schedule->getCurrentRadioBroadcast();
+            if ($broadcast) {
+                return 'Nu op ZuidWest FM: ' . $broadcast->getName();
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get current FM program: ' . $e->getMessage());
         }
+        return null;
     }
 
     // Get next radio program name
-    private function get_next_fm_program()
+    private function get_next_fm_program(): ?string
     {
         try {
             $schedule = new BroadcastSchedule();
-            return 'Straks op Radio Rucphen: ' . $schedule->getNextRadioBroadcast()->getName();
-        } catch (\Exception $e) {
-            return '';
+            $broadcast = $schedule->getNextRadioBroadcast();
+            if ($broadcast) {
+                return 'Straks op ZuidWest FM: ' . $broadcast->getName();
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get next FM program: ' . $e->getMessage());
         }
+        return null;
     }
 
     // Generate weather slide from block configuration
