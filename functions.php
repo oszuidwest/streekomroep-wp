@@ -159,6 +159,9 @@ require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/teksttv.php';
 
+// TODO: Verwijder deze regel en lib/migration-kabelkrant-dagen.php na migratie!
+require_once 'lib/migration-kabelkrant-dagen.php';
+
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
     $custom = [

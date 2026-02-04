@@ -175,22 +175,22 @@
                 "id": ""
             },
             "choices": {
-                "1": "ma",
-                "2": "di",
-                "3": "wo",
-                "4": "do",
-                "5": "vr",
-                "6": "za",
-                "7": "zo"
+                "1": "Maandag",
+                "2": "Dinsdag",
+                "3": "Woensdag",
+                "4": "Donderdag",
+                "5": "Vrijdag",
+                "6": "Zaterdag",
+                "7": "Zondag"
             },
             "default_value": [
-                "ma",
-                "di",
-                "wo",
-                "do",
-                "vr",
-                "za",
-                "zo"
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7"
             ],
             "return_format": "value",
             "allow_custom": 0,
