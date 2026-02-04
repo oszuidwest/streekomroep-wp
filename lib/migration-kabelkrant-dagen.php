@@ -58,11 +58,18 @@ class KabelkrantDagenMigration
         $needs_migration = (int) $wpdb->get_var($wpdb->prepare(
             'SELECT COUNT(*) FROM ' . $wpdb->postmeta . '
              WHERE meta_key = %s
-             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)',
+             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s
+               OR meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s
+               OR meta_value LIKE %s OR meta_value LIKE %s)',
             self::META_KEY,
             '%"ma"%',
             '%"di"%',
-            '%"wo"%'
+            '%"wo"%',
+            '%"do"%',
+            '%"vr"%',
+            '%"vrij"%',
+            '%"za"%',
+            '%"zo"%'
         ));
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -212,11 +219,18 @@ class KabelkrantDagenMigration
         $remaining = (int) $wpdb->get_var($wpdb->prepare(
             'SELECT COUNT(*) FROM ' . $wpdb->postmeta . '
              WHERE meta_key = %s
-             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s)',
+             AND (meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s
+               OR meta_value LIKE %s OR meta_value LIKE %s OR meta_value LIKE %s
+               OR meta_value LIKE %s OR meta_value LIKE %s)',
             self::META_KEY,
             '%"ma"%',
             '%"di"%',
-            '%"wo"%'
+            '%"wo"%',
+            '%"do"%',
+            '%"vr"%',
+            '%"vrij"%',
+            '%"za"%',
+            '%"zo"%'
         ));
 
         if ($remaining === 0) {
