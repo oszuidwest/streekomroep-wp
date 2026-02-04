@@ -40,6 +40,9 @@ set -e
         echo "Installing Yoast News SEO..."
         wp plugin install "https://yoast.com/app/uploads/2025/02/wpseo-news-13.3.zip" --activate --allow-root || echo "Failed to install Yoast News SEO"
 
+        echo "Installing Classic Editor..."
+        wp plugin install classic-editor --activate --allow-root
+
         # Activate theme if exists
         wp theme activate streekomroep --allow-root 2>/dev/null || true
 
