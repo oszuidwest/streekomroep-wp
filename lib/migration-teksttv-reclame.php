@@ -85,13 +85,13 @@ class TekstTVReclameMigration
 
             <h2>Oude reclame data (tv-instellingen)</h2>
 
-            <?php if (isset($_GET['debug'])) : ?>
+        <?php if (isset($_GET['debug'])) : ?>
                 <h3>Debug: Ruwe data</h3>
                 <pre style="background: #f5f5f5; padding: 10px; max-height: 400px; overflow: auto;"><?php
                     // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-                    print_r($old_data);
+                print_r($old_data);
                 ?></pre>
-            <?php endif; ?>
+        <?php endif; ?>
 
         <?php if (empty($old_data)) : ?>
                 <p>Geen oude reclame data gevonden in <code>tv-instellingen</code>.</p>
@@ -179,18 +179,44 @@ class TekstTVReclameMigration
 
     private function get_old_reclame_data(): array
     {
-        if (!function_exists('get_field')) {
+        // Old ACF field definitions no longer exist, so we need to read raw data from options table
+        // ACF stores repeater data as:
+        // - options_tv_reclame_slides = count (integer)
+        // - options_tv_reclame_slides_0_tv_reclame_afbeelding = image ID
+        // - options_tv_reclame_slides_0_tv_reclame_start = date string
+        // - options_tv_reclame_slides_0_tv_reclame_eind = date string
+
+        $count = get_option('options_tv_reclame_slides');
+
+        if (!$count || !is_numeric($count)) {
             return [];
         }
 
-        // Old data was stored in 'tv-instellingen' options page
-        $old_data = get_field('tv_reclame_slides', 'option');
+        $slides = [];
+        for ($i = 0; $i < (int) $count; $i++) {
+            $prefix = 'options_tv_reclame_slides_' . $i . '_';
 
-        if (!is_array($old_data)) {
-            return [];
+            // Get image ID and convert to array format
+            $image_id = get_option($prefix . 'tv_reclame_afbeelding');
+            $image_data = null;
+            if ($image_id) {
+                $image_data = [
+                    'ID' => (int) $image_id,
+                    'url' => wp_get_attachment_url((int) $image_id),
+                    'sizes' => [
+                        'thumbnail' => wp_get_attachment_image_url((int) $image_id, 'thumbnail'),
+                    ],
+                ];
+            }
+
+            $slides[] = [
+                'tv_reclame_afbeelding' => $image_data,
+                'tv_reclame_start' => get_option($prefix . 'tv_reclame_start') ?: '',
+                'tv_reclame_eind' => get_option($prefix . 'tv_reclame_eind') ?: '',
+            ];
         }
 
-        return $old_data;
+        return $slides;
     }
 
     private function convert_slide(array $slide): array
@@ -331,9 +357,21 @@ class TekstTVReclameMigration
         if ($result) {
             // Optionally delete old data
             if (!$keep_old) {
+                $count = get_option('options_tv_reclame_slides');
+                if ($count && is_numeric($count)) {
+                    for ($i = 0; $i < (int) $count; $i++) {
+                        $prefix = 'options_tv_reclame_slides_' . $i . '_';
+                        delete_option($prefix . 'tv_reclame_afbeelding');
+                        delete_option($prefix . 'tv_reclame_start');
+                        delete_option($prefix . 'tv_reclame_eind');
+                        // Also delete ACF's internal field reference
+                        delete_option('_' . $prefix . 'tv_reclame_afbeelding');
+                        delete_option('_' . $prefix . 'tv_reclame_start');
+                        delete_option('_' . $prefix . 'tv_reclame_eind');
+                    }
+                }
                 delete_option('options_tv_reclame_slides');
-                // Also delete the count field ACF uses
-                delete_option('options_tv_reclame_slides');
+                delete_option('_options_tv_reclame_slides');
             }
 
             update_option(self::OPTION_KEY, current_time('mysql'));
