@@ -109,4 +109,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Uploading streekomroep-wp-theme-${{ env.VERSION }}.zip to GitHub release..."
-          gh release create ${{ env.VERSION }} streekomroep-wp-theme-${{ env.VERSION }}.zip --title "${{ env.VERSION }}" --notes "Automated release for version ${{ env.VERSION }}"
+          PRERELEASE_FLAG=""
+          if [[ "${{ env.VERSION }}" =~ (alpha|beta|rc) ]]; then
+            echo "Detected prerelease version, marking as prerelease"
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          gh release create ${{ env.VERSION }} streekomroep-wp-theme-${{ env.VERSION }}.zip --title "${{ env.VERSION }}" --notes "Automated release for version ${{ env.VERSION }}" $PRERELEASE_FLAG
