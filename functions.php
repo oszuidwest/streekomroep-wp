@@ -473,63 +473,22 @@ function zw_rest_api_init()
         'methods' => 'GET',
         'permission_callback' => '__return_true',
         'callback' => function (WP_REST_Request $request) {
+            $decode = fn($text) => html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
             $schedule = new \Streekomroep\BroadcastSchedule();
-            $response = [];
-
-            $options = get_fields('option');
-
-            $radiotext = '';
             $currentRadioBroadcast = $schedule->getCurrentRadioBroadcast();
-
-            switch ($options['radio_rds_rt_optie']) {
-                case 1: // Statische tekst
-                    $radiotext = html_entity_decode($options['radio_rds_rt_statische_tekst'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    break;
-                case 2: // Programmanaam
-                case 3: // Programmanaam en presentator(en)
-                    $title = html_entity_decode($currentRadioBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    $hosts = [];
-                    if ($currentRadioBroadcast->show) {
-                        $overrule = get_field('fm_show_overschrijf_programmanaam', $currentRadioBroadcast->show->ID);
-                        if (!empty($overrule)) {
-                            $title = html_entity_decode($overrule, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-
-                        foreach (get_field('fm_show_presentator', $currentRadioBroadcast->show->ID) as $user) {
-                            $user = get_user_by('id', $user);
-                            $hosts[] = html_entity_decode($user->display_name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-                    }
-
-                    if ($options['radio_rds_rt_optie'] == 3 && count($hosts) > 0) {
-                        $radiotext = sprintf('%s met %s', $title, implode(' ', $hosts));
-                    } else {
-                        $radiotext = $title;
-                    }
-
-                    break;
-            };
-
             $nextBroadcast = $schedule->getNextRadioBroadcast();
-            $response['fm'] = [
-                'now' => html_entity_decode($currentRadioBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                'next' => $nextBroadcast ? html_entity_decode($nextBroadcast->getName(), ENT_QUOTES | ENT_HTML5, 'UTF-8') : null,
-                'rds' => [
-                    'program' => html_entity_decode($options['radio_rds_zendernaam'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                    'radiotext' => $radiotext,
-                ]
-            ];
 
-            $response['tv'] = [
-                'today' => array_map(function ($item) {
-                    return html_entity_decode($item->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                }, $schedule->getToday()->television),
-                'tomorrow' => array_map(function ($item) {
-                    return html_entity_decode($item->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                }, $schedule->getTomorrow()->television),
+            return [
+                'fm' => [
+                    'now' => $decode($currentRadioBroadcast->getName()),
+                    'next' => $nextBroadcast ? $decode($nextBroadcast->getName()) : null,
+                ],
+                'tv' => [
+                    'today' => array_map(fn($item) => $decode($item->name), $schedule->getToday()->television),
+                    'tomorrow' => array_map(fn($item) => $decode($item->name), $schedule->getTomorrow()->television),
+                ],
             ];
-
-            return $response;
         }
     ]);
 }
@@ -683,19 +642,16 @@ function zw_get_socials()
         'bsky.app' => ['name' => 'Bluesky', 'class' => 'bluesky'],
     ];
 
-    $other_urls = $seo_data['other_social_urls'] ?? [];
-    if (is_array($other_urls)) {
-        foreach ($other_urls as $url) {
-            $url = trim($url);
-            if (empty($url)) {
-                continue;
-            }
+    foreach ($seo_data['other_social_urls'] ?? [] as $url) {
+        $url = trim($url);
+        if (empty($url)) {
+            continue;
+        }
 
-            foreach ($social_patterns as $pattern => $meta) {
-                if (strpos($url, $pattern) !== false) {
-                    $out[] = ['name' => $meta['name'], 'class' => $meta['class'], 'link' => $url];
-                    break;
-                }
+        foreach ($social_patterns as $pattern => $meta) {
+            if (strpos($url, $pattern) !== false) {
+                $out[] = ['name' => $meta['name'], 'class' => $meta['class'], 'link' => $url];
+                break;
             }
         }
     }
@@ -863,36 +819,22 @@ function zw_project_cron()
 
 function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $videos)
 {
-    /** @var Video[] $videos */
-    $videos = array_map(function ($a) use ($credentials) {
-        return new Video($credentials, $a);
-    }, $videos);
-
-    // Filter videos that are still being uploaded or transcoded
-    $videos = array_filter($videos, function ($video) {
-        return $video->isAvailable();
-    });
-
     $now = new DateTime('now', wp_timezone());
+
+    /** @var Video[] $videos */
+    $videos = array_map(fn($a) => new Video($credentials, $a), $videos);
+
+    // Filter unavailable videos and those without valid past dates
     $videos = array_filter($videos, function ($video) use ($now) {
+        if (!$video->isAvailable()) {
+            return false;
+        }
+
         $date = $video->getBroadcastDate();
-
-        // Ignore videos with no valid date
-        if (!$date) {
-            return false;
-        }
-
-        // Ignore videos with a date in the future
-        if ($date > $now) {
-            return false;
-        }
-
-        return true;
+        return $date && $date <= $now;
     });
 
-    usort($videos, function (Video $left, Video $right) {
-        return $right->getBroadcastDate() <=> $left->getBroadcastDate();
-    });
+    usort($videos, fn(Video $left, Video $right) => $right->getBroadcastDate() <=> $left->getBroadcastDate());
 
     return $videos;
 }

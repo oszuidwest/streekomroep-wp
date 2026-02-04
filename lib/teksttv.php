@@ -159,28 +159,26 @@ class TekstTVAPI
         $slides = [];
         $ad_campaigns = $this->get_ad_campaigns($options_id);
 
-        if ($blocks) {
-            foreach ($blocks as $block) {
-                switch ($block['acf_fc_layout']) {
-                    case 'blok_artikelen':
-                        $slides = array_merge($slides, $this->get_article_slides($block));
-                        break;
-                    case 'blok_afbeelding':
-                        $image_slide = $this->get_image_slide($block);
-                        if ($image_slide) {
-                            $slides[] = $image_slide;
-                        }
-                        break;
-                    case 'blok_reclame':
-                        $slides = array_merge($slides, $this->get_ad_slides($block, $ad_campaigns));
-                        break;
-                    case 'blok_weer':
-                        $weather_slides = $this->get_weather_slides($block);
-                        if ($weather_slides) {
-                            $slides = array_merge($slides, $weather_slides);
-                        }
-                        break;
-                }
+        foreach ($blocks as $block) {
+            switch ($block['acf_fc_layout']) {
+                case 'blok_artikelen':
+                    $slides = array_merge($slides, $this->get_article_slides($block));
+                    break;
+                case 'blok_afbeelding':
+                    $image_slide = $this->get_image_slide($block);
+                    if ($image_slide) {
+                        $slides[] = $image_slide;
+                    }
+                    break;
+                case 'blok_reclame':
+                    $slides = array_merge($slides, $this->get_ad_slides($block, $ad_campaigns));
+                    break;
+                case 'blok_weer':
+                    $weather_slides = $this->get_weather_slides($block);
+                    if ($weather_slides) {
+                        $slides = array_merge($slides, $weather_slides);
+                    }
+                    break;
             }
         }
 
@@ -291,42 +289,34 @@ class TekstTVAPI
     // Generate image slide with date range and day restrictions
     private function get_image_slide($block)
     {
-        // Check date range
         if (!$this->is_within_date_range($block['datum_in'] ?? null, $block['datum_uit'] ?? null)) {
             return null;
         }
 
-        // Check display days
         if (!$this->is_allowed_on_day($block['dagen'] ?? null)) {
             return null;
         }
 
-        if (!empty($block['afbeelding']) && !empty($block['afbeelding']['url'])) {
-            return [
-                'type' => 'image',
-                'duration' => intval($block['seconden']) * 1000,
-                'url' => $block['afbeelding']['url']
-            ];
+        if (empty($block['afbeelding']['url'])) {
+            return null;
         }
 
-        return null;
+        return [
+            'type' => 'image',
+            'duration' => intval($block['seconden']) * 1000,
+            'url' => $block['afbeelding']['url']
+        ];
     }
 
     // Retrieve active advertising campaigns
     private function get_ad_campaigns($options_id)
     {
-        $campaigns = [];
-        if (function_exists('get_field')) {
-            $all_campaigns = get_field('teksttv_reclame', $options_id);
-            if ($all_campaigns) {
-                foreach ($all_campaigns as $campaign) {
-                    if ($this->is_campaign_active($campaign)) {
-                        $campaigns[] = $campaign;
-                    }
-                }
-            }
+        if (!function_exists('get_field')) {
+            return [];
         }
-        return $campaigns;
+
+        $all_campaigns = get_field('teksttv_reclame', $options_id) ?: [];
+        return array_filter($all_campaigns, [$this, 'is_campaign_active']);
     }
 
     // Check if campaign is currently active based on date range
@@ -389,31 +379,24 @@ class TekstTVAPI
 
         $messages = [];
         $options_id = $this->get_channel_options_id($channel);
-        $ticker_content = get_field('teksttv_ticker', $options_id);
+        $ticker_content = get_field('teksttv_ticker', $options_id) ?: [];
 
-        if ($ticker_content) {
-            foreach ($ticker_content as $item) {
-                switch ($item['acf_fc_layout']) {
-                    case 'ticker_nufm':
-                        $message = $this->get_current_fm_program();
-                        if ($message) {
-                            $messages[] = ['message' => $message];
-                        }
-                        break;
+        foreach ($ticker_content as $item) {
+            $message = null;
+            switch ($item['acf_fc_layout']) {
+                case 'ticker_nufm':
+                    $message = $this->get_current_fm_program();
+                    break;
+                case 'ticker_straksfm':
+                    $message = $this->get_next_fm_program();
+                    break;
+                case 'ticker_tekst':
+                    $message = $item['ticker_tekst_tekst'] ?? null;
+                    break;
+            }
 
-                    case 'ticker_straksfm':
-                        $message = $this->get_next_fm_program();
-                        if ($message) {
-                            $messages[] = ['message' => $message];
-                        }
-                        break;
-
-                    case 'ticker_tekst':
-                        if (!empty($item['ticker_tekst_tekst'])) {
-                            $messages[] = ['message' => $item['ticker_tekst_tekst']];
-                        }
-                        break;
-                }
+            if (!empty($message)) {
+                $messages[] = ['message' => $message];
             }
         }
 
@@ -603,9 +586,6 @@ class TekstTVAPI
         $days_output = [];
 
         foreach ($weather_data['days'] as $index => $day) {
-            $wind_speed = $day['wind_speed'] ?? 0;
-            $wind_deg = $day['wind_deg'] ?? 0;
-
             $days_output[] = [
                 'date' => $this->format_dutch_date($day['date']),
                 'day_short' => $index === 0 ? 'vandaag' : date_i18n('D', $day['date']->getTimestamp()),
@@ -613,8 +593,8 @@ class TekstTVAPI
                 'temp_max' => round($day['temp_max']),
                 'description' => $day['description'],
                 'icon' => $day['icon'],
-                'wind_direction' => $this->wind_deg_to_direction($wind_deg),
-                'wind_beaufort' => $this->wind_speed_to_beaufort($wind_speed)
+                'wind_direction' => $this->wind_deg_to_direction($day['wind_deg'] ?? 0),
+                'wind_beaufort' => $this->wind_speed_to_beaufort($day['wind_speed'] ?? 0)
             ];
         }
 
