@@ -25,6 +25,22 @@ composer install --prefer-dist --no-dev --optimize-autoloader
 
 For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
 
+## Local development with Docker
+A Docker setup is included for local development. It provides WordPress with the theme mounted, a MariaDB database, and phpMyAdmin.
+
+```bash
+docker compose up -d
+```
+
+This starts:
+- WordPress at http://localhost:8080 (admin/admin)
+- phpMyAdmin at http://localhost:8081
+
+The theme folder is mounted into the container, so changes are reflected immediately. On first run, WordPress is automatically installed with Dutch locale and the theme activated.
+
+To stop: `docker compose down`
+To reset: `docker compose down -v` (removes database)
+
 ### Hard dependencies
 Install these before activating the theme:
 - Timber 2.3: [Bundled, if you build yourself [use composer](https://timber.github.io/docs/v2/installation/installation/)]

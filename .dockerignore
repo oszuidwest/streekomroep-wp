@@ -1,0 +1,9 @@
+node_modules
+.git
+.gitignore
+.DS_Store
+*.log
+.env
+docker-compose.yml
+.dockerignore
+CLAUDE.md
