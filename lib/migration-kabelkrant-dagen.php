@@ -11,8 +11,8 @@
  * HOE TE GEBRUIKEN:
  * 1. Deploy dit bestand naar productie
  * 2. Ga naar: /wp-admin/admin.php?page=migrate-kabelkrant-dagen
- * 3. Klik op "Start Migratie"
- * 4. Controleer of alles werkt
+ * 3. Klik op "Start Migratie" (verwerkt 500 posts per keer)
+ * 4. Herhaal tot alles gemigreerd is
  * 5. VERWIJDER DIT BESTAND en de require in functions.php
  *
  * VERWIJDER DIT BESTAND ZODRA DE MIGRATIE COMPLEET IS!
@@ -30,6 +30,7 @@ class KabelkrantDagenMigration
 {
     private const OPTION_KEY = 'streekomroep_kabelkrant_dagen_migrated';
     private const META_KEY = 'post_kabelkrant_dagen';
+    private const BATCH_SIZE = 500;
 
     // Mapping from Dutch abbreviations to numeric values (ISO-8601: 1=Mon, 7=Sun)
     private const DAY_MAPPING = [
@@ -73,10 +74,10 @@ class KabelkrantDagenMigration
                 <code>functions.php</code> zodra de migratie compleet is!
             </div>
 
-            <?php if ($is_migrated): ?>
+            <?php if ($is_migrated && $stats['needs_migration'] === 0): ?>
                 <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
                     <strong>✅ Migratie voltooid!</strong><br>
-                    De migratie is al uitgevoerd op: <?php echo esc_html(get_option(self::OPTION_KEY)); ?>
+                    Alle <?php echo esc_html($stats['total']); ?> posts zijn gemigreerd.
                 </div>
 
                 <form method="post" style="margin-top: 20px;">
@@ -95,46 +96,33 @@ class KabelkrantDagenMigration
                     </tr>
                     <tr>
                         <td>Te migreren (oude format):</td>
-                        <td><strong><?php echo esc_html($stats['needs_migration']); ?></strong></td>
+                        <td><strong style="color: <?php echo $stats['needs_migration'] > 0 ? '#dc3545' : '#28a745'; ?>">
+                            <?php echo esc_html($stats['needs_migration']); ?>
+                        </strong></td>
                     </tr>
                     <tr>
                         <td>Al correct (numeriek):</td>
-                        <td><strong><?php echo esc_html($stats['already_correct']); ?></strong></td>
+                        <td><strong style="color: #28a745;"><?php echo esc_html($stats['already_correct']); ?></strong></td>
                     </tr>
                 </table>
 
                 <?php if ($stats['needs_migration'] > 0): ?>
-                    <h2>Preview (eerste 10)</h2>
-                    <table class="widefat" style="max-width: 800px;">
-                        <thead>
-                            <tr>
-                                <th>Post ID</th>
-                                <th>Titel</th>
-                                <th>Huidige waarde</th>
-                                <th>Na migratie</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($stats['preview'] as $item): ?>
-                                <tr>
-                                    <td><?php echo esc_html($item['id']); ?></td>
-                                    <td><?php echo esc_html($item['title']); ?></td>
-                                    <td><code><?php echo esc_html(implode(', ', $item['old'])); ?></code></td>
-                                    <td><code><?php echo esc_html(implode(', ', $item['new'])); ?></code></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                    <div style="background: #e7f3ff; border: 1px solid #0073aa; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <strong>ℹ️ Batch migratie:</strong> Er worden <?php echo self::BATCH_SIZE; ?> posts per keer verwerkt.
+                        Je moet mogelijk meerdere keren op de knop klikken.
+                    </div>
 
                     <form method="post" style="margin-top: 20px;">
                         <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
                         <input type="hidden" name="action" value="run_migration">
                         <button type="submit" class="button button-primary button-hero">
-                            🚀 Start Migratie
+                            🚀 Migreer volgende <?php echo min(self::BATCH_SIZE, $stats['needs_migration']); ?> posts
                         </button>
                     </form>
                 <?php else: ?>
-                    <p style="color: green;"><strong>✅ Alle waarden zijn al in het correcte formaat!</strong></p>
+                    <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <strong>✅ Alle posts zijn al in het correcte formaat!</strong>
+                    </div>
                     <form method="post" style="margin-top: 20px;">
                         <?php wp_nonce_field('kabelkrant_dagen_migration', 'migration_nonce'); ?>
                         <input type="hidden" name="action" value="mark_complete">
@@ -179,44 +167,49 @@ class KabelkrantDagenMigration
     {
         global $wpdb;
 
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s",
+        // Count total posts with this meta key
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s",
             self::META_KEY
         ));
 
-        $stats = [
-            'total' => count($results),
-            'needs_migration' => 0,
-            'already_correct' => 0,
-            'preview' => [],
-        ];
+        // Count posts that need migration (contain Dutch abbreviations)
+        $needs_migration = 0;
+        $already_correct = 0;
 
-        foreach ($results as $row) {
-            $value = maybe_unserialize($row->meta_value);
+        // Process in chunks to avoid memory issues
+        $offset = 0;
+        $chunk_size = 1000;
 
-            if (!is_array($value) || empty($value)) {
-                continue;
-            }
+        while ($offset < $total) {
+            $results = $wpdb->get_results($wpdb->prepare(
+                "SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s LIMIT %d OFFSET %d",
+                self::META_KEY,
+                $chunk_size,
+                $offset
+            ));
 
-            $needs_migration = $this->needs_migration($value);
-
-            if ($needs_migration) {
-                $stats['needs_migration']++;
-
-                if (count($stats['preview']) < 10) {
-                    $stats['preview'][] = [
-                        'id' => $row->post_id,
-                        'title' => get_the_title($row->post_id),
-                        'old' => $value,
-                        'new' => $this->convert_days($value),
-                    ];
+            foreach ($results as $row) {
+                $value = maybe_unserialize($row->meta_value);
+                if (!is_array($value) || empty($value)) {
+                    continue;
                 }
-            } else {
-                $stats['already_correct']++;
+
+                if ($this->needs_migration($value)) {
+                    $needs_migration++;
+                } else {
+                    $already_correct++;
+                }
             }
+
+            $offset += $chunk_size;
         }
 
-        return $stats;
+        return [
+            'total' => $total,
+            'needs_migration' => $needs_migration,
+            'already_correct' => $already_correct,
+        ];
     }
 
     private function needs_migration(array $days): bool
@@ -242,16 +235,21 @@ class KabelkrantDagenMigration
     {
         global $wpdb;
 
+        // Get batch of posts that need migration
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s",
-            self::META_KEY
+            "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s LIMIT %d",
+            self::META_KEY,
+            self::BATCH_SIZE * 2 // Get more to account for already-correct ones
         ));
 
         $migrated = 0;
         $skipped = 0;
-        $errors = 0;
 
         foreach ($results as $row) {
+            if ($migrated >= self::BATCH_SIZE) {
+                break;
+            }
+
             $value = maybe_unserialize($row->meta_value);
 
             if (!is_array($value) || empty($value)) {
@@ -265,28 +263,29 @@ class KabelkrantDagenMigration
             }
 
             $new_value = $this->convert_days($value);
-            $updated = update_post_meta($row->post_id, self::META_KEY, $new_value);
-
-            if ($updated) {
-                $migrated++;
-            } else {
-                $errors++;
-            }
+            update_post_meta($row->post_id, self::META_KEY, $new_value);
+            $migrated++;
         }
 
-        update_option(self::OPTION_KEY, current_time('mysql'));
+        // Check if we're done
+        $remaining = $this->get_migration_stats()['needs_migration'];
 
-        add_settings_error(
-            'kabelkrant_migration',
-            'success',
-            sprintf(
-                'Migratie voltooid! %d posts gemigreerd, %d overgeslagen, %d errors.',
-                $migrated,
-                $skipped,
-                $errors
-            ),
-            $errors > 0 ? 'warning' : 'success'
-        );
+        if ($remaining === 0) {
+            update_option(self::OPTION_KEY, current_time('mysql'));
+            add_settings_error(
+                'kabelkrant_migration',
+                'success',
+                sprintf('Migratie voltooid! %d posts gemigreerd in deze batch.', $migrated),
+                'success'
+            );
+        } else {
+            add_settings_error(
+                'kabelkrant_migration',
+                'success',
+                sprintf('%d posts gemigreerd. Nog %d te gaan. Klik nogmaals op de knop.', $migrated, $remaining),
+                'warning'
+            );
+        }
     }
 }
 
