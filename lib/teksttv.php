@@ -109,6 +109,11 @@ class TekstTVAPI
                     'type' => 'string',
                     'description' => 'Kanaal slug (bijv. breda, roosendaal)',
                     'validate_callback' => [$this, 'validate_channel']
+                ],
+                'debug' => [
+                    'required' => false,
+                    'type' => 'string',
+                    'description' => 'Set to 1 to enable debug output'
                 ]
             ]
         ]);
@@ -133,28 +138,47 @@ class TekstTVAPI
     public function get_teksttv(\WP_REST_Request $request)
     {
         $channel = $request->get_param('kanaal');
+        $debug = $request->get_param('debug') === '1';
 
-        return new WP_REST_Response([
-            'slides' => $this->build_slides($channel),
+        $response = [
+            'slides' => $this->build_slides($channel, $debug),
             'ticker' => $this->build_ticker($channel)
-        ], 200);
+        ];
+
+        if ($debug) {
+            $response['debug'] = $this->debug_info;
+        }
+
+        return new WP_REST_Response($response, 200);
     }
 
+    // Debug information storage
+    private array $debug_info = [];
+
     // Build slides array for a channel
-    private function build_slides(string $channel): array
+    private function build_slides(string $channel, bool $debug = false): array
     {
         if (!function_exists('get_field')) {
+            if ($debug) {
+                $this->debug_info['error'] = 'ACF not available';
+            }
             return [];
         }
 
         $options_id = $this->get_channel_options_id($channel);
         $blocks = get_field('teksttv_blokken', $options_id) ?: [];
 
-        return $this->process_blocks($blocks, $options_id);
+        if ($debug) {
+            $this->debug_info['options_id'] = $options_id;
+            $this->debug_info['blocks_count'] = count($blocks);
+            $this->debug_info['block_types'] = array_column($blocks, 'acf_fc_layout');
+        }
+
+        return $this->process_blocks($blocks, $options_id, $debug);
     }
 
     // Process different types of content blocks into slides
-    private function process_blocks($blocks, $options_id)
+    private function process_blocks($blocks, $options_id, bool $debug = false)
     {
         $slides = [];
         $ad_campaigns = $this->get_ad_campaigns($options_id);
@@ -162,7 +186,7 @@ class TekstTVAPI
         foreach ($blocks as $block) {
             switch ($block['acf_fc_layout']) {
                 case 'blok_artikelen':
-                    $slides = array_merge($slides, $this->get_article_slides($block));
+                    $slides = array_merge($slides, $this->get_article_slides($block, $debug));
                     break;
                 case 'blok_afbeelding':
                     $image_slide = $this->get_image_slide($block);
@@ -186,7 +210,7 @@ class TekstTVAPI
     }
 
     // Generate slides from articles with filter support
-    private function get_article_slides($block)
+    private function get_article_slides($block, bool $debug = false)
     {
         $slides = [];
         $args = [
@@ -217,26 +241,63 @@ class TekstTVAPI
             ];
         }
 
+        if ($debug) {
+            $this->debug_info['article_query'] = $args;
+        }
+
         $query = new WP_Query($args);
+
+        if ($debug) {
+            $this->debug_info['article_query_sql'] = $query->request;
+            $this->debug_info['articles_found'] = $query->found_posts;
+            $this->debug_info['articles'] = [];
+        }
 
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
                 $post_id = get_the_ID();
 
+                $article_debug = $debug ? [
+                    'id' => $post_id,
+                    'title' => get_the_title(),
+                    'skipped' => false,
+                    'skip_reason' => null
+                ] : null;
+
                 // Check display days
-                if (!$this->is_allowed_on_day(get_field('post_kabelkrant_dagen', $post_id))) {
+                $allowed_days = get_field('post_kabelkrant_dagen', $post_id);
+                if (!$this->is_allowed_on_day($allowed_days)) {
+                    if ($debug) {
+                        $article_debug['skipped'] = true;
+                        $article_debug['skip_reason'] = 'day_filter';
+                        $article_debug['allowed_days'] = $allowed_days;
+                        $article_debug['current_day'] = current_datetime()->format('N');
+                        $this->debug_info['articles'][] = $article_debug;
+                    }
                     continue;
                 }
 
                 // Check end date
-                if (!$this->is_within_date_range(null, get_field('post_kabelkrant_datum_uit', $post_id))) {
+                $end_date = get_field('post_kabelkrant_datum_uit', $post_id);
+                if (!$this->is_within_date_range(null, $end_date)) {
+                    if ($debug) {
+                        $article_debug['skipped'] = true;
+                        $article_debug['skip_reason'] = 'date_expired';
+                        $article_debug['end_date'] = $end_date;
+                        $this->debug_info['articles'][] = $article_debug;
+                    }
                     continue;
                 }
 
                 // Create slides from content and images
                 $content = get_field('post_kabelkrant_content', $post_id);
                 $slide_image = $this->get_primary_category_image($post_id);
+
+                if ($debug) {
+                    $article_debug['has_content'] = !empty($content);
+                    $article_debug['content_length'] = strlen($content ?? '');
+                }
 
                 if (!empty($content)) {
                     $pages = preg_split('/\n*-{3,}\n*/', $content);
@@ -249,6 +310,13 @@ class TekstTVAPI
                             'image' => $slide_image ?: null
                         ];
                     }
+                } elseif ($debug) {
+                    $article_debug['skipped'] = true;
+                    $article_debug['skip_reason'] = 'no_kabelkrant_content';
+                }
+
+                if ($debug) {
+                    $this->debug_info['articles'][] = $article_debug;
                 }
 
                 // Add extra images as separate slides
@@ -266,6 +334,10 @@ class TekstTVAPI
                 }
             }
             wp_reset_postdata();
+        }
+
+        if ($debug) {
+            $this->debug_info['article_slides_generated'] = count($slides);
         }
 
         return $slides;
