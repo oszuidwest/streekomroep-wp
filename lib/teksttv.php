@@ -399,21 +399,33 @@ class TekstTVAPI
         $ticker_content = get_field('teksttv_ticker', $options_id) ?: [];
 
         foreach ($ticker_content as $item) {
-            $message = null;
+            $result = null;
             switch ($item['acf_fc_layout']) {
                 case 'ticker_nufm':
-                    $message = $this->get_current_fm_program();
+                    $result = $this->get_current_fm_program();
                     break;
                 case 'ticker_straksfm':
-                    $message = $this->get_next_fm_program();
+                    $result = $this->get_next_fm_program();
                     break;
                 case 'ticker_tekst':
-                    $message = $item['ticker_tekst_tekst'] ?? null;
+                    $result = $item['ticker_tekst_tekst'] ?? null;
+                    break;
+                case 'ticker_vandaagtv':
+                    $result = $this->get_today_tv_programs();
+                    break;
+                case 'ticker_morgentv':
+                    $result = $this->get_tomorrow_tv_programs();
                     break;
             }
 
-            if (!empty($message)) {
-                $messages[] = ['message' => $message];
+            if (!empty($result)) {
+                if (is_array($result)) {
+                    foreach ($result as $message) {
+                        $messages[] = ['message' => $message];
+                    }
+                } else {
+                    $messages[] = ['message' => $result];
+                }
             }
         }
 
@@ -427,7 +439,7 @@ class TekstTVAPI
             $schedule = new BroadcastSchedule();
             $broadcast = $schedule->getCurrentRadioBroadcast();
             if ($broadcast) {
-                return 'Nu op ZuidWest FM: ' . $broadcast->getName();
+                return 'Nu op FM: ' . $broadcast->getName();
             }
         } catch (\Throwable $e) {
             error_log('TekstTV: Failed to get current FM program: ' . $e->getMessage());
@@ -442,10 +454,40 @@ class TekstTVAPI
             $schedule = new BroadcastSchedule();
             $broadcast = $schedule->getNextRadioBroadcast();
             if ($broadcast) {
-                return 'Straks op ZuidWest FM: ' . $broadcast->getName();
+                return 'Straks op FM: ' . $broadcast->getName();
             }
         } catch (\Throwable $e) {
             error_log('TekstTV: Failed to get next FM program: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    // Get today's TV programs (returns array of messages)
+    private function get_today_tv_programs(): ?array
+    {
+        try {
+            $schedule = new BroadcastSchedule();
+            $programs = $schedule->getToday()->television;
+            if (!empty($programs)) {
+                return array_map(fn($item) => 'Vandaag op TV: ' . $item->name, $programs);
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get today TV programs: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    // Get tomorrow's TV programs (returns array of messages)
+    private function get_tomorrow_tv_programs(): ?array
+    {
+        try {
+            $schedule = new BroadcastSchedule();
+            $programs = $schedule->getTomorrow()->television;
+            if (!empty($programs)) {
+                return array_map(fn($item) => 'Morgen op TV: ' . $item->name, $programs);
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get tomorrow TV programs: ' . $e->getMessage());
         }
         return null;
     }
