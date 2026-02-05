@@ -74,7 +74,7 @@
         <aside class="w-full mx-auto max-w-960 pt-4 px-4">
             <ul class="flex flex-wrap gap-2 md:w-4/5">
                 {% for item in submenu %}
-                    {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
+                    {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded-sm', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
                     {% if item.current or item.currentItemParent %}
                         {% set classes = classes|merge(['bg-gray-800', 'dark:bg-gray-200', 'dark:text-black ', 'text-white']) %}
                     {% else %}
