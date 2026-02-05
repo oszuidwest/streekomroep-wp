@@ -68,8 +68,8 @@ jobs:
           composer install --no-dev --optimize-autoloader
           npm install
           npx browserslist@latest --update-db
-          npx tailwindcss -i assets/style.css -o dist/style.css --minify
-          npx tailwindcss -i assets/editor.css -o dist/editor.css --minify
+          npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify
+          npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify
 
       - name: Tag and release if needed
         if: env.RELEASE_NEEDED == 'true'

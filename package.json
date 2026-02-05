@@ -1,33 +1,16 @@
 {
   "name": "streekomroep",
   "private": true,
-  "description": "The \"_s\" for Timber: a dead-simple theme that you can build from. The primary purpose of this theme is to provide a file structure rather than a framework for markup or styles. Configure your Sass, scripts, and task runners however you would like!",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "tests"
-  },
+  "type": "module",
+  "description": "WordPress theme for Streekomroep ZuidWest",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch:tailwind": "npx tailwindcss -i assets/editor.css -o dist/editor.css --watch & npx tailwindcss -i assets/style.css -o dist/style.css --watch",
-    "build:tailwind": "npx tailwindcss -i assets/editor.css -o dist/editor.css --minify && npx tailwindcss -i assets/style.css -o dist/style.css --minify"
+    "watch:tailwind": "npx @tailwindcss/cli -i assets/style.css -o dist/style.css --watch & npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --watch",
+    "build:tailwind": "npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify && npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/oszuidwest/streekomroep.git"
-  },
-  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/oszuidwest/streekomroep/issues"
-  },
-  "homepage": "https://github.com/oszuidwest/streekomroep#readme",
   "dependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.0",
-    "@tailwindcss/typography": "^0.5.2",
-    "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
-    "postcss-cli": "^8.3.1",
-    "tailwindcss": "^3.1.2"
+    "@tailwindcss/cli": "^4.1.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "tailwindcss": "^4.1.0"
   }
 }

@@ -5,7 +5,7 @@
     {% set showPlayButton = true %}
 {% endif %}
 {% set width = width|default(228) %}
-<div class="aspect-w-16 aspect-h-9">
+<div class="aspect-video relative">
     <div class="{% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <img class="w-full h-full object-cover" loading="lazy" alt="{{ post.thumbnail.alt }}"

@@ -37,8 +37,8 @@ jobs:
 
       - name: Build CSS
         run: |
-          npx tailwindcss -i assets/style.css -o dist/style.css --minify
-          npx tailwindcss -i assets/editor.css -o dist/editor.css --minify
+          npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify
+          npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify
         env:
           NODE_ENV: production
 

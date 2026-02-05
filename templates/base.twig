@@ -21,7 +21,7 @@
                                 class="sm:hidden"/>West</a>
                 {% endif %}
 
-                <div class="flex-grow"></div>
+                <div class="grow"></div>
                 {% for item in topmenu.items %}
                     {% set icon = null %}
                     {% for class in item.classes %}
@@ -29,7 +29,7 @@
                     {% endfor %}
 
                     {% if icon %}
-                        <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded"
+                        <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded-sm"
                            href="{{ item.link }}">
                             {{ icon }}
                             <span class="hidden sm:block ml-2 text-sm font-round font-bold uppercase">{{ item.title }}</span>
@@ -44,7 +44,7 @@
             <div class="overflow-auto" style="-webkit-overflow-scrolling: touch">
                 <div class="flex">
                     {% for item in mainmenu.items %}
-                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
+                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'transition'] %}
                         {% if item.current or item.current_item_parent %}
 
                             {% if item.current %}
@@ -59,7 +59,7 @@
 
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
                         {% else %}
-                            {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
+                            {% set classes = classes|merge(['text-white', 'border-transparent', 'dark:text-gray-400']) %}
                         {% endif %}
                         <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
                     {% endfor %}
@@ -74,7 +74,7 @@
         <aside class="w-full mx-auto max-w-960 pt-4 px-4">
             <ul class="flex flex-wrap gap-2 md:w-4/5">
                 {% for item in submenu %}
-                    {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
+                    {% set classes = ['block', 'py-1', 'px-2', 'flex-none', 'rounded-sm', 'uppercase', 'text-sm', 'font-round', 'font-bold'] %}
                     {% if item.current or item.currentItemParent %}
                         {% set classes = classes|merge(['bg-gray-800', 'dark:bg-gray-200', 'dark:text-black ', 'text-white']) %}
                     {% else %}

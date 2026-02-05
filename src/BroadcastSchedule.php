@@ -23,7 +23,7 @@ class BroadcastSchedule
 
         $tv_weeks = get_field('tv_week', 'option') ?: [];
         foreach ($tv_weeks as $week) {
-            $start = DateTime::createFromFormat('d/m/Y', $week['tv_week_start'] ?? '', wp_timezone());
+            $start = DateTime::createFromFormat('Y-m-d', $week['tv_week_start'] ?? '', wp_timezone());
             if ($start === false) {
                 continue;
             }
@@ -31,7 +31,7 @@ class BroadcastSchedule
             if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
-            $end = DateTime::createFromFormat('d/m/Y', $week['tv_week_eind'] ?? '', wp_timezone());
+            $end = DateTime::createFromFormat('Y-m-d', $week['tv_week_eind'] ?? '', wp_timezone());
             if ($end === false) {
                 continue;
             }

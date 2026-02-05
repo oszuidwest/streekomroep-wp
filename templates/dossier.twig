@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="lg:hidden">
-        <div class="aspect-w-21 aspect-h-9">
+        <div class="aspect-[21/9] relative">
             <div>
                 <img class="object-cover absolute inset-0 w-full h-full" alt="{{ term.name }}"
                      src="{{ get_image(term.dossier_afbeelding_breed).src|thumbor(1024, 439) }}"
@@ -26,8 +26,8 @@
             </div>
 
             <div class="lg:row-start-1 lg:row-span-2">
-                <div class="hidden lg:block overflow-hidden bg-gray-800 rounded">
-                    <div class="aspect-h-16 aspect-w-9">
+                <div class="hidden lg:block overflow-hidden bg-gray-800 rounded-sm">
+                    <div class="aspect-[9/16] relative">
                         <div>
                             <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.name }}"
                                  src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|thumbor(9 * 48, 16 * 48) }}"/>

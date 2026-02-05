@@ -1,12 +1,12 @@
 {% macro tab_active(name, icon, link) %}
-    <span class="flex-none flex items-center mx-2 p-3 bg-gray-800 dark:bg-gray-200 dark:text-black text-white rounded">
+    <span class="flex-none flex items-center mx-2 p-3 bg-gray-800 dark:bg-gray-200 dark:text-black text-white rounded-sm">
                 {{ icon(icon) }}
                 <span class="ml-2">{{ name }}</span>
             </span>
 {% endmacro %}
 
 {% macro tab(name, icon, link) %}
-    <a class="flex-none flex items-center mx-2 p-3 bg-gray-100 dark:bg-gray-700 dark:text-gray-100 text-gray-900 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+    <a class="flex-none flex items-center mx-2 p-3 bg-gray-100 dark:bg-gray-700 dark:text-gray-100 text-gray-900 rounded-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition"
        href="{{ link }}">
         {{ icon(icon) }}
         <span class="ml-2">{{ name }}</span>

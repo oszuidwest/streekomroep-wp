@@ -1,9 +1,71 @@
-@import "prose.css";
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Load Tailwind config */
+@config "../tailwind.config.js";
 
+/* Prose component styles */
+.zw-prose p:first-child {
+    @apply font-bold;
+}
+
+.prose blockquote {
+    @apply border-none font-round text-xl text-gray-600 dark:text-white;
+    text-transform: none;
+    text-align: center;
+    line-height: 1em;
+    padding: 2em 1em;
+    position: relative;
+    font-style: normal;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+    content: none;
+}
+
+.prose blockquote:before,
+.prose blockquote:after {
+    display: block;
+    position: absolute;
+    text-align: center;
+    left: 0;
+    right: 0;
+    @apply text-groen font-round;
+    font-size: 4.5em;
+    line-height: 1;
+}
+
+.prose blockquote:before {
+    content: open-quote;
+    top: 0;
+}
+
+.prose blockquote:after {
+    content: close-quote;
+}
+
+.prose blockquote p {
+    font-size: 1.3em;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.prose .wp-caption * {
+    margin: 0;
+}
+
+.prose .wp-caption-text,
+.prose .wp-caption-dd {
+    @apply text-sm text-gray-500 text-center pt-2;
+}
+
+.prose .video-js video {
+    margin: 0;
+}
+
+/* Grid stories layout */
 .grid-stories {
     @apply grid-cols-2;
 }
@@ -22,7 +84,7 @@
     max-height: 400px;
 }
 
-@screen sm {
+@media (min-width: 640px) {
     .grid-stories {
         grid-template-columns: 47.35043% 1fr 1fr;
     }
@@ -46,14 +108,14 @@
     }
 }
 
+/* Contact Form 7 styles */
 .wpcf7-form-control {
-    @apply w-full px-3 py-2 border rounded-md border-gray-300;
-    @apply focus:outline-none focus:border-blauw;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-sm;
+    @apply focus:outline-hidden focus:border-blauw;
 }
 
 .wpcf7-submit {
-    /* Undo some borders */
     @apply border-none;
     @apply bg-blauw text-white px-4 py-3;
-    @apply focus:outline-none
+    @apply focus:outline-hidden;
 }

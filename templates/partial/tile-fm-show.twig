@@ -1,5 +1,5 @@
-<a class="block aspect-w-16 aspect-h-9" href="{{ post.link }}">
-    <div class="bg-gray-50 text-gray-800 rounded overflow-hidden">
+<a class="block aspect-video relative" href="{{ post.link }}">
+    <div class="absolute inset-0 bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
         {% if post.thumbnail %}
             <img class="absolute inset-0 w-full h-full object-cover"
                  src="{{ post.thumbnail.src|thumbor(320, 180) }}"/>
@@ -13,6 +13,6 @@
             {% endfor %}
             <p class="text-sm text-black dark:text-gray-100">{{ hosts|join(', ', ' en ') }}</p>
         </div>
-        <div class="absolute inset-0 border rounded border-gray-800/10 dark:border-gray-200/10 pointer-events-none"></div>
+        <div class="absolute inset-0 border rounded-sm border-gray-800/10 dark:border-gray-200/10 pointer-events-none"></div>
     </div>
 </a>

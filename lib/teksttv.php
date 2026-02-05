@@ -42,10 +42,11 @@ class TekstTVAPI
     /**
      * Check if content should be displayed on the given day.
      *
-     * ACF checkbox fields return values as strings ("1", "2", etc.).
-     * We normalize both sides to strings for reliable comparison.
+     * ACF checkbox fields may return values as:
+     * - Numeric strings ("1", "2", etc.) where 1=Mon, 7=Sun
+     * - Dutch abbreviations ("ma", "di", "wo", "do", "vrij", "za", "zo")
      *
-     * @param array|null $allowed_days Array of day numbers (1=Mon, 7=Sun) or null/empty for all days
+     * @param array|null $allowed_days Array of day identifiers or null/empty for all days
      * @param \DateTimeInterface|null $date Date to check, defaults to current date
      * @return bool True if content should be displayed
      */
@@ -56,10 +57,26 @@ class TekstTVAPI
         }
 
         $date = $date ?? current_datetime();
+
+        // Map Dutch abbreviations to numeric day values (ISO-8601: 1=Mon, 7=Sun)
+        $dutch_to_numeric = [
+            'ma' => '1',
+            'di' => '2',
+            'wo' => '3',
+            'do' => '4',
+            'vrij' => '5',
+            'vr' => '5',
+            'za' => '6',
+            'zo' => '7'
+        ];
+
         $current_day = $date->format('N'); // Returns "1" (Mon) through "7" (Sun)
 
-        // Normalize to strings for consistent comparison
-        $allowed_days_normalized = array_map('strval', $allowed_days);
+        // Normalize allowed days to numeric strings
+        $allowed_days_normalized = array_map(function ($day) use ($dutch_to_numeric) {
+            $day_lower = strtolower(trim($day));
+            return $dutch_to_numeric[$day_lower] ?? strval($day);
+        }, $allowed_days);
 
         return in_array($current_day, $allowed_days_normalized, true);
     }
@@ -104,10 +121,10 @@ class TekstTVAPI
             'callback' => [$this, 'get_teksttv'],
             'permission_callback' => '__return_true',
             'args' => [
-                'kanaal' => [
+                'channel' => [
                     'required' => true,
                     'type' => 'string',
-                    'description' => 'Kanaal slug (bijv. breda, roosendaal)',
+                    'description' => 'Channel slug (e.g., tv1, tv2)',
                     'validate_callback' => [$this, 'validate_channel']
                 ]
             ]
@@ -132,7 +149,7 @@ class TekstTVAPI
     // Main endpoint returning slides and ticker
     public function get_teksttv(\WP_REST_Request $request)
     {
-        $channel = $request->get_param('kanaal');
+        $channel = $request->get_param('channel');
 
         return new WP_REST_Response([
             'slides' => $this->build_slides($channel),
@@ -339,7 +356,7 @@ class TekstTVAPI
                 foreach ($campaign['campagne_slides'] as $slide) {
                     if (!empty($slide['url'])) {
                         $slides[] = [
-                            'type' => 'image',
+                            'type' => 'commercial',
                             'duration' => intval($campaign['campagne_seconden']) * 1000,
                             'url' => $slide['url']
                         ];
@@ -352,7 +369,7 @@ class TekstTVAPI
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in']) && !empty($block['afbeelding_in']['url'])) {
                 array_unshift($slides, [
-                    'type' => 'image',
+                    'type' => 'commercial_transition',
                     'duration' => self::SLIDE_DURATIONS['ad_transition'],
                     'url' => $block['afbeelding_in']['url']
                 ]);
@@ -360,7 +377,7 @@ class TekstTVAPI
 
             if (!empty($block['afbeelding_uit']) && !empty($block['afbeelding_uit']['url'])) {
                 $slides[] = [
-                    'type' => 'image',
+                    'type' => 'commercial_transition',
                     'duration' => self::SLIDE_DURATIONS['ad_transition'],
                     'url' => $block['afbeelding_uit']['url']
                 ];
@@ -382,21 +399,33 @@ class TekstTVAPI
         $ticker_content = get_field('teksttv_ticker', $options_id) ?: [];
 
         foreach ($ticker_content as $item) {
-            $message = null;
+            $result = null;
             switch ($item['acf_fc_layout']) {
                 case 'ticker_nufm':
-                    $message = $this->get_current_fm_program();
+                    $result = $this->get_current_fm_program();
                     break;
                 case 'ticker_straksfm':
-                    $message = $this->get_next_fm_program();
+                    $result = $this->get_next_fm_program();
                     break;
                 case 'ticker_tekst':
-                    $message = $item['ticker_tekst_tekst'] ?? null;
+                    $result = $item['ticker_tekst_tekst'] ?? null;
+                    break;
+                case 'ticker_vandaagtv':
+                    $result = $this->get_today_tv_programs();
+                    break;
+                case 'ticker_morgentv':
+                    $result = $this->get_tomorrow_tv_programs();
                     break;
             }
 
-            if (!empty($message)) {
-                $messages[] = ['message' => $message];
+            if (!empty($result)) {
+                if (is_array($result)) {
+                    foreach ($result as $message) {
+                        $messages[] = ['message' => $message];
+                    }
+                } else {
+                    $messages[] = ['message' => $result];
+                }
             }
         }
 
@@ -410,7 +439,7 @@ class TekstTVAPI
             $schedule = new BroadcastSchedule();
             $broadcast = $schedule->getCurrentRadioBroadcast();
             if ($broadcast) {
-                return 'Nu op ZuidWest FM: ' . $broadcast->getName();
+                return 'Nu op FM: ' . $broadcast->getName();
             }
         } catch (\Throwable $e) {
             error_log('TekstTV: Failed to get current FM program: ' . $e->getMessage());
@@ -425,10 +454,40 @@ class TekstTVAPI
             $schedule = new BroadcastSchedule();
             $broadcast = $schedule->getNextRadioBroadcast();
             if ($broadcast) {
-                return 'Straks op ZuidWest FM: ' . $broadcast->getName();
+                return 'Straks op FM: ' . $broadcast->getName();
             }
         } catch (\Throwable $e) {
             error_log('TekstTV: Failed to get next FM program: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    // Get today's TV programs (returns array of messages)
+    private function get_today_tv_programs(): ?array
+    {
+        try {
+            $schedule = new BroadcastSchedule();
+            $programs = $schedule->getToday()->television;
+            if (!empty($programs)) {
+                return array_map(fn($item) => 'Vandaag op TV: ' . $item->name, $programs);
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get today TV programs: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    // Get tomorrow's TV programs (returns array of messages)
+    private function get_tomorrow_tv_programs(): ?array
+    {
+        try {
+            $schedule = new BroadcastSchedule();
+            $programs = $schedule->getTomorrow()->television;
+            if (!empty($programs)) {
+                return array_map(fn($item) => 'Morgen op TV: ' . $item->name, $programs);
+            }
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get tomorrow TV programs: ' . $e->getMessage());
         }
         return null;
     }
@@ -566,6 +625,7 @@ class TekstTVAPI
                 'date' => $date,
                 'temp_min' => $day_data['temp']['min'],
                 'temp_max' => $day_data['temp']['max'],
+                'weather_id' => $day_data['weather'][0]['id'] ?? null,
                 'icon' => $day_data['weather'][0]['icon'] ?? '01d',
                 'description' => ucfirst($day_data['weather'][0]['description'] ?? ''),
                 'wind_speed' => $day_data['wind_speed'] ?? 0,
@@ -591,6 +651,7 @@ class TekstTVAPI
                 'day_short' => $index === 0 ? 'vandaag' : date_i18n('D', $day['date']->getTimestamp()),
                 'temp_min' => round($day['temp_min']),
                 'temp_max' => round($day['temp_max']),
+                'weather_id' => $day['weather_id'],
                 'description' => $day['description'],
                 'icon' => $day['icon'],
                 'wind_direction' => $this->wind_deg_to_direction($day['wind_deg'] ?? 0),
