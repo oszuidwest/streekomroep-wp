@@ -29,9 +29,9 @@ The theme provides the following REST API endpoints:
 
 ### Tekst TV
 ```
-GET /wp-json/zw/v1/teksttv?kanaal={channel}
+GET /wp-json/zw/v1/teksttv?channel={channel}
 ```
-Returns slides and ticker messages for the Tekst TV system. The `kanaal` parameter is required and must match a configured channel (e.g., `tv1`).
+Returns slides and ticker messages for the Tekst TV system. The `channel` parameter is required and must match a configured channel (e.g., `tv1`).
 
 Response format:
 ```json

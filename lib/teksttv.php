@@ -121,10 +121,10 @@ class TekstTVAPI
             'callback' => [$this, 'get_teksttv'],
             'permission_callback' => '__return_true',
             'args' => [
-                'kanaal' => [
+                'channel' => [
                     'required' => true,
                     'type' => 'string',
-                    'description' => 'Kanaal slug (bijv. breda, roosendaal)',
+                    'description' => 'Channel slug (e.g., tv1, tv2)',
                     'validate_callback' => [$this, 'validate_channel']
                 ]
             ]
@@ -149,7 +149,7 @@ class TekstTVAPI
     // Main endpoint returning slides and ticker
     public function get_teksttv(\WP_REST_Request $request)
     {
-        $channel = $request->get_param('kanaal');
+        $channel = $request->get_param('channel');
 
         return new WP_REST_Response([
             'slides' => $this->build_slides($channel),

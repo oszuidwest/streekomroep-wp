@@ -64,9 +64,9 @@ The theme provides REST API endpoints for external integrations:
 
 ### Tekst TV
 ```
-GET /wp-json/zw/v1/teksttv?kanaal={channel}
+GET /wp-json/zw/v1/teksttv?channel={channel}
 ```
-Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `kanaal` parameter must match a configured channel (e.g., `tv1`).
+Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `channel` parameter must match a configured channel (e.g., `tv1`).
 
 Response:
 ```json
