@@ -217,13 +217,13 @@
                                 "7": "zo"
                             },
                             "default_value": [
-                                "ma",
-                                "di",
-                                "wo",
-                                "do",
-                                "vr",
-                                "za",
-                                "zo"
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7"
                             ],
                             "return_format": "value",
                             "allow_custom": 0,
