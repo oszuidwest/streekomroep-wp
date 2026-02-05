@@ -44,7 +44,7 @@
             <div class="overflow-auto" style="-webkit-overflow-scrolling: touch">
                 <div class="flex">
                     {% for item in mainmenu.items %}
-                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'text-white', 'transition'] %}
+                        {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'transition'] %}
                         {% if item.current or item.current_item_parent %}
 
                             {% if item.current %}
@@ -59,7 +59,7 @@
 
                             {% set classes = classes|merge(['text-groen', 'border-current']) %}
                         {% else %}
-                            {% set classes = classes|merge(['border-transparent dark:text-gray-400']) %}
+                            {% set classes = classes|merge(['text-white', 'border-transparent', 'dark:text-gray-400']) %}
                         {% endif %}
                         <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
                     {% endfor %}
