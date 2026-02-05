@@ -356,7 +356,7 @@ class TekstTVAPI
                 foreach ($campaign['campagne_slides'] as $slide) {
                     if (!empty($slide['url'])) {
                         $slides[] = [
-                            'type' => 'image',
+                            'type' => 'commercial',
                             'duration' => intval($campaign['campagne_seconden']) * 1000,
                             'url' => $slide['url']
                         ];
@@ -369,7 +369,7 @@ class TekstTVAPI
         if (!empty($slides)) {
             if (!empty($block['afbeelding_in']) && !empty($block['afbeelding_in']['url'])) {
                 array_unshift($slides, [
-                    'type' => 'image',
+                    'type' => 'commercial_transition',
                     'duration' => self::SLIDE_DURATIONS['ad_transition'],
                     'url' => $block['afbeelding_in']['url']
                 ]);
@@ -377,7 +377,7 @@ class TekstTVAPI
 
             if (!empty($block['afbeelding_uit']) && !empty($block['afbeelding_uit']['url'])) {
                 $slides[] = [
-                    'type' => 'image',
+                    'type' => 'commercial_transition',
                     'duration' => self::SLIDE_DURATIONS['ad_transition'],
                     'url' => $block['afbeelding_uit']['url']
                 ];
@@ -583,6 +583,7 @@ class TekstTVAPI
                 'date' => $date,
                 'temp_min' => $day_data['temp']['min'],
                 'temp_max' => $day_data['temp']['max'],
+                'weather_id' => $day_data['weather'][0]['id'] ?? null,
                 'icon' => $day_data['weather'][0]['icon'] ?? '01d',
                 'description' => ucfirst($day_data['weather'][0]['description'] ?? ''),
                 'wind_speed' => $day_data['wind_speed'] ?? 0,
@@ -608,6 +609,7 @@ class TekstTVAPI
                 'day_short' => $index === 0 ? 'vandaag' : date_i18n('D', $day['date']->getTimestamp()),
                 'temp_min' => round($day['temp_min']),
                 'temp_max' => round($day['temp_max']),
+                'weather_id' => $day['weather_id'],
                 'description' => $day['description'],
                 'icon' => $day['icon'],
                 'wind_direction' => $this->wind_deg_to_direction($day['wind_deg'] ?? 0),
