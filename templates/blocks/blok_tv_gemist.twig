@@ -25,7 +25,7 @@
                 </li>
             {% endfor %}
             {% if block.shows is not empty %}
-                <li class="text-gray-600 px-1" aria-hidden="true">|</li>
+                <li class="mx-1 h-5 border-l border-gray-600 dark:border-gray-500" aria-hidden="true" role="presentation"></li>
             {% endif %}
             <li>
                 <a href="{{ function('get_post_type_archive_link', 'tv') }}"
