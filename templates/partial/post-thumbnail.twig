@@ -13,7 +13,12 @@
                  srcset="{{ post.thumbnail.src|thumbor(width * 2, (width * 2) / 16 * 9) }} 2x"/>
         {% endif %}
         {% if showPlayButton %}
-            <div class="absolute w-8 h-8 -m-4 p-1 bg-groen text-white left-1/2 top-1/2 rounded-full">{{ icon('icon-play_arrow') }}</div>
+            <div class="absolute bottom-2 left-2">
+                <div class="flex items-center gap-1 px-2 py-1 bg-groen rounded text-xs font-bold text-gray-900 shadow">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <span>VIDEO</span>
+                </div>
+            </div>
         {% endif %}
     </div>
 </div>
