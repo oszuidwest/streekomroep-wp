@@ -17,16 +17,20 @@
         </div>
 
         <p class="text-sm tracking-wide uppercase font-bold font-round text-gray-400 mt-4">Of kijk een nieuwe aflevering van:</p>
-        <ul class="flex flex-wrap gap-2 mt-2">
+        <ul class="flex flex-wrap gap-2 mt-2 items-center">
             {% for item in block.shows %}
                 <li>
                     <a href="{{ item.show.link }}"
                        class="block py-1 px-2 rounded-sm text-sm bg-gray-700 text-gray-100 hover:bg-gray-600 transition">{{ item.show.title }}</a>
                 </li>
             {% endfor %}
+            <li class="text-gray-600 px-1">|</li>
             <li>
                 <a href="{{ function('get_post_type_archive_link', 'tv') }}"
-                   class="block py-1 px-2 rounded-sm text-sm bg-blauw text-white hover:bg-blauw/80 transition">Alle programma's</a>
+                   class="inline-flex items-center gap-1 py-1 px-2 rounded-sm text-sm bg-blauw text-white hover:bg-blauw/80 transition">
+                    Alle programma's
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </li>
         </ul>
     </div>
