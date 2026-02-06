@@ -24,7 +24,9 @@
                        class="block py-1 px-2 rounded-sm text-sm bg-gray-700 text-gray-100 hover:bg-gray-600 transition">{{ item.show.title }}</a>
                 </li>
             {% endfor %}
-            <li class="text-gray-600 px-1">|</li>
+            {% if block.shows is not empty %}
+                <li class="text-gray-600 px-1">|</li>
+            {% endif %}
             <li>
                 <a href="{{ function('get_post_type_archive_link', 'tv') }}"
                    class="inline-flex items-center gap-1 py-1 px-2 rounded-sm text-sm bg-blauw text-white hover:bg-blauw/80 transition">
