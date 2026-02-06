@@ -3,6 +3,11 @@
 /* Load Tailwind config */
 @config "../tailwind.config.js";
 
+/* Play icon sizing inside thumbnail button */
+.play-button-icon > svg {
+    @apply block w-3.5 h-3.5;
+}
+
 /* Prose component styles */
 .zw-prose p:first-child {
     @apply font-bold;
