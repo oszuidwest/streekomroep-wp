@@ -5,7 +5,7 @@
 
 /* Play icon sizing inside thumbnail button */
 .play-button-icon > svg {
-    @apply block w-3.5 h-3.5;
+    @apply block w-6 h-6;
 }
 
 /* Prose component styles */
