@@ -8,11 +8,6 @@
     @apply block w-6 h-6;
 }
 
-/* Small chevron icon in inline CTA buttons */
-.cta-chevron-icon > svg {
-    @apply block w-4 h-4;
-}
-
 /* Prose component styles */
 .zw-prose p:first-child {
     @apply font-bold;
