@@ -40,6 +40,14 @@ set -e
         echo "Installing Yoast News SEO..."
         wp plugin install "https://yoast.com/app/uploads/2025/02/wpseo-news-13.3.zip" --activate --allow-root || echo "Failed to install Yoast News SEO"
 
+        # Install ACF Pro if license key is provided
+        if [ -n "$ACF_PRO_LICENSE" ]; then
+            echo "Installing Advanced Custom Fields Pro..."
+            wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_PRO_LICENSE}" --activate --allow-root || echo "Failed to install ACF Pro"
+        else
+            echo "Skipping ACF Pro (no ACF_PRO_LICENSE set)"
+        fi
+
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
 
