@@ -13,6 +13,14 @@ set -e
     mkdir -p /var/www/html/wp-content/plugins
     mkdir -p /var/www/html/wp-content/upgrade
 
+    # Install dependencies and build theme assets
+    THEME_DIR=/var/www/html/wp-content/themes/streekomroep
+    echo "Installing Composer dependencies..."
+    composer install --no-dev --no-interaction --working-dir="$THEME_DIR"
+    echo "Installing npm dependencies and building CSS..."
+    npm install --prefix "$THEME_DIR"
+    npm run build:tailwind --prefix "$THEME_DIR"
+
     # Wait for database
     sleep 3
 
@@ -33,12 +41,9 @@ set -e
         wp language core install nl_NL --allow-root
         wp site switch-language nl_NL --allow-root
 
-        # Install Yoast plugins (sequential to avoid conflicts)
+        # Install Yoast SEO Premium
         echo "Installing Yoast SEO Premium..."
         wp plugin install "https://yoast.com/app/uploads/2026/02/wordpress-seo-premium-26.9.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
-
-        echo "Installing Yoast News SEO..."
-        wp plugin install "https://yoast.com/app/uploads/2025/02/wpseo-news-13.3.zip" --activate --allow-root || echo "Failed to install Yoast News SEO"
 
         # Install ACF Pro if license key is provided
         if [ -n "$ACF_PRO_LICENSE" ]; then
