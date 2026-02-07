@@ -19,7 +19,9 @@
             </picture>
         {% endif %}
         {% if showPlayButton %}
-            <div class="absolute w-8 h-8 -m-4 p-1 bg-groen text-white left-1/2 top-1/2 rounded-full">{{ icon('icon-play_arrow') }}</div>
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-groen rounded-full ring-2 ring-white flex items-center justify-center">
+                <span class="play-button-icon ml-0.5 text-white">{{ icon('icon-play_arrow') }}</span>
+            </div>
         {% endif %}
     </div>
 </div>
