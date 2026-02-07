@@ -8,10 +8,6 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 # Install unzip for plugin installation and acl for default permissions
 RUN apt-get update && apt-get install -y unzip acl && rm -rf /var/lib/apt/lists/*
 
-# Copy setup script
-COPY setup-plugins.sh /usr/local/bin/setup-plugins.sh
-RUN chmod +x /usr/local/bin/setup-plugins.sh
-
 # Copy and set entrypoint that fixes permissions
 COPY entrypoint.sh /usr/local/bin/custom-entrypoint.sh
 RUN chmod +x /usr/local/bin/custom-entrypoint.sh
