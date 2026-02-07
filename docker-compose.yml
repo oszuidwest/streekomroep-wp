@@ -12,6 +12,7 @@ services:
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: 1
+      ACF_PRO_LICENSE: ${ACF_PRO_LICENSE:-}
     volumes:
       - wordpress_data:/var/www/html
       - ./:/var/www/html/wp-content/themes/streekomroep
@@ -38,26 +39,6 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
-
-  setup:
-    build:
-      context: ./docker
-      dockerfile: Dockerfile
-    container_name: streekomroep-setup
-    volumes:
-      - wordpress_data:/var/www/html
-      - ./:/var/www/html/wp-content/themes/streekomroep
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-      WORDPRESS_DB_NAME: wordpress
-    depends_on:
-      - wordpress
-    command: /usr/local/bin/setup-plugins.sh
-    restart: "no"
-    profiles:
-      - setup
 
   phpmyadmin:
     image: phpmyadmin:latest
