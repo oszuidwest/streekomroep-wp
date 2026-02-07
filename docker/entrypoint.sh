@@ -37,24 +37,30 @@ set -e
             --skip-email \
             --allow-root
 
-        # Install Dutch language pack and set as default
-        wp language core install nl_NL --allow-root
-        wp site switch-language nl_NL --allow-root
-
-        # Install Yoast SEO Premium
+        # Install plugins before language pack to avoid WP-CLI locale conflicts
         echo "Installing Yoast SEO Premium..."
         wp plugin install "https://yoast.com/app/uploads/2026/02/wordpress-seo-premium-26.9.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
 
         # Install ACF Pro if license key is provided
         if [ -n "$ACF_PRO_LICENSE" ]; then
             echo "Installing Advanced Custom Fields Pro..."
-            wp plugin install "https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_PRO_LICENSE}" --activate --allow-root || echo "Failed to install ACF Pro"
+            ACF_URL="https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_PRO_LICENSE}"
+            if curl -fSLo /tmp/acf-pro.zip "$ACF_URL"; then
+                wp plugin install /tmp/acf-pro.zip --activate --allow-root || echo "Failed to install ACF Pro"
+                rm -f /tmp/acf-pro.zip
+            else
+                echo "Failed to download ACF Pro (check your license key)"
+            fi
         else
             echo "Skipping ACF Pro (no ACF_PRO_LICENSE set)"
         fi
 
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
+
+        # Install Dutch language pack and set as default
+        wp language core install nl_NL --allow-root
+        wp site switch-language nl_NL --allow-root
 
         # Activate theme if exists
         wp theme activate streekomroep --allow-root 2>/dev/null || true
