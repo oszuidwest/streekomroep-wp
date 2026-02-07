@@ -114,4 +114,4 @@ jobs:
             echo "Detected prerelease version, marking as prerelease"
             PRERELEASE_FLAG="--prerelease"
           fi
-          gh release create ${{ env.VERSION }} streekomroep-wp-theme-${{ env.VERSION }}.zip --title "${{ env.VERSION }}" --notes "Automated release for version ${{ env.VERSION }}" $PRERELEASE_FLAG
+          gh release create ${{ env.VERSION }} streekomroep-wp-theme-${{ env.VERSION }}.zip --title "${{ env.VERSION }}" --generate-notes $PRERELEASE_FLAG
