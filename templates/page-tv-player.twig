@@ -26,10 +26,9 @@
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-video">
                 <div>
-                    <video class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline {% if post.meta('tv_webplayer_poster') %}poster="{{ post.meta('tv_webplayer_poster') }}" {% endif %}>
-                        {% if post.meta('tv_webplayer_hls_stream') %}
-                            <source src="{{ post.meta('tv_webplayer_hls_stream') }}" type="application/x-mpegURL">
-                        {% endif %}
+                    <video class="video-js vjs-fluid vjs-big-play-centered" autoplay controls playsinline
+                        {% if post.meta('tv_webplayer_poster') %}poster="{{ post.meta('tv_webplayer_poster') }}"{% endif %}
+                        {% if post.meta('tv_webplayer_hls_stream') %}data-vjs-src="{{ post.meta('tv_webplayer_hls_stream') }}" data-vjs-type="application/x-mpegURL" data-vjs-live{% endif %}>
                     </video>
                 </div>
             </div>
