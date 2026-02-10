@@ -5,6 +5,10 @@
  * to use VHS (Video.js HTTP Streaming) with the correct settings.
  */
 document.addEventListener('DOMContentLoaded', function () {
+    if (typeof videojs === 'undefined') {
+        return;
+    }
+
     var players = document.querySelectorAll('.video-js[data-vjs-src]');
 
     players.forEach(function (element) {
