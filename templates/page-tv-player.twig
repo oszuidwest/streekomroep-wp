@@ -36,9 +36,9 @@
                 <nav class="flex justify-end bg-white/5 p-0.5 mt-1 rounded-sm gap-0.5">
                     {% for channel in tv_channels %}
                         {% if channel.id == post.id %}
-                            <span class="px-3 py-1 rounded-sm bg-white/12 text-white text-xs font-bold flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-blauw"></span>{{ channel.title }}</span>
+                            <span class="px-3 py-1 rounded-sm bg-white/12 text-white text-xs font-bold flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-blauw animate-pulse"></span>{{ channel.title }}</span>
                         {% else %}
-                            <a href="{{ channel.link }}" class="px-3 py-1 rounded-sm bg-white/10 text-white/50 text-xs font-bold hover:bg-white/15 hover:text-white transition">{{ channel.title }}</a>
+                            <a href="{{ channel.link }}" class="px-3 py-1 rounded-sm bg-white/10 text-white/50 text-xs font-bold hover:bg-white/15 hover:text-white transition flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-white/30"></span>{{ channel.title }}</a>
                         {% endif %}
                     {% endfor %}
                 </nav>
