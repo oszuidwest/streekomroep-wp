@@ -65,9 +65,9 @@
     "location": [
         [
             {
-                "param": "options_page",
+                "param": "page_template",
                 "operator": "==",
-                "value": "tv-instellingen"
+                "value": "wp-page-tv-player.php"
             }
         ]
     ],

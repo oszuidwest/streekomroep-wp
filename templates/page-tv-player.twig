@@ -1,25 +1,57 @@
 {% extends 'base.twig' %}
 
+{% block head %}
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            "name": "{{ post.title }} - Live",
+            "description": "{{ post.title }} - Live televisie{% if tv_today|length %} met vandaag {% for broadcast in tv_today %}{{ broadcast.name }}{% if loop.last %}{% elseif loop.revindex0 == 1 %} en {% else %}, {% endif %}{% endfor %}{% endif %}",
+            {% if post.meta('tv_webplayer_poster') %}"thumbnailUrl": "{{ post.meta('tv_webplayer_poster') }}",{% endif %}
+            {% if post.meta('tv_webplayer_hls_stream') %}"contentUrl": "{{ post.meta('tv_webplayer_hls_stream') }}",{% endif %}
+            "embedUrl": "{{ post.link }}",
+            "uploadDate": "{{ post.date('c') }}",
+            "publication": {
+                "@type": "BroadcastEvent",
+                "isLiveBroadcast": true,
+                "startDate": "{{ 'now'|date('Y-m-d') }}T00:00:00+01:00",
+                "endDate": "{{ 'now'|date('Y-m-d') }}T23:59:59+01:00"
+            }
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="bg-black text-white">
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-video">
                 <div>
-                    <video class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline {% if options.tv_webplayer_poster %}poster="{{ options.tv_webplayer_poster }}" {% endif %}>
-                        {% if options.tv_webplayer_hls_stream %}
-                            <source src="{{ options.tv_webplayer_hls_stream }}" type="application/x-mpegURL">
+                    <video class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline {% if post.meta('tv_webplayer_poster') %}poster="{{ post.meta('tv_webplayer_poster') }}" {% endif %}>
+                        {% if post.meta('tv_webplayer_hls_stream') %}
+                            <source src="{{ post.meta('tv_webplayer_hls_stream') }}" type="application/x-mpegURL">
                         {% endif %}
                     </video>
                 </div>
             </div>
+            {% if tv_channels|length > 1 %}
+                <nav class="flex justify-end rounded-sm bg-white/5 p-0.5 mt-1">
+                    {% for channel in tv_channels %}
+                        {% if channel.id == post.id %}
+                            <span class="px-2.5 py-1 rounded-sm bg-white/12 text-blauw text-xs font-bold">{{ channel.title }}</span>
+                        {% else %}
+                            <a href="{{ channel.link }}" class="px-2.5 py-1 rounded-sm text-white/35 text-xs font-bold hover:text-white/70 transition">{{ channel.title }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+            {% endif %}
         </div>
 
         <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
-            <h1 class="font-bold text-3xl">{{ post.title }}</h1>
+            <h1 class="font-bold text-3xl">{{ post.title }} - Live</h1>
             <aside>
                 <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
                 <ul>
-                    {% for channel in options.tv_frequenties %}
+                    {% for channel in post.meta('tv_frequenties') %}
                         <li>{{ channel.tv_frequenties_aanbieder }}: {{ channel.tv_frequenties_kanaal }}</li>
                     {% endfor %}
                 </ul>
