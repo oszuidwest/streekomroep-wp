@@ -33,12 +33,12 @@
                 </div>
             </div>
             {% if tv_channels|length > 1 %}
-                <nav class="flex justify-end rounded-sm bg-white/5 p-0.5 mt-1">
+                <nav class="flex gap-2 justify-end mt-2">
                     {% for channel in tv_channels %}
                         {% if channel.id == post.id %}
-                            <span class="px-2.5 py-1 rounded-sm bg-white/12 text-blauw text-xs font-bold">{{ channel.title }}</span>
+                            <span class="px-4 py-2 rounded-md bg-blauw text-white text-sm font-bold">{{ channel.title }}</span>
                         {% else %}
-                            <a href="{{ channel.link }}" class="px-2.5 py-1 rounded-sm text-white/35 text-xs font-bold hover:text-white/70 transition">{{ channel.title }}</a>
+                            <a href="{{ channel.link }}" class="px-4 py-2 rounded-md bg-white/10 text-white/60 text-sm font-bold hover:bg-white/20 hover:text-white transition">{{ channel.title }}</a>
                         {% endif %}
                     {% endfor %}
                 </nav>
