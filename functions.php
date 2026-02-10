@@ -137,11 +137,11 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $out = '';
 
     $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
-    $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" data-setup="{}" controls';
+    $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
+    $out .= ' data-vjs-src="' . htmlspecialchars($video->getPlaylistUrl()) . '"';
+    $out .= ' data-vjs-type="application/x-mpegURL"';
     $out .= '>';
-    $out .= '<source src="' . htmlspecialchars($video->getPlaylistUrl()) . '" type="application/x-mpegURL">';
-    $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
     $out .= '</video>';
     $out .= '</div>';
 
@@ -936,6 +936,7 @@ function zw_add_videojs()
     wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video-js.min.css');
     wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video.min.js', args:['strategy'  => 'defer']);
     wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/lang/nl.min.js', args:['strategy'  => 'defer']);
+    wp_enqueue_script('zw-videojs-init', get_stylesheet_directory_uri() . '/static/videojs-init.js', ['video.js'], '1.0', true);
 }
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
