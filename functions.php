@@ -90,6 +90,7 @@ function zw_bunny_get(string $accessKey, string $url)
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
 add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
+add_filter('content_save_pre', 'zw_normalize_bunny_url');
 
 function zw_normalize_bunny_url($value)
 {
