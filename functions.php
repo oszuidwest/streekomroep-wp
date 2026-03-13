@@ -89,6 +89,16 @@ function zw_bunny_get(string $accessKey, string $url)
 
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
+add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
+
+function zw_normalize_bunny_url($value)
+{
+    if (is_string($value)) {
+        $value = str_replace('://iframe.mediadelivery.net/', '://player.mediadelivery.net/', $value);
+    }
+
+    return $value;
+}
 
 function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id)
 {
