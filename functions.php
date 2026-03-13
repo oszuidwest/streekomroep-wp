@@ -496,7 +496,7 @@ function zw_rest_api_init()
 
 function zw_bunny_parse_url($url)
 {
-    if (preg_match('|^https://iframe.mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
+    if (preg_match('|^https://(?:iframe|player).mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
         return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
     }
 
