@@ -45,7 +45,7 @@
                 <div class="flex">
                     {% for item in mainmenu.items %}
                         {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'transition'] %}
-                        {% if item.current or item.current_item_parent or item.current_item_ancestor %}
+                        {% if item.current or item.current_item_parent or item.current_item_ancestor or 'current_page_ancestor' in item.classes %}
 
                             {% if item.current %}
                                 {% set submenu = item.children %}
