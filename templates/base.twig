@@ -61,7 +61,7 @@
                         {% else %}
                             {% set classes = classes|merge(['text-white', 'border-transparent', 'dark:text-gray-400']) %}
                         {% endif %}
-                        <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}</a>
+                        <a class="{{ classes|join(' ') }}" href="{{ item.link }}">{{ item.title }}★</a>
                     {% endfor %}
                 </div>
             </div>
