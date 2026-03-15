@@ -45,14 +45,14 @@
                 <div class="flex">
                     {% for item in mainmenu.items %}
                         {% set classes = ['flex-none', 'flex', 'px-4', 'border-b-2', 'items-center', 'h-12', 'uppercase', 'text-sm', 'font-round', 'font-bold', 'transition'] %}
-                        {% if item.current or item.current_item_parent %}
+                        {% if item.current or item.current_item_parent or item.current_item_ancestor %}
 
                             {% if item.current %}
                                 {% set submenu = item.children %}
                             {% endif %}
 
                             {% for child in item.children %}
-                                {% if child.current %}
+                                {% if child.current or child.current_item_parent or child.current_item_ancestor %}
                                     {% set submenu = item.children %}
                                 {% endif %}
                             {% endfor %}
