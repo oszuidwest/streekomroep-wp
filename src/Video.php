@@ -74,7 +74,7 @@ class Video
 
     public function getLink()
     {
-        return 'https://iframe.mediadelivery.net/play/' . $this->data->videoLibraryId . '/' . $this->data->guid;
+        return 'https://player.mediadelivery.net/play/' . $this->data->videoLibraryId . '/' . $this->data->guid;
     }
 
     public function __get($name)

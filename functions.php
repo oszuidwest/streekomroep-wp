@@ -89,6 +89,17 @@ function zw_bunny_get(string $accessKey, string $url)
 
 
 add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
+add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
+add_filter('content_save_pre', 'zw_normalize_bunny_url');
+
+function zw_normalize_bunny_url($value)
+{
+    if (is_string($value)) {
+        $value = str_replace('://iframe.mediadelivery.net/', '://player.mediadelivery.net/', $value);
+    }
+
+    return $value;
+}
 
 function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id)
 {
@@ -496,7 +507,7 @@ function zw_rest_api_init()
 
 function zw_bunny_parse_url($url)
 {
-    if (preg_match('|^https://iframe.mediadelivery.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
+    if (preg_match('|^https://(?:iframe|player)\.mediadelivery\.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
         return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
     }
 
