@@ -20,8 +20,12 @@ class Fragment extends Post
     public function getEmbed()
     {
         if ($this->meta('fragment_type') === 'Video') {
-            return $this->meta('fragment_url');
-        } else if ($this->meta('fragment_type') === 'Audio') {
+            $url = $this->meta('fragment_url', ['format_value' => false]);
+            if (!$url) {
+                return null;
+            }
+            return zw_render_bunny_embed_from_url($url) ?: null;
+        } elseif ($this->meta('fragment_type') === 'Audio') {
             return Timber::compile('partial/player-audio-fragment.twig', [
                 'fragment' => $this
             ]);
