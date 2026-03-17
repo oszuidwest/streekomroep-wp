@@ -155,7 +155,6 @@ function zw_render_video_player(\Streekomroep\Video $video)
 
 function zw_render_bunny_embed_from_url(string $url)
 {
-    $url = trim($url);
     $video = zw_bunny_get_video_from_url($url);
     if (!$video || !$video->isAvailable()) {
         return false;
@@ -166,12 +165,7 @@ function zw_render_bunny_embed_from_url(string $url)
 
 function zw_filter_pre_oembed_result($default, $url, $args)
 {
-    $html = zw_render_bunny_embed_from_url($url);
-    if (!$html) {
-        return $default;
-    }
-
-    return $html;
+    return zw_render_bunny_embed_from_url($url) ?: $default;
 }
 
 require 'fragment-thumbnail.php';
@@ -887,7 +881,7 @@ function fragment_get_video($id)
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
-    $bunnyVideo = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
+    $bunnyVideo = zw_bunny_get_video_from_url(get_field('fragment_url', $id, false));
     if ($bunnyVideo) {
         $video->contentUrl = $bunnyVideo->getMP4Url();
     }
