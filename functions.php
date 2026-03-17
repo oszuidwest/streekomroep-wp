@@ -153,14 +153,25 @@ function zw_render_video_player(\Streekomroep\Video $video)
     return $out;
 }
 
-function zw_filter_pre_oembed_result($default, $url, $args)
+function zw_render_bunny_embed_from_url(string $url)
 {
-    $video = zw_bunny_get_video_from_url(trim($url));
+    $url = trim($url);
+    $video = zw_bunny_get_video_from_url($url);
     if (!$video || !$video->isAvailable()) {
-        return $default;
+        return false;
     }
 
     return zw_render_video_player($video);
+}
+
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    $html = zw_render_bunny_embed_from_url($url);
+    if (!$html) {
+        return $default;
+    }
+
+    return $html;
 }
 
 require 'fragment-thumbnail.php';
@@ -674,7 +685,13 @@ function zw_get_socials()
     return $out;
 }
 
+wp_embed_register_handler('zw-bunny', '#^https://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"]+$#i', 'zw_bunny_embed_handler');
 wp_embed_register_handler('zw-readmore', '#^(.*)$#', 'zw_embed_handler');
+
+function zw_bunny_embed_handler($matches, $attr, $url, $rawattr)
+{
+    return zw_render_bunny_embed_from_url($url);
+}
 
 function zw_embed_handler($matches, $attr, $url, $rawattr)
 {
