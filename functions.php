@@ -138,15 +138,8 @@ function zw_bunny_get_video_from_url(string $url)
     return new Video($credentials, $video);
 }
 
-function zw_filter_pre_oembed_result($default, $url, $args)
+function zw_render_video_player(\Streekomroep\Video $video)
 {
-    $video = zw_bunny_get_video_from_url(trim($url));
-    if (!$video || !$video->isAvailable()) {
-        return $default;
-    }
-
-    $out = '';
-
     $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
     $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
@@ -158,6 +151,21 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $out .= '</div>';
 
     return $out;
+}
+
+function zw_render_bunny_embed_from_url(string $url)
+{
+    $video = zw_bunny_get_video_from_url($url);
+    if (!$video || !$video->isAvailable()) {
+        return false;
+    }
+
+    return zw_render_video_player($video);
+}
+
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    return zw_render_bunny_embed_from_url($url) ?: $default;
 }
 
 require 'fragment-thumbnail.php';
@@ -507,7 +515,7 @@ function zw_rest_api_init()
 
 function zw_bunny_parse_url($url)
 {
-    if (preg_match('|^https://(?:iframe|player)\.mediadelivery\.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})|', $url, $m)) {
+    if (preg_match('#^https://(?:iframe|player)\.mediadelivery\.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$#i', $url, $m)) {
         return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
     }
 
@@ -671,7 +679,13 @@ function zw_get_socials()
     return $out;
 }
 
+wp_embed_register_handler('zw-bunny', '#^https://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"]+$#i', 'zw_bunny_embed_handler');
 wp_embed_register_handler('zw-readmore', '#^(.*)$#', 'zw_embed_handler');
+
+function zw_bunny_embed_handler($matches, $attr, $url, $rawattr)
+{
+    return zw_render_bunny_embed_from_url($url);
+}
 
 function zw_embed_handler($matches, $attr, $url, $rawattr)
 {
@@ -867,7 +881,7 @@ function fragment_get_video($id)
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
-    $bunnyVideo = zw_bunny_get_video_from_url(trim(get_field('fragment_url', $id, false)));
+    $bunnyVideo = zw_bunny_get_video_from_url(get_field('fragment_url', $id, false));
     if ($bunnyVideo) {
         $video->contentUrl = $bunnyVideo->getMP4Url();
     }
