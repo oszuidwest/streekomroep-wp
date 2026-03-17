@@ -138,15 +138,8 @@ function zw_bunny_get_video_from_url(string $url)
     return new Video($credentials, $video);
 }
 
-function zw_filter_pre_oembed_result($default, $url, $args)
+function zw_render_video_player(\Streekomroep\Video $video)
 {
-    $video = zw_bunny_get_video_from_url(trim($url));
-    if (!$video || !$video->isAvailable()) {
-        return $default;
-    }
-
-    $out = '';
-
     $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
     $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
     $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
@@ -158,6 +151,16 @@ function zw_filter_pre_oembed_result($default, $url, $args)
     $out .= '</div>';
 
     return $out;
+}
+
+function zw_filter_pre_oembed_result($default, $url, $args)
+{
+    $video = zw_bunny_get_video_from_url(trim($url));
+    if (!$video || !$video->isAvailable()) {
+        return $default;
+    }
+
+    return zw_render_video_player($video);
 }
 
 require 'fragment-thumbnail.php';

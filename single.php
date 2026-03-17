@@ -141,7 +141,7 @@ if ($timber_post->post_type == 'tv') {
             $context['video'] = $video;
             $context['older'] = $olderVideo;
             $context['newer'] = $newerVideo;
-            $context['embed'] = $wp_embed->shortcode([], $video->getLink());
+            $context['embed'] = zw_render_video_player($video);
             Timber::render('single-tv-video.twig', $context);
             return;
         }
