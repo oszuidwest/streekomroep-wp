@@ -25,6 +25,12 @@ $args = [
         'name' => 'Nieuws (standaard)',
         'slug' => 'nieuws',
     ],
+    'capabilities'               => [
+        'manage_terms' => 'do_not_allow',
+        'edit_terms'   => 'do_not_allow',
+        'delete_terms' => 'do_not_allow',
+        'assign_terms' => 'edit_posts',
+    ],
 ];
 register_taxonomy('ranking', ['post'], $args);
 
