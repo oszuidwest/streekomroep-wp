@@ -35,20 +35,82 @@ $args = [
 ];
 register_taxonomy('ranking', ['post'], $args);
 
-// Render ranking checkboxes inside the Publish metabox
+// Render ranking inside the Publish metabox, matching Status/Visibility style
 add_action('post_submitbox_misc_actions', function () {
     $post = get_post();
     if (!$post || $post->post_type !== 'post') {
         return;
     }
+
+    $terms = get_the_terms($post->ID, 'ranking');
+    $display = 'Nieuws (standaard)';
+    if ($terms && !is_wp_error($terms)) {
+        $display = implode(', ', wp_list_pluck($terms, 'name'));
+    }
     ?>
-    <div class="misc-pub-section">
-        <strong>Ranking:</strong>
-        <input type="hidden" name="tax_input[ranking][]" value="0" />
-        <ul class="categorychecklist form-no-clear" style="margin: 4px 0 0; padding: 0; list-style: none;">
+    <div class="misc-pub-section misc-pub-ranking">
+        <span id="ranking-display">
+            <?php echo esc_html__('Ranking:', 'streekomroep'); ?>
+            <b id="ranking-display-value"><?php echo esc_html($display); ?></b>
+        </span>
+        <a href="#ranking-select" class="edit-ranking hide-if-no-js" role="button">
+            <span aria-hidden="true"><?php echo esc_html__('Bewerk', 'streekomroep'); ?></span>
+        </a>
+        <div id="ranking-select" class="hide-if-js">
+            <input type="hidden" name="tax_input[ranking][]" value="0" />
+            <ul class="categorychecklist form-no-clear" style="margin: 4px 0 0; list-style: none;">
     <?php wp_terms_checklist($post->ID, ['taxonomy' => 'ranking', 'checked_ontop' => false]); ?>
-        </ul>
+            </ul>
+            <a href="#ranking-display" class="save-ranking hide-if-no-js button"><?php echo esc_html__('OK', 'streekomroep'); ?></a>
+            <a href="#ranking-display" class="cancel-ranking hide-if-no-js button-cancel"><?php echo esc_html__('Annuleren', 'streekomroep'); ?></a>
+        </div>
     </div>
+    <script>
+    jQuery(function($) {
+        var $section = $('.misc-pub-ranking');
+        var $select = $('#ranking-select');
+        var $display = $('#ranking-display-value');
+        var initial = [];
+
+        function storeInitial() {
+            initial = [];
+            $select.find('input:checked').each(function() { initial.push(this.value); });
+        }
+
+        function updateDisplay() {
+            var names = [];
+            $select.find('input:checked').each(function() {
+                names.push($(this).parent().text().trim());
+            });
+            $display.text(names.length ? names.join(', ') : 'Nieuws (standaard)');
+        }
+
+        storeInitial();
+
+        $section.on('click', '.edit-ranking', function(e) {
+            e.preventDefault();
+            storeInitial();
+            $select.slideDown(100);
+            $(this).hide();
+        });
+
+        $section.on('click', '.save-ranking', function(e) {
+            e.preventDefault();
+            updateDisplay();
+            $select.slideUp(100);
+            $section.find('.edit-ranking').show();
+        });
+
+        $section.on('click', '.cancel-ranking', function(e) {
+            e.preventDefault();
+            $select.find('input[type="checkbox"]').each(function() {
+                this.checked = initial.indexOf(this.value) !== -1;
+            });
+            $select.slideUp(100);
+            $section.find('.edit-ranking').show();
+        });
+    });
+    </script>
     <?php
 });
 
