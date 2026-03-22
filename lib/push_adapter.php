@@ -14,53 +14,19 @@ add_action('post_submitbox_misc_actions', function () {
     ?>
     <div class="misc-pub-section misc-pub-push">
         <span class="dashicons dashicons-bell" style="color: #82878c;"></span>
-        <span id="push-display">
-            <?php echo esc_html__('Pushbericht:', 'streekomroep'); ?>
-            <b id="push-display-value"><?php echo $enabled ? esc_html__('Ja', 'streekomroep') : esc_html__('Nee', 'streekomroep'); ?></b>
-        </span>
-        <a href="#push-select" class="edit-push hide-if-no-js" role="button">
-            <span aria-hidden="true"><?php echo esc_html__('Bewerk', 'streekomroep'); ?></span>
-        </a>
-        <div id="push-select" class="hide-if-js">
-            <input type="hidden" name="push_post" value="0" />
-            <select name="push_post" id="push-post-select">
-                <option value="0" <?php selected(!$enabled); ?>><?php echo esc_html__('Nee', 'streekomroep'); ?></option>
-                <option value="1" <?php selected($enabled); ?>><?php echo esc_html__('Ja', 'streekomroep'); ?></option>
-            </select>
-            <a href="#push-display" class="save-push hide-if-no-js button"><?php echo esc_html__('OK', 'streekomroep'); ?></a>
-            <a href="#push-display" class="cancel-push hide-if-no-js button-cancel"><?php echo esc_html__('Annuleren', 'streekomroep'); ?></a>
-        </div>
+        <?php echo esc_html__('Pushbericht:', 'streekomroep'); ?>
+        <input type="hidden" name="push_post" value="0" />
+        <input type="hidden" id="push-post-value" name="push_post" value="<?php echo $enabled ? '1' : '0'; ?>" />
+        <a href="#" id="push-toggle" role="button"><b><?php echo $enabled ? esc_html__('Ja', 'streekomroep') : esc_html__('Nee', 'streekomroep'); ?></b></a>
     </div>
     <script>
     jQuery(function($) {
-        var $section = $('.misc-pub-push');
-        var $select = $('#push-select');
-        var $dropdown = $('#push-post-select');
-        var $display = $('#push-display-value');
-        var initial;
-
-        function storeInitial() { initial = $dropdown.val(); }
-        storeInitial();
-
-        $section.on('click', '.edit-push', function(e) {
+        $('#push-toggle').on('click', function(e) {
             e.preventDefault();
-            storeInitial();
-            $select.slideDown(100);
-            $(this).hide();
-        });
-
-        $section.on('click', '.save-push', function(e) {
-            e.preventDefault();
-            $display.text($dropdown.val() === '1' ? 'Ja' : 'Nee');
-            $select.slideUp(100);
-            $section.find('.edit-push').show();
-        });
-
-        $section.on('click', '.cancel-push', function(e) {
-            e.preventDefault();
-            $dropdown.val(initial);
-            $select.slideUp(100);
-            $section.find('.edit-push').show();
+            var $input = $('#push-post-value');
+            var on = $input.val() === '1';
+            $input.val(on ? '0' : '1');
+            $(this).find('b').text(on ? 'Nee' : 'Ja');
         });
     });
     </script>
