@@ -42,8 +42,12 @@ $results = $wpdb->get_results(
     )
 );
 
+$total = count($results);
+WP_CLI::log("Found {$total} posts with post_ranking meta.");
+
 $migrated = 0;
 $errors = 0;
+$progress = \WP_CLI\Utils\make_progress_bar('Migrating rankings', $total);
 
 foreach ($results as $row) {
     $post_id = (int) $row->post_id;
@@ -75,11 +79,15 @@ foreach ($results as $row) {
         if (is_wp_error($result)) {
             WP_CLI::warning("Post {$post_id}: failed — " . $result->get_error_message());
             $errors++;
+            $progress->tick();
             continue;
         }
     }
     $migrated++;
+    $progress->tick();
 }
+
+$progress->finish();
 
 // Handle posts without any ranking meta
 $orphan_ids = $wpdb->get_col(
@@ -91,15 +99,23 @@ $orphan_ids = $wpdb->get_col(
        )"
 );
 
+$orphan_total = count($orphan_ids);
+WP_CLI::log("Found {$orphan_total} posts without ranking meta.");
+
 $defaulted = 0;
-foreach ($orphan_ids as $post_id) {
-    $post_id = (int) $post_id;
-    if ($dry_run) {
-        WP_CLI::log("Post {$post_id}: no existing ranking, would assign 'nieuws'");
-    } else {
-        wp_set_object_terms($post_id, 'nieuws', 'ranking');
+if ($orphan_total > 0) {
+    $progress2 = \WP_CLI\Utils\make_progress_bar('Assigning defaults', $orphan_total);
+    foreach ($orphan_ids as $post_id) {
+        $post_id = (int) $post_id;
+        if ($dry_run) {
+            WP_CLI::log("Post {$post_id}: no existing ranking, would assign 'nieuws'");
+        } else {
+            wp_set_object_terms($post_id, 'nieuws', 'ranking');
+        }
+        $defaulted++;
+        $progress2->tick();
     }
-    $defaulted++;
+    $progress2->finish();
 }
 
 WP_CLI::success("Done. Migrated: {$migrated}, Defaulted: {$defaulted}, Errors: {$errors}");
