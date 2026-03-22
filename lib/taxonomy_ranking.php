@@ -49,7 +49,7 @@ add_action('post_submitbox_misc_actions', function () {
     }
     ?>
     <div class="misc-pub-section misc-pub-ranking">
-        <span class="dashicons dashicons-star-filled" style="color: #82878c;"></span>
+        <span class="dashicons dashicons-star-empty" style="color: #82878c;"></span>
         <span id="ranking-display">
             <?php echo esc_html__('Ranking:', 'streekomroep'); ?>
             <b id="ranking-display-value"><?php echo esc_html($display); ?></b>
