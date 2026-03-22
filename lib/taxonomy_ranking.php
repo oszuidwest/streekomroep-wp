@@ -34,6 +34,12 @@ $args = [
 ];
 register_taxonomy('ranking', ['post'], $args);
 
+// Disable Yoast SEO primary term picker for this taxonomy
+add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
+    unset($taxonomies['ranking']);
+    return $taxonomies;
+});
+
 // Seed ranking terms if they don't exist
 add_action('init', function () {
     $terms = [
