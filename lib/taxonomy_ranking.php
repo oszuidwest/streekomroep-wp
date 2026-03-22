@@ -121,6 +121,17 @@ add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
     return $taxonomies;
 });
 
+// Ensure posts always have a ranking term (default_term does not trigger when tax_input is submitted)
+add_action('save_post_post', function ($post_id) {
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+        return;
+    }
+    $terms = get_the_terms($post_id, 'ranking');
+    if (empty($terms) || is_wp_error($terms)) {
+        wp_set_object_terms($post_id, 'nieuws', 'ranking');
+    }
+}, 20);
+
 // Seed ranking terms if they don't exist
 add_action('init', function () {
     $terms = [

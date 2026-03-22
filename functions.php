@@ -362,19 +362,7 @@ function zw_rest_api_init()
         );
     }
 
-    register_rest_field(
-        'post',
-        'ranking',
-        [
-            'get_callback' => function ($post_arr) {
-                $terms = get_the_terms($post_arr['id'], 'ranking');
-                if (!$terms || is_wp_error($terms)) {
-                    return ['nieuws'];
-                }
-                return array_values(array_map(fn($term) => $term->slug, $terms));
-            },
-        ]
-    );
+    // Ranking is exposed natively via the 'ranking' taxonomy (show_in_rest => true)
 
     register_rest_field(
         'fragment',
