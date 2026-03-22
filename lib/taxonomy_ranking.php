@@ -31,8 +31,25 @@ $args = [
         'delete_terms' => 'do_not_allow',
         'assign_terms' => 'edit_posts',
     ],
+    'meta_box_cb'                => 'zw_ranking_meta_box',
 ];
 register_taxonomy('ranking', ['post'], $args);
+
+/**
+ * Render a simple checkbox list for ranking terms, without tabs or search.
+ */
+function zw_ranking_meta_box($post, $box)
+{
+    $taxonomy = $box['args']['taxonomy'];
+    ?>
+    <div id="taxonomy-<?php echo esc_attr($taxonomy); ?>" class="categorydiv">
+        <input type="hidden" name="tax_input[<?php echo esc_attr($taxonomy); ?>][]" value="0" />
+        <ul id="<?php echo esc_attr($taxonomy); ?>checklist" class="categorychecklist form-no-clear">
+    <?php wp_terms_checklist($post->ID, ['taxonomy' => $taxonomy, 'checked_ontop' => false]); ?>
+        </ul>
+    </div>
+    <?php
+}
 
 // Disable Yoast SEO primary term picker for this taxonomy
 add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
