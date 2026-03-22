@@ -35,12 +35,7 @@ $args = [
 register_taxonomy('ranking', ['post'], $args);
 
 // Move ranking metabox to the top of the side column, right after Publish
-add_action('do_meta_boxes', function () {
-    $screen = get_current_screen();
-    if (!$screen || $screen->id !== 'post') {
-        return;
-    }
-
+add_action('add_meta_boxes_post', function () {
     remove_meta_box('rankingdiv', 'post', 'side');
     add_meta_box(
         'rankingdiv',
@@ -51,7 +46,7 @@ add_action('do_meta_boxes', function () {
         'high',
         ['taxonomy' => 'ranking']
     );
-});
+}, 20);
 
 // Disable Yoast SEO primary term picker for this taxonomy
 add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
