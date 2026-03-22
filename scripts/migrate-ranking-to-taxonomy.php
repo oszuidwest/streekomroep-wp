@@ -3,16 +3,16 @@
  * Migrate post_ranking from ACF postmeta to ranking taxonomy.
  *
  * Usage:
- *   wp eval-file bin/migrate-ranking-to-taxonomy.php --dry-run
- *   wp eval-file bin/migrate-ranking-to-taxonomy.php
+ *   wp eval-file scripts/migrate-ranking-to-taxonomy.php dry-run
+ *   wp eval-file scripts/migrate-ranking-to-taxonomy.php
  */
 
 if (!defined('ABSPATH')) {
-    echo "Run this with: wp eval-file bin/migrate-ranking-to-taxonomy.php\n";
+    echo "Run this with: wp eval-file scripts/migrate-ranking-to-taxonomy.php\n";
     exit(1);
 }
 
-$dry_run = in_array('--dry-run', $GLOBALS['argv'] ?? [], true);
+$dry_run = isset($args) && in_array('dry-run', $args, true);
 
 if ($dry_run) {
     WP_CLI::log('DRY RUN — no changes will be made.');
