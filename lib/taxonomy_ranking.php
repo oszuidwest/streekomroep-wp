@@ -146,15 +146,11 @@ add_action('init', function () {
         'achterkant' => 'Achterkant',
     ];
 
-    $all_exist = true;
     foreach ($terms as $slug => $name) {
         if (!term_exists($slug, 'ranking')) {
             wp_insert_term($name, 'ranking', ['slug' => $slug]);
-            $all_exist = false;
         }
     }
 
-    if ($all_exist) {
-        set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);
-    }
+    set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);
 }, 20);

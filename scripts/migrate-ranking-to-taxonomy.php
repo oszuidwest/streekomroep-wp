@@ -47,6 +47,9 @@ WP_CLI::log('Found ' . $total . ' posts with post_ranking meta.');
 
 $migrated = 0;
 $migrate_errors = 0;
+
+wp_defer_term_counting(true);
+
 $progress = \WP_CLI\Utils\make_progress_bar('Migrating rankings', $total);
 
 foreach ($results as $row) {
@@ -91,12 +94,21 @@ $progress->finish();
 
 // Handle posts without any ranking meta
 $orphan_ids = $wpdb->get_col(
-    'SELECT ID FROM ' . $wpdb->posts .
-    ' WHERE post_type = \'post\'' .
-    ' AND post_status IN (\'publish\', \'draft\', \'pending\', \'future\', \'private\')' .
-    ' AND ID NOT IN (' .
-    ' SELECT post_id FROM ' . $wpdb->postmeta . ' WHERE meta_key = \'post_ranking\'' .
-    ')'
+    $wpdb->prepare(
+        'SELECT ID FROM ' . $wpdb->posts .
+        ' WHERE post_type = %s' .
+        ' AND post_status IN (%s, %s, %s, %s, %s)' .
+        ' AND ID NOT IN (' .
+        ' SELECT post_id FROM ' . $wpdb->postmeta . ' WHERE meta_key = %s' .
+        ')',
+        'post',
+        'publish',
+        'draft',
+        'pending',
+        'future',
+        'private',
+        'post_ranking'
+    )
 );
 
 $orphan_total = count($orphan_ids);
@@ -117,6 +129,8 @@ if ($orphan_total > 0) {
     }
     $progress2->finish();
 }
+
+wp_defer_term_counting(false);
 
 WP_CLI::success('Done. Migrated: ' . $migrated . ', Defaulted: ' . $defaulted . ', Errors: ' . $migrate_errors);
 
