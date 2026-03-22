@@ -146,11 +146,17 @@ add_action('init', function () {
         'achterkant' => 'Achterkant',
     ];
 
+    $all_exist = true;
     foreach ($terms as $slug => $name) {
         if (!term_exists($slug, 'ranking')) {
-            wp_insert_term($name, 'ranking', ['slug' => $slug]);
+            $result = wp_insert_term($name, 'ranking', ['slug' => $slug]);
+            if (is_wp_error($result)) {
+                $all_exist = false;
+            }
         }
     }
 
-    set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);
+    if ($all_exist) {
+        set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);
+    }
 }, 20);
