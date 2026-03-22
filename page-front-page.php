@@ -116,6 +116,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
         case 'blok_artikel_lijst':
             $block['posts'] = Timber::get_posts([
+                'post_type' => 'post',
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
                 'no_found_rows' => true,

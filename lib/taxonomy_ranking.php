@@ -132,8 +132,12 @@ add_action('save_post_post', function ($post_id) {
     }
 }, 20);
 
-// Seed ranking terms if they don't exist
+// Seed ranking terms if they don't exist (skipped when already seeded)
 add_action('init', function () {
+    if (get_transient('zw_ranking_terms_seeded')) {
+        return;
+    }
+
     $terms = [
         'breaking'   => 'Breaking',
         'top-story'  => 'Top story',
@@ -141,9 +145,16 @@ add_action('init', function () {
         'nieuws'     => 'Nieuws (standaard)',
         'achterkant' => 'Achterkant',
     ];
+
+    $all_exist = true;
     foreach ($terms as $slug => $name) {
         if (!term_exists($slug, 'ranking')) {
             wp_insert_term($name, 'ranking', ['slug' => $slug]);
+            $all_exist = false;
         }
+    }
+
+    if ($all_exist) {
+        set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);
     }
 }, 20);

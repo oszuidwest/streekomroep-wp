@@ -15,7 +15,6 @@ add_action('post_submitbox_misc_actions', function () {
     <div class="misc-pub-section misc-pub-push">
         <span class="dashicons dashicons-bell" style="color: #82878c;"></span>
         <?php echo esc_html__('Pushbericht:', 'streekomroep'); ?>
-        <input type="hidden" name="push_post" value="0" />
         <input type="hidden" id="push-post-value" name="push_post" value="<?php echo $enabled ? '1' : '0'; ?>" />
         <a href="#" id="push-toggle" role="button"><b><?php echo $enabled ? esc_html__('Ja', 'streekomroep') : esc_html__('Nee', 'streekomroep'); ?></b></a>
     </div>
