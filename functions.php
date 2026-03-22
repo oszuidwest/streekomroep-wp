@@ -366,9 +366,12 @@ function zw_rest_api_init()
         'post',
         'ranking',
         [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $selected = get_field('post_ranking', $post_arr['id']);
-                return $selected;
+            'get_callback' => function ($post_arr) {
+                $terms = get_the_terms($post_arr['id'], 'ranking');
+                if (!$terms || is_wp_error($terms)) {
+                    return ['nieuws'];
+                }
+                return array_values(array_map(fn($term) => $term->slug, $terms));
             },
         ]
     );

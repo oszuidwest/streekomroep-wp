@@ -12,34 +12,6 @@ if ($context['options']['desking_blokken_voorpagina'] === false) {
     $context['options']['desking_blokken_voorpagina'] = [];
 }
 
-// Get all post_ranking values
-global $wpdb;
-$rawRankings = $wpdb->get_col(<<<SQL
-SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
-WHERE pm.meta_key = 'post_ranking' 
-GROUP BY pm.meta_value
-SQL);
-$rankings = [];
-foreach ($rawRankings as $rawRanking) {
-    $rankings[$rawRanking] = unserialize($rawRanking);
-}
-
-function zw_get_rankings_containing($list, ...$rankings)
-{
-    $out = [];
-    foreach ($list as $serialized => $unserialized) {
-        foreach ($unserialized as $value) {
-            if (in_array($value, $rankings)) {
-                $out[] = $serialized;
-                break;
-            }
-        }
-    }
-
-    return $out;
-}
-
-
 foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
@@ -48,12 +20,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 'post_type' => 'post',
                 'post_status' => 'publish',
                 'posts_per_page' => 3,
+                'no_found_rows' => true,
                 'ignore_sticky_posts' => true,
-                'meta_query' => [
+                'tax_query' => [
                     [
-                        'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rankings, 2),
-                        'compare' => 'IN',
+                        'taxonomy' => 'ranking',
+                        'field'    => 'slug',
+                        'terms'    => 'top-story',
                     ]
                 ]
             ]);
@@ -145,13 +118,14 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['posts'] = Timber::get_posts([
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
+                'no_found_rows' => true,
                 'ignore_sticky_posts' => true,
-                'meta_query' => [
-                    'relation' => 'AND',
+                'tax_query' => [
                     [
-                        'key' => 'post_ranking',
-                        'value' => zw_get_rankings_containing($rankings, 2, 6),
-                        'compare' => 'NOT IN',
+                        'taxonomy' => 'ranking',
+                        'field'    => 'slug',
+                        'terms'    => ['top-story', 'achterkant'],
+                        'operator' => 'NOT IN',
                     ]
                 ]
             ]);
@@ -161,6 +135,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'fragment',
                 'posts_per_page' => 5,
+                'no_found_rows' => true,
                 'ignore_sticky_posts' => true,
             ]);
             break;
@@ -179,6 +154,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     'posts_per_page' => $block['aantal_artikelen'],
                     'offset' => $block['offset'],
                     'post_type' => 'post',
+                    'no_found_rows' => true,
                     'ignore_sticky_posts' => true,
                     'tax_query' => [
                         [
@@ -208,6 +184,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 $dossierTerm->posts = Timber::get_posts([
                     'ignore_sticky_posts' => true,
                     'posts_per_page' => 1,
+                    'no_found_rows' => true,
 
                     'tax_query' => [
                         [

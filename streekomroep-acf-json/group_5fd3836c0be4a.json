@@ -6,7 +6,7 @@
             "key": "field_5fd383807cf4b",
             "label": "",
             "name": "post_ranking",
-            "type": "select",
+            "type": "taxonomy",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -15,22 +15,13 @@
                 "class": "",
                 "id": ""
             },
-            "choices": {
-                "1": "Breaking",
-                "2": "Top story",
-                "3": "Leestip",
-                "5": "Nieuws (standaard)",
-                "6": "Achterkant"
-            },
-            "default_value": [
-                5
-            ],
+            "taxonomy": "ranking",
+            "field_type": "multi_select",
             "allow_null": 0,
-            "multiple": 1,
-            "ui": 0,
-            "return_format": "value",
-            "ajax": 0,
-            "placeholder": ""
+            "add_term": 0,
+            "save_terms": 1,
+            "load_terms": 1,
+            "return_format": "object"
         }
     ],
     "location": [

@@ -10,11 +10,10 @@ function zw_webapp_send_notification($do_send, $post_id)
 
 function zw_webapp_push_title($title, $post_id)
 {
-    $post_rank = get_field('post_ranking', $post_id);
-    if (in_array(1, $post_rank)) {
+    if (has_term('breaking', 'ranking', $post_id)) {
         return 'Breaking';
     }
-    if (in_array(3, $post_rank)) {
+    if (has_term('leestip', 'ranking', $post_id)) {
         return 'Leestip';
     }
 
