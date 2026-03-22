@@ -362,8 +362,6 @@ function zw_rest_api_init()
         );
     }
 
-    // Ranking is exposed natively via the 'ranking' taxonomy (show_in_rest => true)
-
     register_rest_field(
         'fragment',
         'posts',
