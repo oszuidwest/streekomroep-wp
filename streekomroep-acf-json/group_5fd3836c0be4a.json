@@ -16,7 +16,7 @@
                 "id": ""
             },
             "taxonomy": "ranking",
-            "field_type": "multi_select",
+            "field_type": "checkbox",
             "allow_null": 0,
             "add_term": 0,
             "save_terms": 1,
