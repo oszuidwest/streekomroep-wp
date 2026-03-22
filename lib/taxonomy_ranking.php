@@ -41,6 +41,18 @@ add_action('init', function () {
     }
 }, 20);
 
+// Pre-select 'nieuws' in the ACF checkbox UI for new posts
+add_filter('acf/load_value/name=post_ranking', function ($value, $post_id) {
+    if ($value !== null && $value !== false) {
+        return $value;
+    }
+    $term = get_term_by('slug', 'nieuws', 'ranking');
+    if ($term) {
+        return [$term->term_id];
+    }
+    return $value;
+}, 10, 2);
+
 // Assign default ranking 'nieuws' to new posts without a ranking
 add_action('save_post_post', function ($post_id) {
     if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
