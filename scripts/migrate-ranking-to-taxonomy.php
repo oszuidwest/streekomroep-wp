@@ -136,6 +136,6 @@ WP_CLI::success('Done. Migrated: ' . $migrated . ', Defaulted: ' . $defaulted . 
 
 if (!$dry_run && $migrate_errors === 0) {
     WP_CLI::log('');
-    WP_CLI::log('To clean up old postmeta after verifying the migration:');
-    WP_CLI::log('  wp eval \'global $wpdb; $deleted = $wpdb->delete($wpdb->postmeta, ["meta_key" => "post_ranking"]); $deleted2 = $wpdb->delete($wpdb->postmeta, ["meta_key" => "_post_ranking"]); echo "Deleted: $deleted + $deleted2 rows\n";\'');
+    WP_CLI::log('To clean up obsolete postmeta after verifying the migration:');
+    WP_CLI::log('  wp eval \'global $wpdb; $deleted = $wpdb->delete($wpdb->postmeta, ["meta_key" => "post_ranking"]); $deleted2 = $wpdb->delete($wpdb->postmeta, ["meta_key" => "_post_ranking"]); $deleted3 = $wpdb->delete($wpdb->postmeta, ["meta_key" => "_push_post"]); echo "Deleted: $deleted + $deleted2 + $deleted3 rows\n";\'');
 }
