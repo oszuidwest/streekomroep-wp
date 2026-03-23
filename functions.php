@@ -363,17 +363,6 @@ function zw_rest_api_init()
     }
 
     register_rest_field(
-        'post',
-        'ranking',
-        [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $selected = get_field('post_ranking', $post_arr['id']);
-                return $selected;
-            },
-        ]
-    );
-
-    register_rest_field(
         'fragment',
         'posts',
         [

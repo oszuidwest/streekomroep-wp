@@ -23,26 +23,6 @@
             "ui_off_text": ""
         },
         {
-            "key": "field_650f58331254f",
-            "label": "Pushbericht",
-            "name": "push_post",
-            "aria-label": "",
-            "type": "true_false",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "message": "",
-            "default_value": 0,
-            "ui": 0,
-            "ui_on_text": "",
-            "ui_off_text": ""
-        },
-        {
             "key": "field_5f21a06d22c58",
             "label": "Versie voor TV",
             "name": "post_kabelkrant_content",
