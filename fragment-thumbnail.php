@@ -11,7 +11,7 @@ function zw_bunny_save_thumbnail($post_ID)
     }
 
     $url = get_field('fragment_url', $post_ID, false);
-    $video = zw_bunny_get_video_from_url($url);
+    $video = \Streekomroep\VideoRenderer::resolveVideo($url);
 
     if (!$video) {
         return;
