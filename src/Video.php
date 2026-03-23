@@ -98,16 +98,22 @@ class Video
     {
         $sizes = explode(',', $this->data->availableResolutions);
 
-        // Convert all sizes to numbers
         $sizes = array_map(function ($size) {
             preg_match('/^(\d+)p$/', $size, $m);
-            return intval($m[1]);
+            return intval($m[1] ?? 0);
         }, $sizes);
 
-        // Only keep sizes <= 720
         $sizes = array_filter($sizes, function ($size) {
             return $size <= 720;
         });
+
+        // Fall back to all sizes if nothing <= 720p is available
+        if (empty($sizes)) {
+            $sizes = array_map(function ($size) {
+                preg_match('/^(\d+)p$/', $size, $m);
+                return intval($m[1] ?? 0);
+            }, explode(',', $this->data->availableResolutions));
+        }
 
         return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
     }

@@ -9,6 +9,16 @@ use League\CommonMark\Extension\FrontMatter\FrontMatterParser;
 
 class VideoCollection
 {
+    private static ?FrontMatterParser $parser = null;
+
+    private static function getParser(): FrontMatterParser
+    {
+        if (!self::$parser) {
+            self::$parser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
+        }
+        return self::$parser;
+    }
+
     /**
      * Pre-extract broadcast date and description from a single video's YAML front-matter.
      * Sets _broadcastDate (ISO 8601 string or null) and _description on the object.
@@ -35,8 +45,7 @@ class VideoCollection
         }
 
         try {
-            $parser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
-            $result = $parser->parse($description);
+            $result = self::getParser()->parse($description);
             $yaml = $result->getFrontMatter();
             $rawVideo->_description = $result->getContent();
         } catch (InvalidFrontMatterException $e) {
@@ -78,13 +87,9 @@ class VideoCollection
      */
     public static function sortAndFilter(BunnyCredentials $credentials, array $rawVideos): array
     {
-        $now = new DateTime('now', wp_timezone());
-        $nowIso = $now->format('c');
+        $nowIso = (new DateTime('now', wp_timezone()))->format('c');
 
-        // Ensure all videos are preprocessed
-        if (!empty($rawVideos) && !isset(reset($rawVideos)->_broadcastDate)) {
-            self::preprocess($rawVideos);
-        }
+        self::preprocess($rawVideos);
 
         $filtered = array_filter($rawVideos, function ($video) use ($nowIso) {
             if ($video->status !== Video::STATUS_FINISHED) {
@@ -97,7 +102,9 @@ class VideoCollection
             return $right->_broadcastDate <=> $left->_broadcastDate;
         });
 
-        return array_map(fn($raw) => new Video($credentials, $raw), $filtered);
+        return array_map(function ($raw) use ($credentials) {
+            return new Video($credentials, $raw);
+        }, $filtered);
     }
 
     /**

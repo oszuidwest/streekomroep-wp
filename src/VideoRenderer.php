@@ -43,6 +43,8 @@ class VideoRenderer
             return null;
         }
 
+        VideoCollection::preprocessOne($rawVideo);
+
         return new Video($credentials, $rawVideo);
     }
 

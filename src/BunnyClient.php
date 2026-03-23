@@ -9,6 +9,13 @@ class BunnyClient
 {
     private BunnyCredentials $credentials;
 
+    private static array $credentialsCache = [];
+
+    private const LIBRARY_FIELDS = [
+        'tv' => ['bunny_cdn_library_id', 'bunny_cdn_hostname', 'bunny_cdn_api_key'],
+        'fragmenten' => ['bunny_cdn_library_id_fragmenten', 'bunny_cdn_hostname_fragmenten', 'bunny_cdn_api_key_fragmenten'],
+    ];
+
     public function __construct(BunnyCredentials $credentials)
     {
         $this->credentials = $credentials;
@@ -16,19 +23,30 @@ class BunnyClient
 
     public static function getCredentials(int $libraryId): ?BunnyCredentials
     {
-        if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field('bunny_cdn_library_id', 'option')) {
-            $libraryId = get_field('bunny_cdn_library_id', 'option');
-            $hostname = get_field('bunny_cdn_hostname', 'option');
-            $apiKey = get_field('bunny_cdn_api_key', 'option');
-            return new BunnyCredentials($libraryId, $hostname, $apiKey);
-        } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
-            $libraryId = get_field('bunny_cdn_library_id_fragmenten', 'option');
-            $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
-            $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
-            return new BunnyCredentials($libraryId, $hostname, $apiKey);
+        if (isset(self::$credentialsCache[$libraryId])) {
+            return self::$credentialsCache[$libraryId];
         }
 
-        return null;
+        $fields = null;
+        if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field(self::LIBRARY_FIELDS['tv'][0], 'option')) {
+            $fields = self::LIBRARY_FIELDS['tv'];
+        } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field(self::LIBRARY_FIELDS['fragmenten'][0], 'option')) {
+            $fields = self::LIBRARY_FIELDS['fragmenten'];
+        }
+
+        if (!$fields) {
+            return null;
+        }
+
+        $credentials = new BunnyCredentials(
+            get_field($fields[0], 'option'),
+            get_field($fields[1], 'option'),
+            get_field($fields[2], 'option')
+        );
+
+        self::$credentialsCache[$libraryId] = $credentials;
+
+        return $credentials;
     }
 
     public static function parseUrl(string $url): ?BunnyVideoId
@@ -51,10 +69,7 @@ class BunnyClient
             return null;
         }
 
-        $video = json_decode($response['body']);
-        VideoCollection::preprocessOne($video);
-
-        return $video;
+        return json_decode($response['body']);
     }
 
     public function fetchCollection(string $collectionId): array
@@ -80,7 +95,7 @@ class BunnyClient
 
             $body = json_decode($response['body']);
 
-            $data = array_merge($data, $body->items);
+            array_push($data, ...$body->items);
             if (count($data) >= $body->totalItems) {
                 break;
             }
