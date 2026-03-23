@@ -86,6 +86,14 @@ class Video
         return $this->data->length;
     }
 
+    public function getSources(): array
+    {
+        return [
+            ['src' => $this->getMP4Url(), 'type' => 'video/mp4'],
+            ['src' => $this->getPlaylistUrl(), 'type' => 'application/x-mpegURL'],
+        ];
+    }
+
     public function getPlaylistUrl()
     {
         return sprintf('%s/%s/playlist.m3u8', $this->credentials->hostname, $this->data->guid);

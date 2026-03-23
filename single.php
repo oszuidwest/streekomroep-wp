@@ -115,15 +115,16 @@ if ($timber_post->post_type == 'tv') {
                 $pieces[] = new \Streekomroep\VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
-            add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
-                $thumb = $video->getThumbnail();
-
-                $width = 1920;
-                $height = 1080;
-                $data['url'] = zw_thumbor($thumb, $width, $height);
-                $data['contentUrl'] = zw_thumbor($thumb, $width, $height);
-                $data['width'] = $width;
-                $data['height'] = $height;
+            add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video) {
+                $thumb = zw_thumbor(
+                    $video->getThumbnail(),
+                    \Streekomroep\VideoSeo::OG_IMAGE_WIDTH,
+                    \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT
+                );
+                $data['url'] = $thumb;
+                $data['contentUrl'] = $thumb;
+                $data['width'] = \Streekomroep\VideoSeo::OG_IMAGE_WIDTH;
+                $data['height'] = \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT;
                 return $data;
             }, 10, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData, $videoId) {

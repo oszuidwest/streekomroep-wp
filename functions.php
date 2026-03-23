@@ -312,30 +312,20 @@ function zw_rest_api_init()
         'sources',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $sources = [];
-                if (get_field('fragment_type', $post_arr['id']) === 'Video') {
+                $type = get_field('fragment_type', $post_arr['id']);
+                if ($type === \Streekomroep\Fragment::TYPE_VIDEO) {
                     $url = get_field('fragment_url', $post_arr['id'], false);
                     $video = \Streekomroep\VideoRenderer::resolveVideo($url);
-                    if ($video) {
-                        if ($video->isAvailable()) {
-                            $sources[] = [
-                                'src' => $video->getMP4Url(),
-                                'type' => 'video/mp4'
-                            ];
-                            $sources[] = [
-                                'src' => $video->getPlaylistUrl(),
-                                'type' => 'application/x-mpegURL'
-                            ];
-                        }
+                    if ($video && $video->isAvailable()) {
+                        return $video->getSources();
                     }
-                } elseif (get_field('fragment_type', $post_arr['id']) === 'Audio') {
-                    $sources[] = [
-                        'type' => 'audio/mp3',
-                        'src' => get_field('fragment_url', $post_arr['id'], false)
+                } elseif ($type === 'Audio') {
+                    return [
+                        ['type' => 'audio/mp3', 'src' => get_field('fragment_url', $post_arr['id'], false)]
                     ];
                 }
 
-                return $sources;
+                return [];
             },
         ]
     );
@@ -349,23 +339,13 @@ function zw_rest_api_init()
                 $videos = \Streekomroep\VideoCollection::forTvShow($post_arr['id']);
 
                 foreach ($videos as $video) {
-                    $d = [];
-                    $d['sources'] = [];
-                    $d['sources'][] = [
-                        'src' => $video->getMP4Url(),
-                        'type' => 'video/mp4'
+                    $data[] = [
+                        'sources' => $video->getSources(),
+                        'title' => $video->getName(),
+                        'description' => $video->getDescription(),
+                        'date' => $video->getBroadcastDate()->format('c'),
+                        'thumbnail' => $video->getThumbnail(),
                     ];
-
-                    $d['sources'][] = [
-                        'src' => $video->getPlaylistUrl(),
-                        'type' => 'application/x-mpegURL'
-                    ];
-
-                    $d['title'] = $video->getName();
-                    $d['description'] = $video->getDescription();
-                    $d['date'] = $video->getBroadcastDate()->format('c');
-                    $d['thumbnail'] = $video->getThumbnail();
-                    $data[] = $d;
                 }
 
                 return $data;

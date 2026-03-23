@@ -7,6 +7,8 @@ namespace Streekomroep;
  */
 class VideoSeo
 {
+    public const OG_IMAGE_WIDTH = 1920;
+    public const OG_IMAGE_HEIGHT = 1080;
     public static function register(): void
     {
         add_filter('wpseo_schema_graph_pieces', [self::class, 'addFragmentSchema'], 11, 2);
@@ -25,7 +27,7 @@ class VideoSeo
     {
         if (is_singular('fragment')) {
             $type = get_field('fragment_type', false, false);
-            if ($type === 'Video') {
+            if ($type === Fragment::TYPE_VIDEO) {
                 $video = self::getFragmentVideoData($context->post->ID);
                 $pieces[] = new VideoObject($video);
             }
@@ -100,12 +102,10 @@ class VideoSeo
             return 'video.episode';
         });
         add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-            $width = 1920;
-            $height = 1080;
             $images->add_image([
-                'url' => zw_thumbor($video->getThumbnail(), $width, $height),
-                'width' => $width,
-                'height' => $height
+                'url' => zw_thumbor($video->getThumbnail(), self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
+                'width' => self::OG_IMAGE_WIDTH,
+                'height' => self::OG_IMAGE_HEIGHT,
             ]);
         });
         add_filter('wpseo_opengraph_url', $canonical);
