@@ -74,21 +74,10 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
     return;
 }
 
-function zw_bunny_get(string $accessKey, string $url)
-{
-    $args = [
-        'timeout' => 30,
-        'headers' => [
-            'AccessKey' => $accessKey,
-            'accept' => 'application/json',
-        ]
-    ];
 
-    return wp_remote_get($url, $args);
-}
-
-
-add_filter('pre_oembed_result', 'zw_filter_pre_oembed_result', 10, 3);
+add_filter('pre_oembed_result', function ($default, $url, $args) {
+    return \Streekomroep\VideoRenderer::renderFromUrl($url) ?: $default;
+}, 10, 3);
 add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
 add_filter('content_save_pre', 'zw_normalize_bunny_url');
 
@@ -99,73 +88,6 @@ function zw_normalize_bunny_url($value)
     }
 
     return $value;
-}
-
-function zw_bunny_get_video(\Streekomroep\BunnyCredentials $credentials, \Streekomroep\BunnyVideoId $id)
-{
-    $response = zw_bunny_get($credentials->apiKey, 'https://video.bunnycdn.com/library/' . $id->libraryId . '/videos/' . $id->videoId);
-    if ($response instanceof WP_Error) {
-        return null;
-    }
-
-    if ($response['response']['code'] !== 200) {
-        return null;
-    }
-
-    /** @var \Streekomroep\BunnyVideo $video */
-    $video = json_decode($response['body']);
-
-    return $video;
-}
-
-function zw_bunny_get_video_from_url(string $url)
-{
-    $id = zw_bunny_parse_url(trim($url));
-    if (!$id) {
-        return null;
-    }
-
-    $credentials = zw_bunny_credentials_get($id->libraryId);
-    if (!$credentials) {
-        return null;
-    }
-
-    $video = zw_bunny_get_video($credentials, $id);
-    if (!$video) {
-        return null;
-    }
-
-    return new Video($credentials, $video);
-}
-
-function zw_render_video_player(\Streekomroep\Video $video)
-{
-    $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
-    $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
-    $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
-    $out .= ' data-vjs-src="' . htmlspecialchars($video->getPlaylistUrl()) . '"';
-    $out .= ' data-vjs-type="application/x-mpegURL"';
-    $out .= '>';
-    $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
-    $out .= '</video>';
-    $out .= '</div>';
-
-    return $out;
-}
-
-function zw_render_bunny_embed_from_url(string $url)
-{
-    $video = zw_bunny_get_video_from_url($url);
-    if (!$video || !$video->isAvailable()) {
-        return false;
-    }
-
-    return zw_render_video_player($video);
-}
-
-function zw_filter_pre_oembed_result($default, $url, $args)
-{
-    return zw_render_bunny_embed_from_url($url) ?: $default;
 }
 
 require 'fragment-thumbnail.php';
@@ -393,7 +315,7 @@ function zw_rest_api_init()
                 $sources = [];
                 if (get_field('fragment_type', $post_arr['id']) === 'Video') {
                     $url = get_field('fragment_url', $post_arr['id'], false);
-                    $video = zw_bunny_get_video_from_url($url);
+                    $video = \Streekomroep\VideoRenderer::resolveVideo($url);
                     if ($video) {
                         if ($video->isAvailable()) {
                             $sources[] = [
@@ -424,7 +346,7 @@ function zw_rest_api_init()
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
                 $data = [];
-                $videos = zw_get_tv_episodes($post_arr['id']);
+                $videos = \Streekomroep\VideoCollection::forTvShow($post_arr['id']);
 
                 foreach ($videos as $video) {
                     $d = [];
@@ -502,31 +424,6 @@ function zw_rest_api_init()
     ]);
 }
 
-function zw_bunny_parse_url($url)
-{
-    if (preg_match('#^https://(?:iframe|player)\.mediadelivery\.net/play/(\d+)/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$#i', $url, $m)) {
-        return new \Streekomroep\BunnyVideoId((int)$m[1], $m[2]);
-    }
-
-    return null;
-}
-
-function zw_bunny_credentials_get(int $libraryId)
-{
-    if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field('bunny_cdn_library_id', 'option')) {
-        $libraryId = get_field('bunny_cdn_library_id', 'option');
-        $hostname = get_field('bunny_cdn_hostname', 'option');
-        $apiKey = get_field('bunny_cdn_api_key', 'option');
-        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
-    } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field('bunny_cdn_library_id_fragmenten', 'option')) {
-        $libraryId = get_field('bunny_cdn_library_id_fragmenten', 'option');
-        $hostname = get_field('bunny_cdn_hostname_fragmenten', 'option');
-        $apiKey = get_field('bunny_cdn_api_key_fragmenten', 'option');
-        return new \Streekomroep\BunnyCredentials($libraryId, $hostname, $apiKey);
-    }
-
-    return null;
-}
 
 /**
  * @param $url
@@ -673,7 +570,7 @@ wp_embed_register_handler('zw-readmore', '#^(.*)$#', 'zw_embed_handler');
 
 function zw_bunny_embed_handler($matches, $attr, $url, $rawattr)
 {
-    return zw_render_bunny_embed_from_url($url);
+    return \Streekomroep\VideoRenderer::renderFromUrl($url) ?: '';
 }
 
 function zw_embed_handler($matches, $attr, $url, $rawattr)
@@ -713,39 +610,6 @@ function zw_embed($atts, $content, $shortcode_tag)
     return $html;
 }
 
-function zw_bunny_get_collection(\Streekomroep\BunnyCredentials $credentials, $collectionId)
-{
-    $url = 'https://video.bunnycdn.com/library/' . $credentials->libraryId . '/videos';
-    $query = [
-        'itemsPerPage' => 100,
-        'collection' => $collectionId,
-    ];
-
-    $page = 1;
-    $data = [];
-    while (true) {
-        $query['page'] = $page;
-        $response = zw_bunny_get($credentials->apiKey, $url . '?' . build_query($query));
-        if ($response instanceof WP_Error) {
-            throw new Exception($response->get_error_message());
-        }
-
-        if ($response['response']['code'] !== 200) {
-            throw new Exception('Error while fetching bunny data: ' . $response['body']);
-        }
-
-        $body = json_decode($response['body']);
-
-        $data = array_merge($data, $body->items);
-        if (count($data) >= $body->totalItems) {
-            break;
-        }
-
-        $page++;
-    }
-
-    return $data;
-}
 
 function zw_get_page_by_template($template)
 {
@@ -814,7 +678,12 @@ function zw_project_cron()
         'nopaging' => true,
     ]);
 
-    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
+    $credentials = \Streekomroep\BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
+    if (!$credentials) {
+        return;
+    }
+
+    $client = new \Streekomroep\BunnyClient($credentials);
 
     foreach ($shows as $show) {
         $collectionId = $show->meta('tv_show_gemist_locatie');
@@ -824,7 +693,8 @@ function zw_project_cron()
         }
 
         try {
-            $videos = zw_bunny_get_collection($credentials, $collectionId);
+            $videos = $client->fetchCollection($collectionId);
+            \Streekomroep\VideoCollection::preprocess($videos);
             update_post_meta($show->ID, ZW_TV_META_VIDEOS, $videos);
         } catch (Exception $e) {
             error_log($e);
@@ -832,27 +702,6 @@ function zw_project_cron()
     }
 }
 
-function zw_sort_videos(\Streekomroep\BunnyCredentials $credentials, array $videos)
-{
-    $now = new DateTime('now', wp_timezone());
-
-    /** @var Video[] $videos */
-    $videos = array_map(fn($a) => new Video($credentials, $a), $videos);
-
-    // Filter unavailable videos and those without valid past dates
-    $videos = array_filter($videos, function ($video) use ($now) {
-        if (!$video->isAvailable()) {
-            return false;
-        }
-
-        $date = $video->getBroadcastDate();
-        return $date && $date <= $now;
-    });
-
-    usort($videos, fn(Video $left, Video $right) => $right->getBroadcastDate() <=> $left->getBroadcastDate());
-
-    return $videos;
-}
 
 if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
@@ -870,7 +719,7 @@ function fragment_get_video($id)
     $video->uploadDate = get_the_date('c', $fragment);
     $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
-    $bunnyVideo = zw_bunny_get_video_from_url(get_field('fragment_url', $id, false));
+    $bunnyVideo = \Streekomroep\VideoRenderer::resolveVideo(get_field('fragment_url', $id, false));
     if ($bunnyVideo) {
         $video->contentUrl = $bunnyVideo->getMP4Url();
     }
@@ -959,7 +808,7 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 add_action('template_redirect', function () {
     if (!is_admin() && is_singular('tv') && isset($_GET['v'])) {
-        $videos = zw_get_tv_episodes(get_the_ID());
+        $videos = \Streekomroep\VideoCollection::forTvShow(get_the_ID());
 
         // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $videoId = wp_unslash($_GET['v']);
@@ -1065,18 +914,6 @@ function zw_thumbor($src, $width, $height)
     return $host . $signature . $path;
 }
 
-function zw_get_tv_episodes($id)
-{
-    $videos = get_post_meta($id, ZW_TV_META_VIDEOS, true);
-    if (!is_array($videos)) {
-        $videos = [];
-    }
-
-    $credentials = zw_bunny_credentials_get(ZW_BUNNY_LIBRARY_TV);
-    $videos = zw_sort_videos($credentials, $videos);
-
-    return $videos;
-}
 
 add_filter('wpseo_opengraph_type', function ($type) {
     if (is_singular('fragment')) {

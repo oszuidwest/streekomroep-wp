@@ -24,7 +24,7 @@ class Fragment extends Post
             if (!$url) {
                 return null;
             }
-            return zw_render_bunny_embed_from_url($url) ?: null;
+            return VideoRenderer::renderFromUrl($url) ?: null;
         } elseif ($this->meta('fragment_type') === 'Audio') {
             return Timber::compile('partial/player-audio-fragment.twig', [
                 'fragment' => $this

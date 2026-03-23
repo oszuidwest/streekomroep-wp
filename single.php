@@ -72,7 +72,7 @@ if ($region && !isset($context['topical'])) {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $videos = zw_get_tv_episodes($timber_post->ID);
+    $videos = \Streekomroep\VideoCollection::forTvShow($timber_post->ID);
 
     $seasons = [];
     foreach ($videos as $video) {
@@ -141,7 +141,7 @@ if ($timber_post->post_type == 'tv') {
             $context['video'] = $video;
             $context['older'] = $olderVideo;
             $context['newer'] = $newerVideo;
-            $context['embed'] = zw_render_video_player($video);
+            $context['embed'] = \Streekomroep\VideoRenderer::renderPlayer($video);
             Timber::render('single-tv-video.twig', $context);
             return;
         }

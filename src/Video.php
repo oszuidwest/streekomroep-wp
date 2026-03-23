@@ -2,55 +2,34 @@
 
 namespace Streekomroep;
 
+use DateTimeImmutable;
 use Exception;
-use League\CommonMark\Extension\FrontMatter\Data\SymfonyYamlFrontMatterParser;
-use League\CommonMark\Extension\FrontMatter\Exception\InvalidFrontMatterException;
-use League\CommonMark\Extension\FrontMatter\FrontMatterParser;
 
 class Video
 {
-    /** @var BunnyVideo */
-    private $data;
-    private $yaml = [];
-    private $description = '';
-    private ?\DateTime $broadcastDate = null;
+    public const STATUS_FINISHED = 4;
+
+    private object $data;
+    private string $description = '';
+    private ?DateTimeImmutable $broadcastDate = null;
     private BunnyCredentials $credentials;
 
-
-    public function __construct(BunnyCredentials $credentials, $data)
+    /**
+     * Expects preprocessed data with _broadcastDate and _description properties.
+     * Use VideoCollection::preprocessOne() before constructing.
+     */
+    public function __construct(BunnyCredentials $credentials, object $data)
     {
         $this->credentials = $credentials;
         $this->data = $data;
 
-        $description = null;
-        foreach ($this->data->metaTags as $meta) {
-            if ($meta->property === 'description') {
-                $description = $meta->value;
-            }
+        if (isset($this->data->_description)) {
+            $this->description = $this->data->_description;
         }
 
-        if (!$description) {
-            return;
-        }
-
-        try {
-            $frontMatterParser = new FrontMatterParser(new SymfonyYamlFrontMatterParser());
-            $result = $frontMatterParser->parse($description);
-            $this->yaml = $result->getFrontMatter();
-            $this->description = $result->getContent();
-        } catch (InvalidFrontMatterException $e) {
-            $this->description = $description;
-        }
-
-        if (isset($this->yaml['broadcast_date'])) {
-            $broadcast_date = $this->yaml['broadcast_date'];
-            if (is_int($broadcast_date)) {
-                // Re-parse broadcast date with the currently configured timezone
-                $broadcast_date = date('Y-m-d\TH:i:s', $broadcast_date);
-            }
-
+        if (isset($this->data->_broadcastDate) && $this->data->_broadcastDate !== null) {
             try {
-                $this->broadcastDate = new \DateTime($broadcast_date, wp_timezone());
+                $this->broadcastDate = new DateTimeImmutable($this->data->_broadcastDate);
             } catch (Exception $e) {
                 error_log('Failed to parse date for video with id: ' . $this->data->guid);
             }
@@ -92,7 +71,7 @@ class Video
 
     public function isAvailable()
     {
-        return $this->data->status === BunnyVideo::STATUS_FINISHED;
+        return $this->data->status === self::STATUS_FINISHED;
     }
 
     public function getBroadcastDate()
