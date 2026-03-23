@@ -63,10 +63,7 @@ class Video
 
     public function __isset($name)
     {
-        if (in_array($name, ['id', 'thumbnail', 'name', 'link', 'description'])) {
-            return false;
-        }
-        throw new Exception();
+        return false;
     }
 
     public function isAvailable()
@@ -96,23 +93,17 @@ class Video
 
     public function getMP4Url()
     {
-        $sizes = explode(',', $this->data->availableResolutions);
-
-        $sizes = array_map(function ($size) {
+        $allSizes = array_map(function ($size) {
             preg_match('/^(\d+)p$/', $size, $m);
             return intval($m[1] ?? 0);
-        }, $sizes);
+        }, explode(',', $this->data->availableResolutions));
 
-        $sizes = array_filter($sizes, function ($size) {
+        $sizes = array_filter($allSizes, function ($size) {
             return $size <= 720;
         });
 
-        // Fall back to all sizes if nothing <= 720p is available
         if (empty($sizes)) {
-            $sizes = array_map(function ($size) {
-                preg_match('/^(\d+)p$/', $size, $m);
-                return intval($m[1] ?? 0);
-            }, explode(',', $this->data->availableResolutions));
+            $sizes = $allSizes;
         }
 
         return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
