@@ -146,13 +146,18 @@ add_action('init', function () {
         'achterkant' => 'Achterkant',
     ];
 
-    $all_exist = true;
     foreach ($terms as $slug => $name) {
-        if (!term_exists($slug, 'ranking')) {
-            $result = wp_insert_term($name, 'ranking', ['slug' => $slug]);
-            if (is_wp_error($result)) {
-                $all_exist = false;
-            }
+        if (!get_term_by('slug', $slug, 'ranking')) {
+            wp_insert_term($name, 'ranking', ['slug' => $slug]);
+        }
+    }
+
+    // Only cache when all required slugs actually exist
+    $all_exist = true;
+    foreach (array_keys($terms) as $slug) {
+        if (!get_term_by('slug', $slug, 'ranking')) {
+            $all_exist = false;
+            break;
         }
     }
 
