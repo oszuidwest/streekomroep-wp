@@ -16,9 +16,6 @@
 
 use Timber\PostCollectionInterface;
 use Timber\Timber;
-use Streekomroep\Video;
-use Yoast\WP\SEO\Config\Schema_IDs;
-
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;

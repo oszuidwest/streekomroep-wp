@@ -51,11 +51,6 @@ class Video
         return $this->data->title;
     }
 
-    public function getLink()
-    {
-        return 'https://player.mediadelivery.net/play/' . $this->data->videoLibraryId . '/' . $this->data->guid;
-    }
-
     public function __get($name)
     {
         throw new Exception();
