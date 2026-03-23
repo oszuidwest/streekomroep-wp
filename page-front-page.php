@@ -181,41 +181,19 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 return $term->count >= $minCount;
             });
 
-            // Fetch all posts in any dossier term in a single query
-            $termIds = array_map(function ($term) {
-                return $term->id;
-            }, $block['terms']);
-
-            if (!empty($termIds)) {
-                $allPosts = Timber::get_posts([
+            foreach ($block['terms'] as $dossierTerm) {
+                $dossierTerm->posts = Timber::get_posts([
                     'ignore_sticky_posts' => true,
-                    'nopaging' => true,
+                    'posts_per_page' => 1,
                     'no_found_rows' => true,
+
                     'tax_query' => [
                         [
-                            'taxonomy' => 'dossier',
-                            'terms' => $termIds,
+                            'taxonomy' => $dossierTerm->taxonomy,
+                            'terms' => $dossierTerm->id,
                         ],
                     ],
                 ]);
-
-                // Map each term to its most recent post (posts are ordered by date desc)
-                $postsByTerm = [];
-                foreach ($allPosts as $dossierPost) {
-                    foreach ($termIds as $termId) {
-                        if (!isset($postsByTerm[$termId]) && has_term($termId, 'dossier', $dossierPost->id)) {
-                            $postsByTerm[$termId] = $dossierPost;
-                        }
-                    }
-                }
-
-                foreach ($block['terms'] as $dossierTerm) {
-                    $dossierTerm->posts = isset($postsByTerm[$dossierTerm->id]) ? [$postsByTerm[$dossierTerm->id]] : [];
-                }
-
-                $block['terms'] = array_filter($block['terms'], function ($term) {
-                    return !empty($term->posts);
-                });
             }
 
             // Sort on most recent post
