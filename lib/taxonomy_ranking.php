@@ -58,6 +58,7 @@ add_action('post_submitbox_misc_actions', function () {
             <span aria-hidden="true"><?php echo esc_html__('Bewerk', 'streekomroep'); ?></span>
         </a>
         <div id="ranking-select" class="hide-if-js">
+            <?php // Submit a falsey sentinel so WordPress can keep existing terms or apply default_term when nothing is checked. ?>
             <input type="hidden" name="tax_input[ranking][]" value="0" />
             <ul class="categorychecklist form-no-clear" style="margin: 4px 0 0; list-style: none;">
     <?php wp_terms_checklist($post->ID, ['taxonomy' => 'ranking', 'checked_ontop' => false]); ?>
@@ -120,17 +121,6 @@ add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
     unset($taxonomies['ranking']);
     return $taxonomies;
 });
-
-// Ensure posts always have a ranking term (default_term does not trigger when tax_input is submitted)
-add_action('save_post_post', function ($post_id) {
-    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
-        return;
-    }
-    $terms = get_the_terms($post_id, 'ranking');
-    if (empty($terms) || is_wp_error($terms)) {
-        wp_set_object_terms($post_id, 'nieuws', 'ranking');
-    }
-}, 20);
 
 // Seed ranking terms if they don't exist (skipped when already seeded)
 add_action('init', function () {

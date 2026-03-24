@@ -3,10 +3,10 @@
 add_filter('zw_webapp_send_notification', 'zw_webapp_send_notification', 10, 2);
 add_filter('zw_webapp_title', 'zw_webapp_push_title', 10, 2);
 
-// Render push notification toggle in the Publish metabox
+// Render push notification toggle in the Publish metabox (editors and above only)
 add_action('post_submitbox_misc_actions', function () {
     $post = get_post();
-    if (!$post || $post->post_type !== 'post') {
+    if (!$post || $post->post_type !== 'post' || !current_user_can('edit_others_posts')) {
         return;
     }
     $enabled = (bool) get_post_meta($post->ID, 'push_post', true);
@@ -32,12 +32,15 @@ add_action('post_submitbox_misc_actions', function () {
     <?php
 });
 
-// Save push_post meta from the Publish metabox
+// Save push_post meta from the Publish metabox (editors and above only)
 add_action('save_post_post', function ($post_id) {
     if (!isset($_POST['zw_push_post_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['zw_push_post_nonce'])), 'zw_push_post_nonce')) {
         return;
     }
     if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+        return;
+    }
+    if (!current_user_can('edit_others_posts')) {
         return;
     }
     update_post_meta($post_id, 'push_post', !empty($_POST['push_post']) ? '1' : '0');
