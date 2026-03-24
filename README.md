@@ -74,6 +74,26 @@ define('IMGPROXY_URL', 'https://your-imgproxy-instance.example.com/');
 
 The theme provides REST API endpoints for external integrations:
 
+### Broadcast Data
+```
+GET /wp-json/zw/v1/broadcast_data
+```
+Returns the current and next radio broadcast, plus today's and tomorrow's TV schedule.
+
+Response:
+```json
+{
+  "fm": {
+    "now": "Program Name",
+    "next": "Program Name"
+  },
+  "tv": {
+    "today": ["Show 1", "Show 2"],
+    "tomorrow": ["Show 1", "Show 2"]
+  }
+}
+```
+
 ### Tekst TV
 ```
 GET /wp-json/zw/v1/teksttv?channel={channel}
