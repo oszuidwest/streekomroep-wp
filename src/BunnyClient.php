@@ -23,7 +23,7 @@ class BunnyClient
 
     public static function getCredentials(int $libraryId): ?BunnyCredentials
     {
-        if (isset(self::$credentialsCache[$libraryId])) {
+        if (array_key_exists($libraryId, self::$credentialsCache)) {
             return self::$credentialsCache[$libraryId];
         }
 
@@ -35,6 +35,7 @@ class BunnyClient
         }
 
         if (!$fields) {
+            self::$credentialsCache[$libraryId] = null;
             return null;
         }
 

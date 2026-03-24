@@ -340,7 +340,7 @@ function zw_rest_api_init()
                         'sources' => $video->getSources(),
                         'title' => $video->getName(),
                         'description' => $video->getDescription(),
-                        'date' => $video->getBroadcastDate()->format('c'),
+                        'date' => $video->getBroadcastDate()?->format('c'),
                         'thumbnail' => $video->getThumbnail(),
                     ];
                 }

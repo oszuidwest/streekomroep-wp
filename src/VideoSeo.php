@@ -46,9 +46,12 @@ class VideoSeo
         $video->uploadDate = get_the_date('c', $fragment);
         $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
-        $bunnyVideo = VideoRenderer::resolveVideo(get_field('fragment_url', $id, false));
-        if ($bunnyVideo) {
-            $video->contentUrl = $bunnyVideo->getMP4Url();
+        $url = get_field('fragment_url', $id, false);
+        if (is_string($url) && $url !== '') {
+            $bunnyVideo = VideoRenderer::resolveVideo($url);
+            if ($bunnyVideo) {
+                $video->contentUrl = $bunnyVideo->getMP4Url();
+            }
         }
 
         return $video;
@@ -114,11 +117,19 @@ class VideoSeo
         add_filter('wpseo_twitter_description', $description);
         add_filter('wpseo_twitter_image', $thumbnail);
 
-        add_filter('wpseo_frontend_presenters', function ($presenters) use ($video) {
+        $broadcastDateIso = $video->getBroadcastDate()?->format('c');
+
+        add_filter('wpseo_frontend_presenters', function ($presenters) use ($broadcastDateIso) {
             foreach ($presenters as $i => $presenter) {
-                if ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter) {
-                    $presenters[$i] = new VideoModifiedTimePresenter($video->getBroadcastDate()->format('c'));
-                } elseif ($presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter) {
+                if (
+                    $broadcastDateIso !== null
+                    && $presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Modified_Time_Presenter
+                ) {
+                    $presenters[$i] = new VideoModifiedTimePresenter($broadcastDateIso);
+                } elseif (
+                    $broadcastDateIso !== null
+                    && $presenter instanceof \Yoast\WP\SEO\Presenters\Open_Graph\Article_Published_Time_Presenter
+                ) {
                     unset($presenters[$i]);
                 }
             }

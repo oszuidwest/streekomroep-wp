@@ -77,6 +77,9 @@ if ($timber_post->post_type == 'tv') {
     $seasons = [];
     foreach ($videos as $video) {
         $date = $video->getBroadcastDate();
+        if (!$date) {
+            continue;
+        }
 
         $broadcastYear = $date->format('Y');
         if (!isset($seasons[$broadcastYear])) {
@@ -108,7 +111,7 @@ if ($timber_post->post_type == 'tv') {
             $videoData->description = $video->getDescription();
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
-            $videoData->uploadDate = $video->getBroadcastDate()->format('c');
+            $videoData->uploadDate = $video->getBroadcastDate()?->format('c');
             $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {

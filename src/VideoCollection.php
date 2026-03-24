@@ -21,15 +21,17 @@ class VideoCollection
 
     /**
      * Pre-extract broadcast date and description from a single video's YAML front-matter.
-     * Sets _broadcastDate (ISO 8601 string or null) and _description on the object.
+     * Sets _broadcastDate (ISO 8601 string or null), _broadcastTimestamp (int or null),
+     * and _description on the object.
      */
     public static function preprocessOne(object $rawVideo): void
     {
-        if (isset($rawVideo->_broadcastDate)) {
+        if (property_exists($rawVideo, '_broadcastTimestamp')) {
             return;
         }
 
         $rawVideo->_broadcastDate = null;
+        $rawVideo->_broadcastTimestamp = null;
         $rawVideo->_description = '';
 
         $description = null;
@@ -63,7 +65,9 @@ class VideoCollection
         }
 
         try {
-            $rawVideo->_broadcastDate = (new DateTime($broadcastDate, wp_timezone()))->format('c');
+            $date = new DateTime($broadcastDate, wp_timezone());
+            $rawVideo->_broadcastDate = $date->format('c');
+            $rawVideo->_broadcastTimestamp = $date->getTimestamp();
         } catch (\Exception $e) {
             // Ignore unparseable dates
         }
@@ -87,19 +91,20 @@ class VideoCollection
      */
     public static function sortAndFilter(BunnyCredentials $credentials, array $rawVideos): array
     {
-        $nowIso = (new DateTime('now', wp_timezone()))->format('c');
+        $nowTimestamp = time();
 
-        self::preprocess($rawVideos);
-
-        $filtered = array_filter($rawVideos, function ($video) use ($nowIso) {
+        $filtered = array_filter($rawVideos, function ($video) use ($nowTimestamp) {
             if ($video->status !== Video::STATUS_FINISHED) {
                 return false;
             }
-            return $video->_broadcastDate !== null && $video->_broadcastDate <= $nowIso;
+            if (!property_exists($video, '_broadcastTimestamp') || $video->_broadcastTimestamp === null) {
+                return false;
+            }
+            return $video->_broadcastTimestamp <= $nowTimestamp;
         });
 
         usort($filtered, function ($left, $right) {
-            return $right->_broadcastDate <=> $left->_broadcastDate;
+            return $right->_broadcastTimestamp <=> $left->_broadcastTimestamp;
         });
 
         return array_map(function ($raw) use ($credentials) {
