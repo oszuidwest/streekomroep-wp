@@ -53,7 +53,7 @@ class TekstTVAPI
     private function is_allowed_on_day(?array $allowed_days, ?\DateTimeInterface $date = null): bool
     {
         if (empty($allowed_days)) {
-            return true;
+            return false;
         }
 
         $date = $date ?? current_datetime();
