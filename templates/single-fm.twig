@@ -5,8 +5,8 @@
         <div class="mx-auto max-w-960 md:px-4 md:pt-8">
             <div class="aspect-[21/9] relative">
                 {% if post.thumbnail %}
-                    <img src="{{ post.thumbnail.src|thumbor(960, 960 / 21 * 9) }}"
-                         srcset="{{ post.thumbnail.src|thumbor(1920, 1920 / 21 * 9) }} 2x"
+                    <img src="{{ post.thumbnail.src|imgproxy(960, 960 / 21 * 9) }}"
+                         srcset="{{ post.thumbnail.src|imgproxy(1920, 1920 / 21 * 9) }} 2x"
                          alt="{{ post.title }}" class="absolute inset-0 bg-gray-200 dark:bg-gray-700 ">
                 {% endif %}
             </div>

@@ -58,6 +58,18 @@ Some first-party plugins developed by Streekomroep ZuidWest add extra functional
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
 - Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
 
+## Optional: imgproxy for image resizing
+
+The theme supports [imgproxy](https://imgproxy.net/) for on-the-fly image resizing with signed URLs. When configured, all images rendered with the `|imgproxy` Twig filter are served through imgproxy. Without it, the theme falls back to Timber's built-in image resizing.
+
+To enable, add the following constants to `wp-config.php`, above the `/* That's all, stop editing! */` line:
+
+```php
+define('IMGPROXY_KEY', 'your-hex-key');
+define('IMGPROXY_SALT', 'your-hex-salt');
+define('IMGPROXY_URL', 'https://your-imgproxy-instance.example.com/');
+```
+
 ## REST API Endpoints
 
 The theme provides REST API endpoints for external integrations:

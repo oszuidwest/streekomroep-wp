@@ -145,9 +145,9 @@ class Site extends \Timber\Site
         return $svg;
     }
 
-    public function thumbor($src, $width, $height)
+    public function imgproxy($src, $width, $height)
     {
-        return zw_thumbor($src, $width, $height);
+        return zw_imgproxy($src, $width, $height);
     }
 
     /** This is where you can add your own functions to twig.
@@ -169,7 +169,7 @@ class Site extends \Timber\Site
         $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
-        $twig->addFilter(new \Twig\TwigFilter('thumbor', [$this, 'thumbor']));
+        $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));
         return $twig;
     }
 }

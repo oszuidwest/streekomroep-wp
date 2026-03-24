@@ -23,10 +23,10 @@
                         <div class="aspect-video bg-blauw rounded-sm overflow-hidden">
                             {% if broadcast.show.thumbnail %}
                                 <img class="w-full h-full object-cover" alt="{{ broadcast.name }}"
-                                     src="{{ broadcast.show.thumbnail.src|thumbor(440, 248) }}"/>
+                                     src="{{ broadcast.show.thumbnail.src|imgproxy(440, 248) }}"/>
                             {% else %}
                                 <img class="w-full h-full object-cover" alt="{{ broadcast.name }}"
-                                     src="{{ get_image(options.tv_fallback_img).src|thumbor(440, 248) }}"/>
+                                     src="{{ get_image(options.tv_fallback_img).src|imgproxy(440, 248) }}"/>
                             {% endif %}
                         </div>
                     </div>

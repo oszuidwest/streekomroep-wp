@@ -1,7 +1,7 @@
 <div class="aspect-video ">
     <div>
         <audio class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" autoplay
-               controls poster="{{ fragment.thumbnail.src|thumbor(1280, 720) }}">
+               controls poster="{{ fragment.thumbnail.src|imgproxy(1280, 720) }}">
             <source src="{{ fragment.meta('fragment_url', {format_value: false}) }}" type="audio/mp3">
             Your browser does not support the audio tag.
         </audio>

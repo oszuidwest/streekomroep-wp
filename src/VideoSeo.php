@@ -106,7 +106,7 @@ class VideoSeo
         });
         add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
             $images->add_image([
-                'url' => zw_thumbor($video->getThumbnail(), self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
+                'url' => zw_imgproxy($video->getThumbnail(), self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
                 'width' => self::OG_IMAGE_WIDTH,
                 'height' => self::OG_IMAGE_HEIGHT,
             ]);

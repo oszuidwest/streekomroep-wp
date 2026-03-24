@@ -4,8 +4,8 @@
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="px-6 md:px-12 max-w-3xl mx-auto py-8 md:pt-16">
             {% if post.thumbnail %}
-                <img src="{{ post.thumbnail.src|thumbor(960, 540) }}"
-                     srcset="{{ post.thumbnail.src|thumbor(1920, 1080) }} 2x"
+                <img src="{{ post.thumbnail.src|imgproxy(960, 540) }}"
+                     srcset="{{ post.thumbnail.src|imgproxy(1920, 1080) }} 2x"
                      alt="{{ post.title }}" width="960" height="540" class="w-full">
             {% endif %}
 
@@ -37,8 +37,8 @@
                                         {% set width = 220 %}
                                         <img class="w-full object-contain" loading="lazy" alt="{{ video.name }}"
                                              width="{{ width }}" height="{{ (width / 16 * 9)|round }}"
-                                             src="{{ video.thumbnail|thumbor(width, width / 16 * 9) }}"
-                                             srcset="{{ video.thumbnail|thumbor(width * 2, (width * 2) / 16 * 9) }} 2x"/>
+                                             src="{{ video.thumbnail|imgproxy(width, width / 16 * 9) }}"
+                                             srcset="{{ video.thumbnail|imgproxy(width * 2, (width * 2) / 16 * 9) }} 2x"/>
                                         <h3 class="font-bold mt-2 :text-gray-200">{{ video.name }}</h3>
                                     </a>
                                 </article>

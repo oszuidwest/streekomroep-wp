@@ -21,7 +21,7 @@
             {% for post in posts %}
                 <a class="block" href="{{ post.link }}">
                     <div class="aspect-video bg-blauw rounded-sm overflow-hidden">
-                        <img class="w-full h-full object-cover" alt="{{ post.title }}" src="{{ post.thumbnail.src|thumbor(440, 248) }}"/>
+                        <img class="w-full h-full object-cover" alt="{{ post.title }}" src="{{ post.thumbnail.src|imgproxy(440, 248) }}"/>
                     </div>
                     <p class="text-center mt-2 font-bold text-sm text-black dark:text-gray-100">{{ post.title }}</p>
                 </a>

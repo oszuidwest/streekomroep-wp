@@ -748,13 +748,13 @@ function zw_add_videojs()
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
-function zw_thumbor($src, $width, $height)
+function zw_imgproxy($src, $width, $height)
 {
-    $key = get_option('imgproxy_key');
-    $salt = get_option('imgproxy_salt');
-    $host = get_option('imgproxy_url');
+    $key = defined('IMGPROXY_KEY') ? IMGPROXY_KEY : '';
+    $salt = defined('IMGPROXY_SALT') ? IMGPROXY_SALT : '';
+    $host = defined('IMGPROXY_URL') ? IMGPROXY_URL : '';
 
-    if (!$host) {
+    if (!$host || !$key || !$salt) {
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
