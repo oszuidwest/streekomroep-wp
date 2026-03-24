@@ -218,4 +218,4 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 }
 
 
-Timber::render(['page-' . $timber_post->post_name . '.twig', 'page.twig'], $context);
+Timber::render('front-page.twig', $context);
