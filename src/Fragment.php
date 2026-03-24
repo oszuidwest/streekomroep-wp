@@ -6,6 +6,8 @@ use Timber\Timber;
 
 class Fragment extends Post
 {
+    public const TYPE_VIDEO = 'Video';
+    public const TYPE_AUDIO = 'Audio';
     public function region()
     {
         if (!$this->_region) {
@@ -19,13 +21,13 @@ class Fragment extends Post
 
     public function getEmbed()
     {
-        if ($this->meta('fragment_type') === 'Video') {
+        if ($this->meta('fragment_type') === self::TYPE_VIDEO) {
             $url = $this->meta('fragment_url', ['format_value' => false]);
             if (!$url) {
                 return null;
             }
-            return zw_render_bunny_embed_from_url($url) ?: null;
-        } elseif ($this->meta('fragment_type') === 'Audio') {
+            return VideoRenderer::renderFromUrl($url) ?: null;
+        } elseif ($this->meta('fragment_type') === self::TYPE_AUDIO) {
             return Timber::compile('partial/player-audio-fragment.twig', [
                 'fragment' => $this
             ]);

@@ -72,11 +72,14 @@ if ($region && !isset($context['topical'])) {
 }
 
 if ($timber_post->post_type == 'tv') {
-    $videos = zw_get_tv_episodes($timber_post->ID);
+    $videos = \Streekomroep\VideoCollection::forTvShow($timber_post->ID);
 
     $seasons = [];
     foreach ($videos as $video) {
         $date = $video->getBroadcastDate();
+        if (!$date) {
+            continue;
+        }
 
         $broadcastYear = $date->format('Y');
         if (!isset($seasons[$broadcastYear])) {
@@ -108,22 +111,23 @@ if ($timber_post->post_type == 'tv') {
             $videoData->description = $video->getDescription();
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
-            $videoData->uploadDate = $video->getBroadcastDate()->format('c');
+            $videoData->uploadDate = $video->getBroadcastDate()?->format('c');
             $videoData->thumbnailUrl = $video->getThumbnail();
             $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new \Streekomroep\VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
-            add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video, $videoData) {
-                $thumb = $video->getThumbnail();
-
-                $width = 1920;
-                $height = 1080;
-                $data['url'] = zw_thumbor($thumb, $width, $height);
-                $data['contentUrl'] = zw_thumbor($thumb, $width, $height);
-                $data['width'] = $width;
-                $data['height'] = $height;
+            add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video) {
+                $thumb = zw_thumbor(
+                    $video->getThumbnail(),
+                    \Streekomroep\VideoSeo::OG_IMAGE_WIDTH,
+                    \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT
+                );
+                $data['url'] = $thumb;
+                $data['contentUrl'] = $thumb;
+                $data['width'] = \Streekomroep\VideoSeo::OG_IMAGE_WIDTH;
+                $data['height'] = \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT;
                 return $data;
             }, 10, 2);
             add_filter('wpseo_schema_webpage', function ($data, $context) use ($video, $videoData, $videoId) {
@@ -141,7 +145,7 @@ if ($timber_post->post_type == 'tv') {
             $context['video'] = $video;
             $context['older'] = $olderVideo;
             $context['newer'] = $newerVideo;
-            $context['embed'] = zw_render_video_player($video);
+            $context['embed'] = \Streekomroep\VideoRenderer::renderPlayer($video);
             Timber::render('single-tv-video.twig', $context);
             return;
         }

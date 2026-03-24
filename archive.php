@@ -43,7 +43,7 @@ $context['posts'] = Timber::get_posts();
 if (is_post_type_archive() && get_post_type() === 'tv') {
     $context['posts'] = $context['posts']->to_array();
     foreach ($context['posts'] as $show) {
-        $videos = zw_get_tv_episodes($show->id);
+        $videos = \Streekomroep\VideoCollection::forTvShow($show->id);
         $show->lastBroadcast = isset($videos[0]) ? $videos[0]->getBroadcastDate() : null;
     }
 
