@@ -6,7 +6,7 @@
             <div class="aspect-video ">
                 <div>
                     <audio class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline
-                           poster="{{ get_image(options.radio_webplayer_poster)|thumbor(1280, 720) }}">
+                           poster="{{ get_image(options.radio_webplayer_poster)|imgproxy(1280, 720) }}">
                         {% if options.radio_webplayer_aac_stream %}
                             <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
                         {% endif %}

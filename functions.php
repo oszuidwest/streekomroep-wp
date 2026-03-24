@@ -748,7 +748,7 @@ function zw_add_videojs()
 
 add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
-function zw_thumbor($src, $width, $height)
+function zw_imgproxy($src, $width, $height)
 {
     $key = defined('IMGPROXY_KEY') ? IMGPROXY_KEY : '';
     $salt = defined('IMGPROXY_SALT') ? IMGPROXY_SALT : '';

@@ -11,11 +11,11 @@
             <picture>
                 {# Desktop: 16:9 #}
                 <source media="(min-width: 640px)"
-                        srcset="{{ post.thumbnail.src|thumbor(width, width / 16 * 9) }}, {{ post.thumbnail.src|thumbor(width * 2, (width * 2) / 16 * 9) }} 2x">
+                        srcset="{{ post.thumbnail.src|imgproxy(width, width / 16 * 9) }}, {{ post.thumbnail.src|imgproxy(width * 2, (width * 2) / 16 * 9) }} 2x">
                 {# Mobile: 4:3 #}
                 <img class="w-full h-full object-cover" loading="lazy" alt="{{ post.thumbnail.alt }}"
-                     src="{{ post.thumbnail.src|thumbor(width, width / 4 * 3) }}"
-                     srcset="{{ post.thumbnail.src|thumbor(width * 2, (width * 2) / 4 * 3) }} 2x">
+                     src="{{ post.thumbnail.src|imgproxy(width, width / 4 * 3) }}"
+                     srcset="{{ post.thumbnail.src|imgproxy(width * 2, (width * 2) / 4 * 3) }} 2x">
             </picture>
         {% endif %}
         {% if showPlayButton %}

@@ -119,7 +119,7 @@ if ($timber_post->post_type == 'tv') {
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video) {
-                $thumb = zw_thumbor(
+                $thumb = zw_imgproxy(
                     $video->getThumbnail(),
                     \Streekomroep\VideoSeo::OG_IMAGE_WIDTH,
                     \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT
