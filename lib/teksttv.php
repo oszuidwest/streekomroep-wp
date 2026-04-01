@@ -296,11 +296,12 @@ class TekstTVAPI
         if ($primary_term_id) {
             $term_image = get_field('teksttv_categorie_afbeelding', 'category_' . $primary_term_id);
             if (!empty($term_image['url'])) {
-                return $term_image['url'];
+                return ['url' => $term_image['url']];
             }
         }
 
-        return get_the_post_thumbnail_url($post_id, 'large');
+        $url = get_the_post_thumbnail_url($post_id, 'large');
+        return $url ? ['url' => $url] : null;
     }
 
     // Generate image slide with date range and day restrictions
