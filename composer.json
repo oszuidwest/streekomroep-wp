@@ -31,7 +31,7 @@
     "league/commonmark": "^2.4",
     "nesbot/carbon": "^3.11",
     "symfony/yaml": "^5.4",
-    "timber/timber": "~2.3.0",
+    "timber/timber": "~2.4.0",
     "twig/markdown-extra": "^3.7"
   },
   "require-dev": {
