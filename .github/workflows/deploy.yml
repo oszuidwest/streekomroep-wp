@@ -43,6 +43,7 @@ jobs:
           NODE_ENV: production
 
       - name: Deploy to remote server
+        if: github.actor != 'dependabot[bot]'
         uses: easingthemes/ssh-deploy@main
         with:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
