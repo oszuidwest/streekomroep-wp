@@ -25,18 +25,24 @@ These are tested plugins and are great additions to the theme:
 
 ## REST API Endpoints
 
-The theme provides the following REST API endpoints:
+The theme provides the following REST API endpoint:
 
-### Tekst TV
+### Broadcast Data
 ```
-GET /wp-json/zw/v1/teksttv?channel={channel}
+GET /wp-json/zw/v1/broadcast_data
 ```
-Returns slides and ticker messages for the Tekst TV system. The `channel` parameter is required and must match a configured channel (e.g., `tv1`).
+Returns the current and next radio broadcast, plus today's and tomorrow's TV schedule.
 
 Response format:
 ```json
 {
-  "slides": [...],
-  "ticker": [...]
+  "fm": {
+    "now": "Program Name",
+    "next": "Program Name"
+  },
+  "tv": {
+    "today": ["Show 1", "Show 2"],
+    "tomorrow": ["Show 1", "Show 2"]
+  }
 }
 ```

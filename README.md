@@ -56,7 +56,6 @@ These tested plugins enhance the theme:
 ## Extra functionality with first-party plugins
 Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
 - ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
-- Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
 
 ## Optional: imgproxy for image resizing
 
@@ -91,20 +90,6 @@ Response:
     "today": ["Show 1", "Show 2"],
     "tomorrow": ["Show 1", "Show 2"]
   }
-}
-```
-
-### Tekst TV
-```
-GET /wp-json/zw/v1/teksttv?channel={channel}
-```
-Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `channel` parameter must match a configured channel (e.g., `tv1`).
-
-Response:
-```json
-{
-  "slides": [...],
-  "ticker": [...]
 }
 ```
 
