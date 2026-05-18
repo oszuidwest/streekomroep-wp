@@ -1,6 +1,6 @@
 # Streekomroep WordPress Theme
 
-The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/), built with [Timber](https://timber.github.io/docs/v2/), Twig, and Tailwind CSS. It supports regional news, radio, television, video, and Tekst TV.
+The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/), built with [Timber](https://timber.github.io/docs/v2/), Twig, and Tailwind CSS. It supports regional news, radio, television, and video.
 
 ## Requirements
 
@@ -85,7 +85,6 @@ These optional plugins complement the theme:
 ## Extra functionality with first-party plugins
 
 - [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
-- [Tekst TV GPT](https://github.com/oszuidwest/teksttvgpt) adds AI-generated Tekst TV summaries to the editor.
 
 ## Integrations
 
@@ -97,10 +96,9 @@ Existing deployments can use the `IMGPROXY_KEY`, `IMGPROXY_SALT`, and `IMGPROXY_
 
 ### REST API
 
-The theme provides two public read-only endpoints:
+The theme provides one public read-only endpoint:
 
 - `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme and the television schedules for today and tomorrow.
-- `GET /wp-json/zw/v1/teksttv?channel=tv1` returns slides and ticker messages for a channel configured in `ZW_TEKSTTV_CHANNELS`.
 
 ## License
 
