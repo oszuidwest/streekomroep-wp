@@ -19,9 +19,13 @@ $context = Timber::context();
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-if ($timber_post->post_type == 'fragment') {
+if ($timber_post->post_type == 'fragment' && !post_password_required($timber_post->ID)) {
     /** @var Fragment $timber_post */
     $context['posts'] = fragment_get_posts($timber_post->id);
+    $context['embed'] = $timber_post->getEmbed();
+    if ($context['embed']) {
+        zw_require_videojs();
+    }
 }
 
 $topic = $timber_post->topic();
@@ -145,6 +149,7 @@ if ($timber_post->post_type == 'tv') {
             $context['video'] = $video;
             $context['older'] = $olderVideo;
             $context['newer'] = $newerVideo;
+            zw_require_videojs();
             $context['embed'] = \Streekomroep\VideoRenderer::renderPlayer($video);
             Timber::render('single-tv-video.twig', $context);
             return;
@@ -212,7 +217,7 @@ if ($timber_post->post_type == 'fm') {
     $context['recordings'] = $recordings;
 }
 
-if ($timber_post->post_gekoppeld_fragment) {
+if (!post_password_required($timber_post->ID) && $timber_post->post_gekoppeld_fragment) {
     /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
     if ($fragment) {
@@ -225,6 +230,9 @@ if ($timber_post->post_gekoppeld_fragment) {
         }
 
         $context['embed'] = $fragment->getEmbed($posterUrl);
+        if ($context['embed']) {
+            zw_require_videojs();
+        }
     }
 }
 

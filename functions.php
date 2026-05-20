@@ -980,20 +980,85 @@ function zw_remove_wp_block_library_css()
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 
-/**
- * Add VideoJS player
- * This function enqueues the JS and CSS for VideoJS, which is used for livestreams, on-demand video's and fragments
- */
-function zw_add_videojs()
+function zw_theme_asset_version(string $relative_path): string
 {
-    // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/lang/nl.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('zw-videojs-init', get_stylesheet_directory_uri() . '/static/videojs-init.js', ['video.js'], filemtime(get_stylesheet_directory() . '/static/videojs-init.js'), true);
+    $path = get_theme_file_path($relative_path);
+
+    if (file_exists($path)) {
+        return (string) filemtime($path);
+    }
+
+    return (string) wp_get_theme()->get('Version');
 }
 
-add_action('wp_enqueue_scripts', 'zw_add_videojs');
+function zw_enqueue_theme_assets()
+{
+    wp_enqueue_style(
+        'streekomroep-style',
+        get_theme_file_uri('dist/style.css'),
+        [],
+        zw_theme_asset_version('dist/style.css')
+    );
+}
+
+add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
+
+/**
+ * Mark the current request as needing VideoJS player assets.
+ */
+function zw_require_videojs()
+{
+    $GLOBALS['zw_requires_videojs'] = true;
+}
+
+/**
+ * Add VideoJS player assets.
+ */
+function zw_enqueue_videojs_assets()
+{
+    static $videojs_enqueued = false;
+
+    if ($videojs_enqueued) {
+        return;
+    }
+
+    $videojs_enqueued = true;
+    $videojs_version = '8.23.4';
+    $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
+
+    // TODO: Defer loading of Video.js CSS
+    wp_enqueue_style('video.js', $videojs_base_url . '/video-js.min.css', [], $videojs_version);
+    wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy'  => 'defer']);
+    wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy'  => 'defer']);
+    wp_enqueue_script(
+        'zw-videojs-init',
+        get_theme_file_uri('static/videojs-init.js'),
+        ['video.js', 'video.js.nl'],
+        zw_theme_asset_version('static/videojs-init.js'),
+        true
+    );
+}
+
+function zw_maybe_enqueue_videojs()
+{
+    $post = get_post();
+
+    if (!empty($GLOBALS['zw_requires_videojs'])) {
+        zw_enqueue_videojs_assets();
+        return;
+    }
+
+    if (is_singular() && $post instanceof WP_Post && zw_post_content_contains_videojs_embed($post)) {
+        zw_enqueue_videojs_assets();
+    }
+}
+
+add_action('wp_enqueue_scripts', 'zw_maybe_enqueue_videojs', 20);
+
+function zw_post_content_contains_videojs_embed(WP_Post $post): bool
+{
+    return preg_match('#https?://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"\']+#i', $post->post_content) === 1;
+}
 
 function zw_imgproxy($src, $width, $height)
 {
