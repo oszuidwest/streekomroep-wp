@@ -13,7 +13,7 @@ This is a WordPress theme with some hard dependencies. You can't run it without 
 
 ## Hard dependencies
 Install these before activating the theme:
-- Timber 2.3: Bundled via Composer, no separate installation needed
+- Timber 2.4.1: Bundled via Composer, no separate installation needed
 - Advanced Custom Fields Pro 6.3.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
 - Yoast SEO Premium 24.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
