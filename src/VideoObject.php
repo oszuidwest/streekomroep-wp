@@ -18,7 +18,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         $min = floor($timespan / 60) % 60;
         $sec = $timespan % 60;
 
-        return [
+        $data = [
             '@type' => 'VideoObject',
             '@id' => $this->context->canonical . '#video',
             'isPartOf' => [
@@ -26,15 +26,20 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
             ],
             'name' => $this->video->name,
             'description' => $this->video->description,
-            'thumbnailUrl' => [
-                $this->video->thumbnailUrl
-            ],
             'uploadDate' => $this->video->uploadDate,
             'duration' => sprintf('PT%dH%dM%dS', $hour, $min, $sec),
             'isFamilyFriendly' => true,
             'inLanguage' => 'nl',
             'contentUrl' => $this->video->contentUrl,
         ];
+
+        if (is_string($this->video->thumbnailUrl) && $this->video->thumbnailUrl !== '') {
+            $data['thumbnailUrl'] = [
+                $this->video->thumbnailUrl
+            ];
+        }
+
+        return $data;
     }
 
     public function is_needed()

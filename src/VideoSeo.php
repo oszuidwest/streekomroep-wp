@@ -44,7 +44,11 @@ class VideoSeo
         $video->name = get_the_title($fragment);
         $video->description = get_the_content(null, false, $fragment);
         $video->uploadDate = get_the_date('c', $fragment);
-        $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
+        $thumbnailUrl = get_the_post_thumbnail_url($fragment);
+        $video->thumbnailUrl = \zw_normalize_imgproxy_src($thumbnailUrl);
+        if ($video->thumbnailUrl === null) {
+            \zw_log_invalid_imgproxy_src($thumbnailUrl, 'omitting fragment video schema thumbnail');
+        }
 
         $url = get_field('fragment_url', $id, false);
         if (is_string($url) && $url !== '') {
@@ -92,7 +96,7 @@ class VideoSeo
         };
 
         $thumbnail = function () use ($video) {
-            return $video->getThumbnail();
+            return \zw_normalize_imgproxy_src($video->getThumbnail()) ?: '';
         };
 
         add_filter('wpseo_title', $title);
@@ -105,8 +109,14 @@ class VideoSeo
             return 'video.episode';
         });
         add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
+            $thumbnailUrl = \zw_normalize_imgproxy_src($video->getThumbnail());
+            if ($thumbnailUrl === null) {
+                \zw_log_invalid_imgproxy_src($video->getThumbnail(), 'skipping Open Graph video image');
+                return;
+            }
+
             $images->add_image([
-                'url' => zw_imgproxy($video->getThumbnail(), self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
+                'url' => zw_imgproxy($thumbnailUrl, self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
                 'width' => self::OG_IMAGE_WIDTH,
                 'height' => self::OG_IMAGE_HEIGHT,
             ]);

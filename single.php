@@ -116,15 +116,25 @@ if ($timber_post->post_type == 'tv') {
             $videoData->name = $video->getName() . ' - ZuidWest TV';
             $videoData->duration = $video->getDuration();
             $videoData->uploadDate = $video->getBroadcastDate()?->format('c');
-            $videoData->thumbnailUrl = $video->getThumbnail();
+            $thumbnailUrl = zw_normalize_imgproxy_src($video->getThumbnail());
+            $videoData->thumbnailUrl = $thumbnailUrl;
+            if ($thumbnailUrl === null) {
+                zw_log_invalid_imgproxy_src($video->getThumbnail(), 'omitting TV episode schema thumbnail');
+            }
             $videoData->contentUrl = $video->getMP4Url();
             add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) use ($videoData) {
                 $pieces[] = new \Streekomroep\VideoObject($videoData);
                 return $pieces;
             }, 11, 2);
             add_filter('wpseo_schema_imageobject', function ($data, $context) use ($video) {
+                $thumbnailUrl = zw_normalize_imgproxy_src($video->getThumbnail());
+                if ($thumbnailUrl === null) {
+                    zw_log_invalid_imgproxy_src($video->getThumbnail(), 'skipping TV episode schema image');
+                    return $data;
+                }
+
                 $thumb = zw_imgproxy(
-                    $video->getThumbnail(),
+                    $thumbnailUrl,
                     \Streekomroep\VideoSeo::OG_IMAGE_WIDTH,
                     \Streekomroep\VideoSeo::OG_IMAGE_HEIGHT
                 );
