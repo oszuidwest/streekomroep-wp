@@ -105,8 +105,14 @@ class VideoSeo
             return 'video.episode';
         });
         add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
+            $thumbnailUrl = \zw_normalize_imgproxy_src($video->getThumbnail());
+            if ($thumbnailUrl === null) {
+                \zw_log_invalid_imgproxy_src($video->getThumbnail(), 'skipping Open Graph video image');
+                return;
+            }
+
             $images->add_image([
-                'url' => zw_imgproxy($video->getThumbnail(), self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
+                'url' => zw_imgproxy($thumbnailUrl, self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
                 'width' => self::OG_IMAGE_WIDTH,
                 'height' => self::OG_IMAGE_HEIGHT,
             ]);

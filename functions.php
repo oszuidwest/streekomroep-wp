@@ -1069,8 +1069,48 @@ function zw_post_content_contains_videojs_embed(WP_Post $post): bool
     return $result === 1;
 }
 
+function zw_normalize_imgproxy_src($src): ?string
+{
+    if ($src instanceof \Timber\ImageInterface) {
+        $src = $src->src();
+    }
+
+    if (!is_string($src)) {
+        return null;
+    }
+
+    $src = trim($src);
+    if ($src === '') {
+        return null;
+    }
+
+    return $src;
+}
+
+function zw_log_invalid_imgproxy_src($src, string $action): void
+{
+    static $warned = [];
+
+    $type = get_debug_type($src);
+    $key = $action . ':' . $type;
+    if (isset($warned[$key])) {
+        return;
+    }
+
+    $warned[$key] = true;
+    $message = sprintf('zw_imgproxy: invalid image source (%s) - %s.', $type, $action);
+    error_log($message);
+}
+
 function zw_imgproxy($src, $width, $height)
 {
+    $originalSrc = $src;
+    $src = zw_normalize_imgproxy_src($src);
+    if ($src === null) {
+        zw_log_invalid_imgproxy_src($originalSrc, 'using blank placeholder');
+        return 'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201%201%22%3E%3Crect%20width=%221%22%20height=%221%22%20fill=%22%23e5e7eb%22/%3E%3C/svg%3E';
+    }
+
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
     $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
     $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
