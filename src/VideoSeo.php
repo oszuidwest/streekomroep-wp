@@ -44,11 +44,7 @@ class VideoSeo
         $video->name = get_the_title($fragment);
         $video->description = get_the_content(null, false, $fragment);
         $video->uploadDate = get_the_date('c', $fragment);
-        $thumbnailUrl = get_the_post_thumbnail_url($fragment);
-        $video->thumbnailUrl = \zw_normalize_imgproxy_src($thumbnailUrl);
-        if ($video->thumbnailUrl === null) {
-            \zw_log_invalid_imgproxy_src($thumbnailUrl, 'omitting fragment video schema thumbnail');
-        }
+        $video->thumbnailUrl = get_the_post_thumbnail_url($fragment);
 
         $url = get_field('fragment_url', $id, false);
         if (is_string($url) && $url !== '') {
@@ -96,7 +92,7 @@ class VideoSeo
         };
 
         $thumbnail = function () use ($video) {
-            return \zw_normalize_imgproxy_src($video->getThumbnail()) ?: '';
+            return $video->getThumbnail();
         };
 
         add_filter('wpseo_title', $title);

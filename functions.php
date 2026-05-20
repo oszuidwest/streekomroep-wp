@@ -1069,11 +1069,6 @@ function zw_post_content_contains_videojs_embed(WP_Post $post): bool
     return $result === 1;
 }
 
-function zw_imgproxy_placeholder_src(): string
-{
-    return includes_url('images/blank.gif');
-}
-
 function zw_normalize_imgproxy_src($src): ?string
 {
     if ($src instanceof \Timber\ImageInterface) {
@@ -1086,11 +1081,6 @@ function zw_normalize_imgproxy_src($src): ?string
 
     $src = trim($src);
     if ($src === '') {
-        return null;
-    }
-
-    $scheme = wp_parse_url($src, PHP_URL_SCHEME);
-    if (!is_string($scheme) || !in_array(strtolower($scheme), ['http', 'https'], true)) {
         return null;
     }
 
@@ -1108,13 +1098,7 @@ function zw_log_invalid_imgproxy_src($src, string $action): void
     }
 
     $warned[$key] = true;
-    $trace = function_exists('wp_debug_backtrace_summary') ? wp_debug_backtrace_summary(null, 2, false) : '';
     $message = sprintf('zw_imgproxy: invalid image source (%s) - %s.', $type, $action);
-
-    if ($trace) {
-        $message .= ' Backtrace: ' . $trace;
-    }
-
     error_log($message);
 }
 
@@ -1124,7 +1108,7 @@ function zw_imgproxy($src, $width, $height)
     $src = zw_normalize_imgproxy_src($src);
     if ($src === null) {
         zw_log_invalid_imgproxy_src($originalSrc, 'using blank placeholder');
-        return zw_imgproxy_placeholder_src();
+        return includes_url('images/blank.gif');
     }
 
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
