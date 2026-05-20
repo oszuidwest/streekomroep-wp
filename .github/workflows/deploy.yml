@@ -28,19 +28,13 @@ jobs:
       - name: Set-up Node
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: 'lts/*'
 
       - name: Install Node dependencies
-        run: |
-          npm install
-          npx browserslist@latest --update-db
+        run: npm install
 
       - name: Build CSS
-        run: |
-          npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify
-          npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify
-        env:
-          NODE_ENV: production
+        run: npm run build:tailwind
 
       - name: Deploy to remote server
         if: github.actor != 'dependabot[bot]'
