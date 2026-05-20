@@ -980,20 +980,94 @@ function zw_remove_wp_block_library_css()
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 
-/**
- * Add VideoJS player
- * This function enqueues the JS and CSS for VideoJS, which is used for livestreams, on-demand video's and fragments
- */
-function zw_add_videojs()
+function zw_enqueue_theme_assets()
 {
-    // TODO: Defer loading of Video.js CSS
-    wp_enqueue_style('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video-js.min.css');
-    wp_enqueue_script('video.js', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/video.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.23.4/lang/nl.min.js', args:['strategy'  => 'defer']);
-    wp_enqueue_script('zw-videojs-init', get_stylesheet_directory_uri() . '/static/videojs-init.js', ['video.js'], filemtime(get_stylesheet_directory() . '/static/videojs-init.js'), true);
+    wp_enqueue_style(
+        'streekomroep-style',
+        get_theme_file_uri('dist/style.css'),
+        [],
+        wp_get_theme()->get('Version')
+    );
 }
 
-add_action('wp_enqueue_scripts', 'zw_add_videojs');
+add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
+
+/**
+ * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues
+ * the player on wp_enqueue_scripts (priority 20). Call from render paths that emit a
+ * VideoJS-backed player (livestream, on-demand video, fragments) before wp_head() runs.
+ *
+ * If wp_enqueue_scripts has already fired by the time this is called, the assets are
+ * enqueued directly so a late caller still gets a working player.
+ */
+function zw_require_videojs()
+{
+    $GLOBALS['zw_requires_videojs'] = true;
+
+    if (did_action('wp_enqueue_scripts')) {
+        zw_enqueue_videojs_assets();
+    }
+}
+
+/**
+ * Add VideoJS player assets.
+ */
+function zw_enqueue_videojs_assets()
+{
+    static $videojs_enqueued = false;
+
+    if ($videojs_enqueued) {
+        return;
+    }
+
+    $videojs_enqueued = true;
+    $videojs_version = '8.23.4';
+    $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
+
+    // TODO: Defer Video.js CSS (script is already deferred; CSS still render-blocking).
+    wp_enqueue_style('video.js', $videojs_base_url . '/video-js.min.css', [], $videojs_version);
+    wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy' => 'defer']);
+    wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy' => 'defer']);
+    wp_enqueue_script(
+        'zw-videojs-init',
+        get_theme_file_uri('static/videojs-init.js'),
+        ['video.js', 'video.js.nl'],
+        wp_get_theme()->get('Version'),
+        true
+    );
+}
+
+function zw_maybe_enqueue_videojs()
+{
+    $post = get_post();
+
+    if (!empty($GLOBALS['zw_requires_videojs'])) {
+        zw_enqueue_videojs_assets();
+        return;
+    }
+
+    if (is_singular() && $post instanceof WP_Post && zw_post_content_contains_videojs_embed($post)) {
+        zw_enqueue_videojs_assets();
+    }
+}
+
+add_action('wp_enqueue_scripts', 'zw_maybe_enqueue_videojs', 20);
+
+/**
+ * Only scans raw post_content. ACF / flexible-content callers that render a player
+ * must invoke zw_require_videojs() directly.
+ */
+function zw_post_content_contains_videojs_embed(WP_Post $post): bool
+{
+    $result = preg_match('#https?://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"\']+#i', $post->post_content);
+
+    if ($result === false) {
+        error_log('zw_post_content_contains_videojs_embed: preg_match failed: ' . preg_last_error_msg());
+        return true;
+    }
+
+    return $result === 1;
+}
 
 function zw_imgproxy($src, $width, $height)
 {
