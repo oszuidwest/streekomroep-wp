@@ -805,6 +805,8 @@ function zw_register_imgproxy_media_settings()
             'placeholder' => 'https://imgproxy.example.com/',
         ]
     );
+
+    zw_backfill_imgproxy_media_settings();
 }
 
 function zw_render_imgproxy_settings_section()
@@ -882,14 +884,8 @@ function zw_sanitize_imgproxy_url($url)
     return $normalized;
 }
 
-function zw_get_imgproxy_setting($option, $constant)
+function zw_get_imgproxy_constant($constant)
 {
-    $value = trim((string) get_option($option, ''));
-
-    if ($value !== '') {
-        return $value;
-    }
-
     if (!defined($constant)) {
         return '';
     }
@@ -903,6 +899,49 @@ function zw_get_imgproxy_setting($option, $constant)
     return trim((string) $value);
 }
 
+function zw_backfill_imgproxy_setting($option, $constant, $sanitize_callback)
+{
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    if (trim((string) get_option($option, '')) !== '') {
+        return;
+    }
+
+    $value = zw_get_imgproxy_constant($constant);
+
+    if ($value === '') {
+        return;
+    }
+
+    $value = call_user_func($sanitize_callback, $value);
+
+    if ($value === '') {
+        return;
+    }
+
+    update_option($option, $value);
+}
+
+function zw_backfill_imgproxy_media_settings()
+{
+    zw_backfill_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY', 'sanitize_text_field');
+    zw_backfill_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT', 'sanitize_text_field');
+    zw_backfill_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL', 'zw_normalize_imgproxy_url');
+}
+
+function zw_get_imgproxy_setting($option, $constant)
+{
+    $value = trim((string) get_option($option, ''));
+
+    if ($value !== '') {
+        return $value;
+    }
+
+    return zw_get_imgproxy_constant($constant);
+}
+
 add_action('admin_notices', 'zw_imgproxy_admin_notice');
 
 function zw_imgproxy_admin_notice()
@@ -913,7 +952,7 @@ function zw_imgproxy_admin_notice()
 
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
     $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL');
+    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
 
     $configured = (int) ($key !== '') + (int) ($salt !== '') + (int) ($host !== '');
 
