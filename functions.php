@@ -834,7 +834,7 @@ function zw_render_imgproxy_settings_field($args)
     }
 }
 
-function zw_sanitize_imgproxy_url($url)
+function zw_normalize_imgproxy_url($url)
 {
     $url = trim((string) $url);
 
@@ -849,6 +849,28 @@ function zw_sanitize_imgproxy_url($url)
     $sanitized = esc_url_raw($url);
 
     if ($sanitized === '') {
+        return '';
+    }
+
+    $parsed = wp_parse_url($sanitized);
+
+    if (!is_array($parsed) || empty($parsed['host'])) {
+        return '';
+    }
+
+    $scheme = isset($parsed['scheme']) ? strtolower($parsed['scheme']) : '';
+    if ($scheme !== 'http' && $scheme !== 'https') {
+        return '';
+    }
+
+    return trailingslashit($sanitized);
+}
+
+function zw_sanitize_imgproxy_url($url)
+{
+    $normalized = zw_normalize_imgproxy_url($url);
+
+    if ($normalized === '' && trim((string) $url) !== '') {
         add_settings_error(
             'zw_imgproxy_url',
             'invalid_url',
@@ -857,7 +879,7 @@ function zw_sanitize_imgproxy_url($url)
         return (string) get_option('zw_imgproxy_url', '');
     }
 
-    return trailingslashit($sanitized);
+    return $normalized;
 }
 
 function zw_get_imgproxy_setting($option, $constant)
@@ -937,7 +959,7 @@ function zw_imgproxy($src, $width, $height)
 {
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
     $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_sanitize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
+    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
 
     if (!$host || !$key || !$salt) {
         if ($host || $key || $salt) {
