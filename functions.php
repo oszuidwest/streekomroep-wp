@@ -1071,6 +1071,27 @@ function zw_post_content_contains_videojs_embed(WP_Post $post): bool
 
 function zw_imgproxy($src, $width, $height)
 {
+    if ($src === null) {
+        return '';
+    }
+
+    if (is_object($src)) {
+        if (!method_exists($src, '__toString')) {
+            return '';
+        }
+
+        $src = (string) $src;
+    } elseif (is_scalar($src)) {
+        $src = (string) $src;
+    } else {
+        return '';
+    }
+
+    $src = trim($src);
+    if ($src === '') {
+        return '';
+    }
+
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
     $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
     $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
