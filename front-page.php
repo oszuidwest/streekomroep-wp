@@ -149,6 +149,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 $block['error'] = 'Er is geen dossier geselecteerd';
                 break;
             }
+            $overrideTitle = trim((string) ($block['tekst_boven_dossier'] ?? ''));
+            $block['dossier_titel'] = $overrideTitle !== '' ? $overrideTitle : $dossierTerm->name;
             $block['term'] = Timber::get_term($block['selecteer_dossier'], 'dossier');
             $block['posts'] = Timber::get_posts(
                 [
