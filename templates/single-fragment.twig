@@ -14,9 +14,7 @@
                     <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-roze text-white">Audio</span>
                 {% endif %}
 
-                {% if post.region %}
-                    <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">{{ post.region.title }}</span>
-                {% endif %}
+                {{ include('partial/tag-region.twig', {region: post.region}) }}
             </div>
             <h1 class="text-4xl lg:text-5xl font-black font-round my-2 break-words text-black dark:text-white">{{ post.title }}</h1>
             <time class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-gray-200"

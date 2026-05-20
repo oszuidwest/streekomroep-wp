@@ -8,16 +8,6 @@ class Fragment extends Post
 {
     public const TYPE_VIDEO = 'Video';
     public const TYPE_AUDIO = 'Audio';
-    public function region()
-    {
-        if (!$this->_region) {
-            $regions = $this->terms(['query' => ['taxonomy' => 'regio']]);
-            if (is_array($regions) && count($regions)) {
-                $this->_region = $regions[0];
-            }
-        }
-        return $this->_region;
-    }
 
     public function getEmbed(?string $posterUrl = null)
     {
