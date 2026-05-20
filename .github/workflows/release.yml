@@ -60,16 +60,14 @@ jobs:
         if: env.RELEASE_NEEDED == 'true'
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: 'lts/*'
 
       - name: Install dependencies
         if: env.RELEASE_NEEDED == 'true'
         run: |
           composer install --no-dev --optimize-autoloader
           npm install
-          npx browserslist@latest --update-db
-          npx @tailwindcss/cli -i assets/style.css -o dist/style.css --minify
-          npx @tailwindcss/cli -i assets/editor.css -o dist/editor.css --minify
+          npm run build:tailwind
 
       - name: Tag and release if needed
         if: env.RELEASE_NEEDED == 'true'

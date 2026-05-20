@@ -17,8 +17,7 @@ Instructions for macOS:
 
 ```bash
 npm install
-npx browserslist@latest --update-db
-NODE_ENV=production npx tailwindcss build assets/style.css -o dist/style.css --minify
+npm run build:tailwind
 composer install --prefer-dist --no-dev --optimize-autoloader
 ```
 - Upload the theme to `/wp-content/themes/` and activate it.
@@ -26,7 +25,7 @@ composer install --prefer-dist --no-dev --optimize-autoloader
 For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
 
 ## Local development with Docker
-A Docker setup is included for local development. It provides WordPress with the theme mounted, a MariaDB database, and phpMyAdmin.
+A Docker setup is included for local development. It provides WordPress on PHP 8.3 with the theme mounted, MariaDB LTS, phpMyAdmin, and Secure Custom Fields for development.
 
 ```bash
 docker compose up -d
@@ -44,9 +43,9 @@ To reset: `docker compose down -v` (removes database)
 ### Hard dependencies
 Install these before activating the theme:
 - Timber 2.4.1: [Bundled; if you build yourself, use composer](https://timber.github.io/docs/v2/installation/installation/)
-- Advanced Custom Fields Pro 6.3.x: [[purchase](https://www.advancedcustomfields.com/pro/)]
+- Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x: Docker uses [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) for development; licensed environments may use [ACF Pro](https://www.advancedcustomfields.com/pro/).
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
-- Yoast SEO Premium 24.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
+- Yoast SEO Premium 27.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
 
 ### Soft dependencies
 These tested plugins enhance the theme:

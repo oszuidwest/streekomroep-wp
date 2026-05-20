@@ -21,11 +21,29 @@ set -e
     npm install --prefix "$THEME_DIR"
     npm run build:tailwind --prefix "$THEME_DIR"
 
+    install_secure_custom_fields() {
+        echo "Installing/updating Secure Custom Fields latest stable..."
+        for plugin in advanced-custom-fields advanced-custom-fields-pro; do
+            if wp plugin is-installed "$plugin" --allow-root 2>/dev/null; then
+                wp plugin deactivate "$plugin" --allow-root || true
+                wp plugin delete "$plugin" --allow-root || echo "Failed to remove legacy plugin $plugin"
+            fi
+        done
+
+        wp plugin install secure-custom-fields --force --activate --allow-root || echo "Failed to install Secure Custom Fields"
+        SCF_INSTALLED_VERSION=$(wp plugin get secure-custom-fields --field=version --allow-root 2>/dev/null || true)
+        if [ -n "$SCF_INSTALLED_VERSION" ]; then
+            echo "Secure Custom Fields ${SCF_INSTALLED_VERSION} installed."
+        fi
+    }
+
     # Wait for database
     sleep 3
 
     # Install WordPress if not already installed
+    WORDPRESS_WAS_INSTALLED=1
     if ! wp core is-installed --allow-root 2>/dev/null; then
+        WORDPRESS_WAS_INSTALLED=0
         echo "Installing WordPress..."
         wp core install \
             --url="http://localhost:8080" \
@@ -38,22 +56,15 @@ set -e
             --allow-root
 
         # Install plugins before language pack to avoid WP-CLI locale conflicts
-        echo "Installing Yoast SEO Premium..."
-        wp plugin install "https://yoast.com/app/uploads/2026/02/wordpress-seo-premium-26.9.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
+        YOAST_SEO_VERSION="27.6"
+        echo "Installing Yoast SEO ${YOAST_SEO_VERSION}..."
+        wp plugin install wordpress-seo --version="$YOAST_SEO_VERSION" --activate --allow-root || echo "Failed to install Yoast SEO"
 
-        # Install ACF Pro if license key is provided
-        if [ -n "$ACF_PRO_LICENSE" ]; then
-            echo "Installing Advanced Custom Fields Pro..."
-            ACF_URL="https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&k=${ACF_PRO_LICENSE}"
-            if curl -fSLo /tmp/acf-pro.zip "$ACF_URL"; then
-                wp plugin install /tmp/acf-pro.zip --activate --allow-root || echo "Failed to install ACF Pro"
-                rm -f /tmp/acf-pro.zip
-            else
-                echo "Failed to download ACF Pro (check your license key)"
-            fi
-        else
-            echo "Skipping ACF Pro (no ACF_PRO_LICENSE set)"
-        fi
+        echo "Installing Yoast SEO Premium ${YOAST_SEO_VERSION}..."
+        wp plugin install "https://yoast.com/app/uploads/2026/05/wordpress-seo-premium-${YOAST_SEO_VERSION}.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
+
+        # Secure Custom Fields provides the ACF-compatible APIs required by the theme.
+        install_secure_custom_fields
 
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
@@ -136,6 +147,10 @@ set -e
         wp menu item add-custom Footer "West-Brabant" "http://localhost:8080/regio/west-brabant/" --parent-id=$NIEUWS --allow-root
 
         echo "WordPress installed successfully!"
+    fi
+
+    if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
+        install_secure_custom_fields
     fi
 
     # Fix permissions AFTER installation
