@@ -980,24 +980,13 @@ function zw_remove_wp_block_library_css()
 
 add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 
-function zw_theme_asset_version(string $relative_path): string
-{
-    $path = get_theme_file_path($relative_path);
-
-    if (file_exists($path)) {
-        return (string) filemtime($path);
-    }
-
-    return (string) wp_get_theme()->get('Version');
-}
-
 function zw_enqueue_theme_assets()
 {
     wp_enqueue_style(
         'streekomroep-style',
         get_theme_file_uri('dist/style.css'),
         [],
-        zw_theme_asset_version('dist/style.css')
+        wp_get_theme()->get('Version')
     );
 }
 
@@ -1034,7 +1023,7 @@ function zw_enqueue_videojs_assets()
         'zw-videojs-init',
         get_theme_file_uri('static/videojs-init.js'),
         ['video.js', 'video.js.nl'],
-        zw_theme_asset_version('static/videojs-init.js'),
+        wp_get_theme()->get('Version'),
         true
     );
 }
