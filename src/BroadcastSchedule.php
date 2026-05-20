@@ -97,7 +97,7 @@ class BroadcastSchedule
             }
         }
 
-        $fillerTitle = get_field('radio_geen_programma_naam', 'option') ?: 'Geen programma';
+        $fillerTitle = get_field('radio_geen_programma_naam', 'option') ?: 'Non-stop';
         foreach ($this->days as $day) {
             $time = (new Carbon($day->date))->setTime(0, 0, 0);
             $newBroadcasts = [];
