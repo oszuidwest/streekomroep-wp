@@ -389,7 +389,7 @@ function zw_rest_api_init()
 
             return [
                 'fm' => [
-                    'now' => $decode($currentRadioBroadcast->getName()),
+                    'now' => $currentRadioBroadcast ? $decode($currentRadioBroadcast->getName()) : null,
                     'next' => $nextBroadcast ? $decode($nextBroadcast->getName()) : null,
                 ],
                 'tv' => [

@@ -8,7 +8,7 @@ $context = Timber::context();
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-if ($context['options']['desking_blokken_voorpagina'] === false) {
+if (empty($context['options']['desking_blokken_voorpagina']) || !is_array($context['options']['desking_blokken_voorpagina'])) {
     $context['options']['desking_blokken_voorpagina'] = [];
 }
 
