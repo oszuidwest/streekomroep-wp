@@ -22,8 +22,6 @@ const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 require __DIR__ . '/vendor/autoload.php';
 
-new \Streekomroep\TinyMCE();
-
 if (class_exists('Timber\Timber')) {
     Timber::init();
 }
@@ -99,6 +97,7 @@ Timber::$dirname = ['templates', 'views'];
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/teksttv.php';
+require_once 'lib/tinymce.php';
 
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
