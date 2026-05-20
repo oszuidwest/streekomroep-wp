@@ -22,6 +22,8 @@ const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 require __DIR__ . '/vendor/autoload.php';
 
+new \Streekomroep\TinyMCE();
+
 if (class_exists('Timber\Timber')) {
     Timber::init();
 }
