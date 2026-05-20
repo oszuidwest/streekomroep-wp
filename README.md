@@ -64,13 +64,13 @@ The theme supports [imgproxy](https://imgproxy.net/) for on-the-fly image resizi
 
 Configure imgproxy in WordPress under Settings > Media:
 
-- `imgproxy_key`
-- `imgproxy_salt`
-- `imgproxy_url`
+- `zw_imgproxy_key`
+- `zw_imgproxy_salt`
+- `zw_imgproxy_url`
 
-The `imgproxy_url` value is normalized with `https://` when no scheme is entered and always gets a trailing slash.
+The `zw_imgproxy_url` value is normalized (`https://` is added when no scheme is entered, and a trailing slash is enforced). Normalization runs both when saving the option and when reading the constant fallback, so the constants below also work without a trailing slash. Invalid URLs are rejected with an admin notice.
 
-For deployments that cannot store these values in WordPress options, the following constants are still supported as a fallback when the matching option is empty:
+For deployments that cannot store these values in WordPress options, the following constants are still supported as a per-key fallback when the matching option is empty:
 
 ```php
 define('IMGPROXY_KEY', 'your-hex-key');
