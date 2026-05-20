@@ -1148,6 +1148,4 @@ function zw_imgproxy($src, $width, $height)
 }
 
 
-include 'modules/jetpack.php';
-include 'modules/assets.php';
-include 'modules/tiled-gallery/tiled-gallery.php';
+\Streekomroep\Gallery::register();
