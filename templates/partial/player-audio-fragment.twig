@@ -1,7 +1,11 @@
 <div class="aspect-video ">
     <div>
+        {% set poster = poster_url|default(null) %}
+        {% if not poster and fragment.thumbnail %}
+            {% set poster = fragment.thumbnail.src|imgproxy(1280, 720) %}
+        {% endif %}
         <audio class="video-js vjs-fluid vjs-big-play-centered playsinline" data-setup="{}" autoplay
-               controls poster="{{ fragment.thumbnail.src|imgproxy(1280, 720) }}">
+               controls{% if poster %} poster="{{ poster }}"{% endif %}>
             <source src="{{ fragment.meta('fragment_url', {format_value: false}) }}" type="audio/mp3">
             Your browser does not support the audio tag.
         </audio>

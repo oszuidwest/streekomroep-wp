@@ -720,6 +720,252 @@ function zw_seo_article_add_region($data, $context)
 add_filter('big_image_size_threshold', '__return_false');
 add_filter('img_caption_shortcode_width', '__return_false');
 
+add_action('admin_init', 'zw_register_imgproxy_media_settings');
+
+function zw_register_imgproxy_media_settings()
+{
+    register_setting(
+        'media',
+        'zw_imgproxy_key',
+        [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
+        ]
+    );
+
+    register_setting(
+        'media',
+        'zw_imgproxy_salt',
+        [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
+        ]
+    );
+
+    register_setting(
+        'media',
+        'zw_imgproxy_url',
+        [
+            'type' => 'string',
+            'sanitize_callback' => 'zw_sanitize_imgproxy_url',
+            'default' => '',
+        ]
+    );
+
+    add_settings_section(
+        'zw_imgproxy_settings',
+        __('Imgproxy', 'streekomroep'),
+        'zw_render_imgproxy_settings_section',
+        'media'
+    );
+
+    add_settings_field(
+        'zw_imgproxy_key',
+        __('imgproxy_key', 'streekomroep'),
+        'zw_render_imgproxy_settings_field',
+        'media',
+        'zw_imgproxy_settings',
+        [
+            'label_for' => 'zw_imgproxy_key',
+            'option' => 'zw_imgproxy_key',
+            'description' => __('Hex-encoded key voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
+            'type' => 'password',
+            'autocomplete' => 'off',
+        ]
+    );
+
+    add_settings_field(
+        'zw_imgproxy_salt',
+        __('imgproxy_salt', 'streekomroep'),
+        'zw_render_imgproxy_settings_field',
+        'media',
+        'zw_imgproxy_settings',
+        [
+            'label_for' => 'zw_imgproxy_salt',
+            'option' => 'zw_imgproxy_salt',
+            'description' => __('Hex-encoded salt voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
+            'type' => 'password',
+            'autocomplete' => 'off',
+        ]
+    );
+
+    add_settings_field(
+        'zw_imgproxy_url',
+        __('imgproxy_url', 'streekomroep'),
+        'zw_render_imgproxy_settings_field',
+        'media',
+        'zw_imgproxy_settings',
+        [
+            'label_for' => 'zw_imgproxy_url',
+            'option' => 'zw_imgproxy_url',
+            'description' => __('Basis-URL van imgproxy, inclusief https:// en trailing slash.', 'streekomroep'),
+            'type' => 'url',
+            'placeholder' => 'https://imgproxy.example.com/',
+        ]
+    );
+
+    zw_backfill_imgproxy_media_settings();
+}
+
+function zw_render_imgproxy_settings_section()
+{
+    echo '<p>' . esc_html__('Laat deze velden leeg om Timber image resizing te gebruiken.', 'streekomroep') . '</p>';
+}
+
+function zw_render_imgproxy_settings_field($args)
+{
+    $option = $args['option'];
+    $type = $args['type'] ?? 'text';
+    $value = get_option($option, '');
+    $placeholder = $args['placeholder'] ?? '';
+    $autocomplete = $args['autocomplete'] ?? '';
+
+    printf(
+        '<input name="%1$s" id="%1$s" type="%2$s" value="%3$s" class="regular-text code" placeholder="%4$s" autocomplete="%5$s">',
+        esc_attr($option),
+        esc_attr($type),
+        esc_attr($value),
+        esc_attr($placeholder),
+        esc_attr($autocomplete)
+    );
+
+    if (!empty($args['description'])) {
+        echo '<p class="description">' . esc_html($args['description']) . '</p>';
+    }
+}
+
+function zw_normalize_imgproxy_url($url)
+{
+    $url = trim((string) $url);
+
+    if ($url === '') {
+        return '';
+    }
+
+    if (!preg_match('#^https?://#i', $url)) {
+        $url = 'https://' . ltrim($url, '/');
+    }
+
+    $sanitized = esc_url_raw($url);
+
+    if ($sanitized === '') {
+        return '';
+    }
+
+    $parsed = wp_parse_url($sanitized);
+
+    if (!is_array($parsed) || empty($parsed['host'])) {
+        return '';
+    }
+
+    $scheme = isset($parsed['scheme']) ? strtolower($parsed['scheme']) : '';
+    if ($scheme !== 'http' && $scheme !== 'https') {
+        return '';
+    }
+
+    return trailingslashit($sanitized);
+}
+
+function zw_sanitize_imgproxy_url($url)
+{
+    $normalized = zw_normalize_imgproxy_url($url);
+
+    if ($normalized === '' && trim((string) $url) !== '') {
+        add_settings_error(
+            'zw_imgproxy_url',
+            'invalid_url',
+            __('De opgegeven imgproxy URL is ongeldig en is niet opgeslagen.', 'streekomroep')
+        );
+        return (string) get_option('zw_imgproxy_url', '');
+    }
+
+    return $normalized;
+}
+
+function zw_get_imgproxy_constant($constant)
+{
+    if (!defined($constant)) {
+        return '';
+    }
+
+    $value = constant($constant);
+
+    if (!is_scalar($value)) {
+        return '';
+    }
+
+    return trim((string) $value);
+}
+
+function zw_backfill_imgproxy_setting($option, $constant, $sanitize_callback)
+{
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    if (trim((string) get_option($option, '')) !== '') {
+        return;
+    }
+
+    $value = zw_get_imgproxy_constant($constant);
+
+    if ($value === '') {
+        return;
+    }
+
+    $value = call_user_func($sanitize_callback, $value);
+
+    if ($value === '') {
+        return;
+    }
+
+    update_option($option, $value);
+}
+
+function zw_backfill_imgproxy_media_settings()
+{
+    zw_backfill_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY', 'sanitize_text_field');
+    zw_backfill_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT', 'sanitize_text_field');
+    zw_backfill_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL', 'zw_normalize_imgproxy_url');
+}
+
+function zw_get_imgproxy_setting($option, $constant)
+{
+    $value = trim((string) get_option($option, ''));
+
+    if ($value !== '') {
+        return $value;
+    }
+
+    return zw_get_imgproxy_constant($constant);
+}
+
+add_action('admin_notices', 'zw_imgproxy_admin_notice');
+
+function zw_imgproxy_admin_notice()
+{
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
+    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
+    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
+
+    $configured = (int) ($key !== '') + (int) ($salt !== '') + (int) ($host !== '');
+
+    if ($configured === 0 || $configured === 3) {
+        return;
+    }
+
+    printf(
+        '<div class="notice notice-warning"><p>%s</p></div>',
+        esc_html__('Imgproxy is gedeeltelijk geconfigureerd (key, salt en URL zijn niet alle drie ingevuld). De theme valt terug op Timber image resizing tot alle drie zijn ingesteld.', 'streekomroep')
+    );
+}
+
 /**
  * Remove block editor (Gutenberg) CSS
  * This function dequeues the CSS for the block editor which this theme does not use
@@ -750,11 +996,18 @@ add_action('wp_enqueue_scripts', 'zw_add_videojs');
 
 function zw_imgproxy($src, $width, $height)
 {
-    $key = defined('IMGPROXY_KEY') ? IMGPROXY_KEY : '';
-    $salt = defined('IMGPROXY_SALT') ? IMGPROXY_SALT : '';
-    $host = defined('IMGPROXY_URL') ? IMGPROXY_URL : '';
+    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
+    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
+    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
 
     if (!$host || !$key || !$salt) {
+        if ($host || $key || $salt) {
+            static $warned = false;
+            if (!$warned) {
+                error_log('zw_imgproxy: partial configuration (key/salt/url) - falling back to Timber resize.');
+                $warned = true;
+            }
+        }
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 

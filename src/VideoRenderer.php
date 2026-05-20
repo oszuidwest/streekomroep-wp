@@ -6,16 +6,24 @@ class VideoRenderer
 {
     /**
      * Render a VideoJS player for a Video object.
+     *
+     * @param Video       $video
+     * @param string|null $posterUrl Optional poster override; falls back to the Video's thumbnail when empty.
+     * @return string
      */
-    public static function renderPlayer(Video $video): string
+    public static function renderPlayer(Video $video, ?string $posterUrl = null): string
     {
+        $posterUrl = $posterUrl ?: (string) $video->getThumbnail();
+
         $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
         $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
-        $out .= ' poster="' . htmlspecialchars($video->getThumbnail()) . '"';
-        $out .= ' data-vjs-src="' . htmlspecialchars($video->getPlaylistUrl()) . '"';
+        if ($posterUrl !== '') {
+            $out .= ' poster="' . esc_url($posterUrl) . '"';
+        }
+        $out .= ' data-vjs-src="' . esc_url($video->getPlaylistUrl()) . '"';
         $out .= ' data-vjs-type="application/x-mpegURL"';
         $out .= '>';
-        $out .= '<source src="' . htmlspecialchars($video->getMP4Url()) . '" type="video/mp4">';
+        $out .= '<source src="' . esc_url($video->getMP4Url()) . '" type="video/mp4">';
         $out .= '</video>';
         $out .= '</div>';
 
@@ -51,15 +59,17 @@ class VideoRenderer
     /**
      * Fetch a video from a Bunny URL and render its player.
      *
+     * @param string      $url
+     * @param string|null $posterUrl Optional poster override forwarded to renderPlayer().
      * @return string|false Player HTML or false if unavailable
      */
-    public static function renderFromUrl(string $url): string|false
+    public static function renderFromUrl(string $url, ?string $posterUrl = null): string|false
     {
         $video = self::resolveVideo($url);
         if (!$video || !$video->isAvailable()) {
             return false;
         }
 
-        return self::renderPlayer($video);
+        return self::renderPlayer($video, $posterUrl);
     }
 }
