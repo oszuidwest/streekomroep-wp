@@ -216,7 +216,15 @@ if ($timber_post->post_gekoppeld_fragment) {
     /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
     if ($fragment) {
-        $context['embed'] = $fragment->getEmbed();
+        $posterUrl = null;
+        if ($timber_post->meta('post_fragment_is_featured')) {
+            $thumbnailUrl = get_the_post_thumbnail_url($timber_post->ID, 'full');
+            if ($thumbnailUrl) {
+                $posterUrl = zw_imgproxy($thumbnailUrl, 1280, 720);
+            }
+        }
+
+        $context['embed'] = $fragment->getEmbed($posterUrl);
     }
 }
 

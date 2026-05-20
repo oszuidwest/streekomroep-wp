@@ -19,17 +19,18 @@ class Fragment extends Post
         return $this->_region;
     }
 
-    public function getEmbed()
+    public function getEmbed(?string $posterUrl = null)
     {
         if ($this->meta('fragment_type') === self::TYPE_VIDEO) {
             $url = $this->meta('fragment_url', ['format_value' => false]);
             if (!$url) {
                 return null;
             }
-            return VideoRenderer::renderFromUrl($url) ?: null;
+            return VideoRenderer::renderFromUrl($url, $posterUrl) ?: null;
         } elseif ($this->meta('fragment_type') === self::TYPE_AUDIO) {
             return Timber::compile('partial/player-audio-fragment.twig', [
-                'fragment' => $this
+                'fragment' => $this,
+                'poster_url' => $posterUrl,
             ]);
         }
 

@@ -62,7 +62,15 @@ Some first-party plugins developed by Streekomroep ZuidWest add extra functional
 
 The theme supports [imgproxy](https://imgproxy.net/) for on-the-fly image resizing with signed URLs. When configured, all images rendered with the `|imgproxy` Twig filter are served through imgproxy. Without it, the theme falls back to Timber's built-in image resizing.
 
-To enable, add the following constants to `wp-config.php`, above the `/* That's all, stop editing! */` line:
+Configure imgproxy in WordPress under Settings > Media:
+
+- `imgproxy_key`
+- `imgproxy_salt`
+- `imgproxy_url`
+
+The `imgproxy_url` value is normalized with `https://` when no scheme is entered and always gets a trailing slash.
+
+For deployments that cannot store these values in WordPress options, the following constants are still supported as a fallback when the matching option is empty:
 
 ```php
 define('IMGPROXY_KEY', 'your-hex-key');
