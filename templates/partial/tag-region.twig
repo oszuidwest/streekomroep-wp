@@ -1,9 +1,11 @@
 <div class="flex">
-<span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">
    {% if region %}
-       {{- region.title -}}
+       <a href="{{ region.link }}" class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">
+           {{- region.title -}}
+       </a>
    {% else %}
-       {{- options.placeholder_geen_regio -}}
+       <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">
+           {{- options.placeholder_geen_regio -}}
+       </span>
    {% endif %}
-</span>
 </div>
