@@ -1108,7 +1108,7 @@ function zw_imgproxy($src, $width, $height)
     $src = zw_normalize_imgproxy_src($src);
     if ($src === null) {
         zw_log_invalid_imgproxy_src($originalSrc, 'using blank placeholder');
-        return includes_url('images/blank.gif');
+        return 'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201%201%22%3E%3Crect%20width=%221%22%20height=%221%22%20fill=%22%23e5e7eb%22/%3E%3C/svg%3E';
     }
 
     $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
