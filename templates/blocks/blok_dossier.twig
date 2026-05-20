@@ -17,11 +17,7 @@
                 <div class="px-4 pt-4">
                     <h1 class="font-bold">
                         <span class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-white text-gray-800">Dossier</span>
-                        {% if block.tekst_boven_dossier %}
-                            <span class="block text-3xl my-1">{{ block.tekst_boven_dossier }}</span>
-                        {% else %}
-                            <span class="block text-3xl my-1">{{ block.term.name }}</span>
-                        {% endif %}
+                        <span class="block text-3xl my-1">{{ block.dossier_titel }}</span>
                     </h1>
                     <div class="hidden lg:block prose font-bold font-round text-gray-400 py-4">{{ block.term.description }}</div>
                 </div>
