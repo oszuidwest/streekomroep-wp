@@ -993,11 +993,20 @@ function zw_enqueue_theme_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
 /**
- * Mark the current request as needing VideoJS player assets.
+ * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues
+ * the player on wp_enqueue_scripts (priority 20). Call from render paths that emit a
+ * VideoJS-backed player (livestream, on-demand video, fragments) before wp_head() runs.
+ *
+ * If wp_enqueue_scripts has already fired by the time this is called, the assets are
+ * enqueued directly so a late caller still gets a working player.
  */
 function zw_require_videojs()
 {
     $GLOBALS['zw_requires_videojs'] = true;
+
+    if (did_action('wp_enqueue_scripts')) {
+        zw_enqueue_videojs_assets();
+    }
 }
 
 /**
@@ -1015,10 +1024,10 @@ function zw_enqueue_videojs_assets()
     $videojs_version = '8.23.4';
     $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
 
-    // TODO: Defer loading of Video.js CSS
+    // TODO: Defer Video.js CSS (script is already deferred; CSS still render-blocking).
     wp_enqueue_style('video.js', $videojs_base_url . '/video-js.min.css', [], $videojs_version);
-    wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy'  => 'defer']);
-    wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy'  => 'defer']);
+    wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy' => 'defer']);
+    wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy' => 'defer']);
     wp_enqueue_script(
         'zw-videojs-init',
         get_theme_file_uri('static/videojs-init.js'),
@@ -1044,9 +1053,20 @@ function zw_maybe_enqueue_videojs()
 
 add_action('wp_enqueue_scripts', 'zw_maybe_enqueue_videojs', 20);
 
+/**
+ * Only scans raw post_content. ACF / flexible-content callers that render a player
+ * must invoke zw_require_videojs() directly.
+ */
 function zw_post_content_contains_videojs_embed(WP_Post $post): bool
 {
-    return preg_match('#https?://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"\']+#i', $post->post_content) === 1;
+    $result = preg_match('#https?://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"\']+#i', $post->post_content);
+
+    if ($result === false) {
+        error_log('zw_post_content_contains_videojs_embed: preg_match failed: ' . preg_last_error_msg());
+        return true;
+    }
+
+    return $result === 1;
 }
 
 function zw_imgproxy($src, $width, $height)
