@@ -36,7 +36,7 @@
   },
   "require-dev": {
     "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "vincentlanglet/twig-cs-fixer": "^3.13",
+    "vincentlanglet/twig-cs-fixer": "^4.0",
     "wp-coding-standards/wpcs": "^3.0"
   },
   "config": {
