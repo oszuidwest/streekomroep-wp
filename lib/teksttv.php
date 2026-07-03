@@ -11,8 +11,6 @@ use WP_REST_Response;
  */
 class TekstTVAPI
 {
-    private static $instance = null;
-
     // Slide durations in milliseconds
     private const SLIDE_DURATIONS = [
         'text' => 20000,
@@ -24,17 +22,10 @@ class TekstTVAPI
     // Cache duration for weather data (1 hour)
     private const WEATHER_CACHE_DURATION = 3600;
 
-    // Singleton pattern implementation
-    public static function get_instance()
-    {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
+    // Broadcast schedule shared by all ticker items in a request (building one is expensive)
+    private ?BroadcastSchedule $schedule = null;
 
-    // Initialize the API and register hooks
-    private function __construct()
+    public function __construct()
     {
         add_action('rest_api_init', [$this, 'register_api_routes']);
     }
@@ -134,9 +125,6 @@ class TekstTVAPI
     // Validate channel parameter against defined channels
     public function validate_channel(string $param, \WP_REST_Request $request, string $key): bool
     {
-        if (!defined('ZW_TEKSTTV_CHANNELS')) {
-            return false;
-        }
         return array_key_exists($param, ZW_TEKSTTV_CHANNELS);
     }
 
@@ -160,10 +148,6 @@ class TekstTVAPI
     // Build slides array for a channel
     private function build_slides(string $channel): array
     {
-        if (!function_exists('get_field')) {
-            return [];
-        }
-
         $options_id = $this->get_channel_options_id($channel);
         $blocks = get_field('teksttv_blokken', $options_id) ?: [];
 
@@ -209,6 +193,8 @@ class TekstTVAPI
         $args = [
             'post_type' => 'post',
             'posts_per_page' => $block['aantal_artikelen'],
+            'no_found_rows' => true,
+            'ignore_sticky_posts' => true,
             'meta_query' => [
                 [
                     'key' => 'post_in_kabelkrant',
@@ -329,10 +315,6 @@ class TekstTVAPI
     // Retrieve active advertising campaigns
     private function get_ad_campaigns($options_id)
     {
-        if (!function_exists('get_field')) {
-            return [];
-        }
-
         $all_campaigns = get_field('teksttv_reclame', $options_id) ?: [];
         return array_filter($all_campaigns, [$this, 'is_campaign_active']);
     }
@@ -391,10 +373,6 @@ class TekstTVAPI
     // Build ticker messages array for a channel
     private function build_ticker(string $channel): array
     {
-        if (!function_exists('get_field')) {
-            return [];
-        }
-
         $messages = [];
         $options_id = $this->get_channel_options_id($channel);
         $ticker_content = get_field('teksttv_ticker', $options_id) ?: [];
@@ -433,64 +411,55 @@ class TekstTVAPI
         return $messages;
     }
 
+    /**
+     * Run a callback against the shared broadcast schedule, logging failures.
+     *
+     * @param string $description Used in the error log on failure
+     * @param callable(BroadcastSchedule): mixed $callback
+     */
+    private function from_schedule(string $description, callable $callback)
+    {
+        try {
+            $this->schedule ??= new BroadcastSchedule();
+            return $callback($this->schedule);
+        } catch (\Throwable $e) {
+            error_log('TekstTV: Failed to get ' . $description . ': ' . $e->getMessage());
+        }
+        return null;
+    }
+
     // Get current radio program name
     private function get_current_fm_program(): ?string
     {
-        try {
-            $schedule = new BroadcastSchedule();
+        return $this->from_schedule('current FM program', function (BroadcastSchedule $schedule) {
             $broadcast = $schedule->getCurrentRadioBroadcast();
-            if ($broadcast) {
-                return 'Nu op FM: ' . $broadcast->getName();
-            }
-        } catch (\Throwable $e) {
-            error_log('TekstTV: Failed to get current FM program: ' . $e->getMessage());
-        }
-        return null;
+            return $broadcast ? 'Nu op FM: ' . $broadcast->getName() : null;
+        });
     }
 
     // Get next radio program name
     private function get_next_fm_program(): ?string
     {
-        try {
-            $schedule = new BroadcastSchedule();
+        return $this->from_schedule('next FM program', function (BroadcastSchedule $schedule) {
             $broadcast = $schedule->getNextRadioBroadcast();
-            if ($broadcast) {
-                return 'Straks op FM: ' . $broadcast->getName();
-            }
-        } catch (\Throwable $e) {
-            error_log('TekstTV: Failed to get next FM program: ' . $e->getMessage());
-        }
-        return null;
+            return $broadcast ? 'Straks op FM: ' . $broadcast->getName() : null;
+        });
     }
 
     // Get today's TV programs (returns array of messages)
     private function get_today_tv_programs(): ?array
     {
-        try {
-            $schedule = new BroadcastSchedule();
-            $programs = $schedule->getToday()->television;
-            if (!empty($programs)) {
-                return array_map(fn($item) => 'Vandaag op TV: ' . $item->name, $programs);
-            }
-        } catch (\Throwable $e) {
-            error_log('TekstTV: Failed to get today TV programs: ' . $e->getMessage());
-        }
-        return null;
+        return $this->from_schedule('today TV programs', function (BroadcastSchedule $schedule) {
+            return array_map(fn($item) => 'Vandaag op TV: ' . $item->name, $schedule->getToday()->television) ?: null;
+        });
     }
 
     // Get tomorrow's TV programs (returns array of messages)
     private function get_tomorrow_tv_programs(): ?array
     {
-        try {
-            $schedule = new BroadcastSchedule();
-            $programs = $schedule->getTomorrow()->television;
-            if (!empty($programs)) {
-                return array_map(fn($item) => 'Morgen op TV: ' . $item->name, $programs);
-            }
-        } catch (\Throwable $e) {
-            error_log('TekstTV: Failed to get tomorrow TV programs: ' . $e->getMessage());
-        }
-        return null;
+        return $this->from_schedule('tomorrow TV programs', function (BroadcastSchedule $schedule) {
+            return array_map(fn($item) => 'Morgen op TV: ' . $item->name, $schedule->getTomorrow()->television) ?: null;
+        });
     }
 
     // Generate weather slide from block configuration
@@ -697,6 +666,4 @@ class TekstTVAPI
 }
 
 // Initialize the TekstTV API
-add_action('init', function () {
-    TekstTVAPI::get_instance();
-});
+new TekstTVAPI();

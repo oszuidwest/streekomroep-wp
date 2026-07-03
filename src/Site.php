@@ -99,21 +99,6 @@ class Site extends \Timber\Site
             ]
         );
 
-        /*
-         * Enable support for Post Formats.
-         *
-         * See: https://codex.wordpress.org/Post_Formats
-         */
-        add_theme_support(
-            'post-formats',
-            [
-                'video',
-                'audio',
-            ]
-        );
-
-        add_theme_support('menus');
-
         add_theme_support('custom-logo');
     }
 
@@ -134,15 +119,20 @@ class Site extends \Timber\Site
 
     public function get_icon($name)
     {
+        static $cache = [];
+
+        if (array_key_exists($name, $cache)) {
+            return $cache[$name];
+        }
+
         if (!preg_match('/^icon-(.*)$/', $name, $m)) {
-            return null;
+            return $cache[$name] = null;
         }
 
         $path = get_theme_file_path('icons/' . $m[1] . '/baseline.svg');
         $svg = file_get_contents($path);
 
-        $svg = str_replace('<svg ', '<svg class="fill-current" ', $svg);
-        return $svg;
+        return $cache[$name] = str_replace('<svg ', '<svg class="fill-current" ', $svg);
     }
 
     public function imgproxy($src, $width, $height)
@@ -166,7 +156,6 @@ class Site extends \Timber\Site
             }
         });
 
-        $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));

@@ -23,7 +23,7 @@
                 <li class="p-2 hidden sm:block">
                     {% if page.link %}
                         <a class="w-12 h-12 flex justify-center items-center rounded-sm border-2 border-gray-200 dark:border-gray-700 dark:text-gray-200"
-                           href="{{ page.link }}" class="{{ page.class }}">{{ page.title }}</a>
+                           href="{{ page.link }}">{{ page.title }}</a>
                     {% elseif page.current %}
                         <span class="w-12 h-12 flex justify-center items-center rounded-sm border-2 text-black dark:text-white border-groen {{ page.class }}">{{ page.title }}</span>
                     {% else %}

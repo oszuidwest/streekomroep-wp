@@ -30,7 +30,7 @@ class BunnyClient
         $fields = null;
         if ($libraryId === ZW_BUNNY_LIBRARY_TV || $libraryId == get_field(self::LIBRARY_FIELDS['tv'][0], 'option')) {
             $fields = self::LIBRARY_FIELDS['tv'];
-        } elseif ($libraryId === ZW_BUNNY_LIBRARY_FRAGMENTEN || $libraryId == get_field(self::LIBRARY_FIELDS['fragmenten'][0], 'option')) {
+        } elseif ($libraryId == get_field(self::LIBRARY_FIELDS['fragmenten'][0], 'option')) {
             $fields = self::LIBRARY_FIELDS['fragmenten'];
         }
 

@@ -12,22 +12,8 @@
         scroll-behavior: smooth;
     }
 
-    /** sm */
+    /** sm and up */
     @media (min-width: 640px) {
-        .slider {
-            --grid-columns: 4;
-        }
-    }
-
-    /** md */
-    @media (min-width: 768px) {
-        .slider {
-            --grid-columns: 4;
-        }
-    }
-
-    /** lg */
-    @media (min-width: 1024px) {
         .slider {
             --grid-columns: 4;
         }
@@ -176,7 +162,6 @@
             let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
             position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
             let maxPosition = slider.find('.slider-container').outerWidth(true) - slider.find('.slider-wrapper').innerWidth();
-            console.log(maxPosition);
             position = Math.min(position, maxPosition);
             wrapper.scrollLeft = position;
         });

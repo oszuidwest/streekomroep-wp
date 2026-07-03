@@ -10,8 +10,8 @@
  */
 
 use Carbon\Carbon;
+use Streekomroep\BroadcastDay;
 use Streekomroep\Fragment;
-use Streekomroep\Video;
 
 $context = Timber::context();
 
@@ -19,7 +19,12 @@ $context = Timber::context();
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-if ($timber_post->post_type == 'fragment' && !post_password_required($timber_post->ID)) {
+if (post_password_required($timber_post->ID)) {
+    Timber::render('single-password.twig', $context);
+    return;
+}
+
+if ($timber_post->post_type == 'fragment') {
     /** @var Fragment $timber_post */
     $context['posts'] = fragment_get_posts($timber_post->id);
     $context['embed'] = $timber_post->getEmbed();
@@ -28,71 +33,44 @@ if ($timber_post->post_type == 'fragment' && !post_password_required($timber_pos
     }
 }
 
-$topic = $timber_post->topic();
-$region = $timber_post->region();
-if ($topic) {
-    $related = [];
-    $related['topic'] = $topic;
-    $related['posts'] = Timber::get_posts(
+$relatedPosts = function (string $taxonomy, int $termId, string $postType, bool $includeChildren = true) use ($timber_post) {
+    return Timber::get_posts(
         [
             'post__not_in' => [$timber_post->id],
             'posts_per_page' => 4,
-            'post_type' => 'post',
+            'post_type' => $postType,
             'ignore_sticky_posts' => true,
             'tax_query' => [
                 [
-                    'taxonomy' => 'dossier',
-                    'terms' => $topic->term_id,
+                    'taxonomy' => $taxonomy,
+                    'include_children' => $includeChildren,
+                    'terms' => $termId,
                 ]
             ]
         ]
     );
+};
+
+$topic = $timber_post->topic();
+$region = $timber_post->region();
+if ($topic) {
+    $topicPosts = $relatedPosts('dossier', $topic->term_id, 'post');
 
     // Only show block if there's other posts to show
-    if (count($related['posts']) >= 1) {
-        $context['topical'] = $related;
+    if (count($topicPosts) >= 1) {
+        $context['topical'] = ['topic' => $topic, 'posts' => $topicPosts];
     }
 }
 
 if ($region && !isset($context['topical'])) {
-    $related = [];
-    $related['region'] = $region;
-    $related['posts'] = Timber::get_posts(
-        [
-            'post__not_in' => [$timber_post->id],
-            'posts_per_page' => 4,
-            'post_type' => $timber_post->post_type,
-            'ignore_sticky_posts' => true,
-            'tax_query' => [
-                [
-                    'taxonomy' => 'regio',
-                    'include_children' => false,
-                    'terms' => $region->term_id,
-                ]
-            ]
-        ]
-    );
-    $context['local'] = $related;
+    $context['local'] = [
+        'region' => $region,
+        'posts' => $relatedPosts('regio', $region->term_id, $timber_post->post_type, false),
+    ];
 }
 
 if ($timber_post->post_type == 'tv') {
     $videos = \Streekomroep\VideoCollection::forTvShow($timber_post->ID);
-
-    $seasons = [];
-    foreach ($videos as $video) {
-        $date = $video->getBroadcastDate();
-        if (!$date) {
-            continue;
-        }
-
-        $broadcastYear = $date->format('Y');
-        if (!isset($seasons[$broadcastYear])) {
-            $seasons[$broadcastYear] = [];
-        }
-
-        $seasons[$broadcastYear][] = $video;
-    }
-
 
     if (isset($_GET['v'])) {
         // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -156,18 +134,18 @@ if ($timber_post->post_type == 'tv') {
         }
     }
 
+    $seasons = [];
+    foreach ($videos as $video) {
+        $date = $video->getBroadcastDate();
+        if (!$date) {
+            continue;
+        }
+
+        $seasons[$date->format('Y')][] = $video;
+    }
+
     $context['seasons'] = $seasons;
 }
-
-$weekdayNames = [
-    1 => 'maandag',
-    2 => 'dinsdag',
-    3 => 'woensdag',
-    4 => 'donderdag',
-    5 => 'vrijdag',
-    6 => 'zaterdag',
-    7 => 'zondag'
-];
 
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
@@ -185,7 +163,7 @@ if ($timber_post->post_type == 'fm') {
         $end = $hour->copy()->subDays(get_field('radio_gemist_retentie', 'option'));
 
         while ($hour->isAfter($end)) {
-            $dayname = $weekdayNames[$hour->dayOfWeekIso];
+            $dayname = BroadcastDay::WEEKDAY_NAMES[$hour->dayOfWeekIso];
 
             foreach ($rules as $rule) {
                 if (!in_array($dayname, $rule['fm_show_dagen'])) {
@@ -201,8 +179,8 @@ if ($timber_post->post_type == 'fm') {
                 }
             }
 
-            // Work around DST causing an endless loop
-            $hour = Carbon::createFromTimestamp($hour->timestamp - (60 * 60), 'Europe/Amsterdam');
+            // Subtract a real hour (via timestamp) so DST transitions can't cause an endless loop
+            $hour = $hour->subUTCHour();
         }
     }
 
@@ -217,7 +195,7 @@ if ($timber_post->post_type == 'fm') {
     $context['recordings'] = $recordings;
 }
 
-if (!post_password_required($timber_post->ID) && $timber_post->post_gekoppeld_fragment) {
+if ($timber_post->post_gekoppeld_fragment) {
     /** @var Fragment $fragment */
     $fragment = Timber::get_post($timber_post->post_gekoppeld_fragment);
     if ($fragment) {
@@ -236,8 +214,4 @@ if (!post_password_required($timber_post->ID) && $timber_post->post_gekoppeld_fr
     }
 }
 
-if (post_password_required($timber_post->ID)) {
-    Timber::render('single-password.twig', $context);
-} else {
-    Timber::render(['single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig'], $context);
-}
+Timber::render(['single-' . $timber_post->ID . '.twig', 'single-' . $timber_post->post_type . '.twig', 'single-' . $timber_post->slug . '.twig', 'single.twig'], $context);

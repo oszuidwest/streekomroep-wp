@@ -41,9 +41,7 @@ set -e
     sleep 3
 
     # Install WordPress if not already installed
-    WORDPRESS_WAS_INSTALLED=1
     if ! wp core is-installed --allow-root 2>/dev/null; then
-        WORDPRESS_WAS_INSTALLED=0
         echo "Installing WordPress..."
         wp core install \
             --url="http://localhost:8080" \
@@ -62,9 +60,6 @@ set -e
 
         echo "Installing Yoast SEO Premium ${YOAST_SEO_VERSION}..."
         wp plugin install "https://yoast.com/app/uploads/2026/05/wordpress-seo-premium-${YOAST_SEO_VERSION}.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
-
-        # Secure Custom Fields provides the ACF-compatible APIs required by the theme.
-        install_secure_custom_fields
 
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
@@ -149,9 +144,9 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
-    if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
-        install_secure_custom_fields
-    fi
+    # Secure Custom Fields provides the ACF-compatible APIs required by the theme;
+    # (re)install on every start so existing installs pick up updates too.
+    install_secure_custom_fields
 
     # Fix permissions AFTER installation
     chown -R www-data:www-data /var/www/html/wp-content/uploads
