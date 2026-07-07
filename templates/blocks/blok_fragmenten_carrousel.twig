@@ -13,7 +13,7 @@
             </div>
 
             <div>
-                {{ include('partial/tag-region.twig', {region: post.region}) }}
+                {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
                 <h2 class="font-bold text-xl sm:text-3xl">{{ post.title }}</h2>
                 <p class="prose text-white hidden sm:block">{{ post.excerpt.read_more(false) }}</p>
             </div>
