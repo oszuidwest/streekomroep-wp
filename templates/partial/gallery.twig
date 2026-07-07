@@ -1,16 +1,12 @@
-<div id="{{ gallery.id|e }}" class="{{ gallery.classes|e }}" role="list" data-gallery-type="{{ gallery.type|e }}">
+<div class="{{ gallery.classes|e }}" role="list">
     {% for item in gallery.items %}
         <figure class="{{ item.classes|e }}" role="listitem">
             {% if item.link %}
-                <a class="absolute inset-0 block h-full w-full bg-transparent text-inherit no-underline"
-                   href="{{ item.link|e }}"
-                   aria-label="{{ item.label|e }}">
+                <a class="absolute inset-0 block" href="{{ item.link|e }}" aria-label="{{ item.label|e }}">
                     {{ item.image|raw }}
                 </a>
             {% else %}
-                <div class="absolute inset-0 h-full w-full">
-                    {{ item.image|raw }}
-                </div>
+                {{ item.image|raw }}
             {% endif %}
 
             {% if gallery.type != 'circle' and item.caption %}
