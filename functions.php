@@ -132,6 +132,20 @@ add_filter('acf/location/rule_match/options_page', function ($match, $rule, $scr
 }, 10, 3);
 
 add_action('acf/init', function () {
+    if (!function_exists('acf_add_options_page') || !function_exists('acf_add_options_sub_page')) {
+        add_action(
+            'admin_notices',
+            function () {
+                echo '<div class="error"><p>' . esc_html__(
+                    'ACF Options Pages are not available. Use Secure Custom Fields or Advanced Custom Fields Pro.',
+                    'streekomroep'
+                ) . '</p></div>';
+            }
+        );
+
+        return;
+    }
+
     acf_add_options_page([
         'page_title' => 'Radio instellingen',
         'menu_title' => 'Radio instellingen',
