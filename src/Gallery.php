@@ -2,6 +2,7 @@
 
 namespace Streekomroep;
 
+use Timber\Image;
 use Timber\Timber;
 use WP_Post;
 
@@ -14,6 +15,35 @@ class Gallery
 
     // Galleries render inside the max-w-3xl content column, so image widths cap at 768px.
     private const CONTENT_WIDTH = 768;
+
+    // Shared classes for every gallery tile wrapper.
+    private const ITEM_BASE = 'group relative m-0 overflow-hidden bg-gray-100';
+
+    // The distinct rectangular slots. Each geometry (classes/sizes/width/height) lives in exactly one place.
+    private const LAYOUT_HERO = [
+        'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-6',
+        'sizes' => '(min-width: 768px) 768px, 100vw',
+        'width' => 768,
+        'height' => 432,
+    ];
+    private const LAYOUT_HALF = [
+        'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-3',
+        'sizes' => '(min-width: 768px) 384px, 50vw',
+        'width' => 384,
+        'height' => 288,
+    ];
+    private const LAYOUT_HERO_HALF = [
+        'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
+        'sizes' => '(min-width: 768px) 384px, 100vw',
+        'width' => 768,
+        'height' => 432,
+    ];
+    private const LAYOUT_THIRD = [
+        'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-2',
+        'sizes' => '(min-width: 768px) 256px, 50vw',
+        'width' => 256,
+        'height' => 192,
+    ];
 
     public static function register(): void
     {
@@ -200,9 +230,15 @@ class Gallery
 
     private static function buildImage(WP_Post $attachment, array $attributes, string $label, array $layout): ?array
     {
-        $source = wp_get_attachment_image_src($attachment->ID, 'full');
+        $image = Timber::get_image($attachment);
 
-        if (!is_array($source) || empty($source[0])) {
+        if (!$image instanceof Image) {
+            return null;
+        }
+
+        $src = $image->src();
+
+        if ($src === '') {
             return null;
         }
 
@@ -213,15 +249,11 @@ class Gallery
             return null;
         }
 
-        $alt = trim((string) get_post_meta($attachment->ID, '_wp_attachment_image_alt', true));
-
-        if ($alt === '') {
-            $alt = $label;
-        }
+        $alt = $image->alt() ?: $label;
 
         return [
             'class' => self::getImageClasses($attributes['type']),
-            'src' => $source[0],
+            'src' => $src,
             'srcset' => self::buildImageSrcset($width, $height),
             'sizes' => $layout['sizes'],
             'alt' => $alt,
@@ -343,62 +375,15 @@ class Gallery
      */
     private static function getRectangularItemLayout(int $groupSize, int $position): array
     {
-        $base = 'group relative m-0 overflow-hidden bg-gray-100';
-
         return match ($groupSize) {
-            1 => [
-                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
-                'sizes' => '(min-width: 768px) 768px, 100vw',
-                'width' => 768,
-                'height' => 432,
-            ],
-            2 => [
-                'classes' => $base . ' aspect-[4/3] md:col-span-3',
-                'sizes' => '(min-width: 768px) 384px, 50vw',
-                'width' => 384,
-                'height' => 288,
-            ],
-            3 => $position === 0 ? [
-                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
-                'sizes' => '(min-width: 768px) 768px, 100vw',
-                'width' => 768,
-                'height' => 432,
-            ] : [
-                'classes' => $base . ' aspect-[4/3] md:col-span-3',
-                'sizes' => '(min-width: 768px) 384px, 50vw',
-                'width' => 384,
-                'height' => 288,
-            ],
-            4 => ($position === 0 || $position === 3) ? [
-                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
-                'sizes' => '(min-width: 768px) 384px, 100vw',
-                'width' => 768,
-                'height' => 432,
-            ] : [
-                'classes' => $base . ' aspect-[4/3] md:col-span-3',
-                'sizes' => '(min-width: 768px) 384px, 50vw',
-                'width' => 384,
-                'height' => 288,
-            ],
+            1 => self::LAYOUT_HERO,
+            2 => self::LAYOUT_HALF,
+            3 => $position === 0 ? self::LAYOUT_HERO : self::LAYOUT_HALF,
+            4 => ($position === 0 || $position === 3) ? self::LAYOUT_HERO_HALF : self::LAYOUT_HALF,
             default => match ($position) {
-                0 => [
-                    'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
-                    'sizes' => '(min-width: 768px) 384px, 100vw',
-                    'width' => 768,
-                    'height' => 432,
-                ],
-                1 => [
-                    'classes' => $base . ' aspect-[4/3] md:col-span-3',
-                    'sizes' => '(min-width: 768px) 384px, 50vw',
-                    'width' => 384,
-                    'height' => 288,
-                ],
-                default => [
-                    'classes' => $base . ' aspect-[4/3] md:col-span-2',
-                    'sizes' => '(min-width: 768px) 256px, 50vw',
-                    'width' => 256,
-                    'height' => 192,
-                ],
+                0 => self::LAYOUT_HERO_HALF,
+                1 => self::LAYOUT_HALF,
+                default => self::LAYOUT_THIRD,
             },
         };
     }
@@ -452,26 +437,16 @@ class Gallery
      */
     private static function getUniformItemLayout(array $attributes): array
     {
-        $base = 'group relative m-0 overflow-hidden bg-gray-100';
-        $type = $attributes['type'];
-
-        if ($type === 'circle' || $type === 'square') {
-            $columns = (int) $attributes['columns'];
-            $width = (int) round(self::CONTENT_WIDTH / $columns);
-
-            return [
-                'classes' => $base . ' aspect-square' . ($type === 'circle' ? ' rounded-full' : ''),
-                'sizes' => $columns === 1 ? '100vw' : sprintf('(min-width: 768px) %dpx, 50vw', $width),
-                'width' => $width,
-                'height' => $width,
-            ];
-        }
+        // Only the square and circle types reach this path; both render on a square grid.
+        $columns = (int) $attributes['columns'];
+        $width = (int) round(self::CONTENT_WIDTH / $columns);
+        $rounded = $attributes['type'] === 'circle' ? ' rounded-full' : '';
 
         return [
-            'classes' => $base . ' aspect-[4/3] md:col-span-2',
-            'sizes' => '(min-width: 768px) 256px, 50vw',
-            'width' => 256,
-            'height' => 192,
+            'classes' => self::ITEM_BASE . ' aspect-square' . $rounded,
+            'sizes' => $columns === 1 ? '100vw' : sprintf('(min-width: 768px) %dpx, 50vw', $width),
+            'width' => $width,
+            'height' => $width,
         ];
     }
 
