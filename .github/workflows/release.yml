@@ -41,12 +41,6 @@ jobs:
             echo "RELEASE_NEEDED=false" >> $GITHUB_ENV
           fi
 
-      - name: Stop job if no release needed
-        if: env.RELEASE_NEEDED == 'false'
-        run: |
-          echo "Skipping further steps as no new release is needed."
-        continue-on-error: false
-
       # Dependency Setup and Build Steps - Only Run if Release is Needed
       - name: Set up PHP
         if: env.RELEASE_NEEDED == 'true'
@@ -82,24 +76,12 @@ jobs:
           mkdir -p release  # Ensure the directory is created
           rsync -av --progress . ./release --exclude release --exclude .git --exclude .github --exclude node_modules --exclude .gitignore --exclude docker --exclude docker-compose.yml --exclude .dockerignore
 
-      - name: List contents of release directory for debugging
-        if: env.RELEASE_NEEDED == 'true'
-        run: |
-          echo "Listing contents of release directory:"
-          ls -la ./release
-
       - name: Compress release directory contents
         if: env.RELEASE_NEEDED == 'true'
         run: |
           echo "Compressing contents of release directory..."
           cd release
           zip -r ../streekomroep-wp-theme-${{ env.VERSION }}.zip ./* 
-
-      - name: List contents of current directory after compression
-        if: env.RELEASE_NEEDED == 'true'
-        run: |
-          echo "Listing contents of current directory:"
-          ls -la
 
       - name: Create GitHub Release and upload compressed file
         if: env.RELEASE_NEEDED == 'true'

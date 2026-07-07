@@ -63,7 +63,10 @@ set -e
         echo "Installing Yoast SEO Premium ${YOAST_SEO_VERSION}..."
         wp plugin install "https://yoast.com/app/uploads/2026/05/wordpress-seo-premium-${YOAST_SEO_VERSION}.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
 
-        # Secure Custom Fields provides the ACF-compatible APIs required by the theme.
+        # Secure Custom Fields provides the ACF-compatible APIs the theme needs.
+        # It MUST be installed before the theme is activated: functions.php returns
+        # early (registering no menus/post types) when the ACF API is missing, which
+        # would make the "wp menu location assign" calls below fail on a fresh install.
         install_secure_custom_fields
 
         echo "Installing Classic Editor..."
@@ -149,6 +152,8 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
+    # On restarts of an existing install the block above is skipped, so (re)install
+    # SCF here too, ensuring existing installs pick up updates.
     if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
         install_secure_custom_fields
     fi

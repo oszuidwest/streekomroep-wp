@@ -1,6 +1,5 @@
 {% extends 'base.twig' %}
 
-{% set showArchive = false %}
 {% block content %}
     <div class="max-w-960 mx-auto px-4">
         {% embed 'partial/tabs.twig' %}
@@ -10,7 +9,7 @@
 
             {% block content %}
                 {{ _self.tab('ZuidWest TV', 'icon-tv', function('get_post_type_archive_link', 'tv')) }}
-                {{ _self.tab_active('ZuidWest FM', 'icon-radio', function('get_post_type_archive_link', 'fm')) }}
+                {{ _self.tab_active('ZuidWest FM', 'icon-radio') }}
             {% endblock %}
         {% endembed %}
 
@@ -18,12 +17,13 @@
             <p>Bekijk alle informatie over onze programma's en luister uitzendingen terug.</p>
         </div>
 
+        {# Twig set inside a for-loop is loop-scoped, so derive the flag up front #}
+        {% set showArchive = posts|filter(p => not p.meta('fm_show_actief'))|length > 0 %}
+
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-8">
             {% for post in posts %}
                 {% if post.meta('fm_show_actief') %}
                     {{ include('partial/tile-fm-show.twig', {post: post}) }}
-                {% else %}
-                    {% set showArchive = true %}
                 {% endif %}
             {% endfor %}
         </div>

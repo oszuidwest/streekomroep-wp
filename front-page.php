@@ -1,7 +1,6 @@
 <?php
 
 use Streekomroep\TelevisionBroadcast;
-use Streekomroep\Video;
 
 $context = Timber::context();
 
@@ -42,22 +41,14 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $episodes_with_duplicate_shows = [];
             $latest_episode_per_show = [];
 
-            $credentials = \Streekomroep\BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
-            $deduplicate = $block['ontdubbel'] ? true : false;
+            $deduplicate = (bool) $block['ontdubbel'];
             $videos_to_show = $block['aantal_videos'];
             foreach ($shows as $show) {
-                $videos = $show->meta(ZW_TV_META_VIDEOS);
-                if (!is_array($videos)) {
-                    continue;
-                }
-
-                $videos_for_last_episode = $videos = \Streekomroep\VideoCollection::sortAndFilter($credentials, $videos);
-                $lastEpisode = array_shift($videos_for_last_episode);
+                $videos = \Streekomroep\VideoCollection::forTvShow($show->ID);
+                $lastEpisode = $videos[0] ?? null;
                 if ($lastEpisode === null) {
                     continue;
                 }
-
-                $show->lastEpisode = $lastEpisode;
 
                 /**
                  * Build a list of candidate shows.
@@ -66,7 +57,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                  */
                 $latest_episode_per_show[] = [
                     'show' => $show,
-                    'video' => $show->lastEpisode,
+                    'video' => $lastEpisode,
                 ];
 
                 /**

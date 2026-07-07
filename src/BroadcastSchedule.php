@@ -54,7 +54,7 @@ class BroadcastSchedule
                         $entry['show'] = Timber\Timber::get_post($entry['show']->ID);
                     }
 
-                    $day->add(new TelevisionBroadcast($entry['show'], $entry['naam_override'], $entry['starttijden']));
+                    $day->addTelevision(new TelevisionBroadcast($entry['show'], $entry['naam_override'], $entry['starttijden']));
                 }
 
                 $date->add(new \DateInterval('P1D'));
@@ -92,7 +92,7 @@ class BroadcastSchedule
 
                     $start = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_starttijd']);
                     $end = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_eindtijd']);
-                    $day->add(new RadioBroadcast($show, $start, $end));
+                    $day->addRadio(new RadioBroadcast($show, $start, $end));
                 }
             }
         }
@@ -113,7 +113,7 @@ class BroadcastSchedule
             }
 
             foreach ($newBroadcasts as $broadcast) {
-                $day->add($broadcast);
+                $day->addRadio($broadcast);
             }
         }
 

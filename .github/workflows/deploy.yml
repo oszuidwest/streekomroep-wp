@@ -21,9 +21,7 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: |
-          composer update
-          composer install --no-dev --optimize-autoloader
+        run: composer update --no-dev --optimize-autoloader
 
       - name: Set-up Node
         uses: actions/setup-node@v6

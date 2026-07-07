@@ -2,11 +2,7 @@
     <div class="grid sm:grid-cols-2 gap-4">
         <a href="{{ block.links.fm.link }}" class="block bg-roze p-4 text-white rounded-sm">
             <span class="block font-round font-extrabold uppercase text-sm">Nu op Zuidwest FM</span>
-            {% if block.fm.show %}
-                <span class="block font-black text-2xl">{{ block.fm.show.title }}</span>
-            {% else %}
-                <span class="block font-black text-2xl">{{ block.fm.title }}</span>
-            {% endif %}
+            <span class="block font-black text-2xl">{{ block.fm.name }}</span>
         </a>
 
         <a href="{{ block.links.tv.link }}" class="block bg-blauw p-4 text-white rounded-sm">

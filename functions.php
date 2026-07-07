@@ -14,38 +14,14 @@
  * plug-in, you can safely delete this block.
  */
 
-use Timber\PostCollectionInterface;
 use Timber\Timber;
+
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
-const ZW_BUNNY_LIBRARY_FRAGMENTEN = -2;
 
 require __DIR__ . '/vendor/autoload.php';
 
-if (class_exists('Timber\Timber')) {
-    Timber::init();
-}
-
-/**
- * This ensures that Timber is loaded and available as a PHP class.
- * If not, it gives an error message to help direct developers on where to activate
- */
-if (!class_exists('Timber\Timber')) {
-    add_action(
-        'admin_notices',
-        function () {
-            echo '<div class="error"><p>Timber not activated. Make sure you activate the plugin in <a href="' . esc_url(admin_url('plugins.php#timber')) . '">' . esc_url(admin_url('plugins.php')) . '</a></p></div>';
-        }
-    );
-
-    add_filter(
-        'template_include',
-        function ($template) {
-            return get_stylesheet_directory() . '/static/no-timber.html';
-        }
-    );
-    return;
-}
+Timber::init();
 
 if (!class_exists('ACF')) {
     add_action(
@@ -92,7 +68,7 @@ require 'fragment-thumbnail.php';
 /**
  * Sets the directories (inside your theme) to find .twig files
  */
-Timber::$dirname = ['templates', 'views'];
+Timber::$dirname = ['templates'];
 
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
@@ -117,34 +93,20 @@ new \Streekomroep\Site();
  * Include ACF Fields. These are saved as local JSON
  * This is not a function of Timber so we declare them after the Timber specific functions
  */
-if (function_exists('get_field')) {
-    add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
+add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
 
-    function streekomroep_acf_json_save_point($path)
-    {
+function streekomroep_acf_json_save_point($path)
+{
+    return get_stylesheet_directory() . '/streekomroep-acf-json';
+}
 
-        // update path
-        $path = get_stylesheet_directory() . '/streekomroep-acf-json';
+add_filter('acf/settings/load_json', 'streekomroep_acf_json_load_point');
 
-        // return
-        return $path;
-    }
-
-    add_filter('acf/settings/load_json', 'streekomroep_acf_json_load_point');
-
-    function streekomroep_acf_json_load_point($paths)
-    {
-
-        // remove original path (optional)
-        unset($paths[0]);
-
-        // append path
-        $paths[] = get_stylesheet_directory() . '/streekomroep-acf-json';
-
-
-        // return
-        return $paths;
-    }
+function streekomroep_acf_json_load_point($paths)
+{
+    unset($paths[0]);
+    $paths[] = get_stylesheet_directory() . '/streekomroep-acf-json';
+    return $paths;
 }
 
 // Tekst TV channel configuration - add new channels here
@@ -170,66 +132,64 @@ add_filter('acf/location/rule_match/options_page', function ($match, $rule, $scr
 }, 10, 3);
 
 add_action('acf/init', function () {
-    if (function_exists('acf_add_options_page')) {
-        acf_add_options_page([
-            'page_title' => 'Radio instellingen',
-            'menu_title' => 'Radio instellingen',
-            'menu_slug' => 'radio-instellingen',
-            'capability' => 'manage_options',
-            'icon_url' => 'dashicons-playlist-audio',
-            'redirect' => false
-        ]);
+    acf_add_options_page([
+        'page_title' => 'Radio instellingen',
+        'menu_title' => 'Radio instellingen',
+        'menu_slug' => 'radio-instellingen',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-playlist-audio',
+        'redirect' => false
+    ]);
 
-        acf_add_options_page([
-            'page_title' => 'TV instellingen',
-            'menu_title' => 'TV instellingen',
-            'menu_slug' => 'tv-instellingen',
-            'capability' => 'manage_options',
-            'icon_url' => 'dashicons-format-video',
-            'redirect' => false
-        ]);
+    acf_add_options_page([
+        'page_title' => 'TV instellingen',
+        'menu_title' => 'TV instellingen',
+        'menu_slug' => 'tv-instellingen',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-format-video',
+        'redirect' => false
+    ]);
 
-        // Tekst TV main menu (redirects to first channel)
-        acf_add_options_page([
-            'page_title' => 'Tekst TV',
-            'menu_title' => 'Tekst TV',
-            'menu_slug' => 'teksttv',
-            'capability' => 'manage_options',
-            'icon_url' => 'dashicons-welcome-view-site',
-            'redirect' => true
-        ]);
+    // Tekst TV main menu (redirects to first channel)
+    acf_add_options_page([
+        'page_title' => 'Tekst TV',
+        'menu_title' => 'Tekst TV',
+        'menu_slug' => 'teksttv',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-welcome-view-site',
+        'redirect' => true
+    ]);
 
-        // Sub-page for each channel with unique post_id for separate data storage
-        foreach (ZW_TEKSTTV_CHANNELS as $slug => $name) {
-            acf_add_options_sub_page([
-                'page_title' => 'Tekst TV - ' . $name,
-                'menu_title' => $name,
-                'menu_slug' => 'teksttv_' . $slug,
-                'parent_slug' => 'teksttv',
-                'capability' => 'manage_options',
-                'post_id' => 'teksttv_' . $slug
-            ]);
-        }
-
-        // Settings sub-page (API keys etc.)
+    // Sub-page for each channel with unique post_id for separate data storage
+    foreach (ZW_TEKSTTV_CHANNELS as $slug => $name) {
         acf_add_options_sub_page([
-            'page_title' => 'Tekst TV - Instellingen',
-            'menu_title' => 'Instellingen',
-            'menu_slug' => 'teksttv_instellingen',
+            'page_title' => 'Tekst TV - ' . $name,
+            'menu_title' => $name,
+            'menu_slug' => 'teksttv_' . $slug,
             'parent_slug' => 'teksttv',
             'capability' => 'manage_options',
-            'post_id' => 'teksttv_instellingen'
-        ]);
-
-        acf_add_options_page([
-            'page_title' => 'Desking',
-            'menu_title' => 'Desking',
-            'menu_slug' => 'desking',
-            'capability' => 'manage_options',
-            'icon_url' => 'dashicons-layout',
-            'redirect' => false
+            'post_id' => 'teksttv_' . $slug
         ]);
     }
+
+    // Settings sub-page (API keys etc.)
+    acf_add_options_sub_page([
+        'page_title' => 'Tekst TV - Instellingen',
+        'menu_title' => 'Instellingen',
+        'menu_slug' => 'teksttv_instellingen',
+        'parent_slug' => 'teksttv',
+        'capability' => 'manage_options',
+        'post_id' => 'teksttv_instellingen'
+    ]);
+
+    acf_add_options_page([
+        'page_title' => 'Desking',
+        'menu_title' => 'Desking',
+        'menu_slug' => 'desking',
+        'capability' => 'manage_options',
+        'icon_url' => 'dashicons-layout',
+        'redirect' => false
+    ]);
 });
 
 function zw_parse_query(WP_Query $query)
@@ -317,7 +277,7 @@ function zw_rest_api_init()
                     if ($video && $video->isAvailable()) {
                         return $video->getSources();
                     }
-                } elseif ($type === 'Audio') {
+                } elseif ($type === \Streekomroep\Fragment::TYPE_AUDIO) {
                     return [
                         ['type' => 'audio/mp3', 'src' => get_field('fragment_url', $post_arr['id'], false)]
                     ];
@@ -435,7 +395,7 @@ add_filter('oembed_fetch_url', 'zw_oembed_fetch_url', 10, 3);
 
 function zw_oembed_fetch_url($provider, $url, $args)
 {
-    if (strpos($provider, 'https://publish.twitter.com/oembed') === 0) {
+    if (str_starts_with($provider, 'https://publish.twitter.com/oembed')) {
         $provider = add_query_arg('align', 'center', $provider);
     }
     return $provider;
@@ -450,24 +410,22 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
     // Ignore warnings (invalid entities, unknown tags)
     @$doc->loadHTML('<div id="oembed">' . $cache . '</div>');
 
-    $iframes = $doc->getElementsByTagName('iframe');
-    /** @var DOMElement $iframe */
-    foreach ($iframes as $iframe) {
-        $width = intval($iframe->getAttribute('width'));
-        $iframe->removeAttribute('width');
-        $height = intval($iframe->getAttribute('height'));
-        $iframe->removeAttribute('height');
-        $iframe->setAttribute('class', 'absolute inset-0 w-full h-full');
-        $padding = $height / $width * 100;
-        $out = '';
-        $out .= sprintf('<div class="relative" style="height: 0; padding-bottom: %f%%;">', $padding);
-        $out .= $doc->saveHTML($iframe);
-        $out .= '</div>';
-
-        return $out;
+    /** @var DOMElement|null $iframe */
+    $iframe = $doc->getElementsByTagName('iframe')->item(0);
+    if (!$iframe) {
+        return $cache;
     }
 
-    return $cache;
+    $width = intval($iframe->getAttribute('width'));
+    $iframe->removeAttribute('width');
+    $height = intval($iframe->getAttribute('height'));
+    $iframe->removeAttribute('height');
+    $iframe->setAttribute('class', 'absolute inset-0 w-full h-full');
+    $padding = $height / $width * 100;
+
+    return sprintf('<div class="relative" style="height: 0; padding-bottom: %f%%;">', $padding)
+    . $doc->saveHTML($iframe)
+    . '</div>';
 }
 
 /**
@@ -502,7 +460,6 @@ function zw_get_socials()
     if (!empty($seo_data['facebook_site'])) {
         $out[] = [
             'name' => 'Facebook',
-            'class' => 'facebook',
             'link' => $seo_data['facebook_site']
         ];
     }
@@ -510,20 +467,19 @@ function zw_get_socials()
     if (!empty($seo_data['twitter_site'])) {
         $out[] = [
             'name' => 'X',
-            'class' => 'twitter',
             'link' => 'https://x.com/' . $seo_data['twitter_site']
         ];
     }
 
     $social_patterns = [
-        'instagram.com' => ['name' => 'Instagram', 'class' => 'instagram'],
-        'linkedin.com' => ['name' => 'LinkedIn', 'class' => 'linkedin'],
-        'youtube.com' => ['name' => 'YouTube', 'class' => 'youtube'],
-        'youtu.be' => ['name' => 'YouTube', 'class' => 'youtube'],
-        'pinterest.com' => ['name' => 'Pinterest', 'class' => 'pinterest'],
-        'tiktok.com' => ['name' => 'TikTok', 'class' => 'tiktok'],
-        'mastodon' => ['name' => 'Mastodon', 'class' => 'mastodon'],
-        'bsky.app' => ['name' => 'Bluesky', 'class' => 'bluesky'],
+        'instagram.com' => ['name' => 'Instagram'],
+        'linkedin.com' => ['name' => 'LinkedIn'],
+        'youtube.com' => ['name' => 'YouTube'],
+        'youtu.be' => ['name' => 'YouTube'],
+        'pinterest.com' => ['name' => 'Pinterest'],
+        'tiktok.com' => ['name' => 'TikTok'],
+        'mastodon' => ['name' => 'Mastodon'],
+        'bsky.app' => ['name' => 'Bluesky'],
     ];
 
     foreach ((array) ($seo_data['other_social_urls'] ?? []) as $url) {
@@ -533,8 +489,8 @@ function zw_get_socials()
         }
 
         foreach ($social_patterns as $pattern => $meta) {
-            if (strpos($url, $pattern) !== false) {
-                $out[] = ['name' => $meta['name'], 'class' => $meta['class'], 'link' => $url];
+            if (str_contains($url, $pattern)) {
+                $out[] = ['name' => $meta['name'], 'link' => $url];
                 break;
             }
         }
@@ -586,18 +542,26 @@ function zw_embed($atts, $content, $shortcode_tag)
 }
 
 
+function zw_get_pages_by_template($template)
+{
+    return Timber::get_posts([
+        'post_type' => 'page',
+        'meta_key' => '_wp_page_template',
+        'meta_value' => $template,
+        'posts_per_page' => -1,
+        'no_found_rows' => true,
+        'orderby' => 'menu_order',
+        'order' => 'ASC',
+    ]);
+}
+
 function zw_get_page_by_template($template)
 {
-    $pages = get_pages([
-        'meta_key' => '_wp_page_template',
-        'meta_value' => $template
-    ]);
-
-    if (count($pages) == 0) {
-        return null;
+    foreach (zw_get_pages_by_template($template) as $page) {
+        return $page;
     }
 
-    return Timber::get_post($pages[0]->ID);
+    return null;
 }
 
 /*
@@ -725,35 +689,26 @@ add_action('admin_init', 'zw_register_imgproxy_media_settings');
 
 function zw_register_imgproxy_media_settings()
 {
-    register_setting(
-        'media',
-        'zw_imgproxy_key',
-        [
-            'type' => 'string',
+    $fields = [
+        'zw_imgproxy_key' => [
             'sanitize_callback' => 'sanitize_text_field',
-            'default' => '',
-        ]
-    );
-
-    register_setting(
-        'media',
-        'zw_imgproxy_salt',
-        [
-            'type' => 'string',
+            'description' => __('Hex-encoded key voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
+            'type' => 'password',
+            'autocomplete' => 'off',
+        ],
+        'zw_imgproxy_salt' => [
             'sanitize_callback' => 'sanitize_text_field',
-            'default' => '',
-        ]
-    );
-
-    register_setting(
-        'media',
-        'zw_imgproxy_url',
-        [
-            'type' => 'string',
+            'description' => __('Hex-encoded salt voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
+            'type' => 'password',
+            'autocomplete' => 'off',
+        ],
+        'zw_imgproxy_url' => [
             'sanitize_callback' => 'zw_sanitize_imgproxy_url',
-            'default' => '',
-        ]
-    );
+            'description' => __('Basis-URL van imgproxy, inclusief https:// en trailing slash.', 'streekomroep'),
+            'type' => 'url',
+            'placeholder' => 'https://imgproxy.example.com/',
+        ],
+    ];
 
     add_settings_section(
         'zw_imgproxy_settings',
@@ -762,50 +717,27 @@ function zw_register_imgproxy_media_settings()
         'media'
     );
 
-    add_settings_field(
-        'zw_imgproxy_key',
-        __('imgproxy_key', 'streekomroep'),
-        'zw_render_imgproxy_settings_field',
-        'media',
-        'zw_imgproxy_settings',
-        [
-            'label_for' => 'zw_imgproxy_key',
-            'option' => 'zw_imgproxy_key',
-            'description' => __('Hex-encoded key voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
-            'type' => 'password',
-            'autocomplete' => 'off',
-        ]
-    );
+    foreach ($fields as $option => $args) {
+        register_setting(
+            'media',
+            $option,
+            [
+                'type' => 'string',
+                'sanitize_callback' => $args['sanitize_callback'],
+                'default' => '',
+            ]
+        );
 
-    add_settings_field(
-        'zw_imgproxy_salt',
-        __('imgproxy_salt', 'streekomroep'),
-        'zw_render_imgproxy_settings_field',
-        'media',
-        'zw_imgproxy_settings',
-        [
-            'label_for' => 'zw_imgproxy_salt',
-            'option' => 'zw_imgproxy_salt',
-            'description' => __('Hex-encoded salt voor ondertekende imgproxy-URL\'s.', 'streekomroep'),
-            'type' => 'password',
-            'autocomplete' => 'off',
-        ]
-    );
-
-    add_settings_field(
-        'zw_imgproxy_url',
-        __('imgproxy_url', 'streekomroep'),
-        'zw_render_imgproxy_settings_field',
-        'media',
-        'zw_imgproxy_settings',
-        [
-            'label_for' => 'zw_imgproxy_url',
-            'option' => 'zw_imgproxy_url',
-            'description' => __('Basis-URL van imgproxy, inclusief https:// en trailing slash.', 'streekomroep'),
-            'type' => 'url',
-            'placeholder' => 'https://imgproxy.example.com/',
-        ]
-    );
+        add_settings_field(
+            $option,
+            // Option names double as field labels (imgproxy terminology), not translatable strings.
+            str_replace('zw_', '', $option),
+            'zw_render_imgproxy_settings_field',
+            'media',
+            'zw_imgproxy_settings',
+            ['label_for' => $option, 'option' => $option] + $args
+        );
+    }
 
     zw_backfill_imgproxy_media_settings();
 }
@@ -1102,6 +1034,11 @@ function zw_log_invalid_imgproxy_src($src, string $action): void
     error_log($message);
 }
 
+function zw_base64url(string $bin): string
+{
+    return rtrim(strtr(base64_encode($bin), '+/', '-_'), '=');
+}
+
 function zw_imgproxy($src, $width, $height)
 {
     $originalSrc = $src;
@@ -1116,13 +1053,7 @@ function zw_imgproxy($src, $width, $height)
     $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
 
     if (!$host || !$key || !$salt) {
-        if ($host || $key || $salt) {
-            static $warned = false;
-            if (!$warned) {
-                error_log('zw_imgproxy: partial configuration (key/salt/url) - falling back to Timber resize.');
-                $warned = true;
-            }
-        }
+        // Partial configuration is surfaced via zw_imgproxy_admin_notice().
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
@@ -1135,14 +1066,14 @@ function zw_imgproxy($src, $width, $height)
     $width = (int)round($width);
     $height = (int)round($height);
 
-    $encodedUrl = rtrim(strtr(base64_encode($src), '+/', '-_'), '=');
+    $encodedUrl = zw_base64url($src);
 
     // @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.ContainsVar
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
     $keyBin = pack('H*', $key);
     $saltBin = pack('H*', $salt);
-    $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin . $path, $keyBin, true)), '+/', '-_'), '=');
+    $signature = zw_base64url(hash_hmac('sha256', $saltBin . $path, $keyBin, true));
 
     return $host . $signature . $path;
 }

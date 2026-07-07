@@ -12,11 +12,7 @@
             <h1 class="font-black font-round text-4xl md:text-5xl uppercase text-black dark:text-white">{{ post.title }}</h1>
 
             {% if post.meta('tv_show_presentator') %}
-                {% set hosts = [] %}
-                {% for host in post.meta('tv_show_presentator') %}
-                    {% set hosts = hosts|merge([get_user(host)]) %}
-                {% endfor %}
-                <p class="text-sm md:text-base text-black dark:text-white">Met {{ hosts|join(', ', ' en ') }}</p>
+                <p class="text-sm md:text-base text-black dark:text-white">Met {{ get_users(post.meta('tv_show_presentator'))|join(', ', ' en ') }}</p>
             {% endif %}
 
             <div class="prose dark:prose-invert prose-lg md:prose-xl mt-8">
