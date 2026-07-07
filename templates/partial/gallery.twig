@@ -1,0 +1,45 @@
+{% macro render_item(item, gallery) %}
+    <figure class="{{ item.classes|e }}" role="listitem">
+        {% if item.link %}
+            <a class="absolute inset-0 block" href="{{ item.link|e }}" aria-label="{{ item.label|e }}">
+                {{ _self.render_image(item.image) }}
+            </a>
+        {% else %}
+            {{ _self.render_image(item.image) }}
+        {% endif %}
+
+        {% if gallery.type != 'circle' and item.caption %}
+            <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gray-900/75 px-2 py-1.5 text-xs leading-tight text-white md:translate-y-full md:transition-transform md:duration-200 md:group-hover:translate-y-0 md:group-focus-within:translate-y-0">
+                {{ item.caption|e }}
+            </figcaption>
+        {% endif %}
+    </figure>
+{% endmacro %}
+
+{% macro render_image(image) %}
+    <img class="{{ image.class|e('html_attr') }}"
+         src="{{ image.src|imgproxy(image.width, image.height)|e('html_attr') }}"
+         srcset="{%- for candidate in image.srcset -%}{{ image.src|imgproxy(candidate.width, candidate.height)|e('html_attr') }} {{ candidate.descriptor|e('html_attr') }}{%- if not loop.last %}, {% endif -%}{%- endfor -%}"
+         sizes="{{ image.sizes|e('html_attr') }}"
+         alt="{{ image.alt|e('html_attr') }}"
+         width="{{ image.width|e('html_attr') }}"
+         height="{{ image.height|e('html_attr') }}"
+         loading="{{ image.loading|e('html_attr') }}"
+         decoding="{{ image.decoding|e('html_attr') }}">
+{% endmacro %}
+
+{% import _self as gallery_macros %}
+
+<div class="{{ gallery.classes|e }}" role="list">
+    {% for group in gallery.groups %}
+        <div class="{{ group.classes|e }}" role="presentation">
+            {% for item in group.items %}
+                {{ gallery_macros.render_item(item, gallery) }}
+            {% endfor %}
+        </div>
+    {% else %}
+        {% for item in gallery.items %}
+            {{ gallery_macros.render_item(item, gallery) }}
+        {% endfor %}
+    {% endfor %}
+</div>
