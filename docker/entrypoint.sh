@@ -41,7 +41,9 @@ set -e
     sleep 3
 
     # Install WordPress if not already installed
+    WORDPRESS_WAS_INSTALLED=1
     if ! wp core is-installed --allow-root 2>/dev/null; then
+        WORDPRESS_WAS_INSTALLED=0
         echo "Installing WordPress..."
         wp core install \
             --url="http://localhost:8080" \
@@ -60,6 +62,12 @@ set -e
 
         echo "Installing Yoast SEO Premium ${YOAST_SEO_VERSION}..."
         wp plugin install "https://yoast.com/app/uploads/2026/05/wordpress-seo-premium-${YOAST_SEO_VERSION}.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
+
+        # Secure Custom Fields provides the ACF-compatible APIs the theme needs.
+        # It MUST be installed before the theme is activated: functions.php returns
+        # early (registering no menus/post types) when the ACF API is missing, which
+        # would make the "wp menu location assign" calls below fail on a fresh install.
+        install_secure_custom_fields
 
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
@@ -144,9 +152,11 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
-    # Secure Custom Fields provides the ACF-compatible APIs required by the theme;
-    # (re)install on every start so existing installs pick up updates too.
-    install_secure_custom_fields
+    # On restarts of an existing install the block above is skipped, so (re)install
+    # SCF here too, ensuring existing installs pick up updates.
+    if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
+        install_secure_custom_fields
+    fi
 
     # Fix permissions AFTER installation
     chown -R www-data:www-data /var/www/html/wp-content/uploads

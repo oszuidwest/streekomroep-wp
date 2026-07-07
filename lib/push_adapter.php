@@ -60,8 +60,11 @@ function zw_webapp_push_title($title, $post_id)
         return 'Leestip';
     }
 
-    // Same primary-term-with-fallback rule as on the site (classmap maps 'post' to Streekomroep\Post)
-    $region = Timber::get_post($post_id)?->region();
+    // Same primary-term-with-fallback rule as on the site (classmap maps 'post' to Streekomroep\Post).
+    // The filter is fired by the external webapp plugin, so guard the type: only our Post
+    // subclass exposes region(); a plain page/CPT would otherwise fatal on the method call.
+    $post = Timber::get_post($post_id);
+    $region = $post instanceof \Streekomroep\Post ? $post->region() : null;
 
     return $region ? $region->name : $title;
 }
