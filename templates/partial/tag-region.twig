@@ -1,6 +1,6 @@
 <div class="flex">
    {% if region %}
-       {% if link|default(true) %}
+       {% if link is not defined or link %}
            <a href="{{ region.link }}" class="rounded-md px-2 py-0.5 text-xs tracking-wide uppercase font-black font-round bg-groen text-white">
                {{- region.title -}}
            </a>
