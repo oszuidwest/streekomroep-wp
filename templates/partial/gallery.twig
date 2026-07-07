@@ -1,19 +1,33 @@
-<div class="{{ gallery.classes|e }}" role="list">
-    {% for item in gallery.items %}
-        <figure class="{{ item.classes|e }}" role="listitem">
-            {% if item.link %}
-                <a class="absolute inset-0 block" href="{{ item.link|e }}" aria-label="{{ item.label|e }}">
-                    {{ item.image|raw }}
-                </a>
-            {% else %}
+{% macro render_item(item, gallery) %}
+    <figure class="{{ item.classes|e }}" role="listitem">
+        {% if item.link %}
+            <a class="absolute inset-0 block" href="{{ item.link|e }}" aria-label="{{ item.label|e }}">
                 {{ item.image|raw }}
-            {% endif %}
+            </a>
+        {% else %}
+            {{ item.image|raw }}
+        {% endif %}
 
-            {% if gallery.type != 'circle' and item.caption %}
-                <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gray-900/75 px-2 py-1.5 text-xs leading-tight text-white md:translate-y-full md:transition-transform md:duration-200 md:group-hover:translate-y-0 md:group-focus-within:translate-y-0">
-                    {{ item.caption|e }}
-                </figcaption>
-            {% endif %}
-        </figure>
+        {% if gallery.type != 'circle' and item.caption %}
+            <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gray-900/75 px-2 py-1.5 text-xs leading-tight text-white md:translate-y-full md:transition-transform md:duration-200 md:group-hover:translate-y-0 md:group-focus-within:translate-y-0">
+                {{ item.caption|e }}
+            </figcaption>
+        {% endif %}
+    </figure>
+{% endmacro %}
+
+{% import _self as gallery_macros %}
+
+<div class="{{ gallery.classes|e }}" role="list">
+    {% for group in gallery.groups %}
+        <div class="{{ group.classes|e }}" role="presentation">
+            {% for item in group.items %}
+                {{ gallery_macros.render_item(item, gallery) }}
+            {% endfor %}
+        </div>
+    {% else %}
+        {% for item in gallery.items %}
+            {{ gallery_macros.render_item(item, gallery) }}
+        {% endfor %}
     {% endfor %}
 </div>

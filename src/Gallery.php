@@ -37,13 +37,22 @@ class Gallery
             return (string) $output;
         }
 
+        $isRectangular = $attributes['type'] === 'rectangular';
+        $groups = $isRectangular ? self::buildRectangularGroups($items, $attributes) : [];
+        $renderedItems = $isRectangular ? [] : self::buildUniformItems($items, $attributes);
+
+        if ($groups === [] && $renderedItems === []) {
+            return (string) $output;
+        }
+
         return trim((string) Timber::compile(
             'partial/gallery.twig',
             [
                 'gallery' => [
                     'type' => $attributes['type'],
                     'classes' => self::getGalleryClasses($attributes),
-                    'items' => $items,
+                    'groups' => $groups,
+                    'items' => $renderedItems,
                 ],
             ]
         ));
@@ -171,45 +180,22 @@ class Gallery
     {
         $items = [];
 
-        foreach ($attachments as $index => $attachment) {
+        foreach ($attachments as $attachment) {
             if (!$attachment instanceof WP_Post) {
                 continue;
             }
 
             $caption = trim(wp_strip_all_tags((string) $attachment->post_excerpt));
             $label = $caption !== '' ? $caption : trim(wp_strip_all_tags((string) $attachment->post_title));
-            $layout = self::getItemLayout(self::getRatio($attachment), $attributes, (int) $index);
-            $image = self::renderImage($attachment, $attributes, $label, $layout['sizes']);
-
-            if ($image === '') {
-                continue;
-            }
-
             $items[] = [
+                'attachment' => $attachment,
                 'caption' => $caption,
-                'classes' => $layout['classes'],
-                'image' => $image,
                 'label' => $label,
                 'link' => self::getLinkUrl($attachment, $attributes['link']),
             ];
         }
 
         return $items;
-    }
-
-    private static function getRatio(WP_Post $attachment): float
-    {
-        $meta = wp_get_attachment_metadata($attachment->ID);
-        $width = absint($meta['width'] ?? 0);
-        $height = absint($meta['height'] ?? 0);
-
-        if ($width === 0 || $height === 0) {
-            $image = wp_get_attachment_image_src($attachment->ID, 'full');
-            $width = absint($image[1] ?? 1);
-            $height = absint($image[2] ?? 1);
-        }
-
-        return max(0.5, min(3.5, $width / max(1, $height)));
     }
 
     private static function renderImage(WP_Post $attachment, array $attributes, string $label, string $sizes): string
@@ -229,16 +215,16 @@ class Gallery
 
     private static function getGalleryClasses(array $attributes): string
     {
-        $base = 'not-prose clear-both my-6 grid';
+        $base = 'not-prose clear-both my-6';
         $type = $attributes['type'];
 
         if ($type === 'rectangular') {
-            return $base . ' grid-flow-dense grid-cols-2 gap-1 md:grid-cols-6 md:auto-rows-[8.5rem] lg:auto-rows-[9.5rem]';
+            return $base . ' space-y-1';
         }
 
         $gap = $type === 'circle' ? ' gap-3 md:gap-4' : ' gap-1';
 
-        return $base . $gap . ' ' . self::getColumnClasses((int) $attributes['columns']);
+        return $base . ' grid' . $gap . ' ' . self::getColumnClasses((int) $attributes['columns']);
     }
 
     private static function getColumnClasses(int $columns): string
@@ -254,12 +240,147 @@ class Gallery
     }
 
     /**
-     * Tiles use only even column and row spans on the 6-column grid, so every
-     * row sums to 6 and grid-flow-dense can backfill without leaving holes.
+     * @param array<int, array{attachment: WP_Post, caption: string, label: string, link: string}> $items
      *
+     * @return array<int, array{classes: string, items: array<int, array{caption: string, classes: string, image: string, label: string, link: string}>}>
+     */
+    private static function buildRectangularGroups(array $items, array $attributes): array
+    {
+        $groups = [];
+        $offset = 0;
+        $total = count($items);
+
+        while ($offset < $total) {
+            $groupSize = self::getNextRectangularGroupSize($total - $offset);
+            $chunk = array_slice($items, $offset, $groupSize);
+            $groupItems = [];
+
+            foreach ($chunk as $position => $item) {
+                $layout = self::getRectangularItemLayout(count($chunk), (int) $position);
+                $rendered = self::renderItem($item, $attributes, $layout);
+
+                if ($rendered !== null) {
+                    $groupItems[] = $rendered;
+                }
+            }
+
+            if ($groupItems !== []) {
+                $groups[] = [
+                    'classes' => 'grid grid-cols-2 gap-1 md:grid-cols-6',
+                    'items' => $groupItems,
+                ];
+            }
+
+            $offset += $groupSize;
+        }
+
+        return $groups;
+    }
+
+    private static function getNextRectangularGroupSize(int $remaining): int
+    {
+        if ($remaining <= 5) {
+            return $remaining;
+        }
+
+        return $remaining === 6 ? 3 : 5;
+    }
+
+    /**
      * @return array{classes: string, sizes: string}
      */
-    private static function getItemLayout(float $ratio, array $attributes, int $index): array
+    private static function getRectangularItemLayout(int $groupSize, int $position): array
+    {
+        $base = 'group relative m-0 overflow-hidden bg-gray-100';
+
+        return match ($groupSize) {
+            1 => [
+                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
+                'sizes' => '(min-width: 768px) 768px, 100vw',
+            ],
+            2 => [
+                'classes' => $base . ' aspect-[4/3] md:col-span-3',
+                'sizes' => '(min-width: 768px) 384px, 50vw',
+            ],
+            3 => $position === 0 ? [
+                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
+                'sizes' => '(min-width: 768px) 768px, 100vw',
+            ] : [
+                'classes' => $base . ' aspect-[4/3] md:col-span-3',
+                'sizes' => '(min-width: 768px) 384px, 50vw',
+            ],
+            4 => ($position === 0 || $position === 3) ? [
+                'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
+                'sizes' => '(min-width: 768px) 384px, 100vw',
+            ] : [
+                'classes' => $base . ' aspect-[4/3] md:col-span-3',
+                'sizes' => '(min-width: 768px) 384px, 50vw',
+            ],
+            default => match ($position) {
+                0 => [
+                    'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
+                    'sizes' => '(min-width: 768px) 384px, 100vw',
+                ],
+                1 => [
+                    'classes' => $base . ' aspect-[4/3] md:col-span-3',
+                    'sizes' => '(min-width: 768px) 384px, 50vw',
+                ],
+                default => [
+                    'classes' => $base . ' aspect-[4/3] md:col-span-2',
+                    'sizes' => '(min-width: 768px) 256px, 50vw',
+                ],
+            },
+        };
+    }
+
+    /**
+     * @param array<int, array{attachment: WP_Post, caption: string, label: string, link: string}> $items
+     *
+     * @return array<int, array{caption: string, classes: string, image: string, label: string, link: string}>
+     */
+    private static function buildUniformItems(array $items, array $attributes): array
+    {
+        $renderedItems = [];
+        $layout = self::getUniformItemLayout($attributes);
+
+        foreach ($items as $item) {
+            $rendered = self::renderItem($item, $attributes, $layout);
+
+            if ($rendered !== null) {
+                $renderedItems[] = $rendered;
+            }
+        }
+
+        return $renderedItems;
+    }
+
+    /**
+     * @param array{attachment: WP_Post, caption: string, label: string, link: string} $item
+     * @param array{classes: string, sizes: string} $layout
+     *
+     * @return array{caption: string, classes: string, image: string, label: string, link: string}|null
+     */
+    private static function renderItem(array $item, array $attributes, array $layout): ?array
+    {
+        $image = self::renderImage($item['attachment'], $attributes, $item['label'], $layout['sizes']);
+
+        if ($image === '') {
+            return null;
+        }
+
+        return [
+            'caption' => $item['caption'],
+            'classes' => $layout['classes'],
+            'image' => $image,
+            'label' => $item['label'],
+            'link' => $item['link'],
+        ];
+    }
+
+    /**
+     * @return array{classes: string, sizes: string}
+     */
+    private static function getUniformItemLayout(array $attributes): array
     {
         $base = 'group relative m-0 overflow-hidden bg-gray-100';
         $type = $attributes['type'];
@@ -274,30 +395,9 @@ class Gallery
             ];
         }
 
-        if ($ratio >= 2.2) {
-            return [
-                'classes' => $base . ' col-span-2 aspect-square md:aspect-auto md:col-span-4 md:row-span-2',
-                'sizes' => '(min-width: 768px) 510px, 100vw',
-            ];
-        }
-
-        if ($ratio <= 0.85) {
-            return [
-                'classes' => $base . ' col-span-1 aspect-square md:aspect-auto md:col-span-2 md:row-span-4',
-                'sizes' => '(min-width: 768px) 250px, 50vw',
-            ];
-        }
-
-        if ($index % 7 === 0) {
-            return [
-                'classes' => $base . ' col-span-1 aspect-square md:aspect-auto md:col-span-4 md:row-span-2',
-                'sizes' => '(min-width: 768px) 510px, 50vw',
-            ];
-        }
-
         return [
-            'classes' => $base . ' col-span-1 aspect-square md:aspect-auto md:col-span-2 md:row-span-2',
-            'sizes' => '(min-width: 768px) 250px, 50vw',
+            'classes' => $base . ' aspect-[4/3] md:col-span-2',
+            'sizes' => '(min-width: 768px) 256px, 50vw',
         ];
     }
 
