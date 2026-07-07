@@ -198,19 +198,71 @@ class Gallery
         return $items;
     }
 
-    private static function renderImage(WP_Post $attachment, array $attributes, string $label, string $sizes): string
+    private static function buildImage(WP_Post $attachment, array $attributes, string $label, array $layout): ?array
     {
-        $imageAttributes = [
-            'class' => self::getImageClasses($attributes['type']),
-            'sizes' => $sizes,
-        ];
+        $source = wp_get_attachment_image_src($attachment->ID, 'full');
 
-        // Core only falls back to _wp_attachment_image_alt; supply caption/title when that is empty.
-        if (trim((string) get_post_meta($attachment->ID, '_wp_attachment_image_alt', true)) === '') {
-            $imageAttributes['alt'] = $label;
+        if (!is_array($source) || empty($source[0])) {
+            return null;
         }
 
-        return wp_get_attachment_image($attachment->ID, $attributes['size'], false, $imageAttributes);
+        $width = (int) $layout['width'];
+        $height = (int) $layout['height'];
+
+        if ($width <= 0 || $height <= 0) {
+            return null;
+        }
+
+        $alt = trim((string) get_post_meta($attachment->ID, '_wp_attachment_image_alt', true));
+
+        if ($alt === '') {
+            $alt = $label;
+        }
+
+        return [
+            'class' => self::getImageClasses($attributes['type']),
+            'src' => $source[0],
+            'srcset' => self::buildImageSrcset($width, $height),
+            'sizes' => $layout['sizes'],
+            'alt' => $alt,
+            'width' => $width,
+            'height' => $height,
+            'loading' => 'lazy',
+            'decoding' => 'async',
+        ];
+    }
+
+    private static function buildImageSrcset(int $width, int $height): array
+    {
+        $srcset = [];
+
+        foreach (self::getSrcsetWidths($width) as $srcsetWidth) {
+            $srcsetHeight = (int) round($srcsetWidth / $width * $height);
+            $srcset[] = [
+                'width' => $srcsetWidth,
+                'height' => $srcsetHeight,
+                'descriptor' => $srcsetWidth . 'w',
+            ];
+        }
+
+        return $srcset;
+    }
+
+    /**
+     * @return int[]
+     */
+    private static function getSrcsetWidths(int $width): array
+    {
+        $widths = [
+            max(192, (int) round($width / 2)),
+            $width,
+            $width * 2,
+        ];
+
+        $widths = array_values(array_unique(array_filter($widths)));
+        sort($widths);
+
+        return $widths;
     }
 
     private static function getGalleryClasses(array $attributes): string
@@ -242,7 +294,7 @@ class Gallery
     /**
      * @param array<int, array{attachment: WP_Post, caption: string, label: string, link: string}> $items
      *
-     * @return array<int, array{classes: string, items: array<int, array{caption: string, classes: string, image: string, label: string, link: string}>}>
+     * @return array<int, array{classes: string, items: array<int, array{caption: string, classes: string, image: array, label: string, link: string}>}>
      */
     private static function buildRectangularGroups(array $items, array $attributes): array
     {
@@ -287,7 +339,7 @@ class Gallery
     }
 
     /**
-     * @return array{classes: string, sizes: string}
+     * @return array{classes: string, sizes: string, width: int, height: int}
      */
     private static function getRectangularItemLayout(int $groupSize, int $position): array
     {
@@ -297,37 +349,55 @@ class Gallery
             1 => [
                 'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
                 'sizes' => '(min-width: 768px) 768px, 100vw',
+                'width' => 768,
+                'height' => 432,
             ],
             2 => [
                 'classes' => $base . ' aspect-[4/3] md:col-span-3',
                 'sizes' => '(min-width: 768px) 384px, 50vw',
+                'width' => 384,
+                'height' => 288,
             ],
             3 => $position === 0 ? [
                 'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-6',
                 'sizes' => '(min-width: 768px) 768px, 100vw',
+                'width' => 768,
+                'height' => 432,
             ] : [
                 'classes' => $base . ' aspect-[4/3] md:col-span-3',
                 'sizes' => '(min-width: 768px) 384px, 50vw',
+                'width' => 384,
+                'height' => 288,
             ],
             4 => ($position === 0 || $position === 3) ? [
                 'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
                 'sizes' => '(min-width: 768px) 384px, 100vw',
+                'width' => 768,
+                'height' => 432,
             ] : [
                 'classes' => $base . ' aspect-[4/3] md:col-span-3',
                 'sizes' => '(min-width: 768px) 384px, 50vw',
+                'width' => 384,
+                'height' => 288,
             ],
             default => match ($position) {
                 0 => [
                     'classes' => $base . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
                     'sizes' => '(min-width: 768px) 384px, 100vw',
+                    'width' => 768,
+                    'height' => 432,
                 ],
                 1 => [
                     'classes' => $base . ' aspect-[4/3] md:col-span-3',
                     'sizes' => '(min-width: 768px) 384px, 50vw',
+                    'width' => 384,
+                    'height' => 288,
                 ],
                 default => [
                     'classes' => $base . ' aspect-[4/3] md:col-span-2',
                     'sizes' => '(min-width: 768px) 256px, 50vw',
+                    'width' => 256,
+                    'height' => 192,
                 ],
             },
         };
@@ -336,7 +406,7 @@ class Gallery
     /**
      * @param array<int, array{attachment: WP_Post, caption: string, label: string, link: string}> $items
      *
-     * @return array<int, array{caption: string, classes: string, image: string, label: string, link: string}>
+     * @return array<int, array{caption: string, classes: string, image: array, label: string, link: string}>
      */
     private static function buildUniformItems(array $items, array $attributes): array
     {
@@ -356,15 +426,15 @@ class Gallery
 
     /**
      * @param array{attachment: WP_Post, caption: string, label: string, link: string} $item
-     * @param array{classes: string, sizes: string} $layout
+     * @param array{classes: string, sizes: string, width: int, height: int} $layout
      *
-     * @return array{caption: string, classes: string, image: string, label: string, link: string}|null
+     * @return array{caption: string, classes: string, image: array, label: string, link: string}|null
      */
     private static function renderItem(array $item, array $attributes, array $layout): ?array
     {
-        $image = self::renderImage($item['attachment'], $attributes, $item['label'], $layout['sizes']);
+        $image = self::buildImage($item['attachment'], $attributes, $item['label'], $layout);
 
-        if ($image === '') {
+        if ($image === null) {
             return null;
         }
 
@@ -378,7 +448,7 @@ class Gallery
     }
 
     /**
-     * @return array{classes: string, sizes: string}
+     * @return array{classes: string, sizes: string, width: int, height: int}
      */
     private static function getUniformItemLayout(array $attributes): array
     {
@@ -392,12 +462,16 @@ class Gallery
             return [
                 'classes' => $base . ' aspect-square' . ($type === 'circle' ? ' rounded-full' : ''),
                 'sizes' => $columns === 1 ? '100vw' : sprintf('(min-width: 768px) %dpx, 50vw', $width),
+                'width' => $width,
+                'height' => $width,
             ];
         }
 
         return [
             'classes' => $base . ' aspect-[4/3] md:col-span-2',
             'sizes' => '(min-width: 768px) 256px, 50vw',
+            'width' => 256,
+            'height' => 192,
         ];
     }
 
