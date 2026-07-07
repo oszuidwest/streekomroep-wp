@@ -99,6 +99,14 @@ class Site extends \Timber\Site
             ]
         );
 
+        add_theme_support(
+            'post-formats',
+            [
+                'video',
+                'audio',
+            ]
+        );
+
         add_theme_support('custom-logo');
     }
 
