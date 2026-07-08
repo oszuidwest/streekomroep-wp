@@ -9,7 +9,11 @@
         <article>
             <a href="{{ post.link }}" class="grid sm:grid-cols-2 gap-4">
             <div>
-                {{ include('partial/post-thumbnail.twig', {post: post, width: 472}) }}
+                {{ include('partial/post-thumbnail.twig', {
+                    post: post,
+                    width: 472,
+                    sizes: '(min-width: 960px) 456px, (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
+                }) }}
             </div>
 
             <div>

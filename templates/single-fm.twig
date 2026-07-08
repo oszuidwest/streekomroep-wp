@@ -1,13 +1,21 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="mx-auto max-w-960 md:px-4 md:pt-8">
             <div class="aspect-[21/9] relative">
                 {% if post.thumbnail %}
-                    <img src="{{ post.thumbnail.src|imgproxy(960, 960 / 21 * 9) }}"
-                         srcset="{{ post.thumbnail.src|imgproxy(1920, 1920 / 21 * 9) }} 2x"
-                         alt="{{ post.title }}" class="absolute inset-0 bg-gray-200 dark:bg-gray-700 ">
+                    {{ responsive.render(
+                        post.thumbnail.src,
+                        928,
+                        928 / 21 * 9,
+                        '(min-width: 960px) 928px, (min-width: 768px) calc(100vw - 2rem), 100vw',
+                        post.thumbnail.alt|default(post.title, true),
+                        'absolute inset-0 w-full h-full object-cover bg-gray-200 dark:bg-gray-700',
+                        'eager',
+                    ) }}
                 {% endif %}
             </div>
         </div>

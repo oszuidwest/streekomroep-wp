@@ -19,7 +19,7 @@
 {% macro render_image(image) %}
     <img class="{{ image.class|e('html_attr') }}"
          src="{{ image.src|imgproxy(image.width, image.height)|e('html_attr') }}"
-         srcset="{%- for candidate in image.srcset -%}{{ image.src|imgproxy(candidate.width, candidate.height)|e('html_attr') }} {{ candidate.descriptor|e('html_attr') }}{%- if not loop.last %}, {% endif -%}{%- endfor -%}"
+         srcset="{{ image.srcset|e('html_attr') }}"
          sizes="{{ image.sizes|e('html_attr') }}"
          alt="{{ image.alt|e('html_attr') }}"
          width="{{ image.width|e('html_attr') }}"

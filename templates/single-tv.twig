@@ -1,12 +1,20 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="px-6 md:px-12 max-w-3xl mx-auto py-8 md:pt-16">
             {% if post.thumbnail %}
-                <img src="{{ post.thumbnail.src|imgproxy(960, 540) }}"
-                     srcset="{{ post.thumbnail.src|imgproxy(1920, 1080) }} 2x"
-                     alt="{{ post.title }}" width="960" height="540" class="w-full">
+                {{ responsive.render(
+                    post.thumbnail.src,
+                    720,
+                    405,
+                    '(min-width: 768px) 672px, calc(100vw - 3rem)',
+                    post.thumbnail.alt|default(post.title, true),
+                    'w-full',
+                    'eager',
+                ) }}
             {% endif %}
 
             <h1 class="font-black font-round text-4xl md:text-5xl uppercase text-black dark:text-white">{{ post.title }}</h1>
@@ -31,10 +39,14 @@
                                 <article>
                                     <a href="?v={{ video.id }}">
                                         {% set width = 220 %}
-                                        <img class="w-full object-contain" loading="lazy" alt="{{ video.name }}"
-                                             width="{{ width }}" height="{{ (width / 16 * 9)|round }}"
-                                             src="{{ video.thumbnail|imgproxy(width, width / 16 * 9) }}"
-                                             srcset="{{ video.thumbnail|imgproxy(width * 2, (width * 2) / 16 * 9) }} 2x"/>
+                                        {{ responsive.render(
+                                            video.thumbnail,
+                                            width,
+                                            width / 16 * 9,
+                                            '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
+                                            video.name,
+                                            'w-full object-contain',
+                                        ) }}
                                         <h3 class="font-bold mt-2 :text-gray-200">{{ video.name }}</h3>
                                     </a>
                                 </article>

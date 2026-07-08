@@ -1,3 +1,5 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <div class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         {% if block.tekst_boven_videos %}
@@ -7,7 +9,14 @@
         <div class="grid sm:grid-cols-2 gap-4">
             {% for item in block.videos %}
                 <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
-                    <img src="{{ item.video.thumbnail|imgproxy(330, 168) }}" alt="{{ item.show.title }} - {{ item.video.name }}" width="330" height="168" loading="lazy"/>
+                    {{ responsive.render(
+                        item.video.thumbnail,
+                        330,
+                        168,
+                        '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
+                        item.show.title ~ ' - ' ~ item.video.name,
+                        'w-full',
+                    ) }}
                     <div class="sm:mt-4 md:m-0">
                         <h3 class="font-bold">{{ item.show.title }}</h3>
                         <p>{{ item.video.name }}</p>

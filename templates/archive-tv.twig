@@ -1,6 +1,8 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <div class="max-w-960 mx-auto px-4">
         {% embed 'partial/tabs.twig' %}
             {% block title %}
@@ -21,7 +23,14 @@
             {% for post in posts %}
                 <a class="block" href="{{ post.link }}">
                     <div class="aspect-video bg-blauw rounded-sm overflow-hidden">
-                        <img class="w-full h-full object-cover" alt="{{ post.title }}" src="{{ post.thumbnail.src|imgproxy(440, 248) }}"/>
+                        {{ responsive.render(
+                            post.thumbnail.src,
+                            296,
+                            167,
+                            '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), (min-width: 640px) calc((100vw - 4rem) / 3), calc((100vw - 3rem) / 2)',
+                            post.thumbnail.alt|default(post.title, true),
+                            'w-full h-full object-cover',
+                        ) }}
                     </div>
                     <p class="text-center mt-2 font-bold text-sm text-black dark:text-gray-100">{{ post.title }}</p>
                 </a>
