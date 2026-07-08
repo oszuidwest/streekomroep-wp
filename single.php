@@ -175,7 +175,8 @@ if ($timber_post->post_type == 'fm') {
 
 
                 if (($hour->isAfter($ruleStart) || $hour->is($ruleStart)) && $hour->isBefore($ruleEnd)) {
-                    $recordings[] = $hour;
+                    // Store a copy because the loop cursor is a mutable Carbon instance.
+                    $recordings[] = $hour->copy();
                 }
             }
 
