@@ -10,14 +10,16 @@
         <div class="aspect-[21/9] relative">
             <div>
                 {% set wide_image = get_image(term.dossier_afbeelding_breed) %}
+                {# eager for mobile LCP; it also fetches on desktop where lg:hidden applies,
+                   so the 1px clause steers desktop to the smallest candidate #}
                 {{ responsive.render(
-                    wide_image.src,
-                    1024,
-                    439,
-                    '(max-width: 1023px) 100vw, 1px',
-                    wide_image.alt|default(term.name, true),
-                    'object-cover absolute inset-0 w-full h-full',
-                    'eager',
+                    src: wide_image.src,
+                    width: 1024,
+                    height: 439,
+                    sizes: '(max-width: 1023px) 100vw, 1px',
+                    alt: wide_image.alt|default(term.name, true),
+                    class: 'object-cover absolute inset-0 w-full h-full',
+                    loading: 'eager',
                 ) }}
                 <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white dark:from-gray-800"></div>
             </div>
@@ -39,12 +41,12 @@
                         <div>
                             {% set tall_image = get_image(term.meta('dossier_afbeelding_hoog')) %}
                             {{ responsive.render(
-                                tall_image.src,
-                                299,
-                                532,
-                                '(min-width: 1024px) 299px, 1px',
-                                tall_image.alt|default(term.name, true),
-                                'absolute inset-0 w-full',
+                                src: tall_image.src,
+                                width: 299,
+                                height: 532,
+                                sizes: '299px',
+                                alt: tall_image.alt|default(term.name, true),
+                                class: 'absolute inset-0 w-full',
                             ) }}
                         </div>
                     </div>

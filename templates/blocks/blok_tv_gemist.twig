@@ -10,12 +10,12 @@
             {% for item in block.videos %}
                 <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
                     {{ responsive.render(
-                        item.video.thumbnail,
-                        330,
-                        168,
-                        '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
-                        item.show.title ~ ' - ' ~ item.video.name,
-                        'w-full',
+                        src: item.video.thumbnail,
+                        width: 330,
+                        height: 168,
+                        sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
+                        alt: item.show.title ~ ' - ' ~ item.video.name,
+                        class: 'w-full',
                     ) }}
                     <div class="sm:mt-4 md:m-0">
                         <h3 class="font-bold">{{ item.show.title }}</h3>

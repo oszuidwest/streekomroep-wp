@@ -8,13 +8,13 @@
             <div class="aspect-[21/9] relative">
                 {% if post.thumbnail %}
                     {{ responsive.render(
-                        post.thumbnail.src,
-                        928,
-                        928 / 21 * 9,
-                        '(min-width: 960px) 928px, (min-width: 768px) calc(100vw - 2rem), 100vw',
-                        post.thumbnail.alt|default(post.title, true),
-                        'absolute inset-0 w-full h-full object-cover bg-gray-200 dark:bg-gray-700',
-                        'eager',
+                        src: post.thumbnail.src,
+                        width: 928,
+                        height: 928 / 21 * 9,
+                        sizes: '(min-width: 960px) 928px, (min-width: 768px) calc(100vw - 2rem), 100vw',
+                        alt: post.thumbnail.alt|default(post.title, true),
+                        class: 'absolute inset-0 w-full h-full object-cover bg-gray-200 dark:bg-gray-700',
+                        loading: 'eager',
                     ) }}
                 {% endif %}
             </div>

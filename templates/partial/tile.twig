@@ -5,13 +5,14 @@
         <h2 class="h2 text-black dark:text-white"><a href="{{ post.link }}">{{ post.title }}</a></h2>
         <p class='text-black dark:text-gray-200'>{{ post.excerpt }}</p>
         {% if post.get_thumbnail %}
+            {# Sized for the search results grid (search.twig): 3 cols >= lg, 2 cols >= sm, 1 col below #}
             {{ responsive.render(
-                post.thumbnail.src,
-                228,
-                128,
-                '(min-width: 768px) 228px, 100vw',
-                post.thumbnail.alt|default(post.title, true),
-                'w-full',
+                src: post.thumbnail.src,
+                width: 299,
+                height: 168,
+                sizes: '(min-width: 1024px) 299px, (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
+                alt: post.thumbnail.alt|default(post.title, true),
+                class: 'w-full',
             ) }}
         {% endif %}
     {% endblock %}

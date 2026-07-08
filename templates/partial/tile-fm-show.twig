@@ -4,12 +4,12 @@
     <div class="absolute inset-0 bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
         {% if post.thumbnail %}
             {{ responsive.render(
-                post.thumbnail.src,
-                320,
-                180,
-                '(min-width: 960px) 299px, (min-width: 768px) calc((100vw - 4rem) / 3), (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
-                post.thumbnail.alt|default(post.title, true),
-                'absolute inset-0 w-full h-full object-cover',
+                src: post.thumbnail.src,
+                width: 320,
+                height: 180,
+                sizes: '(min-width: 960px) 299px, (min-width: 768px) calc((100vw - 4rem) / 3), (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
+                alt: post.thumbnail.alt|default(post.title, true),
+                class: 'absolute inset-0 w-full h-full object-cover',
             ) }}
         {% endif %}
         <div class="absolute flex flex-col inset-x-0 bottom-0 px-4 pb-3 pt-12 bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900">

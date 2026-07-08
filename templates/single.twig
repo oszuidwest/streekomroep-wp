@@ -22,13 +22,13 @@
                 {% elseif post.thumbnail %}
                     <div class="w-full mx-auto max-w-960">
                         {{ responsive.render(
-                            post.thumbnail.src,
-                            960,
-                            540,
-                            '(min-width: 960px) 960px, 100vw',
-                            post.thumbnail.alt|default(post.title, true),
-                            'w-full',
-                            'eager',
+                            src: post.thumbnail.src,
+                            width: 960,
+                            height: 540,
+                            sizes: '(min-width: 960px) 960px, 100vw',
+                            alt: post.thumbnail.alt|default(post.title, true),
+                            class: 'w-full',
+                            loading: 'eager',
                         ) }}
                         {% if post.thumbnail.caption %}
                             <p class="text-sm text-gray-500 dark:text-gray-400 text-center pt-2">{{ post.thumbnail.caption }}</p>

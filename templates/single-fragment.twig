@@ -42,12 +42,12 @@
                         <a class="flex py-2 hover:bg-gray-50 dark:hover:bg-gray-700" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
                                 {{ responsive.render(
-                                    post.thumbnail.src,
-                                    128,
-                                    72,
-                                    '128px',
-                                    post.thumbnail.alt|default(post.title, true),
-                                    'w-full',
+                                    src: post.thumbnail.src,
+                                    width: 128,
+                                    height: 72,
+                                    sizes: '128px',
+                                    alt: post.thumbnail.alt|default(post.title, true),
+                                    class: 'w-full',
                                 ) }}
                             </div>
                             <div class="flex-auto pl-4">

@@ -17,33 +17,23 @@
     </div>
 
     <div class="w-full max-w-xl mx-auto px-4">
+        {% set thumbnail_sizes = '(min-width: 640px) 174px, (min-width: 576px) 264px, calc((100vw - 3rem) / 2)' %}
+        {% set fallback_image = get_image(options.tv_fallback_img) %}
         {% for day in schedule.days %}
             <h2 class="font-bold text-2xl text-black dark:text-gray-100">{{ day.name }}</h2>
             {% for broadcast in day.television %}
                 <a class="my-4 flex flex-row" href="{{ broadcast.show.link }}">
                     <div class="w-1/2 sm:w-1/3 flex-none pr-2">
                         <div class="aspect-video bg-blauw rounded-sm overflow-hidden">
-                            {% set thumbnail_sizes = '(min-width: 640px) 174px, (min-width: 576px) 264px, calc((100vw - 3rem) / 2)' %}
-                            {% if broadcast.show.thumbnail %}
-                                {{ responsive.render(
-                                    broadcast.show.thumbnail.src,
-                                    264,
-                                    149,
-                                    thumbnail_sizes,
-                                    broadcast.show.thumbnail.alt|default(broadcast.name, true),
-                                    'w-full h-full object-cover',
-                                ) }}
-                            {% else %}
-                                {% set fallback_image = get_image(options.tv_fallback_img) %}
-                                {{ responsive.render(
-                                    fallback_image.src,
-                                    264,
-                                    149,
-                                    thumbnail_sizes,
-                                    broadcast.name,
-                                    'w-full h-full object-cover',
-                                ) }}
-                            {% endif %}
+                            {% set thumbnail = broadcast.show.thumbnail ?: fallback_image %}
+                            {{ responsive.render(
+                                src: thumbnail.src,
+                                width: 264,
+                                height: 149,
+                                sizes: thumbnail_sizes,
+                                alt: thumbnail.alt|default(broadcast.name, true),
+                                class: 'w-full h-full object-cover',
+                            ) }}
                         </div>
                     </div>
                     <div>

@@ -254,13 +254,10 @@ class Gallery
         return [
             'class' => self::getImageClasses($attributes['type']),
             'src' => $src,
-            'srcset' => ResponsiveImage::srcset($src, $width, $height),
             'sizes' => $layout['sizes'],
             'alt' => $alt,
             'width' => $width,
             'height' => $height,
-            'loading' => 'lazy',
-            'decoding' => 'async',
         ];
     }
 

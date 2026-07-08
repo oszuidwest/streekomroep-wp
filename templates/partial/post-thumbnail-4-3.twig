@@ -7,28 +7,26 @@
     {% set showPlayButton = true %}
 {% endif %}
 {% set width = width|default(228) %}
-{% set desktop_sizes = sizes|default('(min-width: 640px) ' ~ width ~ 'px, 33vw') %}
-{% set mobile_sizes = mobile_sizes|default('33vw') %}
 <div class="aspect-[4/3] sm:aspect-video relative">
     <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <picture>
                 {# Desktop: 16:9 #}
                 {{ responsive.source(
-                    post.thumbnail.src,
-                    width,
-                    width / 16 * 9,
-                    desktop_sizes,
-                    '(min-width: 640px)',
+                    src: post.thumbnail.src,
+                    width: width,
+                    height: width / 16 * 9,
+                    sizes: width ~ 'px',
+                    media: '(min-width: 640px)',
                 ) }}
                 {# Mobile: 4:3 #}
                 {{ responsive.render(
-                    post.thumbnail.src,
-                    width,
-                    width / 4 * 3,
-                    mobile_sizes,
-                    post.thumbnail.alt|default(post.title, true),
-                    'w-full h-full object-cover',
+                    src: post.thumbnail.src,
+                    width: width,
+                    height: width / 4 * 3,
+                    sizes: '33vw',
+                    alt: post.thumbnail.alt|default(post.title, true),
+                    class: 'w-full h-full object-cover',
                 ) }}
             </picture>
         {% endif %}
