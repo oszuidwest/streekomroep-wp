@@ -2,7 +2,7 @@
 
 namespace Streekomroep;
 
-use Timber\Image;
+use Timber\ImageInterface;
 use Timber\Timber;
 use WP_Post;
 
@@ -232,7 +232,7 @@ class Gallery
     {
         $image = Timber::get_image($attachment);
 
-        if (!$image instanceof Image) {
+        if (!$image instanceof ImageInterface) {
             return null;
         }
 
