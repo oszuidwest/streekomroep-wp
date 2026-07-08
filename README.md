@@ -42,7 +42,7 @@ To reset: `docker compose down -v` (removes database)
 
 ### Hard dependencies
 Install these before activating the theme:
-- Timber 2.4.1: [Bundled; if you build yourself, use composer](https://timber.github.io/docs/v2/installation/installation/)
+- Timber 2.5.1: [Bundled; if you build yourself, use composer](https://timber.github.io/docs/v2/installation/installation/)
 - Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x: Docker uses [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) for development; licensed environments may use [ACF Pro](https://www.advancedcustomfields.com/pro/).
 - Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
 - Yoast SEO Premium 27.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]

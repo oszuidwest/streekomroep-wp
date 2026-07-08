@@ -5,7 +5,7 @@ namespace Streekomroep;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeImmutable;
-use Timber;
+use Timber\Timber;
 
 class BroadcastSchedule
 {
@@ -51,7 +51,7 @@ class BroadcastSchedule
                     }
 
                     if ($entry['show'] instanceof \WP_Post) {
-                        $entry['show'] = Timber\Timber::get_post($entry['show']->ID);
+                        $entry['show'] = Timber::get_post($entry['show']->ID);
                     }
 
                     $day->addTelevision(new TelevisionBroadcast($entry['show'], $entry['naam_override'], $entry['starttijden']));
