@@ -4,10 +4,24 @@ namespace Streekomroep;
 
 final class ResponsiveImage
 {
+    /**
+     * Build imgproxy srcset candidates for the largest 1x CSS-pixel slot in the sizes attribute.
+     *
+     * @param \Timber\ImageInterface|string|null $src Image source accepted by zw_imgproxy().
+     */
     public static function srcset($src, int $width, int $height): string
     {
         if ($width <= 0 || $height <= 0) {
-            self::logInvalidDimensions($src, $width, $height);
+            \wp_trigger_error(
+                __METHOD__,
+                sprintf(
+                    'Invalid image dimensions (%dx%d) for source type %s; omitting srcset.',
+                    $width,
+                    $height,
+                    get_debug_type($src)
+                ),
+                \E_USER_WARNING
+            );
             return '';
         }
 
@@ -26,24 +40,5 @@ final class ResponsiveImage
         }
 
         return implode(', ', $srcset);
-    }
-
-    private static function logInvalidDimensions($src, int $width, int $height): void
-    {
-        static $warned = [];
-
-        $type = get_debug_type($src);
-        $key = $type . ':' . $width . 'x' . $height;
-        if (isset($warned[$key])) {
-            return;
-        }
-
-        $warned[$key] = true;
-        error_log(sprintf(
-            'responsive_image_srcset: invalid image dimensions (%dx%d) for source type %s; omitting srcset.',
-            $width,
-            $height,
-            $type
-        ));
     }
 }

@@ -38,6 +38,7 @@
             <div class="hidden lg:block col-start-1 row-start-1 relative z-10">
                 <div class="absolute inset-y-0 -inset-x-8">
                     {% set tall_image = get_image(block.term.dossier_afbeelding_hoog) %}
+                    {# 384px = max-w-960 / 3 plus 2rem bleed on both sides from -inset-x-8. #}
                     {{ responsive.render(
                         src: tall_image.src,
                         width: 384,

@@ -9,7 +9,6 @@
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-groen/20 to-groen/5 border border-groen/20 flex items-center justify-center shrink-0">
                             {% set site_icon = function('get_site_icon_url', 64) %}
                             {% if site_icon %}
-                                {# get_site_icon_url(64) returns the smallest crop >= 64px; WP's default 32/180/192/270 site-icon crops resolve this to 180px. #}
                                 <img src="{{ site_icon }}" width="40" height="40" loading="lazy" decoding="async" alt=""
                                      class="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg">
                             {% else %}

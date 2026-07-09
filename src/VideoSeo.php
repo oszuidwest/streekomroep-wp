@@ -91,8 +91,8 @@ class VideoSeo
             return $video->getDescription();
         };
 
-        $thumbnail = function () use ($video) {
-            return $video->getThumbnail() ?: '';
+        $thumbnail = function ($image) use ($video) {
+            return $video->getThumbnail() ?: $image;
         };
 
         add_filter('wpseo_title', $title);
@@ -105,9 +105,14 @@ class VideoSeo
             return 'video.episode';
         });
         add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-            $thumbnailUrl = \zw_normalize_imgproxy_src($video->getThumbnail());
+            $thumbnail = $video->getThumbnail();
+            if ($thumbnail === null) {
+                return;
+            }
+
+            $thumbnailUrl = \zw_normalize_imgproxy_src($thumbnail);
             if ($thumbnailUrl === null) {
-                \zw_log_invalid_imgproxy_src($video->getThumbnail(), 'skipping Open Graph video image');
+                \zw_log_invalid_imgproxy_src($thumbnail, 'skipping Open Graph video image');
                 return;
             }
 
@@ -143,7 +148,11 @@ class VideoSeo
             return $presenters;
         });
 
-        add_filter('wpseo_frontend_presentation', function ($presentation, $context) {
+        add_filter('wpseo_frontend_presentation', function ($presentation, $context) use ($video) {
+            if ($video->getThumbnail() === null) {
+                return $presentation;
+            }
+
             $presentation->model->open_graph_image_id = null;
             $presentation->model->open_graph_image_meta = null;
             $presentation->model->open_graph_image = null;

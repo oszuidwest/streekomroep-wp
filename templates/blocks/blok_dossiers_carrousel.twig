@@ -1,3 +1,5 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <style>
     .slider {
         --grid-columns: 3;
@@ -39,8 +41,6 @@
 </style>
 
 {% macro render_term(term) %}
-    {% import 'partial/responsive-image.twig' as responsive %}
-
     <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded-sm">
         <div class="aspect-[9/16] relative">
             <div>

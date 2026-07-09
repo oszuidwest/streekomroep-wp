@@ -1,5 +1,6 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 {% macro render_item(item, gallery) %}
-    {% import 'partial/responsive-image.twig' as responsive %}
     {% set image = responsive.render(
         src: item.image.src,
         width: item.image.width,

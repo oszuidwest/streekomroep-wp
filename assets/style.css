@@ -70,7 +70,7 @@
     margin: 0;
 }
 
-/* Grid stories layout */
+/* Grid stories layout. Keep column fractions in sync with templates/blocks/blok_top_stories.twig sizes. */
 .grid-stories {
     @apply grid-cols-2;
 }

@@ -7,6 +7,7 @@
     {% set showPlayButton = true %}
 {% endif %}
 {% set width = width|default(228) %}
+{% set desktop_sizes = desktop_sizes|default('(min-width: 1024px) ' ~ width ~ 'px, (min-width: 960px) 456px, (min-width: 640px) calc((100vw - 3rem) / 2), 33vw') %}
 <div class="aspect-[4/3] sm:aspect-video relative">
     <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
@@ -16,7 +17,7 @@
                     src: post.thumbnail.src,
                     width: width,
                     height: width / 16 * 9,
-                    sizes: width ~ 'px',
+                    sizes: desktop_sizes,
                     media: '(min-width: 640px)',
                 ) }}
                 {# Mobile: 4:3 #}
