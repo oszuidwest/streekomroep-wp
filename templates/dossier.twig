@@ -10,8 +10,8 @@
         <div class="aspect-[21/9] relative">
             <div>
                 {% set wide_image = get_image(term.dossier_afbeelding_breed) %}
-                {# eager for mobile LCP; it also fetches on desktop where lg:hidden applies,
-                   so the 1px clause steers desktop to the smallest candidate #}
+                {# Eager for mobile LCP. Unlike blok_dossier.twig's lazy hero, this can fetch on desktop,
+                   so the 1px clause steers the lg:hidden desktop case to the smallest candidate. #}
                 {{ responsive.render(
                     src: wide_image.src,
                     width: 1024,

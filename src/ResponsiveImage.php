@@ -7,6 +7,7 @@ final class ResponsiveImage
     public static function srcset($src, int $width, int $height): string
     {
         if ($width <= 0 || $height <= 0) {
+            self::logInvalidDimensions($src, $width, $height);
             return '';
         }
 
@@ -15,7 +16,7 @@ final class ResponsiveImage
             $width,
             $width * 2,
         ];
-        $widths = array_values(array_unique($widths));
+        $widths = array_unique($widths);
         sort($widths);
 
         $srcset = [];
@@ -25,5 +26,24 @@ final class ResponsiveImage
         }
 
         return implode(', ', $srcset);
+    }
+
+    private static function logInvalidDimensions($src, int $width, int $height): void
+    {
+        static $warned = [];
+
+        $type = get_debug_type($src);
+        $key = $type . ':' . $width . 'x' . $height;
+        if (isset($warned[$key])) {
+            return;
+        }
+
+        $warned[$key] = true;
+        error_log(sprintf(
+            'responsive_image_srcset: invalid image dimensions (%dx%d) for source type %s; omitting srcset.',
+            $width,
+            $height,
+            $type
+        ));
     }
 }

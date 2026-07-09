@@ -92,7 +92,7 @@ class VideoSeo
         };
 
         $thumbnail = function () use ($video) {
-            return $video->getThumbnail();
+            return $video->getThumbnail() ?: '';
         };
 
         add_filter('wpseo_title', $title);

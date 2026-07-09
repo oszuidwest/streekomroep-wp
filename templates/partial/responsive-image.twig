@@ -1,21 +1,27 @@
 {% macro render(src, width, height, sizes, alt, class, loading = 'lazy') %}
     {% set width = width|round %}
     {% set height = height|round %}
-    <img class="{{ class|e('html_attr') }}"
-         src="{{ src|imgproxy(width, height)|e('html_attr') }}"
-         srcset="{{ responsive_image_srcset(src, width, height)|e('html_attr') }}"
-         sizes="{{ sizes|e('html_attr') }}"
-         alt="{{ alt|default('', true)|e('html_attr') }}"
-         width="{{ width|e('html_attr') }}"
-         height="{{ height|e('html_attr') }}"
-         loading="{{ loading|e('html_attr') }}"
-         decoding="async">
+    {% set srcset = responsive_image_srcset(src, width, height) %}
+    {% if width > 0 and height > 0 %}
+        <img class="{{ class|e('html_attr') }}"
+             src="{{ src|imgproxy(width, height)|e('html_attr') }}"
+             {% if srcset %}srcset="{{ srcset|e('html_attr') }}"{% endif %}
+             sizes="{{ sizes|e('html_attr') }}"
+             alt="{{ alt|default('', true)|e('html_attr') }}"
+             width="{{ width|e('html_attr') }}"
+             height="{{ height|e('html_attr') }}"
+             loading="{{ loading|e('html_attr') }}"
+             decoding="async">
+    {% endif %}
 {% endmacro %}
 
 {% macro source(src, width, height, sizes, media) %}
     {% set width = width|round %}
     {% set height = height|round %}
-    <source media="{{ media|e('html_attr') }}"
-            srcset="{{ responsive_image_srcset(src, width, height)|e('html_attr') }}"
-            sizes="{{ sizes|e('html_attr') }}">
+    {% set srcset = responsive_image_srcset(src, width, height) %}
+    {% if srcset %}
+        <source media="{{ media|e('html_attr') }}"
+                srcset="{{ srcset|e('html_attr') }}"
+                sizes="{{ sizes|e('html_attr') }}">
+    {% endif %}
 {% endmacro %}

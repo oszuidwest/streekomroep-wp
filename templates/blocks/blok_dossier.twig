@@ -5,7 +5,7 @@
         <div class="aspect-[21/9] relative">
             <div>
                 {% set wide_image = get_image(block.term.dossier_afbeelding_breed) %}
-                {# lazy + display:none at lg keeps this from loading on desktop #}
+                {# The lg:hidden wrapper above plus lazy loading lets current engines skip this desktop fetch. #}
                 {{ responsive.render(
                     src: wide_image.src,
                     width: 1024,
