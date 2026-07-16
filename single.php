@@ -149,16 +149,15 @@ if ($timber_post->post_type == 'tv') {
 
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
-    $gemist = (bool)$show->meta('fm_show_actief');
+    $gemist = (bool)$show->meta('fm_show_actief') && (bool)get_field('radio_gemist_actief', 'option');
+
+    $rules = $show->meta('fm_show_programmatie');
+    if (!$rules) {
+        $rules = [];
+    }
 
     $recordings = [];
     if ($gemist) {
-        $items = [];
-        $rules = $show->meta('fm_show_programmatie');
-        if (!$rules) {
-            $rules = [];
-        }
-
         $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
         $end = $hour->copy()->subDays(get_field('radio_gemist_retentie', 'option'));
 
@@ -193,7 +192,91 @@ if ($timber_post->post_type == 'fm') {
         return $rhs <=> $lhs;
     });
 
-    $context['recordings'] = $recordings;
+    // Group recordings per day, then per ISO week (newest week first)
+    $recordingDays = [];
+    foreach ($recordings as $recording) {
+        $key = $recording->toDateString();
+        if (!isset($recordingDays[$key])) {
+            $recordingDays[$key] = ['date' => $recording->copy()->startOfDay(), 'times' => []];
+        }
+        $recordingDays[$key]['times'][] = $recording;
+    }
+
+    $recordingWeeks = [];
+    foreach ($recordingDays as $day) {
+        $recordingWeeks[$day['date']->isoWeekYear . '-' . $day['date']->isoWeek][] = $day;
+    }
+    $recordingWeeks = array_values($recordingWeeks);
+
+    $week = isset($_GET['week']) ? absint($_GET['week']) : 0;
+    if ($week >= count($recordingWeeks)) {
+        $week = max(0, count($recordingWeeks) - 1);
+    }
+
+    $retention = (int)get_field('radio_gemist_retentie', 'option');
+    $retentionLabel = null;
+    if ($retention > 0 && !empty($recordings)) {
+        if ($retention % 7 === 0) {
+            $weeks = intdiv($retention, 7);
+            $retentionLabel = $weeks === 1 ? '1 week' : $weeks . ' weken';
+        } else {
+            $retentionLabel = $retention === 1 ? '1 dag' : $retention . ' dagen';
+        }
+    }
+
+    $context['gemist'] = [
+        'weeks' => count($recordingWeeks),
+        'week' => $week,
+        'days' => $recordingWeeks[$week] ?? [],
+        'newest_is_recent' => !empty($recordings) && ($recordings[0]->isToday() || $recordings[0]->isYesterday()),
+        'retention_label' => $retentionLabel,
+    ];
+
+    // Find the next moment this show is live, to derive what airs directly after it
+    $schedule = new \Streekomroep\BroadcastSchedule();
+    $now = Carbon::now(wp_timezone());
+    $nextLive = null;
+    foreach ($schedule->days as $day) {
+        foreach ($day->radio as $broadcast) {
+            if ($broadcast->show && $broadcast->show->ID == $show->ID && $broadcast->start->isAfter($now)) {
+                $nextLive = $broadcast;
+                break 2;
+            }
+        }
+    }
+    $followingShow = null;
+    if ($nextLive) {
+        foreach ($schedule->days as $day) {
+            foreach ($day->radio as $broadcast) {
+                if ($broadcast->start->equalTo($nextLive->end)) {
+                    $followingShow = $broadcast;
+                    break 2;
+                }
+            }
+        }
+    }
+    $context['following_show'] = $followingShow;
+
+    $activeDays = [];
+    foreach ($rules as $rule) {
+        foreach ($rule['fm_show_dagen'] as $dayname) {
+            $activeDays[] = $dayname;
+        }
+    }
+    $context['schedule_days'] = $activeDays;
+
+    $context['fm_player_page'] = zw_get_page_by_template('wp-page-fm-player.php');
+
+    $context['other_shows'] = Timber::get_posts([
+        'post_type' => 'fm',
+        'posts_per_page' => -1,
+        'post__not_in' => [$show->ID],
+        'ignore_sticky_posts' => true,
+        'meta_key' => 'fm_show_actief',
+        'meta_value' => '1',
+        'orderby' => 'title',
+        'order' => 'ASC',
+    ]);
 }
 
 if ($timber_post->post_gekoppeld_fragment) {

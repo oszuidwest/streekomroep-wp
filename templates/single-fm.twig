@@ -1,58 +1,190 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    {% import 'partial/responsive-image.twig' as responsive %}
+    {% set presentatoren = get_users(post.meta('fm_show_presentator') ?: []) %}
+    {% set programmatie = post.meta('fm_show_programmatie') ?: [] %}
 
     <article id="post-{{ post.id }}" class="{{ post.class }}">
-        <div class="mx-auto max-w-960 md:px-4 md:pt-8">
-            <div class="aspect-[21/9] relative">
-                {% if post.thumbnail %}
-                    {{ responsive.render(
-                        src: post.thumbnail.src,
-                        width: 928,
-                        height: 928 / 21 * 9,
-                        sizes: '(min-width: 960px) 928px, (min-width: 768px) calc(100vw - 2rem), 100vw',
-                        alt: post.thumbnail.alt|default(post.title),
-                        class: 'absolute inset-0 w-full h-full object-cover bg-gray-200 dark:bg-gray-700',
-                        loading: 'eager',
-                    ) }}
+        {# Hero #}
+        <header class="relative overflow-hidden bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
+            {% if post.thumbnail %}
+                <div class="absolute -right-10 -top-2 h-36 w-36 rotate-45 overflow-hidden rounded-2xl opacity-85 md:top-1/2 md:right-24 md:h-72 md:w-72 md:-translate-y-1/2 md:rounded-3xl"
+                     aria-hidden="true">
+                    <img src="{{ post.thumbnail.src|imgproxy(600, 600) }}" alt=""
+                         class="absolute top-1/2 left-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 scale-150 object-cover opacity-45 mix-blend-luminosity">
+                </div>
+            {% endif %}
+
+            <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
+                <nav class="mb-5 text-xs font-semibold text-white/70 md:text-sm" aria-label="Kruimelpad">
+                    <a class="underline decoration-white/40 underline-offset-2 hover:text-white"
+                       href="{{ function('get_post_type_archive_link', 'fm') }}">Alle FM-programma's</a>
+                    <span class="opacity-60">/</span>
+                    <span class="text-white">{{ post.title }}</span>
+                </nav>
+
+                {% if programmatie is not empty %}
+                    <div class="mb-3 flex flex-wrap gap-1.5">
+                        {% for entry in programmatie %}
+                            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white md:text-sm">
+                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>{{ entry|format_schedule_compact }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h1 class="font-round text-4xl leading-none font-black text-white uppercase md:text-5xl">{{ post.title }}</h1>
+
+                {% if presentatoren is not empty %}
+                    <p class="mt-2 text-sm text-white/85 md:text-base">Met {{ presentatoren|join(', ', ' en ') }}</p>
                 {% endif %}
             </div>
-        </div>
-        <div class="px-6 md:px-12 max-w-3xl mx-auto py-8">
-            <ul class="text-sm md:text-base text-black dark:text-white">
-                {% for entry in post.meta('fm_show_programmatie') %}
-                    <li>{{ entry|format_schedule }}</li>
-                {% endfor %}
-            </ul>
-            <h1 class="font-black font-round text-4xl md:text-5xl uppercase text-black dark:text-white">{{ post.title }}</h1>
+        </header>
 
-            <p class="text-sm md:text-base mb-8 text-black dark:text-white">Met {{ get_users(post.meta('fm_show_presentator') ?: [])|join(', ', ' en ') }}</p>
+        <div class="mx-auto max-w-960 px-4 pt-7 lg:grid lg:grid-cols-[1fr_20rem] lg:gap-11 lg:pt-9">
+            <div>
+                {# Omschrijving #}
+                <div class="prose prose-lg dark:prose-invert mb-5">
+                    {{ post.content }}
+                </div>
 
-            <div class="prose dark:prose-invert prose-lg sm:col-span-2">
-                {{ post.content }}
-            </div>
-        </div>
-
-        {% if recordings is not empty %}
-            <aside class="bg-gray-800 border-t border-transparent dark:border-gray-200/10 text-white">
-                <div class="w-full mx-auto max-w-960 px-4">
-                    <h2 class="font-bold text-3xl pt-4 pb-4">Uitzending gemist</h2>
-
-                    <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
-                        {% for recording in recordings %}
-                            <li>
-                                <a class="block bg-gray-700/50 hover:bg-gray-700 focus:bg-gray-700 rounded-sm p-2"
-                                   href="{{ options.radio_gemist_baseurl|replace({'<date>': recording.format(options.radio_gemist_file)}) }}"
-                                   target="_blank">
-                                    <span class="block font-semibold">{{ recording.locale('nl').isoFormat('dddd D MMMM') }}</span>
-                                    <span class="block">{{ recording.locale('nl').isoFormat('HH:mm') }} uur</span>
-                                </a>
-                            </li>
+                {# Rubrieken #}
+                {% set rubrieken = post.meta('fm_show_rubrieken') ?: [] %}
+                {% if rubrieken is not empty %}
+                    <div class="mb-9 flex flex-wrap gap-2">
+                        {% for rubriek in rubrieken %}
+                            <span class="rounded-full bg-pink-100 px-3.5 py-1.5 text-xs font-bold text-[#b00061] dark:bg-roze/20 dark:text-pink-300">{{ rubriek.fm_show_rubriek_naam }}</span>
                         {% endfor %}
-                    </ul>
+                    </div>
+                {% endif %}
+
+                {# Uitzending gemist #}
+                {% if gemist.days is not empty %}
+                    <section id="gemist" class="mb-8 scroll-mt-32">
+                        <div class="mb-3.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                            <h2 class="text-2xl font-bold text-black dark:text-white">Uitzending gemist</h2>
+                            <div class="ml-auto flex items-center gap-2.5 text-sm font-bold">
+                                {% if gemist.week > 0 %}
+                                    <a class="text-roze hover:underline" href="?week={{ gemist.week - 1 }}#gemist">‹ nieuwer</a>
+                                {% endif %}
+                                <span class="text-gray-900 dark:text-white">
+                                    {%- if gemist.week == 0 -%}
+                                        deze week
+                                    {%- elseif gemist.week == 1 -%}
+                                        vorige week
+                                    {%- else -%}
+                                        {{ gemist.week }} weken terug
+                                    {%- endif -%}
+                                </span>
+                                {% if gemist.week + 1 < gemist.weeks %}
+                                    <a class="text-roze hover:underline" href="?week={{ gemist.week + 1 }}#gemist">{{ gemist.week == 0 ? 'vorige week' : 'ouder' }} ›</a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <ul class="sm:grid sm:grid-cols-3 sm:gap-2.5 md:grid-cols-5">
+                            {% for day in gemist.days %}
+                                <li class="flex items-center gap-3 border-t border-gray-200 py-3 sm:block sm:rounded-lg sm:border sm:p-3 dark:border-gray-600">
+                                    <div class="flex-1 sm:mb-2.5 sm:flex-none">
+                                        <span class="text-sm font-bold text-gray-900 sm:hidden dark:text-white">{{ day.date.locale('nl').isoFormat('dddd D MMMM') }}</span>
+                                        <span class="hidden text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dd') }}</span>
+                                        <span class="hidden text-sm font-bold text-gray-900 sm:block dark:text-white">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
+                                    </div>
+                                    <div class="flex gap-1.5 sm:flex-col">
+                                        {% for time in day.times %}
+                                            <a class="rounded-full border-[1.5px] border-roze px-3 py-1.5 text-center text-xs font-bold text-roze transition hover:bg-roze hover:text-white sm:rounded-md sm:px-0"
+                                               href="{{ options.radio_gemist_baseurl|replace({'<date>': time.format(options.radio_gemist_file)}) }}"
+                                               target="_blank" rel="noopener">▸ {{ time.locale('nl').isoFormat('HH:mm') }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if gemist.retention_label %}
+                            <p class="mt-2.5 text-sm text-gray-400">Uitzendingen blijven {{ gemist.retention_label }} terug te luisteren.</p>
+                        {% endif %}
+                    </section>
+                {% endif %}
+            </div>
+
+            {# Zijbalk #}
+            <aside class="mt-4 flex flex-col gap-4 lg:mt-0">
+                {% if presentatoren is not empty %}
+                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/40">
+                        <h2 class="mb-3.5 font-round text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">De makers</h2>
+                        <div class="flex flex-col gap-3.5">
+                            {% for maker in presentatoren %}
+                                <div class="flex gap-3">
+                                    <img src="{{ maker.avatar({size: 104}) }}" alt="{{ maker.name }}" width="52" height="52"
+                                         loading="lazy" class="h-13 w-13 flex-none rounded-full object-cover">
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ maker.name }}</p>
+                                        {% if maker.meta('description') %}
+                                            <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">{{ maker.meta('description') }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if programmatie is not empty %}
+                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/40">
+                        <h2 class="mb-3 font-round text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">Uitzendschema</h2>
+                        <div class="mb-2.5 flex gap-1.5">
+                            {% for dayname, label in {maandag: 'ma', dinsdag: 'di', woensdag: 'wo', donderdag: 'do', vrijdag: 'vr', zaterdag: 'za', zondag: 'zo'} %}
+                                <span class="flex-1 rounded py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ label }}</span>
+                            {% endfor %}
+                        </div>
+                        {% if programmatie|length == 1 %}
+                            <p class="text-xl font-black text-gray-900 dark:text-white">{{ programmatie[0].fm_show_starttijd|slice(0, 5) }} – {{ programmatie[0].fm_show_eindtijd|slice(0, 5) }}</p>
+                        {% else %}
+                            {% for entry in programmatie %}
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ entry|format_schedule_compact }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        {% if following_show %}
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Aansluitend: {{ following_show.name }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="rounded-lg bg-gray-800 p-5 text-white dark:border dark:border-gray-600 dark:bg-gray-900">
+                    <h2 class="mb-2.5 font-round text-xs font-bold tracking-wider text-gray-400 uppercase">Ook luisteren?</h2>
+                    <p class="text-sm leading-relaxed text-gray-300">
+                        {% if options.radio_frequenties %}
+                            {% for channel in options.radio_frequenties %}
+                                {{- channel.radio_frequenties_medium }} {{ channel.radio_frequenties_frequentie }}{{ not loop.last ? ' · ' -}}
+                            {% endfor %}
+                            <br>
+                        {% endif %}
+                        of via de <a class="underline hover:text-white" href="{{ site.url }}/?pswutlzoq=install">ZuidWest App</a>
+                    </p>
+                    {% if fm_player_page %}
+                        <a class="mt-3 inline-block rounded bg-roze px-4 py-2 text-sm font-bold text-white transition hover:bg-[#b00061]"
+                           href="{{ fm_player_page.link }}">▸ Luister live</a>
+                    {% endif %}
                 </div>
             </aside>
+        </div>
+
+        {# Meer programma's #}
+        {% if other_shows is not empty %}
+            <div class="mx-auto max-w-960 px-4">
+                <div class="mt-7 flex flex-wrap items-center gap-3 border-t border-gray-200 py-4 pb-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                    <span class="font-bold text-gray-900 dark:text-white">Meer FM-programma's:</span>
+                    {% for show in other_shows|slice(0, 4) %}
+                        <a class="rounded-full border border-gray-200 px-3 py-1 font-semibold transition hover:border-roze hover:text-roze dark:border-gray-600"
+                           href="{{ show.link }}">{{ show.title }}</a>
+                    {% endfor %}
+                    <a class="font-bold text-roze hover:underline md:ml-auto"
+                       href="{{ function('get_post_type_archive_link', 'fm') }}">Alle programma's →</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="pb-8"></div>
         {% endif %}
     </article>
 {% endblock %}

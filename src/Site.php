@@ -125,6 +125,69 @@ class Site extends \Timber\Site
         return sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
     }
 
+    /**
+     * Format a programmatie rule as a short label, e.g. "ma t/m vr · 07:00–09:00".
+     */
+    public function format_schedule_compact($entry)
+    {
+        $abbreviations = [
+            'maandag' => 'ma',
+            'dinsdag' => 'di',
+            'woensdag' => 'wo',
+            'donderdag' => 'do',
+            'vrijdag' => 'vr',
+            'zaterdag' => 'za',
+            'zondag' => 'zo',
+        ];
+
+        $days = array_values(array_intersect(array_keys($abbreviations), $entry['fm_show_dagen'] ?: []));
+
+        if (count($days) === 7) {
+            $dayString = 'elke dag';
+        } else {
+            $positions = array_flip(array_keys($abbreviations));
+
+            // Split the selected days into runs of consecutive weekdays
+            $runs = [];
+            $run = [];
+            foreach ($days as $day) {
+                if ($run && $positions[$day] !== $positions[end($run)] + 1) {
+                    $runs[] = $run;
+                    $run = [];
+                }
+                $run[] = $day;
+            }
+            if ($run) {
+                $runs[] = $run;
+            }
+
+            $parts = [];
+            foreach ($runs as $run) {
+                if (count($run) >= 3) {
+                    $parts[] = $abbreviations[$run[0]] . ' t/m ' . $abbreviations[end($run)];
+                } else {
+                    foreach ($run as $day) {
+                        $parts[] = $abbreviations[$day];
+                    }
+                }
+            }
+
+            $dayString = implode(', ', $parts);
+        }
+
+        if (empty($entry['fm_show_starttijd']) || empty($entry['fm_show_eindtijd'])) {
+            return $dayString;
+        }
+
+        $time = substr($entry['fm_show_starttijd'], 0, 5) . '–' . substr($entry['fm_show_eindtijd'], 0, 5);
+
+        if ($dayString === '') {
+            return $time;
+        }
+
+        return $dayString . ' · ' . $time;
+    }
+
     public function get_icon($name)
     {
         static $cache = [];
@@ -165,6 +228,7 @@ class Site extends \Timber\Site
         });
 
         $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
+        $twig->addFilter(new \Twig\TwigFilter('format_schedule_compact', [$this, 'format_schedule_compact']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));

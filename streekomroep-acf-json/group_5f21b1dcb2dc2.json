@@ -42,6 +42,50 @@
             "return_format": "id"
         },
         {
+            "key": "field_6878a1c2f4b09",
+            "label": "Rubrieken",
+            "name": "fm_show_rubrieken",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Vaste onderdelen van het programma (bijvoorbeeld een top 3 of een dagelijkse vraag). Worden als labels op de programmapagina getoond.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "Nieuwe rubriek",
+            "sub_fields": [
+                {
+                    "key": "field_6878a1c2f4b0a",
+                    "label": "Naam",
+                    "name": "fm_show_rubriek_naam",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_6878a1c2f4b09"
+                }
+            ],
+            "rows_per_page": 20
+        },
+        {
             "key": "field_5ffd9521888e4",
             "label": "Programmatie",
             "name": "fm_show_programmatie",
@@ -161,5 +205,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1683287750
+    "modified": 1784211330
 }
