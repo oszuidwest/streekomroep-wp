@@ -92,7 +92,18 @@ class VideoSeo
         };
 
         $thumbnail = function ($image) use ($video) {
-            return $video->getThumbnail() ?: $image;
+            $thumbnail = $video->getThumbnail();
+            if ($thumbnail === null) {
+                return $image;
+            }
+
+            $thumbnailUrl = \zw_normalize_imgproxy_src($thumbnail);
+            if ($thumbnailUrl === null) {
+                \zw_log_invalid_imgproxy_src($thumbnail, 'keeping default Twitter video image');
+                return $image;
+            }
+
+            return zw_imgproxy($thumbnailUrl, self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT);
         };
 
         add_filter('wpseo_title', $title);
