@@ -1,0 +1,7 @@
+{# Vierkante gebruikersavatar via imgproxy met 2x-variant.
+   Verwacht: user (Timber\User), size (gerenderde afmeting in px),
+   class (bijpassende Tailwind-maten, bijv. 'h-8 w-8'). #}
+<img src="{{ user.avatar|imgproxy(size, size) }}"
+     srcset="{{ user.avatar|imgproxy(size * 2, size * 2) }} 2x"
+     alt="{{ user.name }}" width="{{ size }}" height="{{ size }}"
+     loading="lazy" class="flex-none rounded-sm object-cover {{ class|default('') }}">
