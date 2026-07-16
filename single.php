@@ -251,6 +251,11 @@ if ($timber_post->post_type == 'fm') {
         }
     }
     $context['schedule_days'] = $activeDays;
+
+    $yoastTitles = get_option('wpseo_titles');
+    $context['breadcrumb_separator'] = is_array($yoastTitles) && !empty($yoastTitles['breadcrumbs-sep'])
+        ? $yoastTitles['breadcrumbs-sep']
+        : '/';
 }
 
 if ($timber_post->post_gekoppeld_fragment) {

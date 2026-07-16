@@ -64,11 +64,11 @@
             </div>
 
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
-                <nav class="mb-5 text-xs font-semibold text-white/70 md:text-sm" aria-label="Kruimelpad">
-                    <a class="underline decoration-white/40 underline-offset-2 hover:text-white"
+                <nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
+                    <a class="transition hover:text-white hover:underline"
                        href="{{ function('get_post_type_archive_link', 'fm') }}">Alle FM-programma's</a>
-                    <span class="opacity-60">/</span>
-                    <span class="text-white">{{ post.title }}</span>
+                    <span class="opacity-60">{{ breadcrumb_separator }}</span>
+                    <span class="text-white/60">{{ post.title }}</span>
                 </nav>
 
                 {% if programmatie is not empty %}
