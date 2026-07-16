@@ -72,7 +72,7 @@
                 </nav>
 
                 {% if programmatie is not empty %}
-                    <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
+                    <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90">
                         {% for entry in programmatie %}
                             {{- entry|format_schedule_compact }}{{ not loop.last ? ' · ' -}}
                         {% endfor %}

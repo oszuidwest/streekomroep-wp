@@ -126,24 +126,24 @@ class Site extends \Timber\Site
     }
 
     /**
-     * Format a programmatie rule as a short label, e.g. "ma t/m vr · 07:00–09:00".
+     * Format a programmatie rule as a short label, e.g. "MA T/M VR van 07:00 tot 09:00 uur".
      */
     public function format_schedule_compact($entry)
     {
         $abbreviations = [
-            'maandag' => 'ma',
-            'dinsdag' => 'di',
-            'woensdag' => 'wo',
-            'donderdag' => 'do',
-            'vrijdag' => 'vr',
-            'zaterdag' => 'za',
-            'zondag' => 'zo',
+            'maandag' => 'MA',
+            'dinsdag' => 'DI',
+            'woensdag' => 'WO',
+            'donderdag' => 'DO',
+            'vrijdag' => 'VR',
+            'zaterdag' => 'ZA',
+            'zondag' => 'ZO',
         ];
 
         $days = array_values(array_intersect(array_keys($abbreviations), $entry['fm_show_dagen'] ?: []));
 
         if (count($days) === 7) {
-            $dayString = 'elke dag';
+            $dayString = 'ELKE DAG';
         } else {
             $positions = array_flip(array_keys($abbreviations));
 
@@ -164,7 +164,7 @@ class Site extends \Timber\Site
             $parts = [];
             foreach ($runs as $run) {
                 if (count($run) >= 3) {
-                    $parts[] = $abbreviations[$run[0]] . ' t/m ' . $abbreviations[end($run)];
+                    $parts[] = $abbreviations[$run[0]] . ' T/M ' . $abbreviations[end($run)];
                 } else {
                     foreach ($run as $day) {
                         $parts[] = $abbreviations[$day];
@@ -179,13 +179,13 @@ class Site extends \Timber\Site
             return $dayString;
         }
 
-        $time = substr($entry['fm_show_starttijd'], 0, 5) . '–' . substr($entry['fm_show_eindtijd'], 0, 5);
+        $time = 'van ' . substr($entry['fm_show_starttijd'], 0, 5) . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur';
 
         if ($dayString === '') {
-            return $time;
+            return ucfirst($time);
         }
 
-        return $dayString . ' · ' . $time;
+        return $dayString . ' ' . $time;
     }
 
     public function get_icon($name)
