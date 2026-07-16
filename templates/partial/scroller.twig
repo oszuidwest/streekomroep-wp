@@ -1,0 +1,71 @@
+{# Gedeelde prev/next-logica voor horizontale scrollers. Include dit naast elke
+   scroller; het script initialiseert zichzelf één keer per pagina en bindt dan
+   iedere [data-scroller]. Verwachte structuur binnen [data-scroller]:
+   - [data-scroller-track]: het horizontaal scrollende element (verplicht)
+   - [data-scroller-prev] / [data-scroller-next]: klikdoelen, mogen er meerdere zijn;
+     buttons krijgen automatisch hun disabled-status
+   - [data-scroller-nav]: optionele wrapper die verborgen wordt als er niets te scrollen valt
+   De paginagrootte is de trackbreedte minus de scroll-padding, dus zet
+   scroll-padding op de track als de inhoud inspringt. #}
+<script>
+    (function () {
+        if (window.zwScroller) {
+            return;
+        }
+        window.zwScroller = true;
+
+        function initScroller(scroller) {
+            var track = scroller.querySelector('[data-scroller-track]');
+            var nav = scroller.querySelector('[data-scroller-nav]');
+            var prevs = scroller.querySelectorAll('[data-scroller-prev]');
+            var nexts = scroller.querySelectorAll('[data-scroller-next]');
+            if (!track) {
+                return;
+            }
+
+            var tolerance = 4;
+
+            function page() {
+                var style = getComputedStyle(track);
+                return track.clientWidth - (parseFloat(style.scrollPaddingLeft) || 0) - (parseFloat(style.scrollPaddingRight) || 0);
+            }
+
+            function update() {
+                var max = track.scrollWidth - track.clientWidth;
+                if (nav) {
+                    nav.hidden = max <= tolerance;
+                }
+                prevs.forEach(function (el) {
+                    el.disabled = track.scrollLeft <= tolerance;
+                });
+                nexts.forEach(function (el) {
+                    el.disabled = track.scrollLeft >= max - tolerance;
+                });
+            }
+
+            prevs.forEach(function (el) {
+                el.addEventListener('click', function () {
+                    track.scrollBy({left: -page(), behavior: 'smooth'});
+                });
+            });
+            nexts.forEach(function (el) {
+                el.addEventListener('click', function () {
+                    track.scrollBy({left: page(), behavior: 'smooth'});
+                });
+            });
+            track.addEventListener('scroll', update, {passive: true});
+            window.addEventListener('resize', update);
+            update();
+        }
+
+        function init() {
+            document.querySelectorAll('[data-scroller]').forEach(initScroller);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>

@@ -12,6 +12,10 @@
         overflow: scroll;
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
+        scroll-snap-type: x proximity;
+        /* De insets tellen niet mee als zichtbare breedte; partial/scroller.twig
+           gebruikt dit ook als paginagrootte voor de prev/next-knoppen */
+        scroll-padding: 0 var(--grid-inset);
     }
 
     /** sm and up */
@@ -37,6 +41,7 @@
         width: calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));
         min-width: 140px;
         margin: 0 calc(var(--grid-gutter) / 2);
+        scroll-snap-align: start;
     }
 </style>
 
@@ -66,8 +71,8 @@
     <div class="max-w-960 mx-auto px-4">
         <h2 class="font-bold text-3xl pb-4 dark:text-white">Dossiers</h2>
     </div>
-    <div class="slider">
-        <div class="slider-wrapper">
+    <div class="slider" data-scroller>
+        <div class="slider-wrapper" data-scroller-track>
             <div class="slider-container">
                 <div class="slider-padding"></div>
                 {% for term in block.terms %}
@@ -76,14 +81,14 @@
                 <div class="slider-padding"></div>
             </div>
         </div>
-        <div class="shim shim-next js-next bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
-        <div class="shim shim-prev js-prev bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
-        <button class="slider-btn slider-btn-prev flickity-prev-next-button js-prev text-gray-800"
-                aria-label="Vorige">
+        <div class="shim shim-next bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70" data-scroller-next></div>
+        <div class="shim shim-prev bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70" data-scroller-prev></div>
+        <button class="slider-btn slider-btn-prev flickity-prev-next-button text-gray-800"
+                aria-label="Vorige" data-scroller-prev>
             {{ icon('icon-arrow_back') }}
         </button>
-        <button class="slider-btn slider-btn-next flickity-prev-next-button js-next text-gray-800"
-                aria-label="Volgende">
+        <button class="slider-btn slider-btn-next flickity-prev-next-button text-gray-800"
+                aria-label="Volgende" data-scroller-next>
             {{ icon('icon-arrow_forward') }}
         </button>
     </div>
@@ -111,6 +116,10 @@
         transition: transform 250ms ease-in-out 0s;
         align-items: center;
         justify-content: center;
+    }
+
+    .slider-btn:disabled {
+        display: none;
     }
 
     .slider-btn-prev {
@@ -161,25 +170,4 @@
     }
 </style>
 
-<script>
-    (function ($) {
-        let slider = $('.slider');
-        var position = 0;
-
-        slider.on('click', '.js-next', function (e) {
-            let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
-            position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
-            let maxPosition = slider.find('.slider-container').outerWidth(true) - slider.find('.slider-wrapper').innerWidth();
-            position = Math.min(position, maxPosition);
-            wrapper.scrollLeft = position;
-        });
-        slider.on('click', '.js-prev', function (e) {
-            let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
-            position -= slider.find('.slider-term').first().outerWidth(true) * columnCount;
-            position = Math.max(position, 0);
-            wrapper.scrollLeft = position;
-        });
-    })(jQuery);
-</script>
+{{ include('partial/scroller.twig') }}
