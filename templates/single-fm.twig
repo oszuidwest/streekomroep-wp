@@ -174,11 +174,14 @@
                         </div>
                     </div>
 
-                    <ul class="-mx-4 flex snap-x snap-proximity gap-4 overflow-x-auto px-4 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    <ul class="-mx-4 flex snap-x snap-proximity gap-3 overflow-x-auto px-4 py-1 sm:gap-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                         data-gemist-track style="scroll-padding-left: 1rem">
                         {% for day in gemist.days %}
-                            <li class="w-44 flex-none snap-start rounded-sm bg-gray-700/50 p-4 text-center">
-                                <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ day.date.locale('nl').isoFormat('dddd') }}</span>
+                            <li class="w-28 flex-none snap-start rounded-sm bg-gray-700/50 p-3 text-center sm:w-44 sm:p-4">
+                                <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">
+                                    <span class="sm:hidden">{{ day.date.locale('nl').isoFormat('dd') }}</span>
+                                    <span class="hidden sm:inline">{{ day.date.locale('nl').isoFormat('dddd') }}</span>
+                                </span>
                                 <span class="mb-3.5 block text-sm font-semibold">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
                                 <div class="flex flex-col gap-2">
                                     {% for time in day.times %}
