@@ -9,10 +9,12 @@
         <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
                 {# Kleine driehoeken uit het ZuidWest FM-beeldmerk, alle kanten op #}
-                <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
+                <svg class="absolute h-0 w-0" focusable="false">
                     <defs>
                         <path id="zwfm-driehoek" d="M28 -98 L28 98 L-56 0 Z" stroke-width="20" stroke-linejoin="round"/>
                     </defs>
+                </svg>
+                <svg class="absolute inset-0 h-full w-full max-md:hidden" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
                     {% set driehoeken = [
                         [80, 255, 15, 0.22, '#ffffff', 0.08],
                         [170, 120, 250, 0.12, '#ff9dce', 0.12],
@@ -32,6 +34,26 @@
                         [1170, 80, 60, 0.24, '#ff9dce', 0.28],
                     ] %}
                     {% for d in driehoeken %}
+                        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
+                             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
+                    {% endfor %}
+                </svg>
+                {# Mobiel is de header smal en hoog; eigen compositie zodat de driehoeken niet wegvallen door de slice-crop #}
+                <svg class="absolute inset-0 h-full w-full md:hidden" viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice">
+                    {% set driehoeken_mobiel = [
+                        [30, 110, 330, 0.14, '#8f004e', 0.22],
+                        [48, 198, 20, 0.18, '#ffffff', 0.14],
+                        [95, 52, 140, 0.15, '#ff9dce', 0.22],
+                        [150, 205, 250, 0.17, '#8f004e', 0.26],
+                        [205, 26, 75, 0.16, '#ffffff', 0.14],
+                        [240, 128, 310, 0.2, '#ff9dce', 0.24],
+                        [260, 195, 100, 0.13, '#ffffff', 0.12],
+                        [295, 205, 160, 0.2, '#8f004e', 0.28],
+                        [315, 55, 225, 0.22, '#ffffff', 0.16],
+                        [360, 145, 30, 0.24, '#ff9dce', 0.3],
+                        [374, 18, 190, 0.16, '#8f004e', 0.26],
+                    ] %}
+                    {% for d in driehoeken_mobiel %}
                         <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
                              transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
                     {% endfor %}
