@@ -58,14 +58,19 @@ class Site extends \Timber\Site
 
     public function theme_supports()
     {
+        // Let WordPress expose the site's RSS feeds.
         add_theme_support('automatic-feed-links');
 
+        // Let WordPress manage the document title.
         add_theme_support('title-tag');
 
+        // Enable featured images on supported post types.
         add_theme_support('post-thumbnails');
 
+        // Make embeds adapt to the available content width.
         add_theme_support('responsive-embeds');
 
+        // Use semantic HTML5 markup for WordPress-generated components.
         add_theme_support(
             'html5',
             [
@@ -87,6 +92,7 @@ class Site extends \Timber\Site
         add_theme_support('custom-logo');
     }
 
+    /** Formats a schedule rule for compact labels in the FM show UI. */
     public function format_schedule_compact($entry)
     {
         $names = array_values(BroadcastDay::WEEKDAY_NAMES);

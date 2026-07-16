@@ -69,6 +69,7 @@ class BroadcastSchedule
 
         $date = clone $scheduleStart;
         while ($date <= $scheduleEnd) {
+            // Ensure all seven days exist, including days without configured broadcasts.
             $day = $this->getBroadcastDay($date);
             $date->add(new \DateInterval('P1D'));
         }
@@ -117,6 +118,7 @@ class BroadcastSchedule
             }
         }
 
+        // Normalize the schedule to today plus the next six calendar days.
         ksort($this->days);
 
         $today = new DateTime('now', wp_timezone());
@@ -163,6 +165,7 @@ class BroadcastSchedule
         return null;
     }
 
+    /** Returns the broadcast immediately following this show's current or next slot. */
     public function getFollowingRadioBroadcast(int $showId)
     {
         $now = Carbon::now(wp_timezone());

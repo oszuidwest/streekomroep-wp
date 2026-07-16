@@ -50,11 +50,13 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     continue;
                 }
 
+                // Keep one latest episode per show for deduplicated videos and the secondary show list.
                 $latest_episode_per_show[] = [
                     'show' => $show,
                     'video' => $lastEpisode,
                 ];
 
+                // Without deduplication, every recent episode may become a featured video.
                 if (false === $deduplicate) {
                     $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
                     foreach ($videos as $video) {
@@ -66,6 +68,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 }
             }
 
+            // Rank shows by the broadcast date of their latest episode.
             usort($latest_episode_per_show, function ($left, $right) {
                 return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
             });
@@ -75,6 +78,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
 
             if (!empty($episodes_with_duplicate_shows)) {
+                // Rank the expanded episode pool independently when duplicate shows are allowed.
                 usort($episodes_with_duplicate_shows, function ($left, $right) {
                     return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
                 });

@@ -55,6 +55,7 @@ $region = $timber_post->region();
 if ($topic) {
     $topicPosts = $relatedPosts('dossier', $topic->term_id, 'post');
 
+    // Do not render an empty related-posts block.
     if (count($topicPosts) >= 1) {
         $context['topical'] = ['topic' => $topic, 'posts' => $topicPosts];
     }
@@ -183,6 +184,7 @@ if ($timber_post->post_type == 'fm') {
 
     usort($recordings, fn (Carbon $lhs, Carbon $rhs) => $lhs->isSameDay($rhs) ? $lhs <=> $rhs : $rhs <=> $lhs);
 
+    // Group hourly recording URLs into one card per broadcast day.
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
@@ -190,6 +192,7 @@ if ($timber_post->post_type == 'fm') {
         $recordingDays[$key]['times'][] = $recording;
     }
 
+    // Prefer whole weeks in the listener-facing retention copy.
     $retentionLabel = null;
     if ($retention > 0 && $recordings) {
         $weeks = intdiv($retention, 7);
@@ -201,6 +204,7 @@ if ($timber_post->post_type == 'fm') {
         'retention_label' => $retentionLabel,
     ];
 
+    // Only build the full schedule when this active show can have a successor.
     $context['following_show'] = $active && $rules ? (new \Streekomroep\BroadcastSchedule())
         ->getFollowingRadioBroadcast($show->ID) : null;
 
