@@ -180,7 +180,7 @@
                                 data-gemist-day{% if loop.index0 >= 5 %} style="display: none"{% endif %}>
                                 <div class="flex-1 sm:mb-2.5 sm:flex-none">
                                     <span class="text-sm font-semibold sm:hidden">{{ day.date.locale('nl').isoFormat('dddd D MMMM') }}</span>
-                                    <span class="hidden font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dd') }}</span>
+                                    <span class="hidden font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dddd') }}</span>
                                     <span class="hidden text-sm font-semibold sm:block">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
                                 </div>
                                 <div class="flex gap-1.5 sm:flex-col">
