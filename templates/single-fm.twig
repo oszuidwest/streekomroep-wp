@@ -166,28 +166,23 @@
                 <div class="mx-auto w-full max-w-960 px-4 py-6">
                     <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
                         <h2 class="text-3xl font-bold">Uitzending gemist</h2>
-                        {% if gemist.days|length > 5 %}
-                            <div class="ml-auto flex items-center gap-1.5">
-                                <button type="button" data-gemist-newer disabled aria-label="Nieuwere uitzendingen"
-                                        class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">‹</button>
-                                <button type="button" data-gemist-older aria-label="Oudere uitzendingen"
-                                        class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">›</button>
-                            </div>
-                        {% endif %}
+                        <div class="ml-auto flex items-center gap-1.5" data-gemist-nav hidden>
+                            <button type="button" data-gemist-newer disabled aria-label="Nieuwere uitzendingen"
+                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">‹</button>
+                            <button type="button" data-gemist-older aria-label="Oudere uitzendingen"
+                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">›</button>
+                        </div>
                     </div>
 
-                    <ul class="flex flex-col gap-2 sm:grid sm:grid-cols-3 md:grid-cols-5">
+                    <ul class="-mx-4 flex snap-x snap-proximity gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        data-gemist-track style="scroll-padding-left: 1rem">
                         {% for day in gemist.days %}
-                            <li class="flex items-center gap-3 rounded-sm bg-gray-700/50 p-3 sm:block"
-                                data-gemist-day{% if loop.index0 >= 5 %} style="display: none"{% endif %}>
-                                <div class="flex-1 sm:mb-2.5 sm:flex-none">
-                                    <span class="text-sm font-semibold sm:hidden">{{ day.date.locale('nl').isoFormat('dddd D MMMM') }}</span>
-                                    <span class="hidden font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dddd') }}</span>
-                                    <span class="hidden text-sm font-semibold sm:block">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
-                                </div>
-                                <div class="flex gap-1.5 sm:flex-col">
+                            <li class="w-40 flex-none snap-start rounded-sm bg-gray-700/50 p-3">
+                                <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ day.date.locale('nl').isoFormat('dddd') }}</span>
+                                <span class="mb-2.5 block text-sm font-semibold">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
+                                <div class="flex flex-col gap-1.5">
                                     {% for time in day.times %}
-                                        <a class="rounded-sm bg-gray-700 px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-gray-600 sm:px-0"
+                                        <a class="rounded-sm bg-gray-700 px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-gray-600"
                                            href="{{ options.radio_gemist_baseurl|replace({'<date>': time.format(options.radio_gemist_file)}) }}"
                                            target="_blank" rel="noopener">{{ time.locale('nl').isoFormat('HH:mm') }}</a>
                                     {% endfor %}
@@ -203,38 +198,32 @@
                     <script>
                         (function () {
                             var section = document.getElementById('gemist');
+                            var track = section.querySelector('[data-gemist-track]');
+                            var nav = section.querySelector('[data-gemist-nav]');
                             var newer = section.querySelector('[data-gemist-newer]');
                             var older = section.querySelector('[data-gemist-older]');
-                            if (!newer || !older) {
+                            if (!track || !nav || !newer || !older) {
                                 return;
                             }
 
-                            var days = section.querySelectorAll('[data-gemist-day]');
-                            var pageSize = 5;
-                            var pages = Math.ceil(days.length / pageSize);
-                            var page = 0;
-
-                            function render() {
-                                days.forEach(function (day, i) {
-                                    var visible = i >= page * pageSize && i < (page + 1) * pageSize;
-                                    day.style.display = visible ? '' : 'none';
-                                });
-                                newer.disabled = page === 0;
-                                older.disabled = page + 1 >= pages;
+                            function update() {
+                                var max = track.scrollWidth - track.clientWidth;
+                                var last = track.lastElementChild;
+                                nav.hidden = max <= 4;
+                                newer.disabled = track.scrollLeft <= 4;
+                                older.disabled = !last
+                                    || last.getBoundingClientRect().right <= track.getBoundingClientRect().right + 4;
                             }
 
                             newer.addEventListener('click', function () {
-                                if (page > 0) {
-                                    page--;
-                                    render();
-                                }
+                                track.scrollBy({left: -track.clientWidth, behavior: 'smooth'});
                             });
                             older.addEventListener('click', function () {
-                                if (page + 1 < pages) {
-                                    page++;
-                                    render();
-                                }
+                                track.scrollBy({left: track.clientWidth, behavior: 'smooth'});
                             });
+                            track.addEventListener('scroll', update, {passive: true});
+                            window.addEventListener('resize', update);
+                            update();
                         })();
                     </script>
                 </div>
