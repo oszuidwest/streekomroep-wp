@@ -69,7 +69,7 @@ class BroadcastSchedule
 
         $date = clone $scheduleStart;
         while ($date <= $scheduleEnd) {
-            $day = $this->getBroadcastDay($date); // Make sure day gets created
+            $day = $this->getBroadcastDay($date);
             $date->add(new \DateInterval('P1D'));
         }
 
@@ -117,10 +117,8 @@ class BroadcastSchedule
             }
         }
 
-        // Sort days by date
         ksort($this->days);
 
-        // Remove days before today from schedule
         $today = new DateTime('now', wp_timezone());
         $today->setTime(0, 0);
 
@@ -133,7 +131,6 @@ class BroadcastSchedule
             array_shift($this->days);
         }
 
-        // Only keep 7 days of data
         $this->days = array_slice($this->days, 0, 7);
     }
 
@@ -166,11 +163,7 @@ class BroadcastSchedule
         return null;
     }
 
-    /**
-     * The show's current or first upcoming broadcast in the rolling week. Falls
-     * back to its most recent one when the next occurrence lies outside the
-     * window, e.g. a weekly show that already aired today.
-     */
+    /** Gets a show's current or next broadcast, falling back to its latest broadcast outside the rolling week. */
     public function getNextBroadcastOfShow(int $showId)
     {
         $now = Carbon::now(wp_timezone());

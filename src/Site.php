@@ -8,13 +8,9 @@ use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
-/**
- * We're going to configure our theme inside of a subclass of Timber\Site
- * You can move this to its own file and include here via php's include("MySite.php")
- */
+/** Configures the theme through Timber. */
 class Site extends \Timber\Site
 {
-    /** Add timber support. */
     public function __construct()
     {
         add_action('after_setup_theme', [$this, 'theme_supports']);
@@ -33,7 +29,7 @@ class Site extends \Timber\Site
         register_nav_menu('footer', 'Footer Menu');
     }
 
-    /** This is where you can register custom post types. */
+    /** Registers custom post types. */
     public function register_post_types()
     {
         include(get_template_directory() . '/lib/post_type_fragment.php');
@@ -41,7 +37,7 @@ class Site extends \Timber\Site
         include(get_template_directory() . '/lib/post_type_fmshow.php');
     }
 
-    /** This is where you can register custom taxonomies. */
+    /** Registers custom taxonomies. */
     public function register_taxonomies()
     {
         include(get_template_directory() . '/lib/taxonomy_dossier.php');
@@ -62,33 +58,14 @@ class Site extends \Timber\Site
 
     public function theme_supports()
     {
-        // Add default posts and comments RSS feed links to head.
         add_theme_support('automatic-feed-links');
 
-        /*
-         * Let WordPress manage the document title.
-         * By adding theme support, we declare that this theme does not use a
-         * hard-coded <title> tag in the document head, and expect WordPress to
-         * provide it for us.
-         */
         add_theme_support('title-tag');
 
-        /*
-         * Enable support for Post Thumbnails on posts and pages.
-         *
-         * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
-         */
         add_theme_support('post-thumbnails');
 
-        /*
-         * Enable support for Responsive embeds.
-         */
         add_theme_support('responsive-embeds');
 
-        /*
-         * Switch default core markup for search form, comment form, and comments
-         * to output valid HTML5.
-         */
         add_theme_support(
             'html5',
             [
@@ -111,7 +88,10 @@ class Site extends \Timber\Site
     }
 
     /**
-     * Format a programmatie rule as a short label, e.g. "MA T/M VR van 07:00 tot 09:00 uur".
+     * Formats a schedule rule as a compact label.
+     *
+     * @param array $entry Schedule rule.
+     * @return string Compact label.
      */
     public function format_schedule_compact($entry)
     {
@@ -165,10 +145,7 @@ class Site extends \Timber\Site
         return zw_imgproxy($src, $width, $height);
     }
 
-    /** This is where you can add your own functions to twig.
-     *
-     * @param string $twig get extension.
-     */
+    /** Registers the theme's Twig extensions. */
     public function add_to_twig($twig)
     {
         $twig->addExtension(new MarkdownExtension());

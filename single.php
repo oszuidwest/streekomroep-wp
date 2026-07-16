@@ -1,12 +1,11 @@
 <?php
 /**
- * The Template for displaying all single posts
+ * Single post template
  *
- * Methods for TimberHelper can be found in the /lib sub-directory
+ * Builds the context for single posts and renders the matching Timber template.
  *
- * @package  WordPress
- * @subpackage  Timber
- * @since    Timber 0.1
+ * @package Streekomroep
+ * @since 1.10.0
  */
 
 use Carbon\Carbon;
@@ -56,7 +55,6 @@ $region = $timber_post->region();
 if ($topic) {
     $topicPosts = $relatedPosts('dossier', $topic->term_id, 'post');
 
-    // Only show block if there's other posts to show
     if (count($topicPosts) >= 1) {
         $context['topical'] = ['topic' => $topic, 'posts' => $topicPosts];
     }
@@ -178,7 +176,7 @@ if ($timber_post->post_type == 'fm') {
                 }
             }
 
-            // Subtract a real hour (via timestamp) so DST transitions can't cause an endless loop
+            // Subtract an absolute hour so DST transitions cannot stall the loop.
             $hour = $hour->subUTCHour();
         }
     }
@@ -191,8 +189,6 @@ if ($timber_post->post_type == 'fm') {
         return $rhs <=> $lhs;
     });
 
-    // Group recordings per day (newest first); the template shows them in a
-    // horizontally scrolling carousel
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
@@ -213,8 +209,6 @@ if ($timber_post->post_type == 'fm') {
         'retention_label' => $retentionLabel,
     ];
 
-    // What airs directly after this show's next live broadcast; only shows with
-    // active programmatie rules appear in the schedule, so skip building it otherwise
     $followingShow = null;
     if ($active && $rules) {
         $schedule = new \Streekomroep\BroadcastSchedule();
