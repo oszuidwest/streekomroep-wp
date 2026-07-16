@@ -113,8 +113,10 @@
                         <div class="flex flex-col gap-3.5">
                             {% for maker in presentatoren %}
                                 <div class="flex gap-3">
-                                    <img src="{{ maker.avatar({size: 104}) }}" alt="{{ maker.name }}" width="52" height="52"
-                                         loading="lazy" class="h-13 w-13 flex-none rounded-full object-cover">
+                                    <img src="{{ maker.avatar|imgproxy(52, 52) }}"
+                                         srcset="{{ maker.avatar|imgproxy(52 * 2, 52 * 2) }} 2x"
+                                         alt="{{ maker.name }}" width="52" height="52"
+                                         loading="lazy" class="h-13 w-13 flex-none rounded-sm object-cover">
                                     <div>
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ maker.name }}</p>
                                         {% if maker.meta('description') %}
