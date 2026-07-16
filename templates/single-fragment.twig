@@ -1,6 +1,8 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             {{ embed }}
@@ -39,9 +41,14 @@
                     {% for post in posts %}
                         <a class="flex py-2 hover:bg-gray-50 dark:hover:bg-gray-700" href="{{ post.link }}">
                             <div class="flex-none w-32 relative">
-                                <img alt="{{ post.thumbnail.alt }}"
-                                     class="w-full" src="{{ post.thumbnail.src|imgproxy(160, 90) }}"
-                                     srcset="{{ post.thumbnail.src|imgproxy(320, 180) }} 2x"/>
+                                {{ responsive.render(
+                                    src: post.thumbnail.src,
+                                    width: 128,
+                                    height: 72,
+                                    sizes: '128px',
+                                    alt: post.thumbnail.alt|default(post.title),
+                                    class: 'w-full',
+                                ) }}
                             </div>
                             <div class="flex-auto pl-4">
                                 <h2 class="text-xl font-semibold text-black dark:text-white">{{ post.title }}</h2>

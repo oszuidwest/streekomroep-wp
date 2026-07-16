@@ -1,9 +1,19 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <article class="tease tease-{{ post.post_type }}" id="tease-{{ post.ID }}">
     {% block content %}
         <h2 class="h2 text-black dark:text-white"><a href="{{ post.link }}">{{ post.title }}</a></h2>
         <p class='text-black dark:text-gray-200'>{{ post.excerpt }}</p>
         {% if post.get_thumbnail %}
-            <img src="{{ post.thumbnail.src }}" alt="{{ post.thumbnail.alt }}" />
+            {# Sized for the search results grid (search.twig): 3 cols >= lg, 2 cols >= sm, 1 col below #}
+            {{ responsive.render(
+                src: post.thumbnail.src,
+                width: 400,
+                height: 225,
+                sizes: '(min-width: 1024px) 299px, (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
+                alt: post.thumbnail.alt|default(post.title),
+                class: 'w-full',
+            ) }}
         {% endif %}
     {% endblock %}
 </article>

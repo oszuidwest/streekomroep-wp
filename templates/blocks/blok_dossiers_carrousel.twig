@@ -1,3 +1,5 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <style>
     .slider {
         --grid-columns: 3;
@@ -42,8 +44,15 @@
     <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded-sm">
         <div class="aspect-[9/16] relative">
             <div>
-                <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.title }}"
-                     src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|imgproxy(9 * 48, 16 * 48) }}"/>
+                {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
+                {{ responsive.render(
+                    src: image.src,
+                    width: 226,
+                    height: 402,
+                    sizes: '(min-width: 960px) 226px, (min-width: 640px) calc((100vw - 3.5rem) / 4), calc((100vw - 3rem) / 3)',
+                    alt: image.alt|default(term.title),
+                    class: 'absolute inset-0 w-full',
+                ) }}
                 <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
                 <div class="block absolute left-0 right-0 bottom-0 p-4">
                     <h2 class="block font-black text-md sm:text-xl text-white text-center">{{ term.title }}</h2>

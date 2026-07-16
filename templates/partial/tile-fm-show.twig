@@ -1,8 +1,16 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <a class="block aspect-video relative" href="{{ post.link }}">
     <div class="absolute inset-0 bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
         {% if post.thumbnail %}
-            <img class="absolute inset-0 w-full h-full object-cover"
-                 src="{{ post.thumbnail.src|imgproxy(320, 180) }}"/>
+            {{ responsive.render(
+                src: post.thumbnail.src,
+                width: 320,
+                height: 180,
+                sizes: '(min-width: 960px) 299px, (min-width: 768px) calc((100vw - 4rem) / 3), (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
+                alt: post.thumbnail.alt|default(post.title),
+                class: 'absolute inset-0 w-full h-full object-cover',
+            ) }}
         {% endif %}
         <div class="absolute flex flex-col inset-x-0 bottom-0 px-4 pb-3 pt-12 bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900">
             <h1 class="uppercase font-round font-black text-2xl text-black dark:text-white">{{ post.title }}</h1>

@@ -91,9 +91,18 @@ class VideoSeo
             return $video->getDescription();
         };
 
-        $thumbnail = function () use ($video) {
-            return $video->getThumbnail();
-        };
+        // Resolve the social image once; all image-related hooks below must share this
+        // value so the default Yoast image is only replaced when a valid one exists.
+        $socialImageUrl = null;
+        $thumbnail = $video->getThumbnail();
+        if ($thumbnail !== null) {
+            $thumbnailUrl = \zw_normalize_imgproxy_src($thumbnail);
+            if ($thumbnailUrl === null) {
+                \zw_log_invalid_imgproxy_src($thumbnail, 'keeping default social images');
+            } else {
+                $socialImageUrl = zw_imgproxy($thumbnailUrl, self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT);
+            }
+        }
 
         add_filter('wpseo_title', $title);
         add_filter('wpseo_metadesc', $description);
@@ -104,15 +113,13 @@ class VideoSeo
         add_filter('wpseo_opengraph_type', function () {
             return 'video.episode';
         });
-        add_action('wpseo_add_opengraph_images', function ($images) use ($video) {
-            $thumbnailUrl = \zw_normalize_imgproxy_src($video->getThumbnail());
-            if ($thumbnailUrl === null) {
-                \zw_log_invalid_imgproxy_src($video->getThumbnail(), 'skipping Open Graph video image');
+        add_action('wpseo_add_opengraph_images', function ($images) use ($socialImageUrl) {
+            if ($socialImageUrl === null) {
                 return;
             }
 
             $images->add_image([
-                'url' => zw_imgproxy($thumbnailUrl, self::OG_IMAGE_WIDTH, self::OG_IMAGE_HEIGHT),
+                'url' => $socialImageUrl,
                 'width' => self::OG_IMAGE_WIDTH,
                 'height' => self::OG_IMAGE_HEIGHT,
             ]);
@@ -121,7 +128,9 @@ class VideoSeo
 
         add_filter('wpseo_twitter_title', $title);
         add_filter('wpseo_twitter_description', $description);
-        add_filter('wpseo_twitter_image', $thumbnail);
+        add_filter('wpseo_twitter_image', function ($image) use ($socialImageUrl) {
+            return $socialImageUrl ?? $image;
+        });
 
         $broadcastDateIso = $video->getBroadcastDate()?->format('c');
 
@@ -143,11 +152,15 @@ class VideoSeo
             return $presenters;
         });
 
-        add_filter('wpseo_frontend_presentation', function ($presentation, $context) {
+        add_filter('wpseo_frontend_presentation', function ($presentation) use ($socialImageUrl) {
+            if ($socialImageUrl === null) {
+                return $presentation;
+            }
+
             $presentation->model->open_graph_image_id = null;
             $presentation->model->open_graph_image_meta = null;
             $presentation->model->open_graph_image = null;
             return $presentation;
-        }, 10, 2);
+        });
     }
 }

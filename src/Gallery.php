@@ -254,47 +254,11 @@ class Gallery
         return [
             'class' => self::getImageClasses($attributes['type']),
             'src' => $src,
-            'srcset' => self::buildImageSrcset($width, $height),
             'sizes' => $layout['sizes'],
             'alt' => $alt,
             'width' => $width,
             'height' => $height,
-            'loading' => 'lazy',
-            'decoding' => 'async',
         ];
-    }
-
-    private static function buildImageSrcset(int $width, int $height): array
-    {
-        $srcset = [];
-
-        foreach (self::getSrcsetWidths($width) as $srcsetWidth) {
-            $srcsetHeight = (int) round($srcsetWidth / $width * $height);
-            $srcset[] = [
-                'width' => $srcsetWidth,
-                'height' => $srcsetHeight,
-                'descriptor' => $srcsetWidth . 'w',
-            ];
-        }
-
-        return $srcset;
-    }
-
-    /**
-     * @return int[]
-     */
-    private static function getSrcsetWidths(int $width): array
-    {
-        $widths = [
-            max(192, (int) round($width / 2)),
-            $width,
-            $width * 2,
-        ];
-
-        $widths = array_values(array_unique(array_filter($widths)));
-        sort($widths);
-
-        return $widths;
     }
 
     private static function getGalleryClasses(array $attributes): string

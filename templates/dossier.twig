@@ -4,13 +4,23 @@
 {% extends 'archive.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <div class="lg:hidden">
         <div class="aspect-[21/9] relative">
             <div>
-                <img class="object-cover absolute inset-0 w-full h-full" alt="{{ term.name }}"
-                     src="{{ get_image(term.dossier_afbeelding_breed).src|imgproxy(1024, 439) }}"
-                     srcset="{{ get_image(term.dossier_afbeelding_breed).src|imgproxy(1024 * 2, 439 * 2) }} 2x"
-                     />
+                {% set wide_image = get_image(term.dossier_afbeelding_breed) %}
+                {# Eager for mobile LCP. Unlike blok_dossier.twig's lazy hero, this can fetch on desktop,
+                   so the 1px clause steers the lg:hidden desktop case to the smallest candidate. #}
+                {{ responsive.render(
+                    src: wide_image.src,
+                    width: 1024,
+                    height: 439,
+                    sizes: '(max-width: 1023px) 100vw, 1px',
+                    alt: wide_image.alt|default(term.name),
+                    class: 'object-cover absolute inset-0 w-full h-full',
+                    loading: 'eager',
+                ) }}
                 <div class="absolute inset-x-0 bottom-0 h-32 max-h-full bg-gradient-to-t from-white dark:from-gray-800"></div>
             </div>
 
@@ -29,8 +39,15 @@
                 <div class="hidden lg:block overflow-hidden bg-gray-800 rounded-sm">
                     <div class="aspect-[9/16] relative">
                         <div>
-                            <img class="absolute inset-0 w-full" loading="lazy" alt="{{ term.name }}"
-                                 src="{{ get_image(term.meta('dossier_afbeelding_hoog'))|imgproxy(9 * 48, 16 * 48) }}"/>
+                            {% set tall_image = get_image(term.meta('dossier_afbeelding_hoog')) %}
+                            {{ responsive.render(
+                                src: tall_image.src,
+                                width: 299,
+                                height: 532,
+                                sizes: '299px',
+                                alt: tall_image.alt|default(term.name),
+                                class: 'absolute inset-0 w-full',
+                            ) }}
                         </div>
                     </div>
                 </div>

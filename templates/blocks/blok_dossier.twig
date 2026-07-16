@@ -1,12 +1,19 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 <div class="bg-gray-800 text-white my-4">
     <div class="lg:hidden">
         <div class="aspect-[21/9] relative">
             <div>
-                <img
-                    class="object-cover absolute inset-0 w-full h-full" loading="lazy" alt="{{ block.term.name }}"
-                    src="{{ get_image(block.term.dossier_afbeelding_breed).src|imgproxy(1024, 439) }}"
-                    srcset="{{ get_image(block.term.dossier_afbeelding_breed).src|imgproxy(1024 * 2, 439 * 2) }} 2x"
-                />
+                {% set wide_image = get_image(block.term.dossier_afbeelding_breed) %}
+                {# The lg:hidden wrapper above plus lazy loading lets current engines skip this desktop fetch. #}
+                {{ responsive.render(
+                    src: wide_image.src,
+                    width: 1024,
+                    height: 439,
+                    sizes: '100vw',
+                    alt: wide_image.alt|default(block.term.name),
+                    class: 'object-cover absolute inset-0 w-full h-full',
+                ) }}
                 <div class="absolute inset-x-0 -bottom-px h-32 max-h-full bg-gradient-to-t from-gray-800"></div>
             </div>
         </div>
@@ -28,13 +35,18 @@
                     <a href="{{ block.term.link }}" class="text-blauw hover:bg-gray-700 inline-block px-2 py-1 rounded-sm">→ Alles over {{ block.term.name }}</a>
                 </div>
             </div>
-            <div class="col-start-1 row-start-1 relative z-10">
+            <div class="hidden lg:block col-start-1 row-start-1 relative z-10">
                 <div class="absolute inset-y-0 -inset-x-8">
-                    <img
-                        class="absolute inset-0 w-full h-full object-cover" loading="lazy" alt="{{ block.term.name }}"
-                        src="{{ get_image(block.term.dossier_afbeelding_hoog).src|imgproxy(384, 423) }}"
-                        srcset="{{ get_image(block.term.dossier_afbeelding_hoog).src|imgproxy(384 * 2, 423 * 2) }} 2x"
-                    />
+                    {% set tall_image = get_image(block.term.dossier_afbeelding_hoog) %}
+                    {# 384px = max-w-960 / 3 plus 2rem bleed on both sides from -inset-x-8. #}
+                    {{ responsive.render(
+                        src: tall_image.src,
+                        width: 384,
+                        height: 423,
+                        sizes: '384px',
+                        alt: tall_image.alt|default(block.term.name),
+                        class: 'absolute inset-0 w-full h-full object-cover',
+                    ) }}
                     <div class="absolute left-0 inset-y-0 w-16 bg-gradient-to-r from-gray-800"></div>
                     <div class="absolute right-0 inset-y-0 w-1/2 bg-gradient-to-l from-gray-800"></div>
                 </div>

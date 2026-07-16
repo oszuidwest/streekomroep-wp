@@ -1,6 +1,8 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <div class="grid grid-cols-1">
             <div class="row-start-2 md:row-start-auto">
@@ -19,9 +21,15 @@
                     </div>
                 {% elseif post.thumbnail %}
                     <div class="w-full mx-auto max-w-960">
-                        <img src="{{ post.thumbnail.src|imgproxy(960, 540) }}"
-                             srcset="{{ post.thumbnail.src|imgproxy(1920, 1080) }} 2x"
-                             alt="{{ post.thumbnail.alt }}" width="1920" height="1080" class="w-full">
+                        {{ responsive.render(
+                            src: post.thumbnail.src,
+                            width: 960,
+                            height: 540,
+                            sizes: '(min-width: 960px) 960px, 100vw',
+                            alt: post.thumbnail.alt|default(post.title),
+                            class: 'w-full',
+                            loading: 'eager',
+                        ) }}
                         {% if post.thumbnail.caption %}
                             <p class="text-sm text-gray-500 dark:text-gray-400 text-center pt-2">{{ post.thumbnail.caption }}</p>
                         {% endif %}

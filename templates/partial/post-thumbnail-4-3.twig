@@ -1,3 +1,5 @@
+{% import 'partial/responsive-image.twig' as responsive %}
+
 {% set showPlayButton = false %}
 {% if post.type == 'fragment' %}
     {% set showPlayButton = true %}
@@ -5,17 +7,30 @@
     {% set showPlayButton = true %}
 {% endif %}
 {% set width = width|default(228) %}
+{# The largest desktop slot in sizes is 456px (2-column grid at 960-1023px), so srcset candidates must span that slot. #}
+{% set desktop_width = max(width, 456) %}
+{% set desktop_sizes = '(min-width: 1024px) ' ~ width ~ 'px, (min-width: 960px) 456px, (min-width: 640px) calc((100vw - 3rem) / 2), 33vw' %}
 <div class="aspect-[4/3] sm:aspect-video relative">
     <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <picture>
                 {# Desktop: 16:9 #}
-                <source media="(min-width: 640px)"
-                        srcset="{{ post.thumbnail.src|imgproxy(width, width / 16 * 9) }}, {{ post.thumbnail.src|imgproxy(width * 2, (width * 2) / 16 * 9) }} 2x">
+                {{ responsive.source(
+                    src: post.thumbnail.src,
+                    width: desktop_width,
+                    height: desktop_width / 16 * 9,
+                    sizes: desktop_sizes,
+                    media: '(min-width: 640px)',
+                ) }}
                 {# Mobile: 4:3 #}
-                <img class="w-full h-full object-cover" loading="lazy" alt="{{ post.thumbnail.alt }}"
-                     src="{{ post.thumbnail.src|imgproxy(width, width / 4 * 3) }}"
-                     srcset="{{ post.thumbnail.src|imgproxy(width * 2, (width * 2) / 4 * 3) }} 2x">
+                {{ responsive.render(
+                    src: post.thumbnail.src,
+                    width: width,
+                    height: width / 4 * 3,
+                    sizes: '33vw',
+                    alt: post.thumbnail.alt|default(post.title),
+                    class: 'w-full h-full object-cover',
+                ) }}
             </picture>
         {% endif %}
         {% if showPlayButton %}

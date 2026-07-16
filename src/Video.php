@@ -41,9 +41,14 @@ class Video
         return $this->data->guid;
     }
 
-    public function getThumbnail()
+    public function getThumbnail(): ?string
     {
-        return $this->credentials->hostname . '/' . $this->data->guid . '/' . $this->data->thumbnailFileName;
+        $thumbnailFileName = trim((string) ($this->data->thumbnailFileName ?? ''));
+        if ($thumbnailFileName === '') {
+            return null;
+        }
+
+        return $this->credentials->hostname . '/' . $this->data->guid . '/' . $thumbnailFileName;
     }
 
     public function getName()
