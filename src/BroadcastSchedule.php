@@ -146,9 +146,9 @@ class BroadcastSchedule
         return $this->days[$format];
     }
 
-    public function getNextRadioBroadcast()
+    public function getNextRadioBroadcast(?RadioBroadcast $after = null)
     {
-        $current = $this->getCurrentRadioBroadcast();
+        $after = $after ?: $this->getCurrentRadioBroadcast();
         $returnNext = false;
 
         foreach ($this->days as $day) {
@@ -157,8 +157,23 @@ class BroadcastSchedule
                     return $broadcast;
                 }
 
-                if ($broadcast == $current) {
+                if ($broadcast == $after) {
                     $returnNext = true;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function getNextBroadcastOfShow(int $showId)
+    {
+        $now = Carbon::now(wp_timezone());
+
+        foreach ($this->days as $day) {
+            foreach ($day->radio as $broadcast) {
+                if ($broadcast->show && $broadcast->show->ID == $showId && $broadcast->start->isAfter($now)) {
+                    return $broadcast;
                 }
             }
         }

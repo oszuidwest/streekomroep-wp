@@ -149,17 +149,16 @@ if ($timber_post->post_type == 'tv') {
 
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
-    $gemist = (bool)$show->meta('fm_show_actief') && (bool)get_field('radio_gemist_actief', 'option');
+    $active = (bool)$show->meta('fm_show_actief');
+    $gemist = $active && (bool)get_field('radio_gemist_actief', 'option');
 
-    $rules = $show->meta('fm_show_programmatie');
-    if (!$rules) {
-        $rules = [];
-    }
+    $rules = $show->meta('fm_show_programmatie') ?: [];
+    $retention = (int)get_field('radio_gemist_retentie', 'option');
 
     $recordings = [];
     if ($gemist) {
         $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
-        $end = $hour->copy()->subDays(get_field('radio_gemist_retentie', 'option'));
+        $end = $hour->copy()->subDays($retention);
 
         while ($hour->isAfter($end)) {
             $dayname = BroadcastDay::WEEKDAY_NAMES[$hour->dayOfWeekIso];
@@ -192,8 +191,8 @@ if ($timber_post->post_type == 'fm') {
         return $rhs <=> $lhs;
     });
 
-    // Group recordings per day (newest first); the template pages through
-    // them client-side, 5 days at a time
+    // Group recordings per day (newest first); the template shows them in a
+    // horizontally scrolling carousel
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
@@ -203,15 +202,10 @@ if ($timber_post->post_type == 'fm') {
         $recordingDays[$key]['times'][] = $recording;
     }
 
-    $retention = (int)get_field('radio_gemist_retentie', 'option');
     $retentionLabel = null;
-    if ($retention > 0 && !empty($recordings)) {
-        if ($retention % 7 === 0) {
-            $weeks = intdiv($retention, 7);
-            $retentionLabel = $weeks === 1 ? '1 week' : $weeks . ' weken';
-        } else {
-            $retentionLabel = $retention === 1 ? '1 dag' : $retention . ' dagen';
-        }
+    if ($retention > 0 && $recordings) {
+        $weeks = intdiv($retention, 7);
+        $retentionLabel = $retention % 7 === 0 ? ($weeks === 1 ? '1 week' : $weeks . ' weken') : ($retention === 1 ? '1 dag' : $retention . ' dagen');
     }
 
     $context['gemist'] = [
@@ -219,43 +213,23 @@ if ($timber_post->post_type == 'fm') {
         'retention_label' => $retentionLabel,
     ];
 
-    // Find the next moment this show is live, to derive what airs directly after it
-    $schedule = new \Streekomroep\BroadcastSchedule();
-    $now = Carbon::now(wp_timezone());
-    $nextLive = null;
-    foreach ($schedule->days as $day) {
-        foreach ($day->radio as $broadcast) {
-            if ($broadcast->show && $broadcast->show->ID == $show->ID && $broadcast->start->isAfter($now)) {
-                $nextLive = $broadcast;
-                break 2;
-            }
-        }
-    }
+    // What airs directly after this show's next live broadcast; only shows with
+    // active programmatie rules appear in the schedule, so skip building it otherwise
     $followingShow = null;
-    if ($nextLive) {
-        foreach ($schedule->days as $day) {
-            foreach ($day->radio as $broadcast) {
-                if ($broadcast->start->equalTo($nextLive->end)) {
-                    $followingShow = $broadcast;
-                    break 2;
-                }
-            }
+    if ($active && $rules) {
+        $schedule = new \Streekomroep\BroadcastSchedule();
+        $nextLive = $schedule->getNextBroadcastOfShow($show->ID);
+        if ($nextLive) {
+            $followingShow = $schedule->getNextRadioBroadcast($nextLive);
         }
     }
     $context['following_show'] = $followingShow;
 
-    $activeDays = [];
-    foreach ($rules as $rule) {
-        foreach ($rule['fm_show_dagen'] as $dayname) {
-            $activeDays[] = $dayname;
-        }
-    }
-    $context['schedule_days'] = $activeDays;
+    $context['programmatie'] = $rules;
+    $context['schedule_days'] = array_merge(...array_column($rules, 'fm_show_dagen'));
+    $context['weekday_names'] = array_values(BroadcastDay::WEEKDAY_NAMES);
 
-    $yoastTitles = get_option('wpseo_titles');
-    $context['breadcrumb_separator'] = is_array($yoastTitles) && !empty($yoastTitles['breadcrumbs-sep'])
-        ? $yoastTitles['breadcrumbs-sep']
-        : '/';
+    $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
 }
 
 if ($timber_post->post_gekoppeld_fragment) {

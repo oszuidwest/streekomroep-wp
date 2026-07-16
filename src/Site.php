@@ -110,71 +110,27 @@ class Site extends \Timber\Site
         add_theme_support('custom-logo');
     }
 
-    public function format_schedule($entry)
-    {
-        $days = $entry['fm_show_dagen'];
-        if (empty($days)) {
-            $dayString = '';
-        } elseif (count($days) === 1) {
-            $dayString = $days[0];
-        } else {
-            $lastDay = array_pop($days);
-            $dayString = implode(', ', $days) . ' en ' . $lastDay;
-        }
-
-        return sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
-    }
-
     /**
      * Format a programmatie rule as a short label, e.g. "MA T/M VR van 07:00 tot 09:00 uur".
      */
     public function format_schedule_compact($entry)
     {
-        $abbreviations = [
-            'maandag' => 'MA',
-            'dinsdag' => 'DI',
-            'woensdag' => 'WO',
-            'donderdag' => 'DO',
-            'vrijdag' => 'VR',
-            'zaterdag' => 'ZA',
-            'zondag' => 'ZO',
-        ];
+        $names = array_values(BroadcastDay::WEEKDAY_NAMES);
+        $abbreviate = fn ($day) => strtoupper(substr($day, 0, 2));
 
-        $days = array_values(array_intersect(array_keys($abbreviations), $entry['fm_show_dagen'] ?: []));
+        $days = array_values(array_intersect($names, $entry['fm_show_dagen'] ?: []));
+
+        $positions = array_flip($names);
+        $contiguous = $days && $positions[end($days)] - $positions[$days[0]] === count($days) - 1;
 
         if (count($days) === 7) {
             $dayString = 'ELKE DAG';
-        } elseif ($days === ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag']) {
+        } elseif ($days === array_slice($names, 0, 5)) {
             $dayString = 'ELKE WERKDAG';
+        } elseif (count($days) >= 3 && $contiguous) {
+            $dayString = $abbreviate($days[0]) . ' T/M ' . $abbreviate(end($days));
         } else {
-            $positions = array_flip(array_keys($abbreviations));
-
-            // Split the selected days into runs of consecutive weekdays
-            $runs = [];
-            $run = [];
-            foreach ($days as $day) {
-                if ($run && $positions[$day] !== $positions[end($run)] + 1) {
-                    $runs[] = $run;
-                    $run = [];
-                }
-                $run[] = $day;
-            }
-            if ($run) {
-                $runs[] = $run;
-            }
-
-            $parts = [];
-            foreach ($runs as $run) {
-                if (count($run) >= 3) {
-                    $parts[] = $abbreviations[$run[0]] . ' T/M ' . $abbreviations[end($run)];
-                } else {
-                    foreach ($run as $day) {
-                        $parts[] = $abbreviations[$day];
-                    }
-                }
-            }
-
-            $dayString = implode(', ', $parts);
+            $dayString = implode(', ', array_map($abbreviate, $days));
         }
 
         if (empty($entry['fm_show_starttijd']) || empty($entry['fm_show_eindtijd'])) {
@@ -183,11 +139,7 @@ class Site extends \Timber\Site
 
         $time = 'van ' . substr($entry['fm_show_starttijd'], 0, 5) . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur';
 
-        if ($dayString === '') {
-            return ucfirst($time);
-        }
-
-        return $dayString . ' ' . $time;
+        return trim($dayString . ' ' . $time);
     }
 
     public function get_icon($name)
@@ -229,7 +181,6 @@ class Site extends \Timber\Site
             }
         });
 
-        $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
         $twig->addFilter(new \Twig\TwigFilter('format_schedule_compact', [$this, 'format_schedule_compact']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));

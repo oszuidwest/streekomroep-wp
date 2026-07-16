@@ -1,8 +1,16 @@
 {% extends 'base.twig' %}
 
+{% macro driehoeken(items) %}
+    {% for d in items %}
+        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
+             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
+    {% endfor %}
+{% endmacro %}
+
 {% block content %}
     {% set presentatoren = get_users(post.meta('fm_show_presentator') ?: []) %}
-    {% set programmatie = post.meta('fm_show_programmatie') ?: [] %}
+    {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40' %}
+    {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
 
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         {# Hero #}
@@ -18,7 +26,7 @@
                     </defs>
                 </svg>
                 <svg class="absolute inset-0 h-full w-full max-md:hidden" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
-                    {% set driehoeken = [
+                    {{ _self.driehoeken([
                         [80, 255, 15, 0.22, '#ffffff', 0.08],
                         [170, 120, 250, 0.12, '#ff9dce', 0.12],
                         [230, 35, 130, 0.18, '#8f004e', 0.22],
@@ -35,15 +43,11 @@
                         [1030, 275, 180, 0.2, '#8f004e', 0.25],
                         [1105, 200, 335, 0.48, '#ffffff', 0.16],
                         [1170, 80, 60, 0.24, '#ff9dce', 0.28],
-                    ] %}
-                    {% for d in driehoeken %}
-                        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
-                             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
-                    {% endfor %}
+                    ]) }}
                 </svg>
                 {# Mobiel is de header smal en hoog; eigen compositie zodat de driehoeken niet wegvallen door de slice-crop #}
                 <svg class="absolute inset-0 h-full w-full md:hidden" viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice">
-                    {% set driehoeken_mobiel = [
+                    {{ _self.driehoeken([
                         [30, 110, 330, 0.14, '#8f004e', 0.22],
                         [48, 198, 20, 0.18, '#ffffff', 0.14],
                         [95, 52, 140, 0.15, '#ff9dce', 0.22],
@@ -55,11 +59,7 @@
                         [315, 55, 225, 0.22, '#ffffff', 0.16],
                         [360, 145, 30, 0.24, '#ff9dce', 0.3],
                         [374, 18, 190, 0.16, '#8f004e', 0.26],
-                    ] %}
-                    {% for d in driehoeken_mobiel %}
-                        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
-                             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
-                    {% endfor %}
+                    ]) }}
                 </svg>
             </div>
 
@@ -108,8 +108,8 @@
             {# Zijbalk #}
             <aside class="mt-6 flex flex-col gap-4 lg:mt-0">
                 {% if presentatoren is not empty %}
-                    <div class="rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40">
-                        <h2 class="mb-3.5 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">De makers</h2>
+                    <div class="{{ card }}">
+                        <h2 class="{{ card_title }}">De makers</h2>
                         <div class="flex flex-col gap-3.5">
                             {% for maker in presentatoren %}
                                 <div class="flex gap-3">
@@ -130,11 +130,11 @@
                 {% endif %}
 
                 {% if programmatie is not empty %}
-                    <div class="rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40">
-                        <h2 class="mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">Uitzendschema</h2>
+                    <div class="{{ card }}">
+                        <h2 class="{{ card_title }}">Uitzendschema</h2>
                         <div class="mb-2.5 flex gap-1.5">
-                            {% for dayname, label in {maandag: 'ma', dinsdag: 'di', woensdag: 'wo', donderdag: 'do', vrijdag: 'vr', zaterdag: 'za', zondag: 'zo'} %}
-                                <span class="flex-1 rounded-sm py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ label }}</span>
+                            {% for dayname in weekday_names %}
+                                <span class="flex-1 rounded-sm py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ dayname|slice(0, 2) }}</span>
                             {% endfor %}
                         </div>
                         {% if programmatie|length == 1 %}
@@ -168,9 +168,9 @@
                         <h2 class="text-3xl font-bold">Uitzending gemist</h2>
                         <div class="ml-auto flex items-center gap-1.5" data-gemist-nav hidden>
                             <button type="button" data-gemist-newer disabled aria-label="Nieuwere uitzendingen"
-                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">‹</button>
+                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">{{ icon('icon-arrow_back') }}</button>
                             <button type="button" data-gemist-older aria-label="Oudere uitzendingen"
-                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">›</button>
+                                    class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">{{ icon('icon-arrow_forward') }}</button>
                         </div>
                     </div>
 
@@ -210,12 +210,11 @@
                             }
 
                             function update() {
+                                var tolerance = 4;
                                 var max = track.scrollWidth - track.clientWidth;
-                                var last = track.lastElementChild;
-                                nav.hidden = max <= 4;
-                                newer.disabled = track.scrollLeft <= 4;
-                                older.disabled = !last
-                                    || last.getBoundingClientRect().right <= track.getBoundingClientRect().right + 4;
+                                nav.hidden = max <= tolerance;
+                                newer.disabled = track.scrollLeft <= tolerance;
+                                older.disabled = track.scrollLeft >= max - tolerance;
                             }
 
                             newer.addEventListener('click', function () {
