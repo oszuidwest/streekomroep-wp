@@ -928,12 +928,14 @@ add_action('wp_enqueue_scripts', 'zw_remove_wp_block_library_css', 100);
 
 function zw_enqueue_theme_assets()
 {
+    $version = wp_get_theme()->get('Version');
     wp_enqueue_style(
         'streekomroep-style',
         get_theme_file_uri('dist/style.css'),
         [],
-        wp_get_theme()->get('Version')
+        $version
     );
+    wp_enqueue_script('streekomroep-site', get_theme_file_uri('static/site.js'), [], $version, true);
 }
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');

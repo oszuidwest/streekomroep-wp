@@ -1,64 +1,23 @@
 {% extends 'base.twig' %}
 
-{% macro driehoeken(items) %}
-    {% for d in items %}
-        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
-             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
-    {% endfor %}
-{% endmacro %}
-
 {% block content %}
     {% set presentatoren = get_users(post.meta('fm_show_presentator') ?: []) %}
     {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40' %}
     {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
-
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-                {# Keep anchors more than 112 × (scale A + scale B) apart to prevent overlap at any rotation. #}
-                <svg class="absolute h-0 w-0" focusable="false">
+                <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" focusable="false">
                     <defs>
-                        <path id="zwfm-driehoek" d="M28 -98 L28 98 L-56 0 Z" stroke-width="20" stroke-linejoin="round"/>
+                        <pattern id="zwfm-driehoeken" width="240" height="180" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+                            <path d="M55 18V98L18 58Z" fill="none" stroke="#fff" stroke-width="8" opacity=".1"/>
+                            <path d="M185 82v50l-24-25Z" fill="#ff9dce" opacity=".16"/>
+                            <path d="M120 145V92l25 27Z" fill="#8f004e" opacity=".22"/>
+                        </pattern>
                     </defs>
-                </svg>
-                <svg class="absolute inset-0 h-full w-full max-md:hidden" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
-                    {{ _self.driehoeken([
-                        [80, 255, 15, 0.22, '#ffffff', 0.08],
-                        [170, 120, 250, 0.12, '#ff9dce', 0.12],
-                        [230, 35, 130, 0.18, '#8f004e', 0.22],
-                        [300, 175, 290, 0.15, '#ffffff', 0.07],
-                        [390, 275, 200, 0.25, '#ff9dce', 0.14],
-                        [450, 130, 20, 0.13, '#8f004e', 0.15],
-                        [520, 45, 75, 0.2, '#ffffff', 0.1],
-                        [590, 230, 220, 0.16, '#ff9dce', 0.16],
-                        [660, 110, 310, 0.28, '#8f004e', 0.25],
-                        [760, 35, 160, 0.32, '#ffffff', 0.12],
-                        [830, 250, 20, 0.26, '#ff9dce', 0.22],
-                        [910, 140, 245, 0.42, '#ffffff', 0.14],
-                        [1000, 35, 100, 0.28, '#8f004e', 0.3],
-                        [1030, 275, 180, 0.2, '#8f004e', 0.25],
-                        [1105, 200, 335, 0.48, '#ffffff', 0.16],
-                        [1170, 80, 60, 0.24, '#ff9dce', 0.28],
-                    ]) }}
-                </svg>
-                {# Use a separate composition because slice cropping hides triangles in the tall mobile header. #}
-                <svg class="absolute inset-0 h-full w-full md:hidden" viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice">
-                    {{ _self.driehoeken([
-                        [30, 110, 330, 0.14, '#8f004e', 0.22],
-                        [48, 198, 20, 0.18, '#ffffff', 0.14],
-                        [95, 52, 140, 0.15, '#ff9dce', 0.22],
-                        [150, 205, 250, 0.17, '#8f004e', 0.26],
-                        [205, 26, 75, 0.16, '#ffffff', 0.14],
-                        [240, 128, 310, 0.2, '#ff9dce', 0.24],
-                        [255, 178, 100, 0.13, '#ffffff', 0.12],
-                        [295, 205, 160, 0.2, '#8f004e', 0.28],
-                        [315, 55, 225, 0.22, '#ffffff', 0.16],
-                        [360, 145, 30, 0.24, '#ff9dce', 0.3],
-                        [374, 18, 190, 0.16, '#8f004e', 0.26],
-                    ]) }}
+                    <rect width="100%" height="100%" fill="url(#zwfm-driehoeken)"/>
                 </svg>
             </div>
-
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
                 <nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
                     <a class="transition hover:text-white hover:underline"
@@ -76,7 +35,6 @@
                 {% endif %}
 
                 <h1 class="font-round text-4xl leading-none font-black text-white uppercase md:text-5xl">{{ post.title }}</h1>
-
                 {% if presentatoren is not empty %}
                     <p class="mt-2 text-sm text-white/85 md:text-base">Met {{ presentatoren|join(', ', ' en ') }}</p>
                 {% endif %}
@@ -88,7 +46,6 @@
                 <div class="prose prose-lg dark:prose-invert mb-5">
                     {{ post.content }}
                 </div>
-
                 {% set rubrieken = post.meta('fm_show_rubrieken') ?: [] %}
                 {% if rubrieken is not empty %}
                     <div class="flex flex-wrap gap-2">
@@ -154,20 +111,20 @@
         </div>
 
         {% if gemist.days is not empty %}
-            <section id="gemist" class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
+            <section class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50" data-scroller>
                 <div class="mx-auto w-full max-w-960 px-4 py-8">
                     <div class="mb-5 flex flex-wrap items-center gap-x-4 gap-y-1">
                         <h2 class="text-3xl font-bold">Uitzending gemist</h2>
-                        <div class="ml-auto flex items-center gap-1.5" data-gemist-nav hidden>
-                            <button type="button" data-gemist-newer disabled aria-label="Nieuwere uitzendingen"
+                        <div class="ml-auto flex items-center gap-1.5" data-scroller-nav hidden>
+                            <button type="button" data-scroller-prev disabled aria-label="Nieuwere uitzendingen"
                                     class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">{{ icon('icon-arrow_back') }}</button>
-                            <button type="button" data-gemist-older aria-label="Oudere uitzendingen"
+                            <button type="button" data-scroller-next aria-label="Oudere uitzendingen"
                                     class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">{{ icon('icon-arrow_forward') }}</button>
                         </div>
                     </div>
 
                     <ul class="-mx-4 flex snap-x snap-proximity gap-3 overflow-x-auto px-4 py-1 sm:gap-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                        data-gemist-track style="scroll-padding-left: 1rem">
+                        data-scroller-track style="scroll-padding-left: 1rem">
                         {% for day in gemist.days %}
                             <li class="w-28 flex-none snap-start rounded-sm bg-gray-700/50 p-3 text-center sm:w-44 sm:p-4">
                                 <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">
@@ -190,36 +147,6 @@
                         <p class="mt-4 text-sm text-gray-400">Je kunt uitzendingen tot {{ gemist.retention_label }} terugluisteren.</p>
                     {% endif %}
 
-                    <script>
-                        (function () {
-                            var section = document.getElementById('gemist');
-                            var track = section.querySelector('[data-gemist-track]');
-                            var nav = section.querySelector('[data-gemist-nav]');
-                            var newer = section.querySelector('[data-gemist-newer]');
-                            var older = section.querySelector('[data-gemist-older]');
-                            if (!track || !nav || !newer || !older) {
-                                return;
-                            }
-
-                            function update() {
-                                var tolerance = 4;
-                                var max = track.scrollWidth - track.clientWidth;
-                                nav.hidden = max <= tolerance;
-                                newer.disabled = track.scrollLeft <= tolerance;
-                                older.disabled = track.scrollLeft >= max - tolerance;
-                            }
-
-                            newer.addEventListener('click', function () {
-                                track.scrollBy({left: -track.clientWidth, behavior: 'smooth'});
-                            });
-                            older.addEventListener('click', function () {
-                                track.scrollBy({left: track.clientWidth, behavior: 'smooth'});
-                            });
-                            track.addEventListener('scroll', update, {passive: true});
-                            window.addEventListener('resize', update);
-                            update();
-                        })();
-                    </script>
                 </div>
             </section>
         {% endif %}

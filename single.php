@@ -181,20 +181,12 @@ if ($timber_post->post_type == 'fm') {
         }
     }
 
-    usort($recordings, function (Carbon $lhs, Carbon $rhs) {
-        if ($lhs->isSameDay($rhs)) {
-            return $lhs <=> $rhs;
-        }
-
-        return $rhs <=> $lhs;
-    });
+    usort($recordings, fn (Carbon $lhs, Carbon $rhs) => $lhs->isSameDay($rhs) ? $lhs <=> $rhs : $rhs <=> $lhs);
 
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
-        if (!isset($recordingDays[$key])) {
-            $recordingDays[$key] = ['date' => $recording->copy()->startOfDay(), 'times' => []];
-        }
+        $recordingDays[$key] ??= ['date' => $recording->copy()->startOfDay(), 'times' => []];
         $recordingDays[$key]['times'][] = $recording;
     }
 
@@ -209,15 +201,8 @@ if ($timber_post->post_type == 'fm') {
         'retention_label' => $retentionLabel,
     ];
 
-    $followingShow = null;
-    if ($active && $rules) {
-        $schedule = new \Streekomroep\BroadcastSchedule();
-        $nextLive = $schedule->getNextBroadcastOfShow($show->ID);
-        if ($nextLive) {
-            $followingShow = $schedule->getNextRadioBroadcast($nextLive);
-        }
-    }
-    $context['following_show'] = $followingShow;
+    $context['following_show'] = $active && $rules ? (new \Streekomroep\BroadcastSchedule())
+        ->getFollowingRadioBroadcast($show->ID) : null;
 
     $context['programmatie'] = $rules;
     $context['schedule_days'] = array_merge(...array_column($rules, 'fm_show_dagen'));

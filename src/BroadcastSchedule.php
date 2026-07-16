@@ -163,27 +163,23 @@ class BroadcastSchedule
         return null;
     }
 
-    /** Gets a show's current or next broadcast, falling back to its latest broadcast outside the rolling week. */
-    public function getNextBroadcastOfShow(int $showId)
+    public function getFollowingRadioBroadcast(int $showId)
     {
         $now = Carbon::now(wp_timezone());
-        $last = null;
+        $broadcasts = array_merge(...array_column($this->days, 'radio'));
+        $selected = null;
 
-        foreach ($this->days as $day) {
-            foreach ($day->radio as $broadcast) {
-                if (!$broadcast->show || $broadcast->show->ID != $showId) {
-                    continue;
-                }
-
+        foreach ($broadcasts as $broadcast) {
+            if ($broadcast->show && $broadcast->show->ID == $showId) {
+                $selected = $broadcast;
                 if ($broadcast->end->isAfter($now)) {
-                    return $broadcast;
+                    break;
                 }
-
-                $last = $broadcast;
             }
         }
 
-        return $last;
+        $index = array_search($selected, $broadcasts, true);
+        return $index === false ? null : ($broadcasts[$index + 1] ?? null);
     }
 
     public function getCurrentRadioBroadcast()

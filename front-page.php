@@ -50,21 +50,11 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     continue;
                 }
 
-                /**
-                 * Build a list of candidate shows.
-                 * We will use this list for the other shows and maybe for the featured shows when deduplication is enabled.
-                 * Each array item holds the show it belongs to and the last episode.
-                 */
                 $latest_episode_per_show[] = [
                     'show' => $show,
                     'video' => $lastEpisode,
                 ];
 
-                /**
-                 * When deduplication is disabled, we will build a second array of candidates.
-                 * We loop through all the videos and add them to the array of featured candidates.
-                 * Each items holds the show it belongs to and the episode.
-                 */
                 if (false === $deduplicate) {
                     $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
                     foreach ($videos as $video) {
@@ -76,10 +66,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                 }
             }
 
-            /**
-             * We sort the candidates by broadcast date.
-             * The most recently broadcasted show is the first item in the array.
-             */
             usort($latest_episode_per_show, function ($left, $right) {
                 return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
             });
@@ -89,11 +75,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
 
             if (!empty($episodes_with_duplicate_shows)) {
-
-                /**
-                 * We sort the videos by broadcast date.
-                 * The most recently broadcasted show is the first item in the array.
-                 */
                 usort($episodes_with_duplicate_shows, function ($left, $right) {
                     return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
                 });
@@ -161,8 +142,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossiers_carrousel':
-            // Block requires jquery for scrolling
-            wp_enqueue_script('jquery');
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => true,

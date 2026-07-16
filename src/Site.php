@@ -87,39 +87,26 @@ class Site extends \Timber\Site
         add_theme_support('custom-logo');
     }
 
-    /**
-     * Formats a schedule rule as a compact label.
-     *
-     * @param array $entry Schedule rule.
-     * @return string Compact label.
-     */
     public function format_schedule_compact($entry)
     {
         $names = array_values(BroadcastDay::WEEKDAY_NAMES);
-        $abbreviate = fn ($day) => strtoupper(substr($day, 0, 2));
-
         $days = array_values(array_intersect($names, $entry['fm_show_dagen'] ?: []));
-
         $positions = array_flip($names);
-        $contiguous = $days && $positions[end($days)] - $positions[$days[0]] === count($days) - 1;
-
-        if (count($days) === 7) {
-            $dayString = 'ELKE DAG';
-        } elseif ($days === array_slice($names, 0, 5)) {
-            $dayString = 'ELKE WERKDAG';
-        } elseif (count($days) >= 3 && $contiguous) {
-            $dayString = $abbreviate($days[0]) . ' T/M ' . $abbreviate(end($days));
-        } else {
-            $dayString = implode(', ', array_map($abbreviate, $days));
-        }
+        $short = fn ($day) => strtoupper(substr($day, 0, 2));
+        $label = match (true) {
+            count($days) === 7 => 'ELKE DAG',
+            $days === array_slice($names, 0, 5) => 'ELKE WERKDAG',
+            count($days) >= 3 && $days === array_slice($names, $positions[$days[0]], count($days))
+            => $short($days[0]) . ' T/M ' . $short(end($days)),
+            default => implode(', ', array_map($short, $days)),
+        };
 
         if (empty($entry['fm_show_starttijd']) || empty($entry['fm_show_eindtijd'])) {
-            return $dayString;
+            return $label;
         }
 
-        $time = 'van ' . substr($entry['fm_show_starttijd'], 0, 5) . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur';
-
-        return trim($dayString . ' ' . $time);
+        return trim($label . ' van ' . substr($entry['fm_show_starttijd'], 0, 5)
+            . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur');
     }
 
     public function get_icon($name)
