@@ -3,8 +3,8 @@ function initDarkMode() {
     const dark = localStorage.theme === 'dark'
         || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', dark);
-    document.getElementById('themeLightBtn').hidden = dark;
-    document.getElementById('themeDarkBtn').hidden = !dark;
+    document.getElementById('themeLightBtn').hidden = !dark;
+    document.getElementById('themeDarkBtn').hidden = dark;
 }
 
 document.querySelectorAll('[data-theme]').forEach(function (button) {

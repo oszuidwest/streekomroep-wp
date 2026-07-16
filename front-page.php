@@ -72,7 +72,8 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             }
 
             $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
-            $block['shows'] = array_slice($latest_episode_per_show, $videos_to_show, 4);
+            $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $block['videos']);
+            $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
             break;
 
         case 'blok_artikel_lijst':
