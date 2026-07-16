@@ -23,23 +23,95 @@
             "ui_off_text": ""
         },
         {
-            "key": "field_5f21b210489bf",
-            "label": "Presentator(en)",
-            "name": "fm_show_presentator",
+            "key": "field_687a3f5e0c1a1",
+            "label": "De makers",
+            "name": "fm_show_makers",
             "aria-label": "",
-            "type": "user",
-            "instructions": "Presentator(en) moet(en) in WordPress bestaan als user(s).",
-            "required": 1,
+            "type": "repeater",
+            "instructions": "De makers van het programma. Worden op de programmapagina en in de gids getoond.",
+            "required": 0,
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
                 "id": ""
             },
-            "role": "",
-            "allow_null": 0,
-            "multiple": 1,
-            "return_format": "id"
+            "collapsed": "field_687a3f5e0c1a2",
+            "min": 0,
+            "max": 0,
+            "layout": "row",
+            "button_label": "Nieuwe maker",
+            "sub_fields": [
+                {
+                    "key": "field_687a3f5e0c1a2",
+                    "label": "Naam",
+                    "name": "fm_show_maker_naam",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_687a3f5e0c1a1"
+                },
+                {
+                    "key": "field_687a3f5e0c1a3",
+                    "label": "Bio",
+                    "name": "fm_show_maker_bio",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Korte omschrijving van deze maker.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "rows": 2,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_687a3f5e0c1a1"
+                },
+                {
+                    "key": "field_687a3f5e0c1a4",
+                    "label": "Foto",
+                    "name": "fm_show_maker_foto",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "Vierkante foto werkt het beste.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "url",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "preview_size": "thumbnail",
+                    "parent_repeater": "field_687a3f5e0c1a1"
+                }
+            ],
+            "rows_per_page": 20
         },
         {
             "key": "field_6878a1c2f4b09",
@@ -205,5 +277,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1784211330
+    "modified": 1784232505
 }
