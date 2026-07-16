@@ -192,7 +192,8 @@ if ($timber_post->post_type == 'fm') {
         return $rhs <=> $lhs;
     });
 
-    // Group recordings per day (newest first), shown 5 days at a time
+    // Group recordings per day (newest first); the template pages through
+    // them client-side, 5 days at a time
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
@@ -200,13 +201,6 @@ if ($timber_post->post_type == 'fm') {
             $recordingDays[$key] = ['date' => $recording->copy()->startOfDay(), 'times' => []];
         }
         $recordingDays[$key]['times'][] = $recording;
-    }
-
-    $recordingPages = array_chunk(array_values($recordingDays), 5);
-
-    $page = isset($_GET['gemist']) ? absint($_GET['gemist']) : 0;
-    if ($page >= count($recordingPages)) {
-        $page = max(0, count($recordingPages) - 1);
     }
 
     $retention = (int)get_field('radio_gemist_retentie', 'option');
@@ -221,9 +215,7 @@ if ($timber_post->post_type == 'fm') {
     }
 
     $context['gemist'] = [
-        'pages' => count($recordingPages),
-        'page' => $page,
-        'days' => $recordingPages[$page] ?? [],
+        'days' => array_values($recordingDays),
         'retention_label' => $retentionLabel,
     ];
 

@@ -6,9 +6,9 @@
 
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         {# Hero #}
-        <header class="relative overflow-hidden bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
+        <header class="relative overflow-hidden bg-roze">
             {% if post.thumbnail %}
-                <div class="absolute -right-10 -top-2 h-36 w-36 rotate-45 overflow-hidden rounded-2xl opacity-85 md:top-1/2 md:right-24 md:h-72 md:w-72 md:-translate-y-1/2 md:rounded-3xl"
+                <div class="absolute -right-10 -top-2 h-36 w-36 rotate-45 overflow-hidden rounded-sm opacity-85 md:top-1/2 md:right-24 md:h-72 md:w-72 md:-translate-y-1/2"
                      aria-hidden="true">
                     <img src="{{ post.thumbnail.src|imgproxy(600, 600) }}" alt=""
                          class="absolute top-1/2 left-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 scale-150 object-cover opacity-45 mix-blend-luminosity">
@@ -24,13 +24,11 @@
                 </nav>
 
                 {% if programmatie is not empty %}
-                    <div class="mb-3 flex flex-wrap gap-1.5">
+                    <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
                         {% for entry in programmatie %}
-                            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white md:text-sm">
-                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>{{ entry|format_schedule_compact }}
-                            </span>
+                            {{- entry|format_schedule_compact }}{{ not loop.last ? ' · ' -}}
                         {% endfor %}
-                    </div>
+                    </p>
                 {% endif %}
 
                 <h1 class="font-round text-4xl leading-none font-black text-white uppercase md:text-5xl">{{ post.title }}</h1>
@@ -53,45 +51,38 @@
                 {% if rubrieken is not empty %}
                     <div class="mb-9 flex flex-wrap gap-2">
                         {% for rubriek in rubrieken %}
-                            <span class="rounded-full bg-pink-100 px-3.5 py-1.5 text-xs font-bold text-[#b00061] dark:bg-roze/20 dark:text-pink-300">{{ rubriek.fm_show_rubriek_naam }}</span>
+                            <span class="rounded-sm bg-gray-100 px-2 py-1 text-sm text-gray-900 dark:bg-gray-700 dark:text-gray-100">{{ rubriek.fm_show_rubriek_naam }}</span>
                         {% endfor %}
                     </div>
                 {% endif %}
 
                 {# Uitzending gemist #}
                 {% if gemist.days is not empty %}
-                    <section id="gemist" class="mb-8 scroll-mt-32 rounded-lg bg-gray-800 p-4 text-white sm:p-5 dark:border dark:border-gray-600 dark:bg-gray-900">
-                        <div class="mb-3.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-                            <h2 class="text-2xl font-bold">Uitzending gemist</h2>
-                            {% if gemist.pages > 1 %}
+                    <section id="gemist" class="mb-8 rounded-sm bg-gray-800 p-4 text-white dark:border dark:border-gray-700/50">
+                        <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <h2 class="text-3xl font-bold">Uitzending gemist</h2>
+                            {% if gemist.days|length > 5 %}
                                 <div class="ml-auto flex items-center gap-1.5">
-                                    {% if gemist.page > 0 %}
-                                        <a class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700/50 font-bold transition hover:bg-roze"
-                                           href="?gemist={{ gemist.page - 1 }}#gemist" aria-label="Nieuwere uitzendingen">‹</a>
-                                    {% else %}
-                                        <span class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700/30 font-bold text-gray-500" aria-hidden="true">‹</span>
-                                    {% endif %}
-                                    {% if gemist.page + 1 < gemist.pages %}
-                                        <a class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700/50 font-bold transition hover:bg-roze"
-                                           href="?gemist={{ gemist.page + 1 }}#gemist" aria-label="Oudere uitzendingen">›</a>
-                                    {% else %}
-                                        <span class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700/30 font-bold text-gray-500" aria-hidden="true">›</span>
-                                    {% endif %}
+                                    <button type="button" data-gemist-newer disabled aria-label="Nieuwere uitzendingen"
+                                            class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">‹</button>
+                                    <button type="button" data-gemist-older aria-label="Oudere uitzendingen"
+                                            class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 font-bold transition hover:bg-gray-600 disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500">›</button>
                                 </div>
                             {% endif %}
                         </div>
 
-                        <ul class="flex flex-col gap-2.5 sm:grid sm:grid-cols-3 md:grid-cols-5">
+                        <ul class="flex flex-col gap-2 sm:grid sm:grid-cols-3 md:grid-cols-5">
                             {% for day in gemist.days %}
-                                <li class="flex items-center gap-3 rounded-sm bg-gray-700/50 p-3 sm:block">
+                                <li class="flex items-center gap-3 rounded-sm bg-gray-700/50 p-3 sm:block"
+                                    data-gemist-day{% if loop.index0 >= 5 %} style="display: none"{% endif %}>
                                     <div class="flex-1 sm:mb-2.5 sm:flex-none">
                                         <span class="text-sm font-semibold sm:hidden">{{ day.date.locale('nl').isoFormat('dddd D MMMM') }}</span>
-                                        <span class="hidden text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dd') }}</span>
+                                        <span class="hidden font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:block">{{ day.date.locale('nl').isoFormat('dd') }}</span>
                                         <span class="hidden text-sm font-semibold sm:block">{{ day.date.locale('nl').isoFormat('D MMMM') }}</span>
                                     </div>
                                     <div class="flex gap-1.5 sm:flex-col">
                                         {% for time in day.times %}
-                                            <a class="rounded-sm bg-roze px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-[#b00061] sm:px-0"
+                                            <a class="rounded-sm bg-roze px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-roze/80 sm:px-0"
                                                href="{{ options.radio_gemist_baseurl|replace({'<date>': time.format(options.radio_gemist_file)}) }}"
                                                target="_blank" rel="noopener">▸ {{ time.locale('nl').isoFormat('HH:mm') }}</a>
                                         {% endfor %}
@@ -103,6 +94,44 @@
                         {% if gemist.retention_label %}
                             <p class="mt-2.5 text-sm text-gray-400">Uitzendingen blijven {{ gemist.retention_label }} terug te luisteren.</p>
                         {% endif %}
+
+                        <script>
+                            (function () {
+                                var section = document.getElementById('gemist');
+                                var newer = section.querySelector('[data-gemist-newer]');
+                                var older = section.querySelector('[data-gemist-older]');
+                                if (!newer || !older) {
+                                    return;
+                                }
+
+                                var days = section.querySelectorAll('[data-gemist-day]');
+                                var pageSize = 5;
+                                var pages = Math.ceil(days.length / pageSize);
+                                var page = 0;
+
+                                function render() {
+                                    days.forEach(function (day, i) {
+                                        var visible = i >= page * pageSize && i < (page + 1) * pageSize;
+                                        day.style.display = visible ? '' : 'none';
+                                    });
+                                    newer.disabled = page === 0;
+                                    older.disabled = page + 1 >= pages;
+                                }
+
+                                newer.addEventListener('click', function () {
+                                    if (page > 0) {
+                                        page--;
+                                        render();
+                                    }
+                                });
+                                older.addEventListener('click', function () {
+                                    if (page + 1 < pages) {
+                                        page++;
+                                        render();
+                                    }
+                                });
+                            })();
+                        </script>
                     </section>
                 {% endif %}
             </div>
@@ -110,8 +139,8 @@
             {# Zijbalk #}
             <aside class="mt-4 flex flex-col gap-4 lg:mt-0">
                 {% if presentatoren is not empty %}
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/40">
-                        <h2 class="mb-3.5 font-round text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">De makers</h2>
+                    <div class="rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40">
+                        <h2 class="mb-3.5 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">De makers</h2>
                         <div class="flex flex-col gap-3.5">
                             {% for maker in presentatoren %}
                                 <div class="flex gap-3">
@@ -130,11 +159,11 @@
                 {% endif %}
 
                 {% if programmatie is not empty %}
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/40">
-                        <h2 class="mb-3 font-round text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">Uitzendschema</h2>
+                    <div class="rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40">
+                        <h2 class="mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">Uitzendschema</h2>
                         <div class="mb-2.5 flex gap-1.5">
                             {% for dayname, label in {maandag: 'ma', dinsdag: 'di', woensdag: 'wo', donderdag: 'do', vrijdag: 'vr', zaterdag: 'za', zondag: 'zo'} %}
-                                <span class="flex-1 rounded py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ label }}</span>
+                                <span class="flex-1 rounded-sm py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ label }}</span>
                             {% endfor %}
                         </div>
                         {% if programmatie|length == 1 %}
@@ -154,20 +183,28 @@
         </div>
 
         {# Meer programma's #}
-        {% if other_shows is not empty %}
-            <div class="mx-auto max-w-960 px-4">
-                <div class="mt-7 flex flex-wrap items-center gap-3 border-t border-gray-200 py-4 pb-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    <span class="font-bold text-gray-900 dark:text-white">Meer FM-programma's:</span>
+        <div class="mx-auto max-w-960 px-4">
+            <div class="mt-7 border-t border-gray-200 py-4 pb-8 dark:border-gray-700">
+                <p class="font-round text-sm font-bold tracking-wide text-gray-400 uppercase">Meer FM-programma's</p>
+                <ul class="mt-2 flex flex-wrap items-center gap-2">
                     {% for show in other_shows|slice(0, 4) %}
-                        <a class="rounded-full border border-gray-200 px-3 py-1 font-semibold transition hover:border-roze hover:text-roze dark:border-gray-600"
-                           href="{{ show.link }}">{{ show.title }}</a>
+                        <li>
+                            <a class="block rounded-sm bg-gray-100 px-2 py-1 text-sm text-gray-900 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                               href="{{ show.link }}">{{ show.title }}</a>
+                        </li>
                     {% endfor %}
-                    <a class="font-bold text-roze hover:underline md:ml-auto"
-                       href="{{ function('get_post_type_archive_link', 'fm') }}">Alle programma's →</a>
-                </div>
+                    {% if other_shows is not empty %}
+                        <li class="mx-1 h-5 border-l border-gray-300 dark:border-gray-500" aria-hidden="true" role="presentation"></li>
+                    {% endif %}
+                    <li>
+                        <a class="inline-flex items-center gap-1 rounded-sm bg-roze py-1 pr-1.5 pl-2 text-sm text-white transition hover:bg-roze/80"
+                           href="{{ function('get_post_type_archive_link', 'fm') }}">
+                            <span>Alle programma's</span>
+                            <span class="size-4 shrink-0 [&>svg]:size-full" aria-hidden="true">{{ icon('icon-chevron_right') }}</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-        {% else %}
-            <div class="pb-8"></div>
-        {% endif %}
+        </div>
     </article>
 {% endblock %}
