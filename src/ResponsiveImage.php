@@ -11,17 +11,8 @@ final class ResponsiveImage
      */
     public static function srcset($src, int $width, int $height): string
     {
+        // Dimensions are validated by the calling macro in responsive-image.twig.
         if ($width <= 0 || $height <= 0) {
-            \wp_trigger_error(
-                __METHOD__,
-                sprintf(
-                    'Invalid image dimensions (%dx%d) for source type %s; omitting srcset.',
-                    $width,
-                    $height,
-                    get_debug_type($src)
-                ),
-                \E_USER_WARNING
-            );
             return '';
         }
 

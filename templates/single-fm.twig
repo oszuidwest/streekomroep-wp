@@ -12,7 +12,7 @@
                         width: 928,
                         height: 928 / 21 * 9,
                         sizes: '(min-width: 960px) 928px, (min-width: 768px) calc(100vw - 2rem), 100vw',
-                        alt: post.thumbnail.alt|default(post.title, true),
+                        alt: post.thumbnail.alt|default(post.title),
                         class: 'absolute inset-0 w-full h-full object-cover bg-gray-200 dark:bg-gray-700',
                         loading: 'eager',
                     ) }}

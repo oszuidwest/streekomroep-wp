@@ -17,7 +17,7 @@
                     width: 1024,
                     height: 439,
                     sizes: '(max-width: 1023px) 100vw, 1px',
-                    alt: wide_image.alt|default(term.name, true),
+                    alt: wide_image.alt|default(term.name),
                     class: 'object-cover absolute inset-0 w-full h-full',
                     loading: 'eager',
                 ) }}
@@ -45,7 +45,7 @@
                                 width: 299,
                                 height: 532,
                                 sizes: '299px',
-                                alt: tall_image.alt|default(term.name, true),
+                                alt: tall_image.alt|default(term.name),
                                 class: 'absolute inset-0 w-full',
                             ) }}
                         </div>

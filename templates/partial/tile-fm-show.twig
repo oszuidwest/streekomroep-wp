@@ -8,7 +8,7 @@
                 width: 320,
                 height: 180,
                 sizes: '(min-width: 960px) 299px, (min-width: 768px) calc((100vw - 4rem) / 3), (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
-                alt: post.thumbnail.alt|default(post.title, true),
+                alt: post.thumbnail.alt|default(post.title),
                 class: 'absolute inset-0 w-full h-full object-cover',
             ) }}
         {% endif %}

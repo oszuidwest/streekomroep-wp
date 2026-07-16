@@ -28,7 +28,7 @@
                             width: 296,
                             height: 167,
                             sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), (min-width: 640px) calc((100vw - 4rem) / 3), calc((100vw - 3rem) / 2)',
-                            alt: post.thumbnail.alt|default(post.title, true),
+                            alt: post.thumbnail.alt|default(post.title),
                             class: 'w-full h-full object-cover',
                         ) }}
                     </div>

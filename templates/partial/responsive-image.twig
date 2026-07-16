@@ -8,7 +8,7 @@
              src="{{ src|imgproxy(width, height)|e('html_attr') }}"
              srcset="{{ srcset|e('html_attr') }}"
              sizes="{{ sizes|e('html_attr') }}"
-             alt="{{ alt|default('', true)|e('html_attr') }}"
+             alt="{{ alt|default('')|e('html_attr') }}"
              width="{{ width|e('html_attr') }}"
              height="{{ height|e('html_attr') }}"
              loading="{{ loading|e('html_attr') }}"

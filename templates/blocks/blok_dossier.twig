@@ -11,7 +11,7 @@
                     width: 1024,
                     height: 439,
                     sizes: '100vw',
-                    alt: wide_image.alt|default(block.term.name, true),
+                    alt: wide_image.alt|default(block.term.name),
                     class: 'object-cover absolute inset-0 w-full h-full',
                 ) }}
                 <div class="absolute inset-x-0 -bottom-px h-32 max-h-full bg-gradient-to-t from-gray-800"></div>
@@ -44,7 +44,7 @@
                         width: 384,
                         height: 423,
                         sizes: '384px',
-                        alt: tall_image.alt|default(block.term.name, true),
+                        alt: tall_image.alt|default(block.term.name),
                         class: 'absolute inset-0 w-full h-full object-cover',
                     ) }}
                     <div class="absolute left-0 inset-y-0 w-16 bg-gradient-to-r from-gray-800"></div>

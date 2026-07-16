@@ -15,7 +15,7 @@
                         sizes: loop.first
                             ? '(min-width: 960px) 439px, (min-width: 640px) calc((100vw - 2rem) * 0.4735043), 100vw'
                             : '(min-width: 960px) 244px, (min-width: 640px) calc((100vw - 2rem) * 0.2632478), calc((100vw - 0.125rem) / 2)',
-                        alt: post.thumbnail.alt|default(post.title, true),
+                        alt: post.thumbnail.alt|default(post.title),
                         class: 'object-cover w-full h-full absolute inset-0',
                         loading: loop.first ? 'eager' : 'lazy',
                     ) }}

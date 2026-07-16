@@ -26,7 +26,7 @@
                             width: 960,
                             height: 540,
                             sizes: '(min-width: 960px) 960px, 100vw',
-                            alt: post.thumbnail.alt|default(post.title, true),
+                            alt: post.thumbnail.alt|default(post.title),
                             class: 'w-full',
                             loading: 'eager',
                         ) }}
