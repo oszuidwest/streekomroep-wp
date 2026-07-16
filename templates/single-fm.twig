@@ -6,20 +6,22 @@
 
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         {# Hero #}
-        <header class="relative overflow-hidden bg-roze">
+        <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-                {# Uitzendgolven #}
-                <svg class="absolute top-1/2 -right-24 h-72 w-72 -translate-y-1/2 text-white md:-right-8 md:h-[26rem] md:w-[26rem]"
-                     viewBox="0 0 400 400" fill="none">
-                    <circle cx="200" cy="200" r="8" fill="currentColor" fill-opacity=".35"/>
-                    <circle cx="200" cy="200" r="60" stroke="currentColor" stroke-opacity=".3" stroke-width="2"/>
-                    <circle cx="200" cy="200" r="110" stroke="currentColor" stroke-opacity=".2" stroke-width="2"/>
-                    <circle cx="200" cy="200" r="160" stroke="currentColor" stroke-opacity=".12" stroke-width="2"/>
-                    <circle cx="200" cy="200" r="199" stroke="currentColor" stroke-opacity=".07" stroke-width="2"/>
+                {# Beeldmerk ZuidWest FM: linker- en onderdriehoek met ronde hoeken #}
+                <svg class="absolute top-1/2 -right-10 h-[135%] w-auto -translate-y-1/2 text-white opacity-10"
+                     viewBox="0 0 300 300">
+                    <g id="zwfm-merk" fill="currentColor" stroke="currentColor" stroke-width="10" stroke-linejoin="round">
+                        <path d="M91 7 L91 203 L7 105 Z"/>
+                        <path d="M97 215 L293 215 L195 293 Z"/>
+                    </g>
                 </svg>
-                {# Ruiten als extra lagen #}
-                <div class="absolute -right-10 -bottom-16 h-40 w-40 rotate-45 bg-white/10"></div>
-                <div class="absolute -top-10 right-40 h-24 w-24 rotate-45 bg-black/10 max-md:hidden"></div>
+                <svg class="absolute right-64 -bottom-8 h-28 w-28 text-[#8f004e] opacity-40 max-md:hidden" viewBox="0 0 300 300">
+                    <use href="#zwfm-merk"/>
+                </svg>
+                <svg class="absolute -top-6 right-40 h-20 w-20 rotate-180 text-[#ff9dce] opacity-30" viewBox="0 0 300 300">
+                    <use href="#zwfm-merk"/>
+                </svg>
             </div>
 
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
