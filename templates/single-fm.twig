@@ -80,14 +80,14 @@
                         <h2 class="{{ card_title }}">De makers</h2>
                         <div class="flex flex-col gap-3.5">
                             {% for maker in makers %}
-                                <div class="flex gap-3">
+                                <div class="flex items-center gap-3">
                                     {% if maker.fm_show_maker_foto %}
-                                        <img src="{{ maker.fm_show_maker_foto|imgproxy(52, 52) }}"
-                                             srcset="{{ maker.fm_show_maker_foto|imgproxy(52 * 2, 52 * 2) }} 2x"
-                                             alt="{{ maker.fm_show_maker_naam }}" width="52" height="52"
-                                             loading="lazy" class="h-13 w-13 flex-none rounded-sm object-cover">
+                                        <img src="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }}"
+                                             srcset="{{ maker.fm_show_maker_foto|imgproxy(80 * 2, 80 * 2) }} 2x"
+                                             alt="{{ maker.fm_show_maker_naam }}" width="80" height="80"
+                                             loading="lazy" class="size-20 flex-none rounded-sm object-cover">
                                     {% endif %}
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ maker.fm_show_maker_naam }}</p>
                                         {% if maker.fm_show_maker_bio %}
                                             <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">{{ maker.fm_show_maker_bio }}</p>
