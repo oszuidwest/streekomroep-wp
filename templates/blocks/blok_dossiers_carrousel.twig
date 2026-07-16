@@ -25,7 +25,8 @@
     <div class="mx-auto max-w-960 px-4">
         <h2 class="pb-4 text-3xl font-bold dark:text-white">Dossiers</h2>
     </div>
-    <div class="scroll-smooth overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-scroller-track>
+    <div class="snap-x snap-proximity scroll-smooth overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+         data-scroller-track style="scroll-padding-inline:var(--grid-inset)">
         <div class="flex w-max">
             <div class="flex-none" style="width:var(--grid-inset)"></div>
             {% for term in block.terms %}
