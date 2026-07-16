@@ -87,8 +87,8 @@
             </div>
         </header>
 
-        <div class="mx-auto max-w-960 px-4 pt-7 lg:grid lg:grid-cols-[1fr_20rem] lg:gap-x-11 lg:gap-y-8 lg:pt-9">
-            <div class="lg:col-start-1 lg:row-start-1">
+        <div class="mx-auto max-w-960 px-4 py-7 lg:grid lg:grid-cols-[1fr_20rem] lg:gap-x-11 lg:py-9">
+            <div>
                 {# Omschrijving #}
                 <div class="prose prose-lg dark:prose-invert mb-5">
                     {{ post.content }}
@@ -106,7 +106,7 @@
             </div>
 
             {# Zijbalk #}
-            <aside class="mt-6 flex flex-col gap-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0">
+            <aside class="mt-6 flex flex-col gap-4 lg:mt-0">
                 {% if presentatoren is not empty %}
                     <div class="rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40">
                         <h2 class="mb-3.5 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">De makers</h2>
@@ -156,10 +156,12 @@
                 {% endif %}
 
             </aside>
+        </div>
 
-            {# Uitzending gemist #}
-            {% if gemist.days is not empty %}
-                <section id="gemist" class="-mx-4 mt-6 bg-gray-800 p-4 text-white sm:mx-0 sm:rounded-sm lg:col-start-1 lg:row-start-2 lg:mt-0 dark:border dark:border-gray-700/50">
+        {# Uitzending gemist #}
+        {% if gemist.days is not empty %}
+            <section id="gemist" class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
+                <div class="mx-auto w-full max-w-960 px-4 py-6">
                     <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1">
                         <h2 class="text-3xl font-bold">Uitzending gemist</h2>
                         {% if gemist.days|length > 5 %}
@@ -233,10 +235,8 @@
                             });
                         })();
                     </script>
-                </section>
-            {% endif %}
-        </div>
-
-        <div class="pb-8"></div>
+                </div>
+            </section>
+        {% endif %}
     </article>
 {% endblock %}
