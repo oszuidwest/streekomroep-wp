@@ -192,7 +192,7 @@ if ($timber_post->post_type == 'fm') {
         return $rhs <=> $lhs;
     });
 
-    // Group recordings per day, then per ISO week (newest week first)
+    // Group recordings per day (newest first), shown 5 days at a time
     $recordingDays = [];
     foreach ($recordings as $recording) {
         $key = $recording->toDateString();
@@ -202,15 +202,11 @@ if ($timber_post->post_type == 'fm') {
         $recordingDays[$key]['times'][] = $recording;
     }
 
-    $recordingWeeks = [];
-    foreach ($recordingDays as $day) {
-        $recordingWeeks[$day['date']->isoWeekYear . '-' . $day['date']->isoWeek][] = $day;
-    }
-    $recordingWeeks = array_values($recordingWeeks);
+    $recordingPages = array_chunk(array_values($recordingDays), 5);
 
-    $week = isset($_GET['week']) ? absint($_GET['week']) : 0;
-    if ($week >= count($recordingWeeks)) {
-        $week = max(0, count($recordingWeeks) - 1);
+    $page = isset($_GET['gemist']) ? absint($_GET['gemist']) : 0;
+    if ($page >= count($recordingPages)) {
+        $page = max(0, count($recordingPages) - 1);
     }
 
     $retention = (int)get_field('radio_gemist_retentie', 'option');
@@ -225,10 +221,9 @@ if ($timber_post->post_type == 'fm') {
     }
 
     $context['gemist'] = [
-        'weeks' => count($recordingWeeks),
-        'week' => $week,
-        'days' => $recordingWeeks[$week] ?? [],
-        'newest_is_recent' => !empty($recordings) && ($recordings[0]->isToday() || $recordings[0]->isYesterday()),
+        'pages' => count($recordingPages),
+        'page' => $page,
+        'days' => $recordingPages[$page] ?? [],
         'retention_label' => $retentionLabel,
     ];
 
