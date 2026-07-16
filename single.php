@@ -251,17 +251,6 @@ if ($timber_post->post_type == 'fm') {
         }
     }
     $context['schedule_days'] = $activeDays;
-
-    $context['other_shows'] = Timber::get_posts([
-        'post_type' => 'fm',
-        'posts_per_page' => -1,
-        'post__not_in' => [$show->ID],
-        'ignore_sticky_posts' => true,
-        'meta_key' => 'fm_show_actief',
-        'meta_value' => '1',
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ]);
 }
 
 if ($timber_post->post_gekoppeld_fragment) {

@@ -7,13 +7,20 @@
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         {# Hero #}
         <header class="relative overflow-hidden bg-roze">
-            {% if post.thumbnail %}
-                <div class="absolute -right-10 -top-2 h-36 w-36 rotate-45 overflow-hidden rounded-sm opacity-85 md:top-1/2 md:right-24 md:h-72 md:w-72 md:-translate-y-1/2"
-                     aria-hidden="true">
-                    <img src="{{ post.thumbnail.src|imgproxy(600, 600) }}" alt=""
-                         class="absolute top-1/2 left-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 scale-150 object-cover opacity-45 mix-blend-luminosity">
-                </div>
-            {% endif %}
+            <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+                {# Uitzendgolven #}
+                <svg class="absolute top-1/2 -right-24 h-72 w-72 -translate-y-1/2 text-white md:-right-8 md:h-[26rem] md:w-[26rem]"
+                     viewBox="0 0 400 400" fill="none">
+                    <circle cx="200" cy="200" r="8" fill="currentColor" fill-opacity=".35"/>
+                    <circle cx="200" cy="200" r="60" stroke="currentColor" stroke-opacity=".3" stroke-width="2"/>
+                    <circle cx="200" cy="200" r="110" stroke="currentColor" stroke-opacity=".2" stroke-width="2"/>
+                    <circle cx="200" cy="200" r="160" stroke="currentColor" stroke-opacity=".12" stroke-width="2"/>
+                    <circle cx="200" cy="200" r="199" stroke="currentColor" stroke-opacity=".07" stroke-width="2"/>
+                </svg>
+                {# Ruiten als extra lagen #}
+                <div class="absolute -right-10 -bottom-16 h-40 w-40 rotate-45 bg-white/10"></div>
+                <div class="absolute -top-10 right-40 h-24 w-24 rotate-45 bg-black/10 max-md:hidden"></div>
+            </div>
 
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
                 <nav class="mb-5 text-xs font-semibold text-white/70 md:text-sm" aria-label="Kruimelpad">
@@ -174,7 +181,14 @@
                             {% endfor %}
                         {% endif %}
                         {% if following_show %}
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Aansluitend: {{ following_show.name }}</p>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                Aansluitend:
+                                {% if following_show.show %}
+                                    <a class="underline transition hover:text-roze" href="{{ following_show.show.link }}">{{ following_show.name }}</a>
+                                {% else %}
+                                    {{ following_show.name }}
+                                {% endif %}
+                            </p>
                         {% endif %}
                     </div>
                 {% endif %}
@@ -183,28 +197,6 @@
         </div>
 
         {# Meer programma's #}
-        <div class="mx-auto max-w-960 px-4">
-            <div class="mt-7 border-t border-gray-200 py-4 pb-8 dark:border-gray-700">
-                <p class="font-round text-sm font-bold tracking-wide text-gray-400 uppercase">Meer FM-programma's</p>
-                <ul class="mt-2 flex flex-wrap items-center gap-2">
-                    {% for show in other_shows|slice(0, 4) %}
-                        <li>
-                            <a class="block rounded-sm bg-gray-100 px-2 py-1 text-sm text-gray-900 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
-                               href="{{ show.link }}">{{ show.title }}</a>
-                        </li>
-                    {% endfor %}
-                    {% if other_shows is not empty %}
-                        <li class="mx-1 h-5 border-l border-gray-300 dark:border-gray-500" aria-hidden="true" role="presentation"></li>
-                    {% endif %}
-                    <li>
-                        <a class="inline-flex items-center gap-1 rounded-sm bg-roze py-1 pr-1.5 pl-2 text-sm text-white transition hover:bg-roze/80"
-                           href="{{ function('get_post_type_archive_link', 'fm') }}">
-                            <span>Alle programma's</span>
-                            <span class="size-4 shrink-0 [&>svg]:size-full" aria-hidden="true">{{ icon('icon-chevron_right') }}</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <div class="pb-8"></div>
     </article>
 {% endblock %}
