@@ -137,7 +137,7 @@
                                 <span class="flex-1 rounded-sm py-1.5 text-center text-xs font-bold {{ dayname in schedule_days ? 'bg-roze text-white' : 'bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400' }}">{{ dayname|slice(0, 2) }}</span>
                             {% endfor %}
                         </div>
-                        {% if programmatie|length == 1 %}
+                        {% if programmatie|length == 1 and programmatie[0].fm_show_starttijd and programmatie[0].fm_show_eindtijd %}
                             <p class="text-xl font-black text-gray-900 dark:text-white">{{ programmatie[0].fm_show_starttijd|slice(0, 5) }} – {{ programmatie[0].fm_show_eindtijd|slice(0, 5) }}</p>
                         {% else %}
                             {% for entry in programmatie %}
