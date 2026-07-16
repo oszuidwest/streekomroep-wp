@@ -150,22 +150,6 @@
                     </div>
                 {% endif %}
 
-                <div class="rounded-lg bg-gray-800 p-5 text-white dark:border dark:border-gray-600 dark:bg-gray-900">
-                    <h2 class="mb-2.5 font-round text-xs font-bold tracking-wider text-gray-400 uppercase">Ook luisteren?</h2>
-                    <p class="text-sm leading-relaxed text-gray-300">
-                        {% if options.radio_frequenties %}
-                            {% for channel in options.radio_frequenties %}
-                                {{- channel.radio_frequenties_medium }} {{ channel.radio_frequenties_frequentie }}{{ not loop.last ? ' · ' -}}
-                            {% endfor %}
-                            <br>
-                        {% endif %}
-                        of via de <a class="underline hover:text-white" href="{{ site.url }}/?pswutlzoq=install">ZuidWest App</a>
-                    </p>
-                    {% if fm_player_page %}
-                        <a class="mt-3 inline-block rounded bg-roze px-4 py-2 text-sm font-bold text-white transition hover:bg-[#b00061]"
-                           href="{{ fm_player_page.link }}">▸ Luister live</a>
-                    {% endif %}
-                </div>
             </aside>
         </div>
 

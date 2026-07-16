@@ -260,8 +260,6 @@ if ($timber_post->post_type == 'fm') {
     }
     $context['schedule_days'] = $activeDays;
 
-    $context['fm_player_page'] = zw_get_page_by_template('wp-page-fm-player.php');
-
     $context['other_shows'] = Timber::get_posts([
         'post_type' => 'fm',
         'posts_per_page' => -1,
