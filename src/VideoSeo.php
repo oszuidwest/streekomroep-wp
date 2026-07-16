@@ -152,7 +152,7 @@ class VideoSeo
             return $presenters;
         });
 
-        add_filter('wpseo_frontend_presentation', function ($presentation, $context) use ($socialImageUrl) {
+        add_filter('wpseo_frontend_presentation', function ($presentation) use ($socialImageUrl) {
             if ($socialImageUrl === null) {
                 return $presentation;
             }
@@ -161,6 +161,6 @@ class VideoSeo
             $presentation->model->open_graph_image_meta = null;
             $presentation->model->open_graph_image = null;
             return $presentation;
-        }, 10, 2);
+        });
     }
 }
