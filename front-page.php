@@ -43,51 +43,36 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $deduplicate = (bool) $block['ontdubbel'];
             $videos_to_show = $block['aantal_videos'];
+            $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
             foreach ($shows as $show) {
                 $videos = \Streekomroep\VideoCollection::forTvShow($show->ID);
-                $lastEpisode = $videos[0] ?? null;
-                if ($lastEpisode === null) {
+                if (!$videos) {
                     continue;
                 }
 
                 // Keep one latest episode per show for deduplicated videos and the secondary show list.
-                $latest_episode_per_show[] = [
-                    'show' => $show,
-                    'video' => $lastEpisode,
-                ];
+                $latest_episode_per_show[] = $candidate($show, $videos[0]);
 
                 // Without deduplication, every recent episode may become a featured video.
                 if (false === $deduplicate) {
                     $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
                     foreach ($videos as $video) {
-                        $episodes_with_duplicate_shows[] = [
-                            'show' => $show,
-                            'video' => $video,
-                        ];
+                        $episodes_with_duplicate_shows[] = $candidate($show, $video);
                     }
                 }
             }
 
             // Rank shows by the broadcast date of their latest episode.
-            usort($latest_episode_per_show, function ($left, $right) {
-                return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-            });
-
-            // Show 4 videos and 4 shows
-            $videos = array_slice($latest_episode_per_show, 0, $videos_to_show);
-            $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
+            $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
+            usort($latest_episode_per_show, $newestFirst);
 
             if (!empty($episodes_with_duplicate_shows)) {
                 // Rank the expanded episode pool independently when duplicate shows are allowed.
-                usort($episodes_with_duplicate_shows, function ($left, $right) {
-                    return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-                });
-
-                $videos = array_slice($episodes_with_duplicate_shows, 0, $videos_to_show);
+                usort($episodes_with_duplicate_shows, $newestFirst);
             }
 
-            $block['videos'] = $videos;
-            $block['shows'] = $shows;
+            $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
+            $block['shows'] = array_slice($latest_episode_per_show, $videos_to_show, 4);
             break;
 
         case 'blok_artikel_lijst':

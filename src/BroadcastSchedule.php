@@ -139,37 +139,27 @@ class BroadcastSchedule
     private function getBroadcastDay(DateTime $date)
     {
         $format = $date->format('Y-m-d');
-        if (!isset($this->days[$format])) {
-            $this->days[$format] = new BroadcastDay(DateTimeImmutable::createFromMutable($date));
-        }
+        $this->days[$format] ??= new BroadcastDay(DateTimeImmutable::createFromMutable($date));
         return $this->days[$format];
+    }
+
+    private function getRadioBroadcasts()
+    {
+        return array_merge(...array_column($this->days, 'radio'));
     }
 
     public function getNextRadioBroadcast(?RadioBroadcast $after = null)
     {
-        $after = $after ?: $this->getCurrentRadioBroadcast();
-        $returnNext = false;
-
-        foreach ($this->days as $day) {
-            foreach ($day->radio as $broadcast) {
-                if ($returnNext) {
-                    return $broadcast;
-                }
-
-                if ($broadcast == $after) {
-                    $returnNext = true;
-                }
-            }
-        }
-
-        return null;
+        $broadcasts = $this->getRadioBroadcasts();
+        $index = array_search($after ?: $this->getCurrentRadioBroadcast(), $broadcasts, true);
+        return $index === false ? null : ($broadcasts[$index + 1] ?? null);
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */
     public function getFollowingRadioBroadcast(int $showId)
     {
         $now = Carbon::now(wp_timezone());
-        $broadcasts = array_merge(...array_column($this->days, 'radio'));
+        $broadcasts = $this->getRadioBroadcasts();
         $selected = null;
 
         foreach ($broadcasts as $broadcast) {
@@ -189,8 +179,7 @@ class BroadcastSchedule
     {
         $now = Carbon::now(wp_timezone());
 
-        $today = $this->getToday();
-        foreach ($today->radio as $broadcast) {
+        foreach ($this->getToday()->radio as $broadcast) {
             if ($now->isBetween($broadcast->start, $broadcast->end)) {
                 return $broadcast;
             }

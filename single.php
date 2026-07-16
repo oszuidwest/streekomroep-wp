@@ -199,10 +199,7 @@ if ($timber_post->post_type == 'fm') {
         $retentionLabel = $retention % 7 === 0 ? ($weeks === 1 ? '1 week' : $weeks . ' weken') : ($retention === 1 ? '1 dag' : $retention . ' dagen');
     }
 
-    $context['gemist'] = [
-        'days' => array_values($recordingDays),
-        'retention_label' => $retentionLabel,
-    ];
+    $context['gemist'] = ['days' => array_values($recordingDays), 'retention_label' => $retentionLabel];
 
     // Only build the full schedule when this active show can have a successor.
     $context['following_show'] = $active && $rules ? (new \Streekomroep\BroadcastSchedule())
