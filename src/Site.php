@@ -144,6 +144,8 @@ class Site extends \Timber\Site
 
         if (count($days) === 7) {
             $dayString = 'ELKE DAG';
+        } elseif ($days === ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag']) {
+            $dayString = 'ELKE WERKDAG';
         } else {
             $positions = array_flip(array_keys($abbreviations));
 
