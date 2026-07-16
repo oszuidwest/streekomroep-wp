@@ -72,7 +72,7 @@
                 </nav>
 
                 {% if programmatie is not empty %}
-                    <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90">
+                    <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
                         {% for entry in programmatie %}
                             {{- entry|format_schedule_compact }}{{ not loop.last ? ' · ' -}}
                         {% endfor %}
@@ -139,7 +139,7 @@
                             <p class="text-xl font-black text-gray-900 dark:text-white">{{ programmatie[0].fm_show_starttijd|slice(0, 5) }} – {{ programmatie[0].fm_show_eindtijd|slice(0, 5) }}</p>
                         {% else %}
                             {% for entry in programmatie %}
-                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ entry|format_schedule_compact }}</p>
+                                <p class="text-sm font-bold text-gray-900 uppercase dark:text-white">{{ entry|format_schedule_compact }}</p>
                             {% endfor %}
                         {% endif %}
                         {% if following_show %}
