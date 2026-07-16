@@ -1,12 +1,11 @@
 <?php
 /**
- * The Template for displaying all single posts
+ * Single post template
  *
- * Methods for TimberHelper can be found in the /lib sub-directory
+ * Builds the context for single posts and renders the matching Timber template.
  *
- * @package  WordPress
- * @subpackage  Timber
- * @since    Timber 0.1
+ * @package Streekomroep
+ * @since 1.10.0
  */
 
 use Carbon\Carbon;
@@ -56,7 +55,7 @@ $region = $timber_post->region();
 if ($topic) {
     $topicPosts = $relatedPosts('dossier', $topic->term_id, 'post');
 
-    // Only show block if there's other posts to show
+    // Do not render an empty related-posts block.
     if (count($topicPosts) >= 1) {
         $context['topical'] = ['topic' => $topic, 'posts' => $topicPosts];
     }
@@ -149,18 +148,16 @@ if ($timber_post->post_type == 'tv') {
 
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
-    $gemist = (bool)$show->meta('fm_show_actief');
+    $active = (bool)$show->meta('fm_show_actief');
+    $gemist = $active && (bool)get_field('radio_gemist_actief', 'option');
+
+    $rules = $show->meta('fm_show_programmatie') ?: [];
+    $retention = (int)get_field('radio_gemist_retentie', 'option');
 
     $recordings = [];
     if ($gemist) {
-        $items = [];
-        $rules = $show->meta('fm_show_programmatie');
-        if (!$rules) {
-            $rules = [];
-        }
-
         $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
-        $end = $hour->copy()->subDays(get_field('radio_gemist_retentie', 'option'));
+        $end = $hour->copy()->subDays($retention);
 
         while ($hour->isAfter($end)) {
             $dayname = BroadcastDay::WEEKDAY_NAMES[$hour->dayOfWeekIso];
@@ -180,20 +177,40 @@ if ($timber_post->post_type == 'fm') {
                 }
             }
 
-            // Subtract a real hour (via timestamp) so DST transitions can't cause an endless loop
+            // Subtract an absolute hour so DST transitions cannot stall the loop.
             $hour = $hour->subUTCHour();
         }
     }
 
-    usort($recordings, function (Carbon $lhs, Carbon $rhs) {
-        if ($lhs->isSameDay($rhs)) {
-            return $lhs <=> $rhs;
-        }
+    usort($recordings, fn (Carbon $lhs, Carbon $rhs) => $lhs->isSameDay($rhs) ? $lhs <=> $rhs : $rhs <=> $lhs);
 
-        return $rhs <=> $lhs;
-    });
+    // Group hourly recording URLs into one card per broadcast day.
+    $recordingDays = [];
+    foreach ($recordings as $recording) {
+        $key = $recording->toDateString();
+        $recordingDays[$key] ??= ['date' => $recording->copy()->startOfDay(), 'times' => []];
+        $recordingDays[$key]['times'][] = $recording;
+    }
 
-    $context['recordings'] = $recordings;
+    // Prefer whole weeks in the listener-facing retention copy.
+    $retentionLabel = null;
+    if ($retention > 0 && $recordings) {
+        $weeks = intdiv($retention, 7);
+        $retentionLabel = $retention % 7 === 0 ? ($weeks === 1 ? '1 week' : $weeks . ' weken') : ($retention === 1 ? '1 dag' : $retention . ' dagen');
+    }
+
+    $context['gemist'] = ['days' => array_values($recordingDays), 'retention_label' => $retentionLabel];
+
+    // Only build the full schedule when this active show can have a successor.
+    $context['following_show'] = $active && $rules ? (new \Streekomroep\BroadcastSchedule())
+        ->getFollowingRadioBroadcast($show->ID) : null;
+
+    $context['programmatie'] = $rules;
+    $context['schedule_days'] = array_merge(...array_column($rules, 'fm_show_dagen'));
+    $context['weekday_names'] = array_values(BroadcastDay::WEEKDAY_NAMES);
+
+    $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
+    $context['fm_post_type'] = get_post_type_object('fm');
 }
 
 if ($timber_post->post_gekoppeld_fragment) {

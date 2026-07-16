@@ -1,185 +1,47 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
-<style>
-    .slider {
-        --grid-columns: 3;
-        --grid-container: calc(min(100vw, 60rem) - 2rem);
-        --grid-gutter: 0.5rem;
-        --grid-inset: calc(((100vw - var(--grid-container)) / 2) - (var(--grid-gutter) / 2));
-    }
-
-    .slider-wrapper {
-        overflow: scroll;
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
-    }
-
-    /** sm and up */
-    @media (min-width: 640px) {
-        .slider {
-            --grid-columns: 4;
-        }
-    }
-
-    .slider-container {
-        display: flex;
-        flex-wrap: nowrap;
-        flex-direction: row;
-    }
-
-    .slider-padding {
-        flex: none;
-        width: var(--grid-inset)
-    }
-
-    .slider-term {
-        flex: none;
-        width: calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));
-        min-width: 140px;
-        margin: 0 calc(var(--grid-gutter) / 2);
-    }
-</style>
-
 {% macro render_term(term) %}
-    <a href="{{ term.link }}" class="block overflow-hidden slider-term bg-gray-800 rounded-sm">
-        <div class="aspect-[9/16] relative">
-            <div>
-                {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
-                {{ responsive.render(
-                    src: image.src,
-                    width: 226,
-                    height: 402,
-                    sizes: '(min-width: 960px) 226px, (min-width: 640px) calc((100vw - 3.5rem) / 4), calc((100vw - 3rem) / 3)',
-                    alt: image.alt|default(term.title),
-                    class: 'absolute inset-0 w-full',
-                ) }}
-                <i class="block absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
-                <div class="block absolute left-0 right-0 bottom-0 p-4">
-                    <h2 class="block font-black text-md sm:text-xl text-white text-center">{{ term.title }}</h2>
-                </div>
-            </div>
+    <a href="{{ term.link }}"
+       class="flex-none snap-start overflow-hidden rounded-sm bg-gray-800"
+       style="width:calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));min-width:140px;margin:0 calc(var(--grid-gutter) / 2)">
+        <div class="relative aspect-[9/16]">
+            {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
+            {{ responsive.render(
+                src: image.src,
+                width: 226,
+                height: 402,
+                sizes: '(min-width: 960px) 226px, (min-width: 640px) calc((100vw - 3.5rem) / 4), calc((100vw - 3rem) / 3)',
+                alt: image.alt|default(term.title),
+                class: 'absolute inset-0 w-full',
+            ) }}
+            <i class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black opacity-60"></i>
+            <h2 class="absolute inset-x-0 bottom-0 p-4 text-center text-md font-black text-white sm:text-xl">{{ term.title }}</h2>
         </div>
     </a>
 {% endmacro %}
 
-<div class="py-4 dark:border-t dark:border-gray-700/50">
-    <div class="max-w-960 mx-auto px-4">
-        <h2 class="font-bold text-3xl pb-4 dark:text-white">Dossiers</h2>
+<section class="relative py-4 [--grid-columns:3] sm:[--grid-columns:4] dark:border-t dark:border-gray-700/50" data-scroller
+         style="--grid-container:calc(min(100vw, 60rem) - 2rem);--grid-gutter:.5rem;--grid-inset:calc((100vw - var(--grid-container)) / 2 - var(--grid-gutter) / 2)">
+    <div class="mx-auto max-w-960 px-4">
+        <h2 class="pb-4 text-3xl font-bold dark:text-white">Dossiers</h2>
     </div>
-    <div class="slider">
-        <div class="slider-wrapper">
-            <div class="slider-container">
-                <div class="slider-padding"></div>
-                {% for term in block.terms %}
-                    {{ _self.render_term(term) }}
-                {% endfor %}
-                <div class="slider-padding"></div>
-            </div>
+    <div class="scroll-smooth overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-scroller-track>
+        <div class="flex w-max">
+            <div class="flex-none" style="width:var(--grid-inset)"></div>
+            {% for term in block.terms %}
+                {{ _self.render_term(term) }}
+            {% endfor %}
+            <div class="flex-none" style="width:var(--grid-inset)"></div>
         </div>
-        <div class="shim shim-next js-next bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
-        <div class="shim shim-prev js-prev bg-white/50 dark:bg-gray-800/50 dark:hover:bg-gray-800/70 hover:bg-white/70"></div>
-        <button class="slider-btn slider-btn-prev flickity-prev-next-button js-prev text-gray-800"
-                aria-label="Vorige">
-            {{ icon('icon-arrow_back') }}
+    </div>
+    <div data-scroller-nav hidden>
+        <button type="button" data-scroller-prev disabled aria-label="Vorige dossiers"
+                class="group absolute inset-y-0 left-0 hidden w-[var(--grid-inset)] bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
+            <span class="absolute top-1/2 right-0 flex h-16 w-16 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-gray-800 shadow-lg">{{ icon('icon-arrow_back') }}</span>
         </button>
-        <button class="slider-btn slider-btn-next flickity-prev-next-button js-next text-gray-800"
-                aria-label="Volgende">
-            {{ icon('icon-arrow_forward') }}
+        <button type="button" data-scroller-next aria-label="Volgende dossiers"
+                class="group absolute inset-y-0 right-0 hidden w-[var(--grid-inset)] bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
+            <span class="absolute top-1/2 left-0 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-gray-800 shadow-lg">{{ icon('icon-arrow_forward') }}</span>
         </button>
     </div>
-</div>
-
-<style>
-    .slider {
-        position: relative;
-    }
-
-    .slider-container {
-        width: fit-content;
-    }
-
-    .slider-btn {
-        display: none;
-        width: 4rem;
-        height: 4rem;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        margin: -2rem;
-        box-shadow: rgb(0 0 0 / 20%) 0px 0.125em 0.625em 0px;
-        transition: transform 250ms ease-in-out 0s;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .slider-btn-prev {
-        left: var(--grid-inset);
-    }
-
-    .slider-btn-next {
-        right: var(--grid-inset);
-    }
-
-    .slider-wrapper {
-        scrollbar-width: none;
-    }
-
-    .slider-wrapper::-webkit-scrollbar {
-        display: none;
-    }
-
-    .shim {
-        display: none;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: var(--grid-inset);
-    }
-
-    .shim-next:hover,
-    .shim-prev:hover {
-        background: rgba(255, 255, 255, 0.7);
-    }
-
-    @media (pointer: fine) {
-        .shim-next, .shim-prev {
-            display: block;
-        }
-
-        .slider-btn {
-            display: flex;
-        }
-    }
-
-    .shim-prev {
-        left: 0;
-    }
-
-    .shim-next {
-        right: 0;
-    }
-</style>
-
-<script>
-    (function ($) {
-        let slider = $('.slider');
-        var position = 0;
-
-        slider.on('click', '.js-next', function (e) {
-            let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
-            position += slider.find('.slider-term').first().outerWidth(true) * columnCount;
-            let maxPosition = slider.find('.slider-container').outerWidth(true) - slider.find('.slider-wrapper').innerWidth();
-            position = Math.min(position, maxPosition);
-            wrapper.scrollLeft = position;
-        });
-        slider.on('click', '.js-prev', function (e) {
-            let wrapper = slider.find('.slider-wrapper')[0];
-            let columnCount = getComputedStyle(wrapper, null).getPropertyValue('--grid-columns');
-            position -= slider.find('.slider-term').first().outerWidth(true) * columnCount;
-            position = Math.max(position, 0);
-            wrapper.scrollLeft = position;
-        });
-    })(jQuery);
-</script>
+</section>

@@ -15,7 +15,7 @@
         <div class="absolute flex flex-col inset-x-0 bottom-0 px-4 pb-3 pt-12 bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900">
             <h1 class="uppercase font-round font-black text-2xl text-black dark:text-white">{{ post.title }}</h1>
 
-            <p class="text-sm text-black dark:text-gray-100">{{ get_users(post.meta('fm_show_presentator') ?: [])|join(', ', ' en ') }}</p>
+            <p class="text-sm text-black dark:text-gray-100">{{ (post.meta('fm_show_makers') ?: [])|column('fm_show_maker_naam')|join(', ', ' en ') }}</p>
         </div>
         <div class="absolute inset-0 border rounded-sm border-gray-800/10 dark:border-gray-200/10 pointer-events-none"></div>
     </div>

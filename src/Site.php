@@ -8,13 +8,9 @@ use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
-/**
- * We're going to configure our theme inside of a subclass of Timber\Site
- * You can move this to its own file and include here via php's include("MySite.php")
- */
+/** Configures the theme through Timber. */
 class Site extends \Timber\Site
 {
-    /** Add timber support. */
     public function __construct()
     {
         add_action('after_setup_theme', [$this, 'theme_supports']);
@@ -33,7 +29,7 @@ class Site extends \Timber\Site
         register_nav_menu('footer', 'Footer Menu');
     }
 
-    /** This is where you can register custom post types. */
+    /** Registers custom post types. */
     public function register_post_types()
     {
         include(get_template_directory() . '/lib/post_type_fragment.php');
@@ -41,7 +37,7 @@ class Site extends \Timber\Site
         include(get_template_directory() . '/lib/post_type_fmshow.php');
     }
 
-    /** This is where you can register custom taxonomies. */
+    /** Registers custom taxonomies. */
     public function register_taxonomies()
     {
         include(get_template_directory() . '/lib/taxonomy_dossier.php');
@@ -62,33 +58,19 @@ class Site extends \Timber\Site
 
     public function theme_supports()
     {
-        // Add default posts and comments RSS feed links to head.
+        // Let WordPress expose the site's RSS feeds.
         add_theme_support('automatic-feed-links');
 
-        /*
-         * Let WordPress manage the document title.
-         * By adding theme support, we declare that this theme does not use a
-         * hard-coded <title> tag in the document head, and expect WordPress to
-         * provide it for us.
-         */
+        // Let WordPress manage the document title.
         add_theme_support('title-tag');
 
-        /*
-         * Enable support for Post Thumbnails on posts and pages.
-         *
-         * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
-         */
+        // Enable featured images on supported post types.
         add_theme_support('post-thumbnails');
 
-        /*
-         * Enable support for Responsive embeds.
-         */
+        // Make embeds adapt to the available content width.
         add_theme_support('responsive-embeds');
 
-        /*
-         * Switch default core markup for search form, comment form, and comments
-         * to output valid HTML5.
-         */
+        // Use semantic HTML5 markup for WordPress-generated components.
         add_theme_support(
             'html5',
             [
@@ -110,19 +92,27 @@ class Site extends \Timber\Site
         add_theme_support('custom-logo');
     }
 
-    public function format_schedule($entry)
+    /** Formats a schedule rule for compact labels in the FM show UI. */
+    public function format_schedule_compact($entry)
     {
-        $days = $entry['fm_show_dagen'];
-        if (empty($days)) {
-            $dayString = '';
-        } elseif (count($days) === 1) {
-            $dayString = $days[0];
-        } else {
-            $lastDay = array_pop($days);
-            $dayString = implode(', ', $days) . ' en ' . $lastDay;
+        $names = array_values(BroadcastDay::WEEKDAY_NAMES);
+        $days = array_values(array_intersect($names, $entry['fm_show_dagen'] ?: []));
+        $positions = array_flip($names);
+        $short = fn ($day) => strtoupper(substr($day, 0, 2));
+        $label = match (true) {
+            count($days) === 7 => 'ELKE DAG',
+            $days === array_slice($names, 0, 5) => 'ELKE WERKDAG',
+            count($days) >= 3 && $days === array_slice($names, $positions[$days[0]], count($days))
+            => $short($days[0]) . ' T/M ' . $short(end($days)),
+            default => implode(', ', array_map($short, $days)),
+        };
+
+        if (empty($entry['fm_show_starttijd']) || empty($entry['fm_show_eindtijd'])) {
+            return $label;
         }
 
-        return sprintf('Elke %s van %d tot %d uur', $dayString, $entry['fm_show_starttijd'], $entry['fm_show_eindtijd']);
+        return trim($label . ' van ' . substr($entry['fm_show_starttijd'], 0, 5)
+            . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur');
     }
 
     public function get_icon($name)
@@ -148,10 +138,7 @@ class Site extends \Timber\Site
         return zw_imgproxy($src, $width, $height);
     }
 
-    /** This is where you can add your own functions to twig.
-     *
-     * @param string $twig get extension.
-     */
+    /** Registers the theme's Twig extensions. */
     public function add_to_twig($twig)
     {
         $twig->addExtension(new MarkdownExtension());
@@ -164,7 +151,7 @@ class Site extends \Timber\Site
             }
         });
 
-        $twig->addFilter(new \Twig\TwigFilter('format_schedule', [$this, 'format_schedule']));
+        $twig->addFilter(new \Twig\TwigFilter('format_schedule_compact', [$this, 'format_schedule_compact']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));

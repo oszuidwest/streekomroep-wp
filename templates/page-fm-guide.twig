@@ -28,8 +28,8 @@
                             {% if broadcast.show %}
                                 <a class="block hover:underline text-black dark:text-gray-200" href="{{ broadcast.show.link }}">
                                     <span class="block font-bold">{{ broadcast.show.title }}</span>
-                                    {% if broadcast.show.meta('fm_show_presentator') %}
-                                        <p>{{ get_users(broadcast.show.meta('fm_show_presentator'))|join(', ', ' en ') }}</p>
+                                    {% if broadcast.show.meta('fm_show_makers') %}
+                                        <p>{{ broadcast.show.meta('fm_show_makers')|column('fm_show_maker_naam')|join(', ', ' en ') }}</p>
                                     {% endif %}
                                 </a>
                             {% else %}

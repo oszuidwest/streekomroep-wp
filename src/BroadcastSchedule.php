@@ -69,7 +69,8 @@ class BroadcastSchedule
 
         $date = clone $scheduleStart;
         while ($date <= $scheduleEnd) {
-            $day = $this->getBroadcastDay($date); // Make sure day gets created
+            // Ensure all seven days exist, including days without configured broadcasts.
+            $day = $this->getBroadcastDay($date);
             $date->add(new \DateInterval('P1D'));
         }
 
@@ -117,10 +118,9 @@ class BroadcastSchedule
             }
         }
 
-        // Sort days by date
+        // Normalize the schedule to today plus the next six calendar days.
         ksort($this->days);
 
-        // Remove days before today from schedule
         $today = new DateTime('now', wp_timezone());
         $today->setTime(0, 0);
 
@@ -133,45 +133,53 @@ class BroadcastSchedule
             array_shift($this->days);
         }
 
-        // Only keep 7 days of data
         $this->days = array_slice($this->days, 0, 7);
     }
 
     private function getBroadcastDay(DateTime $date)
     {
         $format = $date->format('Y-m-d');
-        if (!isset($this->days[$format])) {
-            $this->days[$format] = new BroadcastDay(DateTimeImmutable::createFromMutable($date));
-        }
+        $this->days[$format] ??= new BroadcastDay(DateTimeImmutable::createFromMutable($date));
         return $this->days[$format];
     }
 
-    public function getNextRadioBroadcast()
+    private function getRadioBroadcasts()
     {
-        $current = $this->getCurrentRadioBroadcast();
-        $returnNext = false;
+        return array_merge(...array_column($this->days, 'radio'));
+    }
 
-        foreach ($this->days as $day) {
-            foreach ($day->radio as $broadcast) {
-                if ($returnNext) {
-                    return $broadcast;
-                }
+    public function getNextRadioBroadcast(?RadioBroadcast $after = null)
+    {
+        $broadcasts = $this->getRadioBroadcasts();
+        $index = array_search($after ?: $this->getCurrentRadioBroadcast(), $broadcasts, true);
+        return $index === false ? null : ($broadcasts[$index + 1] ?? null);
+    }
 
-                if ($broadcast == $current) {
-                    $returnNext = true;
+    /** Returns the broadcast immediately following this show's current or next slot. */
+    public function getFollowingRadioBroadcast(int $showId)
+    {
+        $now = Carbon::now(wp_timezone());
+        $broadcasts = $this->getRadioBroadcasts();
+        $selected = null;
+
+        foreach ($broadcasts as $broadcast) {
+            if ($broadcast->show && $broadcast->show->ID == $showId) {
+                $selected = $broadcast;
+                if ($broadcast->end->isAfter($now)) {
+                    break;
                 }
             }
         }
 
-        return null;
+        $index = array_search($selected, $broadcasts, true);
+        return $index === false ? null : ($broadcasts[$index + 1] ?? null);
     }
 
     public function getCurrentRadioBroadcast()
     {
         $now = Carbon::now(wp_timezone());
 
-        $today = $this->getToday();
-        foreach ($today->radio as $broadcast) {
+        foreach ($this->getToday()->radio as $broadcast) {
             if ($now->isBetween($broadcast->start, $broadcast->end)) {
                 return $broadcast;
             }

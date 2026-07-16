@@ -43,66 +43,37 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
 
             $deduplicate = (bool) $block['ontdubbel'];
             $videos_to_show = $block['aantal_videos'];
+            $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
             foreach ($shows as $show) {
                 $videos = \Streekomroep\VideoCollection::forTvShow($show->ID);
-                $lastEpisode = $videos[0] ?? null;
-                if ($lastEpisode === null) {
+                if (!$videos) {
                     continue;
                 }
 
-                /**
-                 * Build a list of candidate shows.
-                 * We will use this list for the other shows and maybe for the featured shows when deduplication is enabled.
-                 * Each array item holds the show it belongs to and the last episode.
-                 */
-                $latest_episode_per_show[] = [
-                    'show' => $show,
-                    'video' => $lastEpisode,
-                ];
+                // Keep one latest episode per show for deduplicated videos and the secondary show list.
+                $latest_episode_per_show[] = $candidate($show, $videos[0]);
 
-                /**
-                 * When deduplication is disabled, we will build a second array of candidates.
-                 * We loop through all the videos and add them to the array of featured candidates.
-                 * Each items holds the show it belongs to and the episode.
-                 */
+                // Without deduplication, every recent episode may become a featured video.
                 if (false === $deduplicate) {
                     $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
                     foreach ($videos as $video) {
-                        $episodes_with_duplicate_shows[] = [
-                            'show' => $show,
-                            'video' => $video,
-                        ];
+                        $episodes_with_duplicate_shows[] = $candidate($show, $video);
                     }
                 }
             }
 
-            /**
-             * We sort the candidates by broadcast date.
-             * The most recently broadcasted show is the first item in the array.
-             */
-            usort($latest_episode_per_show, function ($left, $right) {
-                return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-            });
-
-            // Show 4 videos and 4 shows
-            $videos = array_slice($latest_episode_per_show, 0, $videos_to_show);
-            $shows = array_slice($latest_episode_per_show, $videos_to_show, 4);
+            // Rank shows by the broadcast date of their latest episode.
+            $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
+            usort($latest_episode_per_show, $newestFirst);
 
             if (!empty($episodes_with_duplicate_shows)) {
-
-                /**
-                 * We sort the videos by broadcast date.
-                 * The most recently broadcasted show is the first item in the array.
-                 */
-                usort($episodes_with_duplicate_shows, function ($left, $right) {
-                    return $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-                });
-
-                $videos = array_slice($episodes_with_duplicate_shows, 0, $videos_to_show);
+                // Rank the expanded episode pool independently when duplicate shows are allowed.
+                usort($episodes_with_duplicate_shows, $newestFirst);
             }
 
-            $block['videos'] = $videos;
-            $block['shows'] = $shows;
+            $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
+            $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $block['videos']);
+            $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
             break;
 
         case 'blok_artikel_lijst':
@@ -161,8 +132,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossiers_carrousel':
-            // Block requires jquery for scrolling
-            wp_enqueue_script('jquery');
             $block['terms'] = Timber::get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => true,
