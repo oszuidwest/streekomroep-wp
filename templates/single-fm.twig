@@ -158,9 +158,9 @@
                                 </div>
                                 <div class="flex gap-1.5 sm:flex-col">
                                     {% for time in day.times %}
-                                        <a class="rounded-sm bg-roze px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-roze/80 sm:px-0"
+                                        <a class="rounded-sm bg-gray-700 px-3 py-1.5 text-center text-xs font-bold text-white transition hover:bg-gray-600 sm:px-0"
                                            href="{{ options.radio_gemist_baseurl|replace({'<date>': time.format(options.radio_gemist_file)}) }}"
-                                           target="_blank" rel="noopener">▸ {{ time.locale('nl').isoFormat('HH:mm') }}</a>
+                                           target="_blank" rel="noopener">{{ time.locale('nl').isoFormat('HH:mm') }}</a>
                                     {% endfor %}
                                 </div>
                             </li>
