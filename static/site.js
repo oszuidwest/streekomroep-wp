@@ -26,7 +26,7 @@ document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
         const style = getComputedStyle(track);
         const padding = (parseFloat(style.scrollPaddingLeft) || 0)
             + (parseFloat(style.scrollPaddingRight) || 0);
-        return track.clientWidth - padding;
+        return Math.max(track.clientWidth - padding, 0);
     }
     function update() {
         const max = track.scrollWidth - track.clientWidth;
