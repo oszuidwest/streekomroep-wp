@@ -24,6 +24,13 @@ document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
     }
     function pageSize() {
         const style = getComputedStyle(track);
+        const item = track.querySelector('[data-scroller-item]');
+        const columns = parseInt(getComputedStyle(scroller).getPropertyValue('--grid-columns'), 10);
+        if (item && columns) {
+            const gap = parseFloat(style.columnGap) || 0;
+            return (item.getBoundingClientRect().width + gap) * columns;
+        }
+
         const padding = (parseFloat(style.scrollPaddingLeft) || 0)
             + (parseFloat(style.scrollPaddingRight) || 0);
         return Math.max(track.clientWidth - padding, 0);

@@ -2,6 +2,7 @@
 
 {% macro render_term(term) %}
     <a href="{{ term.link }}"
+       data-scroller-item
        class="w-(--grid-item) min-w-35 flex-none snap-start overflow-hidden rounded-sm bg-gray-800">
         <div class="relative aspect-[9/16]">
             {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
