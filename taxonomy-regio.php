@@ -18,5 +18,4 @@ $context['news'] = Timber::get_posts([
     ]
 ]);
 
-wp_enqueue_script('jquery');
 Timber::render(['regio.twig'], $context);
