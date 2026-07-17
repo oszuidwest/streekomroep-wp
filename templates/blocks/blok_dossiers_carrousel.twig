@@ -2,8 +2,7 @@
 
 {% macro render_term(term) %}
     <a href="{{ term.link }}"
-       class="flex-none snap-start overflow-hidden rounded-sm bg-gray-800"
-       style="width:calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns));min-width:140px;margin:0 calc(var(--grid-gutter) / 2)">
+       class="w-(--grid-item) min-w-35 flex-none snap-start overflow-hidden rounded-sm bg-gray-800">
         <div class="relative aspect-[9/16]">
             {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
             {{ responsive.render(
@@ -21,26 +20,23 @@
 {% endmacro %}
 
 <section class="relative py-4 [--grid-columns:3] sm:[--grid-columns:4] dark:border-t dark:border-gray-700/50" data-scroller
-         style="--grid-container:calc(min(100vw, 60rem) - 2rem);--grid-gutter:.5rem;--grid-inset:calc((100vw - var(--grid-container)) / 2 - var(--grid-gutter) / 2)">
+         style="--grid-container:calc(min(100vw, 60rem) - 2rem);--grid-gutter:.5rem;--grid-inset:calc((100vw - var(--grid-container)) / 2);--grid-item:calc((var(--grid-container) - var(--grid-gutter) * (var(--grid-columns) - 1)) / var(--grid-columns))">
     <div class="mx-auto max-w-960 px-4">
         <h2 class="pb-4 text-3xl font-bold dark:text-white">Dossiers</h2>
     </div>
-    <div class="scroll-smooth overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-scroller-track>
-        <div class="flex w-max">
-            <div class="flex-none" style="width:var(--grid-inset)"></div>
-            {% for term in block.terms %}
-                {{ _self.render_term(term) }}
-            {% endfor %}
-            <div class="flex-none" style="width:var(--grid-inset)"></div>
-        </div>
+    <div class="flex snap-x snap-proximity gap-(--grid-gutter) overflow-x-auto px-(--grid-inset) scroll-px-(--grid-inset) [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+         data-scroller-track>
+        {% for term in block.terms %}
+            {{ _self.render_term(term) }}
+        {% endfor %}
     </div>
     <div data-scroller-nav hidden>
         <button type="button" data-scroller-prev disabled aria-label="Vorige dossiers"
-                class="group absolute inset-y-0 left-0 hidden w-[var(--grid-inset)] bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
+                class="group absolute inset-y-0 left-0 hidden w-(--grid-inset) bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
             <span class="absolute top-1/2 right-0 flex h-16 w-16 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-gray-800 shadow-lg">{{ icon('icon-arrow_back') }}</span>
         </button>
         <button type="button" data-scroller-next aria-label="Volgende dossiers"
-                class="group absolute inset-y-0 right-0 hidden w-[var(--grid-inset)] bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
+                class="group absolute inset-y-0 right-0 hidden w-(--grid-inset) bg-white/50 transition hover:bg-white/70 disabled:cursor-default dark:bg-gray-800/50 dark:hover:bg-gray-800/70 [@media(pointer:fine)]:block">
             <span class="absolute top-1/2 left-0 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-gray-800 shadow-lg">{{ icon('icon-arrow_forward') }}</span>
         </button>
     </div>

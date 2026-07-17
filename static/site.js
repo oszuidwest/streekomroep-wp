@@ -22,14 +22,20 @@ document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
     if (!track || !nav || !prev || !next) {
         return;
     }
+    function pageSize() {
+        const style = getComputedStyle(track);
+        const padding = (parseFloat(style.scrollPaddingLeft) || 0)
+            + (parseFloat(style.scrollPaddingRight) || 0);
+        return Math.max(track.clientWidth - padding, 0);
+    }
     function update() {
         const max = track.scrollWidth - track.clientWidth;
         nav.hidden = max <= 4;
         prev.disabled = track.scrollLeft <= 4;
         next.disabled = track.scrollLeft >= max - 4;
     }
-    prev.onclick = () => track.scrollBy({left: -track.clientWidth, behavior: 'smooth'});
-    next.onclick = () => track.scrollBy({left: track.clientWidth, behavior: 'smooth'});
+    prev.onclick = () => track.scrollBy({left: -pageSize(), behavior: 'smooth'});
+    next.onclick = () => track.scrollBy({left: pageSize(), behavior: 'smooth'});
     track.addEventListener('scroll', update, {passive: true});
     window.addEventListener('resize', update);
     update();
