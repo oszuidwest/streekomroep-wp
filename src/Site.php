@@ -98,12 +98,13 @@ class Site extends \Timber\Site
         $names = array_values(BroadcastDay::WEEKDAY_NAMES);
         $days = array_values(array_intersect($names, $entry['fm_show_dagen'] ?: []));
         $positions = array_flip($names);
-        $short = fn ($day) => strtoupper(substr($day, 0, 2));
+        $short = fn ($day) => substr($day, 0, 2);
         $label = match (true) {
-            count($days) === 7 => 'ELKE DAG',
-            $days === array_slice($names, 0, 5) => 'ELKE WERKDAG',
+            count($days) === 7 => 'elke dag',
+            $days === array_slice($names, 0, 5) => 'elke werkdag',
+            count($days) === 2 => implode(' en ', array_map($short, $days)),
             count($days) >= 3 && $days === array_slice($names, $positions[$days[0]], count($days))
-            => $short($days[0]) . ' T/M ' . $short(end($days)),
+            => $short($days[0]) . ' t/m ' . $short(end($days)),
             default => implode(', ', array_map($short, $days)),
         };
 

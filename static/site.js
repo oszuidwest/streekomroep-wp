@@ -16,6 +16,7 @@ document.querySelectorAll('[data-theme]').forEach(function (button) {
 initDarkMode();
 
 // Share paging and disabled-state handling across every horizontal carousel.
+const SCROLLER_TOLERANCE = 4;
 document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
     const find = (part) => scroller.querySelector(`[data-scroller-${part}]`);
     const [track, nav, prev, next] = ['track', 'nav', 'prev', 'next'].map(find);
@@ -24,22 +25,27 @@ document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
     }
     function pageSize() {
         const style = getComputedStyle(track);
-        const item = track.querySelector('[data-scroller-item]');
-        const columns = parseInt(getComputedStyle(scroller).getPropertyValue('--grid-columns'), 10);
-        if (item && columns) {
-            const gap = parseFloat(style.columnGap) || 0;
-            return (item.getBoundingClientRect().width + gap) * columns;
-        }
-
         const padding = (parseFloat(style.scrollPaddingLeft) || 0)
             + (parseFloat(style.scrollPaddingRight) || 0);
-        return Math.max(track.clientWidth - padding, 0);
+        const visible = Math.max(track.clientWidth - padding, 0);
+        const item = track.firstElementChild;
+        if (!item) {
+            return visible;
+        }
+        // Page by whole item strides so paging lands on the snap grid; the
+        // last visible item has no trailing gap, hence the gap credit.
+        const gap = parseFloat(style.columnGap) || 0;
+        const stride = item.getBoundingClientRect().width + gap;
+        if (stride <= 0) {
+            return visible;
+        }
+        return stride * Math.max(1, Math.floor((visible + gap + SCROLLER_TOLERANCE) / stride));
     }
     function update() {
         const max = track.scrollWidth - track.clientWidth;
-        nav.hidden = max <= 4;
-        prev.disabled = track.scrollLeft <= 4;
-        next.disabled = track.scrollLeft >= max - 4;
+        nav.hidden = max <= SCROLLER_TOLERANCE;
+        prev.disabled = track.scrollLeft <= SCROLLER_TOLERANCE;
+        next.disabled = track.scrollLeft >= max - SCROLLER_TOLERANCE;
     }
     prev.onclick = () => track.scrollBy({left: -pageSize(), behavior: 'smooth'});
     next.onclick = () => track.scrollBy({left: pageSize(), behavior: 'smooth'});
