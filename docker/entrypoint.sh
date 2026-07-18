@@ -152,7 +152,14 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
-    echo "Updating WordPress to the latest security release..."
+    STREEKOMROEP_WP_VERSION=$(wp core version --allow-root)
+    if STREEKOMROEP_WP_VERSION="$STREEKOMROEP_WP_VERSION" php -r \
+        'exit(version_compare(getenv("STREEKOMROEP_WP_VERSION"), "7.0", "<") ? 0 : 1);'; then
+        echo "Updating WordPress ${STREEKOMROEP_WP_VERSION} to 7.0..."
+        wp core update --version=7.0 --force --allow-root
+    fi
+
+    echo "Updating WordPress to the latest 7.0 security release..."
     wp core update --minor --allow-root
     wp core update-db --allow-root
 
