@@ -152,6 +152,10 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
+    echo "Updating WordPress to the latest security release..."
+    wp core update --minor --allow-root
+    wp core update-db --allow-root
+
     # On restarts of an existing install the block above is skipped, so (re)install
     # SCF here too, ensuring existing installs pick up updates.
     if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
