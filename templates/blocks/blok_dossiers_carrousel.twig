@@ -2,7 +2,6 @@
 
 {% macro render_term(term) %}
     <a href="{{ term.link }}"
-       data-scroller-item
        class="w-(--grid-item) min-w-35 flex-none snap-start overflow-hidden rounded-sm bg-gray-800">
         <div class="relative aspect-[9/16]">
             {% set image = get_image(term.meta('dossier_afbeelding_hoog')) %}
@@ -25,7 +24,7 @@
     <div class="mx-auto max-w-960 px-4">
         <h2 class="pb-4 text-3xl font-bold dark:text-white">Dossiers</h2>
     </div>
-    <div class="flex snap-x snap-proximity gap-(--grid-gutter) overflow-x-auto px-(--grid-inset) scroll-px-(--grid-inset) [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    <div class="flex snap-x snap-proximity gap-(--grid-gutter) overflow-x-auto scrollbar-none px-(--grid-inset) scroll-px-(--grid-inset)"
          data-scroller-track>
         {% for term in block.terms %}
             {{ _self.render_term(term) }}
