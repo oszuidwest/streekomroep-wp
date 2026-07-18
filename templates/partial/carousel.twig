@@ -1,0 +1,36 @@
+{#
+ # Shared horizontal carousel shell.
+ #
+ # Required context: id, title, previous_label, next_label.
+ # Optional context: root_class, root_style, header_class, title_class, track_class, track_tag.
+ # Blocks: items, footer.
+ #}
+{% set title_id = id ~ '-title' %}
+{% set track_id = id ~ '-track' %}
+{% set track_tag = track_tag|default('div') %}
+{% set button_class = 'flex h-8 w-8 items-center justify-center rounded-sm bg-gray-700 text-white transition hover:bg-gray-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze disabled:cursor-default disabled:bg-gray-700/40 disabled:text-gray-500' %}
+
+<section class="{{ root_class|default('') }}" data-scroller aria-labelledby="{{ title_id }}"
+         {% if root_style|default(null) %}style="{{ root_style }}"{% endif %}>
+    <div class="mx-auto mb-5 flex w-full max-w-960 flex-wrap items-center gap-x-4 gap-y-1 px-4 {{ header_class|default('') }}">
+        <h2 id="{{ title_id }}" class="text-3xl font-bold {{ title_class|default('') }}">{{ title }}</h2>
+        <div class="ml-auto flex items-center gap-1.5" data-scroller-nav hidden>
+            <button type="button" class="{{ button_class }}" data-scroller-prev disabled
+                    aria-controls="{{ track_id }}" aria-label="{{ previous_label }}">
+                <span aria-hidden="true">{{ icon('icon-arrow_back') }}</span>
+            </button>
+            <button type="button" class="{{ button_class }}" data-scroller-next
+                    aria-controls="{{ track_id }}" aria-label="{{ next_label }}">
+                <span aria-hidden="true">{{ icon('icon-arrow_forward') }}</span>
+            </button>
+        </div>
+    </div>
+
+    <{{ track_tag }} id="{{ track_id }}"
+        class="flex snap-x snap-proximity overflow-x-auto scrollbar-none *:flex-none *:snap-start {{ track_class|default('') }}"
+        data-scroller-track aria-labelledby="{{ title_id }}">
+        {% block items %}{% endblock %}
+    </{{ track_tag }}>
+
+    {% block footer %}{% endblock %}
+</section>
