@@ -50,11 +50,12 @@ Run `npm run build:tailwind` to compile minified CSS from `assets/` into `dist/`
 
 ### Quality checks
 
-There is no dedicated automated test suite. Run the PHP and Twig linters before submitting changes:
+There is no dedicated automated test suite. Run the baseline checks before submitting changes:
 
 ```bash
 vendor/bin/phpcs --standard=phpcs.xml .
 composer lint:twig
+git diff --check
 ```
 
 Use `composer fix:twig` to fix supported Twig formatting issues. Verify frontend changes in Docker and rebuild the CSS.

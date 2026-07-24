@@ -8,17 +8,22 @@ This is a WordPress theme with some hard dependencies. You can't run it without 
 4. Switch to the `streekomroep` theme
 
 ## Requirements
+
 - WordPress 7.0 or higher
 - PHP 8.3 or higher
 
 ## Hard dependencies
+
 Install these before activating the theme:
+
 - Timber 2.5.1: Bundled via Composer, no separate installation needed
 - Secure Custom Fields 6.9+ or Advanced Custom Fields Pro 6.8+: Docker uses [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) for development; licensed environments may use [ACF Pro](https://www.advancedcustomfields.com/pro/).
 - Yoast SEO 27.7+ (free or Premium): [free download](https://wordpress.org/plugins/wordpress-seo/) or [purchase Premium](https://yoast.com/wordpress/plugins/seo/)
 
 ## Soft dependencies
+
 These optional plugins complement the theme:
+
 - Classic Editor 1.7.x: [free download](https://wordpress.org/plugins/classic-editor/)
 - Contact Form 7 6.1.x: [free download](https://wordpress.org/plugins/contact-form-7/)
 - Disable Comments 2.7.x: [free download](https://wordpress.org/plugins/disable-comments/)
@@ -28,12 +33,15 @@ These optional plugins complement the theme:
 The theme provides the following REST API endpoints:
 
 ### Tekst TV
-```
+
+```text
 GET /wp-json/zw/v1/teksttv?channel={channel}
 ```
+
 Returns slides and ticker messages for the Tekst TV system. The `channel` parameter is required and must match a configured channel (e.g., `tv1`).
 
 Response format:
+
 ```json
 {
   "slides": [...],
