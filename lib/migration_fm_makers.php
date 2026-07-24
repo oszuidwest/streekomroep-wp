@@ -14,7 +14,8 @@
  * REMOVE AFTER THE UPGRADE HAS BEEN ROLLED OUT EVERYWHERE:
  *   1. delete this file
  *   2. drop the require_once in functions.php
- *   3. wp option delete zw_fm_makers_migration_done zw_fm_makers_migration_lock zw_fm_makers_migration_report
+ *   3. wp option delete zw_fm_makers_migration_done zw_fm_makers_migration_lock \
+ *        zw_fm_makers_migration_report zw_fm_makers_migration_attempts
  */
 
 // Old field, dropped from the field group but still present in the database.
@@ -29,9 +30,13 @@ const ZW_FM_MAKERS_FIELD_FOTO = 'field_687a3f5e0c1a4';
 const ZW_FM_MAKERS_OPTION_DONE = 'zw_fm_makers_migration_done';
 const ZW_FM_MAKERS_OPTION_LOCK = 'zw_fm_makers_migration_lock';
 const ZW_FM_MAKERS_OPTION_REPORT = 'zw_fm_makers_migration_report';
+const ZW_FM_MAKERS_OPTION_ATTEMPTS = 'zw_fm_makers_migration_attempts';
 
 // Seconds before a lock left behind by a crashed run is considered stale.
 const ZW_FM_MAKERS_LOCK_TIMEOUT = 300;
+
+// How often a run that hit recoverable errors may be repeated before giving up.
+const ZW_FM_MAKERS_MAX_ATTEMPTS = 3;
 
 add_action('admin_init', 'zw_fm_makers_dismiss_notice');
 add_action('admin_init', 'zw_fm_makers_maybe_migrate');
@@ -50,7 +55,11 @@ function zw_fm_makers_maybe_migrate(): void
         return;
     }
 
-    if (!function_exists('acf_get_field') || !function_exists('update_field')) {
+    if (
+        !function_exists('acf_get_field')
+        || !function_exists('update_field')
+        || !function_exists('delete_field')
+    ) {
         return;
     }
 
@@ -60,12 +69,35 @@ function zw_fm_makers_maybe_migrate(): void
 
     $report = zw_fm_makers_migrate();
 
-    // The migration could not run. Keep the lock so the next attempt waits for it to go stale.
+    // The whole run failed, for instance because the database was unreachable. Keep the lock, so
+    // the next attempt has to wait for it to go stale instead of hammering a broken database, and
+    // flag it, because an aborted run would otherwise leave nothing at all behind in the admin.
     if ($report === null) {
+        $aborted = zw_fm_makers_stored_report();
+        $aborted['aborted'] = 1;
+        update_option(ZW_FM_MAKERS_OPTION_REPORT, $aborted, false);
         return;
     }
 
-    update_option(ZW_FM_MAKERS_OPTION_DONE, gmdate('c'), false);
+    $report = zw_fm_makers_add_up($report);
+
+    $attempts = (int) get_option(ZW_FM_MAKERS_OPTION_ATTEMPTS) + 1;
+    update_option(ZW_FM_MAKERS_OPTION_ATTEMPTS, $attempts, false);
+
+    // Recoverable failures earn another run on a later request, but only a few, so a show that
+    // can never be converted does not keep retrying on every single admin page load.
+    $retry = $report['failed_recoverable'] > 0 && $attempts < ZW_FM_MAKERS_MAX_ATTEMPTS;
+
+    if ($retry) {
+        zw_fm_makers_log(sprintf(
+            'Attempt %d of %d left recoverable failures behind, will run again.',
+            $attempts,
+            ZW_FM_MAKERS_MAX_ATTEMPTS
+        ));
+    } else {
+        update_option(ZW_FM_MAKERS_OPTION_DONE, gmdate('c'), false);
+    }
+
     delete_option(ZW_FM_MAKERS_OPTION_LOCK);
 
     // Sites that never had presenters get no notice at all.
@@ -86,9 +118,57 @@ function zw_fm_makers_empty_report(): array
         'makers' => 0,
         'skipped' => 0,
         'empty' => 0,
-        'failed' => 0,
+        'failed_recoverable' => 0,
+        'failed_unexpected' => 0,
         'unknown_users' => 0,
         'revisions' => 0,
+        'aborted' => 0,
+    ];
+}
+
+/**
+ * The report of the previous attempts, with every counter present.
+ *
+ * @return array<string, int>
+ */
+function zw_fm_makers_stored_report(): array
+{
+    $stored = get_option(ZW_FM_MAKERS_OPTION_REPORT);
+
+    return array_merge(zw_fm_makers_empty_report(), is_array($stored) ? $stored : []);
+}
+
+/**
+ * Folds this run into what earlier attempts already reported.
+ *
+ * A retry only revisits the shows that still hold old meta, so counters for work that happened
+ * once have to accumulate, while the problem counters describe what is still outstanding.
+ *
+ * @param array<string, int> $report
+ * @return array<string, int>
+ */
+function zw_fm_makers_add_up(array $report): array
+{
+    $previous = zw_fm_makers_stored_report();
+
+    foreach (['shows', 'makers', 'skipped', 'empty', 'revisions'] as $key) {
+        $report[$key] += $previous[$key];
+    }
+
+    return $report;
+}
+
+/**
+ * The repeater sub fields, keyed by ACF field key with the meta name they are stored under.
+ *
+ * @return array<string, string>
+ */
+function zw_fm_makers_sub_fields(): array
+{
+    return [
+        ZW_FM_MAKERS_FIELD_NAAM => 'fm_show_maker_naam',
+        ZW_FM_MAKERS_FIELD_BIO => 'fm_show_maker_bio',
+        ZW_FM_MAKERS_FIELD_FOTO => 'fm_show_maker_foto',
     ];
 }
 
@@ -127,9 +207,14 @@ function zw_fm_makers_migrate(): ?array
         return null;
     }
 
+    $posts = zw_fm_makers_find_posts();
+    if ($posts === null) {
+        return null;
+    }
+
     $report = zw_fm_makers_empty_report();
 
-    foreach (zw_fm_makers_find_posts() as $post) {
+    foreach ($posts as $post) {
         $post_id = (int) $post->ID;
 
         // Revisions carry their own copy of the old meta. There is nothing to migrate there.
@@ -146,7 +231,7 @@ function zw_fm_makers_migrate(): ?array
                 $post->post_type,
                 $post->post_status
             ));
-            $report['failed']++;
+            $report['failed_unexpected']++;
             continue;
         }
 
@@ -186,20 +271,30 @@ function zw_fm_makers_migrate(): ?array
             ];
         }
 
-        // Keep the old meta whenever it holds data we could not convert, so nothing is lost silently.
+        // Keep the old meta whenever it holds data we could not convert, so nothing is lost
+        // silently. get_userdata() returns false for a database error just as it does for a
+        // deleted user, so this counts as recoverable and earns another attempt.
         if (empty($rows)) {
             zw_fm_makers_log(sprintf(
                 'Post %d: none of the presenters (%s) could be resolved, kept the old meta.',
                 $post_id,
                 implode(', ', $user_ids)
             ));
-            $report['failed']++;
+            $report['failed_recoverable']++;
             continue;
         }
 
         if (!update_field(ZW_FM_MAKERS_FIELD, $rows, $post_id)) {
             zw_fm_makers_log('Post ' . $post_id . ': writing the makers failed, kept the old meta.');
-            $report['failed']++;
+            $report['failed_recoverable']++;
+            continue;
+        }
+
+        $mismatch = zw_fm_makers_verify($post_id, $rows);
+        if ($mismatch !== null) {
+            zw_fm_makers_log('Post ' . $post_id . ': ' . $mismatch . ' - rolled back, kept the old meta.');
+            delete_field(ZW_FM_MAKERS_FIELD, $post_id);
+            $report['failed_recoverable']++;
             continue;
         }
 
@@ -211,12 +306,14 @@ function zw_fm_makers_migrate(): ?array
 
     zw_fm_makers_log(sprintf(
         'Done. %d show(s) with %d maker(s) migrated, %d skipped, %d without presenters, '
-        . '%d failed, %d unknown user(s), %d revision(s) cleaned.',
+        . '%d recoverable failure(s), %d unexpected record(s), %d unknown user(s), '
+        . '%d revision(s) cleaned.',
         $report['shows'],
         $report['makers'],
         $report['skipped'],
         $report['empty'],
-        $report['failed'],
+        $report['failed_recoverable'],
+        $report['failed_unexpected'],
         $report['unknown_users'],
         $report['revisions']
     ));
@@ -227,9 +324,9 @@ function zw_fm_makers_migrate(): ?array
 /**
  * Finds every post that still holds the old presenter meta, whatever its status.
  *
- * @return array<int, object> Rows with ID, post_type and post_status.
+ * @return array<int, object>|null Rows with ID, post_type and post_status, or null on a query error.
  */
-function zw_fm_makers_find_posts(): array
+function zw_fm_makers_find_posts(): ?array
 {
     global $wpdb;
 
@@ -245,7 +342,69 @@ function zw_fm_makers_find_posts(): array
         )
     );
 
+    // wpdb hands back an empty result set for a failed query as well, so without this check a
+    // database error would look like a site that has nothing left to migrate.
+    if ($wpdb->last_error !== '') {
+        zw_fm_makers_log('Aborted: could not list the posts to migrate - ' . $wpdb->last_error);
+        return null;
+    }
+
     return is_array($rows) ? $rows : [];
+}
+
+/**
+ * Checks that everything the migration meant to write actually reached the database.
+ *
+ * SCF stores a repeater as a series of separate metadata writes, ignores the result of every
+ * single one of them, and reports success as long as the parent row count was stored. A row whose
+ * name failed to save would therefore pass as migrated, after which the source data is deleted.
+ * Reads straight from the table rather than through get_post_meta(), so no cache can mask it.
+ *
+ * @param array<int, array<string, mixed>> $rows
+ * @return string|null Null when everything matches, otherwise the first mismatch found.
+ */
+function zw_fm_makers_verify(int $post_id, array $rows): ?string
+{
+    global $wpdb;
+
+    // update_metadata() unslashes before storing, so compare against the same transformation.
+    $expected = ['fm_show_makers' => (string) count($rows)];
+    foreach ($rows as $index => $row) {
+        foreach (zw_fm_makers_sub_fields() as $field_key => $name) {
+            $expected['fm_show_makers_' . $index . '_' . $name] = (string) wp_unslash($row[$field_key]);
+        }
+    }
+
+    $found = $wpdb->get_results(
+        $wpdb->prepare(
+            'SELECT meta_key, meta_value FROM ' . $wpdb->postmeta
+            . ' WHERE post_id = %d AND meta_key LIKE %s',
+            $post_id,
+            $wpdb->esc_like('fm_show_makers') . '%'
+        )
+    );
+
+    if ($wpdb->last_error !== '') {
+        return 'could not read the makers back - ' . $wpdb->last_error;
+    }
+
+    $stored = [];
+    foreach ((array) $found as $row) {
+        $stored[$row->meta_key] = $row->meta_value;
+    }
+
+    foreach ($expected as $key => $value) {
+        if (($stored[$key] ?? '') !== $value) {
+            return sprintf(
+                '%s was stored as "%s" instead of "%s"',
+                $key,
+                $stored[$key] ?? '',
+                $value
+            );
+        }
+    }
+
+    return null;
 }
 
 /**
@@ -339,20 +498,28 @@ function zw_fm_makers_log(string $message): void
 }
 
 /**
- * Shows the result of the migration once, to anyone who can edit content.
+ * Shows the result of the migration once. This is an operational message rather than editorial
+ * information, so it stays with the administrators who can act on it.
  */
 function zw_fm_makers_render_notice(): void
 {
-    if (!current_user_can('edit_posts')) {
+    if (!current_user_can('manage_options')) {
         return;
     }
 
-    $report = get_option(ZW_FM_MAKERS_OPTION_REPORT);
-    if (!is_array($report)) {
+    if (!is_array(get_option(ZW_FM_MAKERS_OPTION_REPORT))) {
         return;
     }
 
-    $report = array_merge(zw_fm_makers_empty_report(), $report);
+    $report = zw_fm_makers_stored_report();
+
+    if ($report['aborted'] > 0) {
+        zw_fm_makers_print_notice(
+            'notice-error',
+            'De migratie kon niet draaien. Zie de PHP-log; er wordt automatisch opnieuw geprobeerd.'
+        );
+        return;
+    }
 
     // Counts vary, so keep the wording free of singular and plural verb forms.
     $count = function (int $number, string $singular, string $plural): string {
@@ -378,11 +545,24 @@ function zw_fm_makers_render_notice(): void
         $lines[] = 'Presentatoren die niet meer als gebruiker bestaan: ' . $report['unknown_users'] . '.';
     }
 
-    if ($report['failed'] > 0) {
-        $lines[] = 'Niet omgezet, zie de PHP-log: ' . $report['failed'] . '.';
+    if ($report['failed_recoverable'] > 0) {
+        $lines[] = 'Niet omgezet, zie de PHP-log: ' . $report['failed_recoverable'] . '.';
     }
 
-    $has_problems = $report['failed'] > 0 || $report['unknown_users'] > 0;
+    if ($report['failed_unexpected'] > 0) {
+        $lines[] = 'Onverwachte records overgeslagen, zie de PHP-log: ' . $report['failed_unexpected'] . '.';
+    }
+
+    $problems = $report['failed_recoverable'] + $report['failed_unexpected'] + $report['unknown_users'];
+
+    zw_fm_makers_print_notice($problems > 0 ? 'notice-warning' : 'notice-success', implode(' ', $lines));
+}
+
+/**
+ * Prints one admin notice with a link that puts it away for good.
+ */
+function zw_fm_makers_print_notice(string $class, string $message): void
+{
     $dismiss_url = wp_nonce_url(
         add_query_arg('zw_fm_makers_dismiss', '1'),
         'zw_fm_makers_dismiss'
@@ -390,9 +570,9 @@ function zw_fm_makers_render_notice(): void
 
     printf(
         '<div class="notice %s"><p><strong>%s</strong> %s</p><p><a href="%s">%s</a></p></div>',
-        $has_problems ? 'notice-warning' : 'notice-success',
+        esc_attr($class),
         esc_html('Migratie presentatoren naar makers:'),
-        esc_html(implode(' ', $lines)),
+        esc_html($message),
         esc_url($dismiss_url),
         esc_html('Melding verbergen')
     );
@@ -403,7 +583,7 @@ function zw_fm_makers_render_notice(): void
  */
 function zw_fm_makers_dismiss_notice(): void
 {
-    if (!isset($_GET['zw_fm_makers_dismiss']) || !current_user_can('edit_posts')) {
+    if (!isset($_GET['zw_fm_makers_dismiss']) || !current_user_can('manage_options')) {
         return;
     }
 
