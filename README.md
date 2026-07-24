@@ -1,124 +1,96 @@
+# Streekomroep WordPress Theme
 
-# The Streekomroep WordPress Theme
+The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/), built with [Timber](https://timber.github.io/docs/v2/), Twig, and Tailwind CSS. It supports regional news, radio, television, video, and Tekst TV.
 
-This is a WordPress theme created for Streekomroep ZuidWest in the Netherlands. It utilizes Timber and Tailwind CSS, offering functionality for regional news, radio, and TV broadcasts. Use it with WordPress 6.9+ and PHP 8.3+.
+## Requirements
 
-## How to install
-Get the latest version from the [Releases tab](https://github.com/oszuidwest/streekomroep-wp/releases) and upload it as theme to your WordPress installation. Ensure to install all the hard dependencies too.
+- WordPress 7.0+
+- PHP 8.3+
+- Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x
+- Classic Editor 1.x
+- Yoast SEO Premium 27.x
 
-## How to manually build
-You can also build the theme yourself.
+Timber 2.5.x and other PHP libraries are bundled through Composer. Secure Custom Fields (or ACF Pro) and Yoast SEO must be active before activating the theme.
 
-Instructions for macOS:
-- Install Homebrew ([https://brew.sh](https://brew.sh))
-- Install Composer and Node with `brew install composer node`
-- Download the theme from GitHub to a local folder
-- Open the folder in a terminal and execute the following commands:
+## Installation
+
+For production, download the latest archive from [GitHub Releases](https://github.com/oszuidwest/streekomroep-wp/releases), install the required plugins, and upload the theme through WordPress or extract it to `wp-content/themes/streekomroep`. Release archives include Composer dependencies and compiled CSS.
+
+To build the theme from source:
 
 ```bash
+composer install --prefer-dist --no-dev --optimize-autoloader
 npm install
 npm run build:tailwind
-composer install --prefer-dist --no-dev --optimize-autoloader
 ```
-- Upload the theme to `/wp-content/themes/` and activate it.
 
-For Linux users, use `apt` or `yum` instead of Homebrew. This theme has not been tested on Windows, but should work if your Composer and Node versions are up-to-date. To build remotely, consider using GitHub Actions or [Buddy CI/CD](https://buddy.works/) for the building and uploading process.
+## Development
 
-## Local development with Docker
-A Docker setup is included for local development. It provides WordPress on PHP 8.3 with the theme mounted, MariaDB LTS, phpMyAdmin, and Secure Custom Fields for development.
+The Docker environment provides WordPress 7.0 on PHP 8.3, MariaDB, phpMyAdmin, WP-CLI, and the required development plugins.
 
 ```bash
 docker compose up -d
 ```
 
-This starts:
-- WordPress at http://localhost:8080 (admin/admin)
-- phpMyAdmin at http://localhost:8081
+On first startup it installs WordPress, builds the theme, creates the default menus, and activates the theme.
 
-The theme folder is mounted into the container, so changes are reflected immediately. On first run, WordPress is automatically installed with Dutch locale and the theme activated.
+- WordPress: <http://localhost:8080> (`admin` / `admin`)
+- phpMyAdmin: <http://localhost:8081> (`wordpress` / `wordpress`)
 
-To stop: `docker compose down`
-To reset: `docker compose down -v` (removes database)
+Stop the environment with `docker compose down`. To delete the local database and start over, use `docker compose down -v`.
 
-After changing the WordPress image version, reset the disposable development
-environment and rebuild it: `docker compose down -v && docker compose up -d --build`.
+For development without the automatic Docker build:
 
-### Hard dependencies
-Install these before activating the theme:
-- Timber 2.5.1: [Bundled; if you build yourself, use composer](https://timber.github.io/docs/v2/installation/installation/)
-- Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x: Docker uses [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) for development; licensed environments may use [ACF Pro](https://www.advancedcustomfields.com/pro/).
-- Classic Editor 1.x: [[free download](https://wordpress.org/plugins/classic-editor/)] _(we are giving the block editor more time to stabilize)_
-- Yoast SEO Premium 27.x: [[purchase](https://yoast.com/wordpress/plugins/seo/)]
-
-### Soft dependencies
-These tested plugins enhance the theme:
-- Contact Form 7 6.0.x: [[free download](https://wordpress.org/plugins/contact-form-7/)]
-- Disable Comments 2.x: [[free download](https://wordpress.org/plugins/disable-comments/)]
-
-## Extra functionality with first-party plugins
-Some first-party plugins developed by Streekomroep ZuidWest add extra functionality to this theme. They are optional and can be installed separately:
-- ZuidWest Webapp [[on GitHub](https://github.com/oszuidwest/zw-webapp)]: Adds push messages and functionality for a progressive web app using the service Progressier.
-- Tekst TV GPT [[on GitHub](https://github.com/oszuidwest/teksttvgpt)]: Adds a button that generates 'tekst tv' summaries for articles using OpenAI GPT models.
-
-## Optional: imgproxy for image resizing
-
-The theme supports [imgproxy](https://imgproxy.net/) for on-the-fly image resizing with signed URLs. When configured, all images rendered with the `|imgproxy` Twig filter are served through imgproxy. Without it, the theme falls back to Timber's built-in image resizing.
-
-Configure imgproxy in WordPress under Settings > Media:
-
-- `zw_imgproxy_key`
-- `zw_imgproxy_salt`
-- `zw_imgproxy_url`
-
-The `zw_imgproxy_url` value is normalized (`https://` is added when no scheme is entered, and a trailing slash is enforced). Normalization runs both when saving the option and when reading the constant fallback, so the constants below also work without a trailing slash. Empty WordPress options are backfilled from the matching constants in wp-admin. Invalid URLs are rejected with an admin notice.
-
-For deployments that still define these values in `wp-config.php`, the following constants are still supported as a per-key fallback when the matching option is empty:
-
-```php
-define('IMGPROXY_KEY', 'your-hex-key');
-define('IMGPROXY_SALT', 'your-hex-salt');
-define('IMGPROXY_URL', 'https://your-imgproxy-instance.example.com/');
+```bash
+composer install
+npm install
+npm run watch:tailwind
 ```
 
-## REST API Endpoints
+Run `npm run build:tailwind` to compile minified CSS from `assets/` into `dist/`.
 
-The theme provides REST API endpoints for external integrations:
+### Quality checks
 
-### Broadcast Data
-```
-GET /wp-json/zw/v1/broadcast_data
-```
-Returns the current and next radio broadcast, plus today's and tomorrow's TV schedule.
+There is no dedicated automated test suite. Run the PHP and Twig linters before submitting changes:
 
-Response:
-```json
-{
-  "fm": {
-    "now": "Program Name",
-    "next": "Program Name"
-  },
-  "tv": {
-    "today": ["Show 1", "Show 2"],
-    "tomorrow": ["Show 1", "Show 2"]
-  }
-}
+```bash
+vendor/bin/phpcs --standard=phpcs.xml .
+composer lint:twig
 ```
 
-### Tekst TV
-```
-GET /wp-json/zw/v1/teksttv?channel={channel}
-```
-Returns slides and ticker messages for the [Tekst TV system](https://github.com/oszuidwest/teksttv). The `channel` parameter must match a configured channel (e.g., `tv1`).
+Use `composer fix:twig` to fix supported Twig formatting issues. Verify frontend changes in Docker and rebuild the CSS.
 
-Response:
-```json
-{
-  "slides": [...],
-  "ticker": [...]
-}
-```
+## Project structure
 
-## What's here?
-`static/`: Store your static front-end scripts, styles, or images here, including Sass files, JS files, fonts, and SVGs.
+| Path | Purpose |
+| --- | --- |
+| `src/` | PSR-4 classes in the `Streekomroep\` namespace |
+| `lib/` | WordPress hooks, post types, taxonomies, and integrations |
+| `templates/` | Twig views |
+| `assets/` / `dist/` | Tailwind sources and generated CSS |
+| `static/` | Browser-side JavaScript |
+| `streekomroep-acf-json/` | Version-controlled SCF/ACF field groups |
+| `docker/` | Local WordPress environment |
 
-`templates/`: Contains all Twig templates, corresponding closely with the PHP files in the WordPress template hierarchy. Each PHP template ends with a `Timber::render()` function, linking to the Twig file where the data (or `$context`) is used.
+WordPress template entrypoints live in the repository root and render views from `templates/`. Commit updated JSON in `streekomroep-acf-json/` whenever SCF or ACF fields change.
+
+## Integrations
+
+### imgproxy
+
+Optional [imgproxy](https://imgproxy.net/) support can be configured under **Settings > Media** with `zw_imgproxy_key`, `zw_imgproxy_salt`, and `zw_imgproxy_url`. If any value is missing, the theme falls back to Timber image resizing.
+
+Existing deployments can use the `IMGPROXY_KEY`, `IMGPROXY_SALT`, and `IMGPROXY_URL` constants in `wp-config.php` as fallbacks.
+
+### REST API
+
+The theme provides two public read-only endpoints:
+
+- `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme and the television schedules for today and tomorrow.
+- `GET /wp-json/zw/v1/teksttv?channel=tv1` returns slides and ticker messages for a channel configured in `ZW_TEKSTTV_CHANNELS`.
+
+Optional first-party extensions include [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) for push notifications and PWA support, and [Tekst TV GPT](https://github.com/oszuidwest/teksttvgpt) for AI-generated Tekst TV summaries.
+
+## License
+
+See [LICENSE](LICENSE).
