@@ -12,7 +12,7 @@ use WP_REST_Response;
 class TekstTVAPI
 {
     // Slide durations in milliseconds
-    private const SLIDE_DURATIONS = [
+    private const array SLIDE_DURATIONS = [
         'text' => 20000,
         'image' => 7000,
         'ad_transition' => 5000,
@@ -20,7 +20,7 @@ class TekstTVAPI
     ];
 
     // Cache duration for weather data (1 hour)
-    private const WEATHER_CACHE_DURATION = 3600;
+    private const int WEATHER_CACHE_DURATION = 3600;
 
     // Broadcast schedule shared by all ticker items in a request (building one is expensive)
     private ?BroadcastSchedule $schedule = null;
@@ -525,7 +525,11 @@ class TekstTVAPI
         }
 
         $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
+        try {
+            $data = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new \Exception('Weather API returned invalid JSON', previous: $exception);
+        }
 
         if (!$data || !isset($data['daily'])) {
             throw new \Exception('Invalid API response');
@@ -563,7 +567,11 @@ class TekstTVAPI
         }
 
         $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
+        try {
+            $data = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            return null;
+        }
 
         if (empty($data) || !isset($data[0]['lat'])) {
             return null;
