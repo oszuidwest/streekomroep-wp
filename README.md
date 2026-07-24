@@ -40,6 +40,9 @@ The theme folder is mounted into the container, so changes are reflected immedia
 To stop: `docker compose down`
 To reset: `docker compose down -v` (removes database)
 
+After changing the WordPress image version, reset the disposable development
+environment and rebuild it: `docker compose down -v && docker compose up -d --build`.
+
 ### Hard dependencies
 Install these before activating the theme:
 - Timber 2.5.1: [Bundled; if you build yourself, use composer](https://timber.github.io/docs/v2/installation/installation/)
