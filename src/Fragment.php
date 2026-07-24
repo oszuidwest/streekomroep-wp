@@ -6,8 +6,8 @@ use Timber\Timber;
 
 class Fragment extends Post
 {
-    public const TYPE_VIDEO = 'Video';
-    public const TYPE_AUDIO = 'Audio';
+    public const string TYPE_VIDEO = 'Video';
+    public const string TYPE_AUDIO = 'Audio';
 
     public function getEmbed(?string $posterUrl = null)
     {

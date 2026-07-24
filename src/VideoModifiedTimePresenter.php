@@ -15,6 +15,7 @@ class VideoModifiedTimePresenter extends Abstract_Indexable_Tag_Presenter
 
     protected $tag_format = '<meta property="article:modified_time" content="%s" />';
 
+    #[\Override]
     public function get()
     {
         return $this->helpers->date->format($this->date);

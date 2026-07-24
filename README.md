@@ -6,11 +6,10 @@ The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/),
 
 - WordPress 7.0+
 - PHP 8.3+
-- Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x
-- Classic Editor 1.x
-- Yoast SEO Premium 27.x
+- Secure Custom Fields 6.9+ or Advanced Custom Fields Pro 6.8+
+- Yoast SEO 27.7+ (free or Premium)
 
-Timber 2.5.x and other PHP libraries are bundled through Composer. Secure Custom Fields (or ACF Pro) and Yoast SEO must be active before activating the theme.
+Timber 2.5.x and other PHP libraries are bundled through Composer. An ACF-compatible plugin and Yoast SEO must be active before activating the theme.
 
 ## Installation
 
@@ -51,11 +50,12 @@ Run `npm run build:tailwind` to compile minified CSS from `assets/` into `dist/`
 
 ### Quality checks
 
-There is no dedicated automated test suite. Run the PHP and Twig linters before submitting changes:
+There is no dedicated automated test suite. Run the baseline checks before submitting changes:
 
 ```bash
 vendor/bin/phpcs --standard=phpcs.xml .
 composer lint:twig
+git diff --check
 ```
 
 Use `composer fix:twig` to fix supported Twig formatting issues. Verify frontend changes in Docker and rebuild the CSS.
@@ -74,6 +74,19 @@ Use `composer fix:twig` to fix supported Twig formatting issues. Verify frontend
 
 WordPress template entrypoints live in the repository root and render views from `templates/`. Commit updated JSON in `streekomroep-acf-json/` whenever SCF or ACF fields change.
 
+## Soft dependencies
+
+These optional plugins complement the theme:
+
+- [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.x
+- [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) 6.1.x
+- [Disable Comments](https://wordpress.org/plugins/disable-comments/) 2.7.x
+
+## Extra functionality with first-party plugins
+
+- [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
+- [Tekst TV GPT](https://github.com/oszuidwest/teksttvgpt) adds AI-generated Tekst TV summaries to the editor.
+
 ## Integrations
 
 ### imgproxy
@@ -88,8 +101,6 @@ The theme provides two public read-only endpoints:
 
 - `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme and the television schedules for today and tomorrow.
 - `GET /wp-json/zw/v1/teksttv?channel=tv1` returns slides and ticker messages for a channel configured in `ZW_TEKSTTV_CHANNELS`.
-
-Optional first-party extensions include [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) for push notifications and PWA support, and [Tekst TV GPT](https://github.com/oszuidwest/teksttvgpt) for AI-generated Tekst TV summaries.
 
 ## License
 

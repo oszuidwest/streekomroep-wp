@@ -1,6 +1,7 @@
 {
   "name": "oszuidwest/streekomroep",
   "description": "Streekomroep theme to use with Timber",
+  "license": "MPL-2.0",
   "type": "wordpress-theme",
   "minimum-stability": "stable",
   "authors": [
@@ -28,9 +29,10 @@
     "ext-dom": "*",
     "ext-fileinfo": "*",
     "ext-json": "*",
+    "php": ">=8.3",
     "league/commonmark": "^2.4",
     "nesbot/carbon": "^3.11",
-    "symfony/yaml": "^5.4",
+    "symfony/yaml": "^7.4",
     "timber/timber": "~2.5.1",
     "twig/markdown-extra": "^3.7"
   },
@@ -46,7 +48,7 @@
       "dealerdirect/phpcodesniffer-composer-installer": true
     },
     "platform": {
-      "php": "8.2"
+      "php": "8.3"
     }
   }
 }
