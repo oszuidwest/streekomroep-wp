@@ -16,10 +16,15 @@
  *   2. drop the require_once in functions.php
  *   3. wp option delete zw_fm_makers_migration_done zw_fm_makers_migration_lock \
  *        zw_fm_makers_migration_report zw_fm_makers_migration_attempts
+ *   4. wp db query "DELETE FROM wp_postmeta WHERE meta_key = '_zw_fm_makers_retry'"
  */
 
 // Old field, dropped from the field group but still present in the database.
 const ZW_FM_MAKERS_OLD_META = 'fm_show_presentator';
+
+// Marks a show whose makers were left behind by a failed attempt, so a retry knows those rows are
+// ours to redo instead of mistaking them for makers that were already there.
+const ZW_FM_MAKERS_RETRY_META = '_zw_fm_makers_retry';
 
 // Field keys from streekomroep-acf-json/group_5f21b1dcb2dc2.json.
 const ZW_FM_MAKERS_FIELD = 'field_687a3f5e0c1a1';
@@ -235,8 +240,11 @@ function zw_fm_makers_migrate(): ?array
             continue;
         }
 
-        // Never overwrite makers that were already filled in by hand or by an earlier run.
-        if ((int) get_post_meta($post_id, 'fm_show_makers', true) > 0) {
+        // Never overwrite makers that were already filled in by hand or by an earlier run. Rows
+        // that an unfinished attempt left behind are ours to redo, so those do not count.
+        $ours = zw_fm_makers_is_claimed($post_id);
+
+        if (!$ours && (int) get_post_meta($post_id, 'fm_show_makers', true) > 0) {
             zw_fm_makers_delete_old_meta($post_id);
             zw_fm_makers_log('Post ' . $post_id . ': already has makers, only removed the old meta.');
             $report['skipped']++;
@@ -284,21 +292,46 @@ function zw_fm_makers_migrate(): ?array
             continue;
         }
 
-        if (!update_field(ZW_FM_MAKERS_FIELD, $rows, $post_id)) {
-            zw_fm_makers_log('Post ' . $post_id . ': writing the makers failed, kept the old meta.');
+        // Claim the show before touching its repeater. Writing rows first would leave a window in
+        // which a dying request abandons half a repeater that carries nothing to identify it, and
+        // the next attempt would take those rows for makers that were already there.
+        if (!zw_fm_makers_claim_post($post_id)) {
+            zw_fm_makers_log('Post ' . $post_id . ': could not be claimed, left the repeater alone.');
             $report['failed_recoverable']++;
             continue;
         }
 
+        // The return value says nothing useful here: it only reflects whether the stored row count
+        // changed, which is false for a retry that writes the same number of rows again. What
+        // actually landed in the table is what counts, so the read back below decides.
+        update_field(ZW_FM_MAKERS_FIELD, $rows, $post_id);
+
         $mismatch = zw_fm_makers_verify($post_id, $rows);
         if ($mismatch !== null) {
-            zw_fm_makers_log('Post ' . $post_id . ': ' . $mismatch . ' - rolled back, kept the old meta.');
             delete_field(ZW_FM_MAKERS_FIELD, $post_id);
+
+            $left = zw_fm_makers_stored_meta($post_id);
+            zw_fm_makers_log(sprintf(
+                'Post %d: %s - %s, kept the old meta.',
+                $post_id,
+                $mismatch,
+                $left === [] ? 'rolled the row back' : 'could not roll the row back'
+            ));
             $report['failed_recoverable']++;
             continue;
         }
 
         zw_fm_makers_delete_old_meta($post_id);
+
+        // The claim is only released once the source data is demonstrably gone, so a show is never
+        // left looking finished while its presenters are still in the database.
+        if (!zw_fm_makers_old_meta_gone($post_id)) {
+            zw_fm_makers_log('Post ' . $post_id . ': makers are in place but the old meta stayed behind.');
+            $report['failed_recoverable']++;
+            continue;
+        }
+
+        delete_metadata('post', $post_id, ZW_FM_MAKERS_RETRY_META);
         $report['shows']++;
         $report['makers'] += count($rows);
         zw_fm_makers_log('Post ' . $post_id . ': migrated ' . count($rows) . ' maker(s): ' . implode(', ', $names) . '.');
@@ -365,32 +398,26 @@ function zw_fm_makers_find_posts(): ?array
  */
 function zw_fm_makers_verify(int $post_id, array $rows): ?string
 {
-    global $wpdb;
+    // Every value is stored alongside an underscore prefixed row holding the field key. ACF needs
+    // the one for the repeater itself to recognise the field: without it get_field() hands back
+    // the bare row count instead of the rows. update_metadata() unslashes before storing, so the
+    // expected values go through the same transformation.
+    $expected = [
+        'fm_show_makers' => (string) count($rows),
+        '_fm_show_makers' => ZW_FM_MAKERS_FIELD,
+    ];
 
-    // update_metadata() unslashes before storing, so compare against the same transformation.
-    $expected = ['fm_show_makers' => (string) count($rows)];
     foreach ($rows as $index => $row) {
         foreach (zw_fm_makers_sub_fields() as $field_key => $name) {
-            $expected['fm_show_makers_' . $index . '_' . $name] = (string) wp_unslash($row[$field_key]);
+            $meta_key = 'fm_show_makers_' . $index . '_' . $name;
+            $expected[$meta_key] = (string) wp_unslash($row[$field_key]);
+            $expected['_' . $meta_key] = $field_key;
         }
     }
 
-    $found = $wpdb->get_results(
-        $wpdb->prepare(
-            'SELECT meta_key, meta_value FROM ' . $wpdb->postmeta
-            . ' WHERE post_id = %d AND meta_key LIKE %s',
-            $post_id,
-            $wpdb->esc_like('fm_show_makers') . '%'
-        )
-    );
-
-    if ($wpdb->last_error !== '') {
-        return 'could not read the makers back - ' . $wpdb->last_error;
-    }
-
-    $stored = [];
-    foreach ((array) $found as $row) {
-        $stored[$row->meta_key] = $row->meta_value;
+    $stored = zw_fm_makers_stored_meta($post_id);
+    if ($stored === null) {
+        return 'could not read the makers back';
     }
 
     foreach ($expected as $key => $value) {
@@ -405,6 +432,90 @@ function zw_fm_makers_verify(int $post_id, array $rows): ?string
     }
 
     return null;
+}
+
+/**
+ * Marks a show as being migrated and confirms the mark is really stored.
+ *
+ * @return bool False when the claim could not be established, in which case the repeater of this
+ *              show must be left alone.
+ */
+function zw_fm_makers_claim_post(int $post_id): bool
+{
+    // The return value of update_metadata() proves nothing: it is false both when the write failed
+    // and when the mark was already there from an earlier attempt. Only a read back settles it.
+    update_metadata('post', $post_id, ZW_FM_MAKERS_RETRY_META, 1);
+
+    return zw_fm_makers_is_claimed($post_id);
+}
+
+/**
+ * Whether the makers of a show were written by an attempt that never finished.
+ */
+function zw_fm_makers_is_claimed(int $post_id): bool
+{
+    global $wpdb;
+
+    $value = $wpdb->get_var(
+        $wpdb->prepare(
+            'SELECT meta_value FROM ' . $wpdb->postmeta . ' WHERE post_id = %d AND meta_key = %s LIMIT 1',
+            $post_id,
+            ZW_FM_MAKERS_RETRY_META
+        )
+    );
+
+    return $wpdb->last_error === '' && $value !== null;
+}
+
+/**
+ * Whether the old presenter meta of a show is really gone from the table.
+ */
+function zw_fm_makers_old_meta_gone(int $post_id): bool
+{
+    global $wpdb;
+
+    $left = $wpdb->get_var(
+        $wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . $wpdb->postmeta . ' WHERE post_id = %d AND meta_key IN (%s, %s)',
+            $post_id,
+            ZW_FM_MAKERS_OLD_META,
+            '_' . ZW_FM_MAKERS_OLD_META
+        )
+    );
+
+    return $wpdb->last_error === '' && (int) $left === 0;
+}
+
+/**
+ * Reads every makers row of a post straight from the table, values and field key references alike.
+ *
+ * @return array<string, string>|null Meta keyed by name, or null when the read itself failed.
+ */
+function zw_fm_makers_stored_meta(int $post_id): ?array
+{
+    global $wpdb;
+
+    $found = $wpdb->get_results(
+        $wpdb->prepare(
+            'SELECT meta_key, meta_value FROM ' . $wpdb->postmeta
+            . ' WHERE post_id = %d AND (meta_key LIKE %s OR meta_key LIKE %s)',
+            $post_id,
+            $wpdb->esc_like('fm_show_makers') . '%',
+            $wpdb->esc_like('_fm_show_makers') . '%'
+        )
+    );
+
+    if ($wpdb->last_error !== '') {
+        zw_fm_makers_log('Post ' . $post_id . ': reading the makers back failed - ' . $wpdb->last_error);
+        return null;
+    }
+
+    $stored = [];
+    foreach ((array) $found as $row) {
+        $stored[$row->meta_key] = $row->meta_value;
+    }
+
+    return $stored;
 }
 
 /**

@@ -358,7 +358,12 @@ function zw_rest_api_init()
         'presenters',
         [
             'get_callback' => function ($post_arr) {
-                $makers = get_field('fm_show_makers', $post_arr['id']) ?: [];
+                // A repeater without its ACF field key reference reads back as the bare row count,
+                // so insist on rows rather than handing that to array_map().
+                $makers = get_field('fm_show_makers', $post_arr['id']);
+                if (!is_array($makers)) {
+                    return [];
+                }
 
                 return array_values(array_map(function ($maker) {
                     return [
