@@ -1,11 +1,11 @@
 vendor
 wp-content
 .DS_Store
-package-lock.json
 yarn.lock
 
 /node_modules
 /dist
+/screenshots
 
 # Markdown files (except docs)
 *.md
