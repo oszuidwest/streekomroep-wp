@@ -11,7 +11,7 @@ class BunnyClient
 
     private static array $credentialsCache = [];
 
-    private const LIBRARY_FIELDS = [
+    private const array LIBRARY_FIELDS = [
         'tv' => ['bunny_cdn_library_id', 'bunny_cdn_hostname', 'bunny_cdn_api_key'],
         'fragmenten' => ['bunny_cdn_library_id_fragmenten', 'bunny_cdn_hostname_fragmenten', 'bunny_cdn_api_key_fragmenten'],
     ];
@@ -70,7 +70,14 @@ class BunnyClient
             return null;
         }
 
-        return json_decode($response['body']);
+        try {
+            $video = json_decode($response['body'], flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            error_log('Invalid JSON returned by the Bunny API: ' . $exception->getMessage());
+            return null;
+        }
+
+        return is_object($video) ? $video : null;
     }
 
     public function fetchCollection(string $collectionId): array
@@ -94,7 +101,15 @@ class BunnyClient
                 throw new Exception('Error while fetching bunny data: ' . $response['body']);
             }
 
-            $body = json_decode($response['body']);
+            try {
+                $body = json_decode($response['body'], flags: JSON_THROW_ON_ERROR);
+            } catch (\JsonException $exception) {
+                throw new Exception('Invalid JSON returned by the Bunny API', previous: $exception);
+            }
+
+            if (!is_object($body) || !isset($body->items, $body->totalItems) || !is_array($body->items)) {
+                throw new Exception('Invalid data returned by the Bunny API');
+            }
 
             array_push($data, ...$body->items);
             if (count($data) >= $body->totalItems) {

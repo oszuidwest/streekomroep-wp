@@ -6,7 +6,7 @@ use DateTimeImmutable;
 
 class BroadcastDay
 {
-    public const WEEKDAY_NAMES = [
+    public const array WEEKDAY_NAMES = [
         1 => 'maandag',
         2 => 'dinsdag',
         3 => 'woensdag',

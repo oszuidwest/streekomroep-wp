@@ -8,37 +8,37 @@ use WP_Post;
 
 class Gallery
 {
-    private const DEFAULT_TYPE = 'rectangular';
-    private const DEFAULT_COLUMNS = 3;
-    private const DEFAULT_IMAGE_SIZE = 'large';
-    private const MAX_COLUMNS = 6;
+    private const string DEFAULT_TYPE = 'rectangular';
+    private const int DEFAULT_COLUMNS = 3;
+    private const string DEFAULT_IMAGE_SIZE = 'large';
+    private const int MAX_COLUMNS = 6;
 
     // Galleries render inside the max-w-3xl content column, so image widths cap at 768px.
-    private const CONTENT_WIDTH = 768;
+    private const int CONTENT_WIDTH = 768;
 
     // Shared classes for every gallery tile wrapper.
-    private const ITEM_BASE = 'group relative m-0 overflow-hidden bg-gray-100';
+    private const string ITEM_BASE = 'group relative m-0 overflow-hidden bg-gray-100';
 
     // The distinct rectangular slots. Each geometry (classes/sizes/width/height) lives in exactly one place.
-    private const LAYOUT_HERO = [
+    private const array LAYOUT_HERO = [
         'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-6',
         'sizes' => '(min-width: 768px) 768px, 100vw',
         'width' => 768,
         'height' => 432,
     ];
-    private const LAYOUT_HALF = [
+    private const array LAYOUT_HALF = [
         'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-3',
         'sizes' => '(min-width: 768px) 384px, 50vw',
         'width' => 384,
         'height' => 288,
     ];
-    private const LAYOUT_HERO_HALF = [
+    private const array LAYOUT_HERO_HALF = [
         'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
         'sizes' => '(min-width: 768px) 384px, 100vw',
         'width' => 768,
         'height' => 432,
     ];
-    private const LAYOUT_THIRD = [
+    private const array LAYOUT_THIRD = [
         'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-2',
         'sizes' => '(min-width: 768px) 256px, 50vw',
         'width' => 256,
