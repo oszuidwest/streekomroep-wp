@@ -261,11 +261,13 @@ function zw_fm_makers_migrate(): ?array
         }
 
         $rows = [];
+        $unresolved_user_ids = [];
         foreach ($user_ids as $user_id) {
             $user = get_userdata($user_id);
             if (!$user) {
                 zw_fm_makers_log('Post ' . $post_id . ': user ' . $user_id . ' no longer exists, skipped.');
                 $report['unknown_users']++;
+                $unresolved_user_ids[] = $user_id;
                 continue;
             }
 
@@ -276,14 +278,14 @@ function zw_fm_makers_migrate(): ?array
             ];
         }
 
-        // Keep the old meta whenever it holds data we could not convert, so nothing is lost
-        // silently. get_userdata() returns false for a database error just as it does for a
-        // deleted user, so this counts as recoverable and earns another attempt.
-        if (empty($rows)) {
+        // Do not replace the complete source with a partial result. get_userdata() returns false
+        // for a database error just as it does for a deleted user, so every unresolved ID keeps
+        // the old meta in place and earns another attempt.
+        if ($unresolved_user_ids) {
             zw_fm_makers_log(sprintf(
-                'Post %d: none of the presenters (%s) could be resolved, kept the old meta.',
+                'Post %d: presenter(s) %s could not be resolved, kept the old meta.',
                 $post_id,
-                implode(', ', $user_ids)
+                implode(', ', $unresolved_user_ids)
             ));
             $report['failed_recoverable']++;
             continue;
