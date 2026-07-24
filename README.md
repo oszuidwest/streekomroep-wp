@@ -6,11 +6,10 @@ The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/),
 
 - WordPress 7.0+
 - PHP 8.3+
-- Secure Custom Fields 6.8.x or Advanced Custom Fields Pro 6.x
-- Classic Editor 1.x
-- Yoast SEO Premium 27.x
+- Secure Custom Fields 6.9+ or Advanced Custom Fields Pro 6.8+
+- Yoast SEO 27.7+ (free or Premium)
 
-Timber 2.5.x and other PHP libraries are bundled through Composer. Secure Custom Fields (or ACF Pro) and Yoast SEO must be active before activating the theme.
+Timber 2.5.x and other PHP libraries are bundled through Composer. An ACF-compatible plugin and Yoast SEO must be active before activating the theme.
 
 ## Installation
 
@@ -78,6 +77,7 @@ WordPress template entrypoints live in the repository root and render views from
 
 These optional plugins complement the theme:
 
+- [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.x
 - [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) 6.1.x
 - [Disable Comments](https://wordpress.org/plugins/disable-comments/) 2.7.x
 

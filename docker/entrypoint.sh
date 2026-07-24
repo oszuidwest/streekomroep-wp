@@ -56,7 +56,7 @@ set -e
             --allow-root
 
         # Install plugins before language pack to avoid WP-CLI locale conflicts
-        YOAST_SEO_VERSION="27.6"
+        YOAST_SEO_VERSION="27.7"
         echo "Installing Yoast SEO ${YOAST_SEO_VERSION}..."
         wp plugin install wordpress-seo --version="$YOAST_SEO_VERSION" --activate --allow-root || echo "Failed to install Yoast SEO"
 
