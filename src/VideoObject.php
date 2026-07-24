@@ -11,6 +11,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         $this->video = $video;
     }
 
+    #[\Override]
     public function generate()
     {
         $timespan = $this->video->duration;
@@ -37,6 +38,7 @@ class VideoObject extends \Yoast\WP\SEO\Generators\Schema\Abstract_Schema_Piece
         ];
     }
 
+    #[\Override]
     public function is_needed()
     {
         return true;

@@ -7,7 +7,7 @@ use Exception;
 
 class Video
 {
-    public const STATUS_FINISHED = 4;
+    public const int STATUS_FINISHED = 4;
 
     private object $data;
     private string $description = '';

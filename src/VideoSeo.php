@@ -7,8 +7,8 @@ namespace Streekomroep;
  */
 class VideoSeo
 {
-    public const OG_IMAGE_WIDTH = 1920;
-    public const OG_IMAGE_HEIGHT = 1080;
+    public const int OG_IMAGE_WIDTH = 1920;
+    public const int OG_IMAGE_HEIGHT = 1080;
     public static function register(): void
     {
         add_filter('wpseo_schema_graph_pieces', [self::class, 'addFragmentSchema'], 11, 2);

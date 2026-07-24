@@ -2,16 +2,11 @@
 
 namespace Streekomroep;
 
-class BunnyVideoId
+final readonly class BunnyVideoId
 {
-    public int $libraryId;
-    public string $videoId;
-
     public function __construct(
-        int $libraryId,
-        string $videoId
+        public int $libraryId,
+        public string $videoId
     ) {
-        $this->videoId = $videoId;
-        $this->libraryId = $libraryId;
     }
 }
