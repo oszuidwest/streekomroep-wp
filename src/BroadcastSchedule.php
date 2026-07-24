@@ -23,7 +23,13 @@ class BroadcastSchedule
 
         $tv_weeks = zw_acf_rows(get_field('tv_week', 'option'));
         foreach ($tv_weeks as $week) {
-            $start = DateTime::createFromFormat('Y-m-d', $week['tv_week_start'] ?? '', wp_timezone());
+            $start_value = $week['tv_week_start'] ?? null;
+            $end_value = $week['tv_week_eind'] ?? null;
+            if (!is_string($start_value) || !is_string($end_value)) {
+                continue;
+            }
+
+            $start = DateTime::createFromFormat('Y-m-d', $start_value, wp_timezone());
             if ($start === false) {
                 continue;
             }
@@ -31,7 +37,7 @@ class BroadcastSchedule
             if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
-            $end = DateTime::createFromFormat('Y-m-d', $week['tv_week_eind'] ?? '', wp_timezone());
+            $end = DateTime::createFromFormat('Y-m-d', $end_value, wp_timezone());
             if ($end === false) {
                 continue;
             }
@@ -45,16 +51,24 @@ class BroadcastSchedule
                 $day = $this->getBroadcastDay($date);
                 $dayname = $day->getName();
 
-                foreach ($week['tv_week_shows'] as $entry) {
-                    if ($entry['dag'] !== $dayname) {
+                foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
+                    if (
+                        ($entry['dag'] ?? null) !== $dayname
+                        || !(($entry['show'] ?? null) instanceof \WP_Post)
+                    ) {
                         continue;
                     }
 
-                    if ($entry['show'] instanceof \WP_Post) {
-                        $entry['show'] = Timber::get_post($entry['show']->ID);
+                    $show = Timber::get_post($entry['show']->ID);
+                    if (!$show) {
+                        continue;
                     }
 
-                    $day->addTelevision(new TelevisionBroadcast($entry['show'], $entry['naam_override'], $entry['starttijden']));
+                    $day->addTelevision(new TelevisionBroadcast(
+                        $show,
+                        is_string($entry['naam_override'] ?? null) ? $entry['naam_override'] : '',
+                        is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : ''
+                    ));
                 }
 
                 $date->add(new \DateInterval('P1D'));
@@ -81,7 +95,7 @@ class BroadcastSchedule
                     continue;
                 }
 
-                $rules = zw_acf_rows($show->meta('fm_show_programmatie'));
+                $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
                 if (!$rules) {
                     continue;
                 }

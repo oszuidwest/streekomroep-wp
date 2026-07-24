@@ -72,7 +72,35 @@ function zw_normalize_bunny_url($value)
  */
 function zw_acf_rows($value): array
 {
-    return is_array($value) ? $value : [];
+    return is_array($value) ? array_values(array_filter($value, 'is_array')) : [];
+}
+
+/**
+ * Returns complete, usable FM schedule rows.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function zw_fm_schedule_rows($value): array
+{
+    $weekdays = array_values(\Streekomroep\BroadcastDay::WEEKDAY_NAMES);
+    $time_pattern = '/\A(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\z/';
+
+    return array_values(array_filter(zw_acf_rows($value), function ($row) use ($weekdays, $time_pattern) {
+        $days = $row['fm_show_dagen'] ?? null;
+        $start = $row['fm_show_starttijd'] ?? null;
+        $end = $row['fm_show_eindtijd'] ?? null;
+
+        return is_array($days)
+            && $days !== []
+            && count($days) === count(array_filter(
+                $days,
+                fn ($day) => is_string($day) && in_array($day, $weekdays, true)
+            ))
+            && is_string($start)
+            && preg_match($time_pattern, $start)
+            && is_string($end)
+            && preg_match($time_pattern, $end);
+    }));
 }
 
 require 'fragment-thumbnail.php';

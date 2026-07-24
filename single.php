@@ -151,7 +151,7 @@ if ($timber_post->post_type == 'fm') {
     $active = (bool)$show->meta('fm_show_actief');
     $gemist = $active && (bool)get_field('radio_gemist_actief', 'option');
 
-    $rules = zw_acf_rows($show->meta('fm_show_programmatie'));
+    $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
     $retention = (int)get_field('radio_gemist_retentie', 'option');
 
     $recordings = [];
@@ -206,7 +206,7 @@ if ($timber_post->post_type == 'fm') {
         ->getFollowingRadioBroadcast($show->ID) : null;
 
     $context['programmatie'] = $rules;
-    $context['schedule_days'] = array_merge(...array_column($rules, 'fm_show_dagen'));
+    $context['schedule_days'] = $rules ? array_merge(...array_column($rules, 'fm_show_dagen')) : [];
     $context['weekday_names'] = array_values(BroadcastDay::WEEKDAY_NAMES);
 
     $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
