@@ -70,6 +70,10 @@ class Site extends \Timber\Site
         // Make embeds adapt to the available content width.
         add_theme_support('responsive-embeds');
 
+        // Load the theme's content styles in the block editor and Style Book.
+        add_theme_support('editor-styles');
+        add_editor_style('dist/editor.css');
+
         // Use semantic HTML5 markup for WordPress-generated components.
         add_theme_support(
             'html5',

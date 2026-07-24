@@ -1,6 +1,6 @@
 FROM composer:latest AS composer
 FROM node:lts-slim AS node
-FROM wordpress:6.9.4-php8.3-apache
+FROM wordpress:7.0-php8.3-apache
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
