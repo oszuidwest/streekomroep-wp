@@ -81,8 +81,10 @@ class BroadcastSchedule
                     continue;
                 }
 
+                // A repeater whose ACF field key reference is missing reads back as a bare row
+                // count, and looping over that warns straight into the response body.
                 $rules = $show->meta('fm_show_programmatie');
-                if (!$rules) {
+                if (!is_array($rules) || !$rules) {
                     continue;
                 }
 

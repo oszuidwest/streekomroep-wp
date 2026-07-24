@@ -151,7 +151,10 @@ if ($timber_post->post_type == 'fm') {
     $active = (bool)$show->meta('fm_show_actief');
     $gemist = $active && (bool)get_field('radio_gemist_actief', 'option');
 
-    $rules = $show->meta('fm_show_programmatie') ?: [];
+    // A repeater whose ACF field key reference is missing reads back as a bare row count, which
+    // array_column() further down would choke on.
+    $rules = $show->meta('fm_show_programmatie');
+    $rules = is_array($rules) ? $rules : [];
     $retention = (int)get_field('radio_gemist_retentie', 'option');
 
     $recordings = [];
