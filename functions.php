@@ -75,6 +75,9 @@ require_once 'lib/push_adapter.php';
 require_once 'lib/teksttv.php';
 require_once 'lib/tinymce.php';
 
+// TEMPORARY: remove together with lib/migration_fm_makers.php once the upgrade has been rolled out.
+require_once 'lib/migration_fm_makers.php';
+
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
     $custom = [
@@ -336,21 +339,37 @@ function zw_rest_api_init()
                 }
             ]
         );
-
-        register_rest_field(
-            $type,
-            'presenters',
-            [
-                'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                    $data = get_field($object_type . '_show_presentator', $post_arr['id']);
-                    if ($data === false) {
-                        $data = [];
-                    }
-                    return $data;
-                }
-            ]
-        );
     }
+
+    // Television shows still point at WordPress users, so this stays a list of user IDs.
+    register_rest_field(
+        'tv',
+        'presenters',
+        [
+            'get_callback' => function ($post_arr) {
+                return get_field('tv_show_presentator', $post_arr['id']) ?: [];
+            }
+        ]
+    );
+
+    // Radio shows moved to the fm_show_makers repeater, so this returns name, bio and photo URL.
+    register_rest_field(
+        'fm',
+        'presenters',
+        [
+            'get_callback' => function ($post_arr) {
+                $makers = get_field('fm_show_makers', $post_arr['id']) ?: [];
+
+                return array_values(array_map(function ($maker) {
+                    return [
+                        'naam' => (string) ($maker['fm_show_maker_naam'] ?? ''),
+                        'bio' => (string) ($maker['fm_show_maker_bio'] ?? ''),
+                        'foto' => empty($maker['fm_show_maker_foto']) ? null : (string) $maker['fm_show_maker_foto'],
+                    ];
+                }, $makers));
+            }
+        ]
+    );
 
     register_rest_route('zw/v1', '/broadcast_data', [
         'methods' => 'GET',
