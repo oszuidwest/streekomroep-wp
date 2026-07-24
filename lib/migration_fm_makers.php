@@ -32,6 +32,13 @@ const ZW_FM_MAKERS_FIELD_NAAM = 'field_687a3f5e0c1a2';
 const ZW_FM_MAKERS_FIELD_BIO = 'field_687a3f5e0c1a3';
 const ZW_FM_MAKERS_FIELD_FOTO = 'field_687a3f5e0c1a4';
 
+// The repeater sub fields, keyed by ACF field key with the meta name they are stored under.
+const ZW_FM_MAKERS_SUB_FIELDS = [
+    ZW_FM_MAKERS_FIELD_NAAM => 'fm_show_maker_naam',
+    ZW_FM_MAKERS_FIELD_BIO => 'fm_show_maker_bio',
+    ZW_FM_MAKERS_FIELD_FOTO => 'fm_show_maker_foto',
+];
+
 const ZW_FM_MAKERS_OPTION_DONE = 'zw_fm_makers_migration_done';
 const ZW_FM_MAKERS_OPTION_LOCK = 'zw_fm_makers_migration_lock';
 const ZW_FM_MAKERS_OPTION_REPORT = 'zw_fm_makers_migration_report';
@@ -80,7 +87,7 @@ function zw_fm_makers_maybe_migrate(): void
     if ($report === null) {
         $aborted = zw_fm_makers_stored_report();
         $aborted['aborted'] = 1;
-        update_option(ZW_FM_MAKERS_OPTION_REPORT, $aborted, false);
+        update_option(ZW_FM_MAKERS_OPTION_REPORT, $aborted, true);
         return;
     }
 
@@ -100,14 +107,19 @@ function zw_fm_makers_maybe_migrate(): void
             ZW_FM_MAKERS_MAX_ATTEMPTS
         ));
     } else {
-        update_option(ZW_FM_MAKERS_OPTION_DONE, gmdate('c'), false);
+        // Autoloaded, because this is read on every admin request until the migration is removed
+        // from the theme, and riding along in the options WordPress already fetches beats a query.
+        update_option(ZW_FM_MAKERS_OPTION_DONE, gmdate('c'), true);
     }
 
     delete_option(ZW_FM_MAKERS_OPTION_LOCK);
 
-    // Sites that never had presenters get no notice at all.
+    // Sites that never had presenters get no notice at all. The report outlives the run and is
+    // read on every admin page view until it is dismissed, so it is autoloaded too.
     if (array_sum($report) > 0) {
-        update_option(ZW_FM_MAKERS_OPTION_REPORT, $report, false);
+        update_option(ZW_FM_MAKERS_OPTION_REPORT, $report, true);
+    } else {
+        delete_option(ZW_FM_MAKERS_OPTION_REPORT);
     }
 }
 
@@ -126,7 +138,6 @@ function zw_fm_makers_empty_report(): array
         'failed_recoverable' => 0,
         'failed_unexpected' => 0,
         'unknown_users' => 0,
-        'revisions' => 0,
         'aborted' => 0,
     ];
 }
@@ -138,9 +149,7 @@ function zw_fm_makers_empty_report(): array
  */
 function zw_fm_makers_stored_report(): array
 {
-    $stored = get_option(ZW_FM_MAKERS_OPTION_REPORT);
-
-    return array_merge(zw_fm_makers_empty_report(), is_array($stored) ? $stored : []);
+    return wp_parse_args(get_option(ZW_FM_MAKERS_OPTION_REPORT), zw_fm_makers_empty_report());
 }
 
 /**
@@ -156,25 +165,11 @@ function zw_fm_makers_add_up(array $report): array
 {
     $previous = zw_fm_makers_stored_report();
 
-    foreach (['shows', 'makers', 'skipped', 'empty', 'revisions'] as $key) {
+    foreach (['shows', 'makers', 'skipped', 'empty'] as $key) {
         $report[$key] += $previous[$key];
     }
 
     return $report;
-}
-
-/**
- * The repeater sub fields, keyed by ACF field key with the meta name they are stored under.
- *
- * @return array<string, string>
- */
-function zw_fm_makers_sub_fields(): array
-{
-    return [
-        ZW_FM_MAKERS_FIELD_NAAM => 'fm_show_maker_naam',
-        ZW_FM_MAKERS_FIELD_BIO => 'fm_show_maker_bio',
-        ZW_FM_MAKERS_FIELD_FOTO => 'fm_show_maker_foto',
-    ];
 }
 
 /**
@@ -219,13 +214,18 @@ function zw_fm_makers_migrate(): ?array
 
     $report = zw_fm_makers_empty_report();
 
+    // Cleaning these up needs no action from an editor, so it stays out of the report and only
+    // shows up in the log. Keeping it out also stops a site whose only leftovers are revisions
+    // from getting a notice that reports nothing.
+    $revisions = 0;
+
     foreach ($posts as $post) {
         $post_id = (int) $post->ID;
 
         // Revisions carry their own copy of the old meta. There is nothing to migrate there.
         if ($post->post_type === 'revision') {
             zw_fm_makers_delete_old_meta($post_id);
-            $report['revisions']++;
+            $revisions++;
             continue;
         }
 
@@ -261,7 +261,6 @@ function zw_fm_makers_migrate(): ?array
         }
 
         $rows = [];
-        $names = [];
         foreach ($user_ids as $user_id) {
             $user = get_userdata($user_id);
             if (!$user) {
@@ -270,10 +269,8 @@ function zw_fm_makers_migrate(): ?array
                 continue;
             }
 
-            $name = zw_fm_makers_name($user);
-            $names[] = $name;
             $rows[] = [
-                ZW_FM_MAKERS_FIELD_NAAM => $name,
+                ZW_FM_MAKERS_FIELD_NAAM => zw_fm_makers_name($user),
                 ZW_FM_MAKERS_FIELD_BIO => zw_fm_makers_bio($user),
                 ZW_FM_MAKERS_FIELD_FOTO => zw_fm_makers_photo($user->ID),
             ];
@@ -334,7 +331,12 @@ function zw_fm_makers_migrate(): ?array
         delete_metadata('post', $post_id, ZW_FM_MAKERS_RETRY_META);
         $report['shows']++;
         $report['makers'] += count($rows);
-        zw_fm_makers_log('Post ' . $post_id . ': migrated ' . count($rows) . ' maker(s): ' . implode(', ', $names) . '.');
+        zw_fm_makers_log(sprintf(
+            'Post %d: migrated %d maker(s): %s.',
+            $post_id,
+            count($rows),
+            implode(', ', array_column($rows, ZW_FM_MAKERS_FIELD_NAAM))
+        ));
     }
 
     zw_fm_makers_log(sprintf(
@@ -348,7 +350,7 @@ function zw_fm_makers_migrate(): ?array
         $report['failed_recoverable'],
         $report['failed_unexpected'],
         $report['unknown_users'],
-        $report['revisions']
+        $revisions
     ));
 
     return $report;
@@ -408,7 +410,7 @@ function zw_fm_makers_verify(int $post_id, array $rows): ?string
     ];
 
     foreach ($rows as $index => $row) {
-        foreach (zw_fm_makers_sub_fields() as $field_key => $name) {
+        foreach (ZW_FM_MAKERS_SUB_FIELDS as $field_key => $name) {
             $meta_key = 'fm_show_makers_' . $index . '_' . $name;
             $expected[$meta_key] = (string) wp_unslash($row[$field_key]);
             $expected['_' . $meta_key] = $field_key;
@@ -450,21 +452,35 @@ function zw_fm_makers_claim_post(int $post_id): bool
 }
 
 /**
+ * Counts the rows a post holds for the given meta keys, straight from the table so that no cache
+ * can mask a write or a delete that never landed.
+ *
+ * @param array<int, string> $keys
+ * @return int|null The number of rows, or null when the read itself failed. Callers treat null as
+ *                  a no, so a failed read never passes for a confirmed state.
+ */
+function zw_fm_makers_meta_rows(int $post_id, array $keys): ?int
+{
+    global $wpdb;
+
+    $count = $wpdb->get_var(
+        $wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . $wpdb->postmeta
+            . ' WHERE post_id = %d AND meta_key IN (' . implode(', ', array_fill(0, count($keys), '%s')) . ')',
+            $post_id,
+            ...$keys
+        )
+    );
+
+    return $wpdb->last_error === '' ? (int) $count : null;
+}
+
+/**
  * Whether the makers of a show were written by an attempt that never finished.
  */
 function zw_fm_makers_is_claimed(int $post_id): bool
 {
-    global $wpdb;
-
-    $value = $wpdb->get_var(
-        $wpdb->prepare(
-            'SELECT meta_value FROM ' . $wpdb->postmeta . ' WHERE post_id = %d AND meta_key = %s LIMIT 1',
-            $post_id,
-            ZW_FM_MAKERS_RETRY_META
-        )
-    );
-
-    return $wpdb->last_error === '' && $value !== null;
+    return zw_fm_makers_meta_rows($post_id, [ZW_FM_MAKERS_RETRY_META]) > 0;
 }
 
 /**
@@ -472,18 +488,7 @@ function zw_fm_makers_is_claimed(int $post_id): bool
  */
 function zw_fm_makers_old_meta_gone(int $post_id): bool
 {
-    global $wpdb;
-
-    $left = $wpdb->get_var(
-        $wpdb->prepare(
-            'SELECT COUNT(*) FROM ' . $wpdb->postmeta . ' WHERE post_id = %d AND meta_key IN (%s, %s)',
-            $post_id,
-            ZW_FM_MAKERS_OLD_META,
-            '_' . ZW_FM_MAKERS_OLD_META
-        )
-    );
-
-    return $wpdb->last_error === '' && (int) $left === 0;
+    return zw_fm_makers_meta_rows($post_id, [ZW_FM_MAKERS_OLD_META, '_' . ZW_FM_MAKERS_OLD_META]) === 0;
 }
 
 /**
@@ -525,13 +530,11 @@ function zw_fm_makers_stored_meta(int $post_id): ?array
  */
 function zw_fm_makers_read_old_meta(int $post_id): array
 {
-    $value = get_post_meta($post_id, ZW_FM_MAKERS_OLD_META, true);
+    // wp_parse_id_list() absorbs the scalar-or-array shapes, absint()s and deduplicates; only
+    // dropping the zeroes it keeps is left to do.
+    $ids = wp_parse_id_list(get_post_meta($post_id, ZW_FM_MAKERS_OLD_META, true));
 
-    if (!is_array($value)) {
-        $value = $value === '' || $value === null ? [] : [$value];
-    }
-
-    return array_values(array_unique(array_filter(array_map('absint', $value))));
+    return array_values(array_filter($ids));
 }
 
 /**
@@ -547,25 +550,15 @@ function zw_fm_makers_delete_old_meta(int $post_id): void
 }
 
 /**
- * Picks the name to show for a maker, matching what the old page rendered.
+ * Picks the name to show for a maker.
+ *
+ * The old page rendered these users through Timber, which prints display_name, so that is the
+ * name visitors actually saw. WordPress never stores it empty, but fall back rather than write an
+ * empty required sub field.
  */
 function zw_fm_makers_name(WP_User $user): string
 {
-    $candidates = [
-        $user->display_name,
-        trim($user->first_name . ' ' . $user->last_name),
-        $user->nickname,
-        $user->user_login,
-    ];
-
-    foreach ($candidates as $candidate) {
-        $candidate = trim((string) $candidate);
-        if ($candidate !== '') {
-            return $candidate;
-        }
-    }
-
-    return '';
+    return trim($user->display_name) ?: $user->user_login;
 }
 
 /**
@@ -573,10 +566,8 @@ function zw_fm_makers_name(WP_User $user): string
  */
 function zw_fm_makers_bio(WP_User $user): string
 {
-    $bio = wp_strip_all_tags((string) $user->description, true);
-    $collapsed = preg_replace('/\s+/u', ' ', $bio);
-
-    return trim($collapsed ?? $bio);
+    // The second argument collapses the whitespace the tags leave behind and trims the result.
+    return wp_strip_all_tags((string) $user->description, true);
 }
 
 /**
@@ -586,16 +577,9 @@ function zw_fm_makers_bio(WP_User $user): string
  */
 function zw_fm_makers_photo(int $user_id)
 {
-    $photo = get_field('gebruiker_profielfoto', 'user_' . $user_id);
-
-    // The field returns an ID, but stay tolerant of the array and object return formats.
-    if (is_array($photo)) {
-        $photo = $photo['ID'] ?? $photo['id'] ?? 0;
-    } elseif ($photo instanceof WP_Post) {
-        $photo = $photo->ID;
-    }
-
-    $photo = (int) $photo;
+    // Unformatted, so this keeps reading the attachment ID no matter how the return format of the
+    // field is configured.
+    $photo = (int) get_field('gebruiker_profielfoto', 'user_' . $user_id, false);
 
     return $photo > 0 && wp_attachment_is_image($photo) ? $photo : '';
 }
@@ -618,11 +602,12 @@ function zw_fm_makers_render_notice(): void
         return;
     }
 
-    if (!is_array(get_option(ZW_FM_MAKERS_OPTION_REPORT))) {
+    // A report is only ever stored with something in it, so an empty one means there is nothing
+    // to show.
+    $report = zw_fm_makers_stored_report();
+    if (array_sum($report) === 0) {
         return;
     }
-
-    $report = zw_fm_makers_stored_report();
 
     if ($report['aborted'] > 0) {
         zw_fm_makers_print_notice(
@@ -644,24 +629,18 @@ function zw_fm_makers_render_notice(): void
     );
     $lines = [$summary];
 
-    if ($report['skipped'] > 0) {
-        $lines[] = 'Overgeslagen omdat er al makers stonden: ' . $report['skipped'] . '.';
-    }
+    $labels = [
+        'skipped' => 'Overgeslagen omdat er al makers stonden',
+        'empty' => 'Zonder presentatoren',
+        'unknown_users' => 'Presentatoren die niet meer als gebruiker bestaan',
+        'failed_recoverable' => 'Niet omgezet, zie de PHP-log',
+        'failed_unexpected' => 'Onverwachte records overgeslagen, zie de PHP-log',
+    ];
 
-    if ($report['empty'] > 0) {
-        $lines[] = 'Zonder presentatoren: ' . $report['empty'] . '.';
-    }
-
-    if ($report['unknown_users'] > 0) {
-        $lines[] = 'Presentatoren die niet meer als gebruiker bestaan: ' . $report['unknown_users'] . '.';
-    }
-
-    if ($report['failed_recoverable'] > 0) {
-        $lines[] = 'Niet omgezet, zie de PHP-log: ' . $report['failed_recoverable'] . '.';
-    }
-
-    if ($report['failed_unexpected'] > 0) {
-        $lines[] = 'Onverwachte records overgeslagen, zie de PHP-log: ' . $report['failed_unexpected'] . '.';
+    foreach ($labels as $key => $label) {
+        if ($report[$key] > 0) {
+            $lines[] = $label . ': ' . $report[$key] . '.';
+        }
     }
 
     $problems = $report['failed_recoverable'] + $report['failed_unexpected'] + $report['unknown_users'];

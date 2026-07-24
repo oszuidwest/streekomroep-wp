@@ -21,7 +21,7 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        $tv_weeks = get_field('tv_week', 'option') ?: [];
+        $tv_weeks = zw_acf_rows(get_field('tv_week', 'option'));
         foreach ($tv_weeks as $week) {
             $start = DateTime::createFromFormat('Y-m-d', $week['tv_week_start'] ?? '', wp_timezone());
             if ($start === false) {
@@ -81,10 +81,8 @@ class BroadcastSchedule
                     continue;
                 }
 
-                // A repeater whose ACF field key reference is missing reads back as a bare row
-                // count, and looping over that warns straight into the response body.
-                $rules = $show->meta('fm_show_programmatie');
-                if (!is_array($rules) || !$rules) {
+                $rules = zw_acf_rows($show->meta('fm_show_programmatie'));
+                if (!$rules) {
                     continue;
                 }
 

@@ -63,6 +63,18 @@ function zw_normalize_bunny_url($value)
     return $value;
 }
 
+/**
+ * Normalises an ACF repeater read into rows.
+ *
+ * A repeater whose ACF field key reference is missing reads back as a bare row count instead of
+ * its rows, which every consumer that loops or calls array_column() would choke on. Exposed to
+ * Twig as the `rows` filter.
+ */
+function zw_acf_rows($value): array
+{
+    return is_array($value) ? $value : [];
+}
+
 require 'fragment-thumbnail.php';
 
 /**
@@ -76,7 +88,10 @@ require_once 'lib/teksttv.php';
 require_once 'lib/tinymce.php';
 
 // TEMPORARY: remove together with lib/migration_fm_makers.php once the upgrade has been rolled out.
-require_once 'lib/migration_fm_makers.php';
+// Admin only, because every hook it registers fires inside wp-admin.
+if (is_admin()) {
+    require_once 'lib/migration_fm_makers.php';
+}
 
 // Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
@@ -358,20 +373,13 @@ function zw_rest_api_init()
         'presenters',
         [
             'get_callback' => function ($post_arr) {
-                // A repeater without its ACF field key reference reads back as the bare row count,
-                // so insist on rows rather than handing that to array_map().
-                $makers = get_field('fm_show_makers', $post_arr['id']);
-                if (!is_array($makers)) {
-                    return [];
-                }
-
                 return array_values(array_map(function ($maker) {
                     return [
                         'naam' => (string) ($maker['fm_show_maker_naam'] ?? ''),
                         'bio' => (string) ($maker['fm_show_maker_bio'] ?? ''),
                         'foto' => empty($maker['fm_show_maker_foto']) ? null : (string) $maker['fm_show_maker_foto'],
                     ];
-                }, $makers));
+                }, zw_acf_rows(get_field('fm_show_makers', $post_arr['id']))));
             }
         ]
     );

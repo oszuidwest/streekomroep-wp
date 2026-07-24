@@ -28,9 +28,8 @@
                             {% if broadcast.show %}
                                 <a class="block hover:underline text-black dark:text-gray-200" href="{{ broadcast.show.link }}">
                                     <span class="block font-bold">{{ broadcast.show.title }}</span>
-                                    {# A repeater whose ACF field key reference is missing reads back as a bare row count. #}
-                                    {% set makers = broadcast.show.meta('fm_show_makers') %}
-                                    {% if makers is iterable and makers is not empty %}
+                                    {% set makers = broadcast.show.meta('fm_show_makers')|rows %}
+                                    {% if makers %}
                                         <p>{{ makers|column('fm_show_maker_naam')|join(', ', ' en ') }}</p>
                                     {% endif %}
                                 </a>

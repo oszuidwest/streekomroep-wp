@@ -160,6 +160,7 @@ class Site extends \Timber\Site
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));
+        $twig->addFilter(new \Twig\TwigFilter('rows', 'zw_acf_rows'));
         return $twig;
     }
 }

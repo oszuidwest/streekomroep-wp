@@ -7,9 +7,7 @@
     {% endfor %}
 {% endmacro %}
 {% block content %}
-    {# A repeater whose ACF field key reference is missing reads back as a bare row count. #}
-    {% set makers = post.meta('fm_show_makers') %}
-    {% set makers = makers is iterable ? makers : [] %}
+    {% set makers = post.meta('fm_show_makers')|rows %}
     {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40' %}
     {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
     <article id="post-{{ post.id }}" class="{{ post.class }}">
@@ -66,7 +64,7 @@
                 <div class="prose prose-lg dark:prose-invert mb-5">
                     {{ post.content }}
                 </div>
-                {% set rubrieken = post.meta('fm_show_rubrieken') ?: [] %}
+                {% set rubrieken = post.meta('fm_show_rubrieken')|rows %}
                 {% if rubrieken is not empty %}
                     <div class="flex flex-wrap gap-2">
                         {% for rubriek in rubrieken %}
