@@ -1037,34 +1037,38 @@ function zw_enqueue_theme_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
 /**
- * Loads the live radio page script.
+ * Loads the radio player and the client-side navigation that keeps it playing.
  *
- * The player itself runs on VideoJS, which the template requests through zw_require_videojs().
+ * Both run on every page: the player follows the visitor, and soft navigation only takes over
+ * once audio is actually playing.
  */
-function zw_enqueue_fm_live_assets()
+function zw_enqueue_radio_assets()
 {
+    $version = wp_get_theme()->get('Version');
+    $toolbox = \Streekomroep\AeronToolbox::isConfigured();
+
+    wp_enqueue_script('zw-radio', get_theme_file_uri('static/radio.js'), [], $version, true);
+    wp_localize_script('zw-radio', 'zwRadioConfig', [
+        'metadataUrl' => (string) get_field('radio_live_metadata_url', 'option'),
+        // TRACKID is a placeholder the script swaps for the Aeron track id.
+        'imageUrl' => $toolbox ? rest_url('zw/v1/fm/track/TRACKID/image') : '',
+        'broadcastUrl' => rest_url('zw/v1/broadcast_data'),
+        'stationName' => get_bloginfo('name'),
+    ]);
+
+    wp_enqueue_script('zw-soft-nav', get_theme_file_uri('static/soft-nav.js'), ['zw-radio'], $version, true);
+
     if (!is_page_template('wp-page-fm-player.php')) {
         return;
     }
 
-    wp_enqueue_script(
-        'zw-fm-live',
-        get_theme_file_uri('static/fm-live.js'),
-        [],
-        wp_get_theme()->get('Version'),
-        true
-    );
-
-    $toolbox = \Streekomroep\AeronToolbox::isConfigured();
+    wp_enqueue_script('zw-fm-live', get_theme_file_uri('static/fm-live.js'), ['zw-radio'], $version, true);
     wp_localize_script('zw-fm-live', 'zwFmLive', [
-        'metadataUrl' => (string)get_field('radio_live_metadata_url', 'option'),
         'recentUrl' => $toolbox ? rest_url('zw/v1/fm/recent') : '',
-        // TRACKID is a placeholder the script swaps for the Aeron track id.
-        'imageUrl' => $toolbox ? rest_url('zw/v1/fm/track/TRACKID/image') : '',
     ]);
 }
 
-add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets');
+add_action('wp_enqueue_scripts', 'zw_enqueue_radio_assets');
 
 /**
  * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues

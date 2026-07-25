@@ -1,0 +1,45 @@
+{#
+    The radio player, shared by every page. It sits outside #zw-page, so a soft navigation
+    replaces the page around it and the stream keeps playing.
+
+    Hidden until someone presses play; from that moment it follows the visitor across the site.
+#}
+{% set radio_streams = [
+    {url: options.radio_webplayer_aac_stream, type: 'audio/mp4'},
+    {url: options.radio_webplayer_mp3_stream, type: 'audio/mp3'},
+    {url: options.radio_webplayer_ogg_stream, type: 'audio/ogg'},
+]|filter(source => source.url) %}
+
+{% if radio_streams is not empty %}
+    <audio id="zw-radio-stream" preload="none">
+        {% for source in radio_streams %}
+            <source src="{{ source.url }}" type="{{ source.type }}">
+        {% endfor %}
+    </audio>
+
+    <div class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-gray-900 bg-gray-800 text-white transition-transform duration-300 motion-reduce:transition-none data-[open]:translate-y-0 dark:border-gray-700"
+         data-radio-bar inert>
+        <div class="mx-auto flex max-w-960 items-center gap-3 px-4 py-2">
+            <button type="button" aria-label="Luister live" data-radio-play
+                    class="grid size-10 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
+                <span class="[&>svg]:size-5" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                <span class="[&>svg]:size-5" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+            </button>
+            <span class="relative size-10 flex-none overflow-hidden rounded-sm bg-gray-700"
+                  data-cover-live data-cover-seed="{{ site.name }}" data-cover-id=""></span>
+            <div class="min-w-0 flex-1">
+                <p class="font-round text-xs font-bold tracking-wide text-gray-400 uppercase">Luister live</p>
+                <p class="truncate text-[0.9375rem] leading-tight font-bold">
+                    <span data-now-title>{{ site.name }}</span>
+                    <span class="font-normal text-gray-400" data-now-artist></span>
+                </p>
+            </div>
+            {# Which programme is on air, as soon as the schedule call answers and there is room. #}
+            <div class="hidden flex-none border-l border-white/15 pl-3 text-sm text-gray-400 md:data-[show]:block"
+                 data-radio-show>
+                <span>Nu op de radio</span>
+                <b class="block text-[0.8125rem] font-bold text-white uppercase" data-radio-show-name></b>
+            </div>
+        </div>
+    </div>
+{% endif %}

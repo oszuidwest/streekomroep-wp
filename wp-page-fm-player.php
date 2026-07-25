@@ -98,5 +98,4 @@ $context['recent'] = AeronToolbox::recentTracks();
 $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
 $context['fm_post_type'] = get_post_type_object('fm');
 
-zw_require_videojs();
 Timber::render(['page-fm-player.twig', 'page.twig'], $context);
