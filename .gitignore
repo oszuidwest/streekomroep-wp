@@ -6,6 +6,8 @@ yarn.lock
 /node_modules
 /dist
 /screenshots
+/design-voorstellen
+/.playwright-mcp
 
 # Markdown files (except docs)
 *.md

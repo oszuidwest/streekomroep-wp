@@ -1,46 +1,264 @@
 {% extends 'base.twig' %}
 
+{% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 dark:border-gray-200/10 dark:bg-gray-700/40' %}
+{% set card_title = 'font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
+{% set muted = 'text-gray-500 dark:text-gray-400' %}
+
+{#
+    A cover slot. Stays an empty tinted square until fm-live.js paints the theme's triangle
+    pattern in it and, if Aeron has one, lays the album art on top.
+#}
+{% macro cover(size, seed, id, live) %}
+    <span class="relative {{ size }} flex-none overflow-hidden rounded-sm bg-gray-100 dark:bg-gray-700"
+          {{ live|default(false) ? 'data-cover-live' }}
+          data-cover-seed="{{ seed|default('') }}" data-cover-id="{{ id|default('') }}"></span>
+{% endmacro %}
+
+{#
+    One line in "Net gedraaid". Rendered server-side for the initial list and once more, empty,
+    inside a <template> so the script can rebuild the list from the same markup.
+#}
+{% macro track_row(track) %}
+    <div class="grid grid-cols-[2.5rem_2.75rem_1fr] items-center gap-2.5 border-t border-gray-800/10 py-2.5 first:border-t-0 min-[480px]:grid-cols-[3.25rem_2.75rem_1fr] min-[480px]:gap-3.5 dark:border-gray-200/10"
+         data-track>
+        <span class="text-sm font-bold tabular-nums {{ track.current|default(false) ? 'text-roze' : 'text-gray-400' }}"
+              data-track-time>{{ track.current|default(false) ? 'nu' : track.time|default('') }}</span>
+        {{ _self.cover('size-11', track.artist|default('') ~ '|' ~ track.title|default(''), track.has_image|default(false) ? track.id|default('') : '') }}
+        <span class="min-w-0">
+            <span class="block truncate text-base leading-snug font-bold" data-track-title>{{ track.title|default('') }}</span>
+            <span class="block truncate text-sm text-gray-500 dark:text-gray-400" data-track-artist>{{ track.artist|default('') }}</span>
+        </span>
+    </div>
+{% endmacro %}
+
+{% set stream_sources = [
+    {url: options.radio_webplayer_aac_stream, type: 'audio/mp4'},
+    {url: options.radio_webplayer_mp3_stream, type: 'audio/mp3'},
+    {url: options.radio_webplayer_ogg_stream, type: 'audio/ogg'},
+    {url: options.radio_webplayer_hls_stream, type: 'application/x-mpegURL'},
+]|filter(source => source.url) %}
+{% set maker_names = current_makers|column('fm_show_maker_naam')|filter(name => name) %}
+{% set on_air = current ? current.getName() : post.title %}
+
 {% block content %}
-    <div class="bg-black text-white">
-        <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
-            <div class="aspect-video ">
-                <div>
-                    <audio class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline
-                           poster="{{ get_image(options.radio_webplayer_poster)|imgproxy(1280, 720) }}">
-                        {% if options.radio_webplayer_aac_stream %}
-                            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
+    <article id="post-{{ post.id }}" class="{{ post.class }} pb-7 text-gray-900 lg:pb-9 dark:text-white">
+        <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
+            {{ include('partial/fm-header-pattern.twig') }}
+            <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
+                <nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
+                    <a class="transition hover:text-white hover:underline"
+                       href="{{ function('get_post_type_archive_link', 'fm') }}">{{ fm_post_type.labels.all_items }}</a>
+                    <span class="opacity-60">{{ breadcrumb_separator }}</span>
+                    <span class="text-white/60">{{ post.title }}</span>
+                </nav>
+
+                <p class="mb-2 flex items-center gap-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
+                    <span class="zw-pulse size-2 flex-none rounded-full bg-groen" data-live-dot></span>
+                    {% if current_show %}
+                        Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
+                    {% else %}
+                        Nu op {{ fm_post_type.labels.name }}
+                    {% endif %}
+                </p>
+
+                <h1 class="font-round text-4xl leading-none font-black break-words text-white uppercase md:text-5xl">{{ on_air }}</h1>
+
+                {% if maker_names is not empty %}
+                    <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3">
+                        {% set portraits = current_makers|filter(maker => maker.fm_show_maker_foto)|slice(0, 2) %}
+                        {% if portraits is not empty %}
+                            <span class="flex flex-none">
+                                {% for maker in portraits %}
+                                    <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
+                                         srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
+                                         alt="{{ maker.fm_show_maker_naam }}" width="40" height="40" loading="lazy"
+                                         class="size-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/55 not-first:-ml-2 md:size-10">
+                                {% endfor %}
+                            </span>
                         {% endif %}
-                        {% if options.radio_webplayer_mp3_stream %}
-                            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
+                        <span class="min-w-0 text-sm text-white/85 md:text-base">
+                            Met <b class="font-bold text-white">{{ maker_names|join(', ', ' en ') }}</b>
+                        </span>
+                    </p>
+                {% endif %}
+
+                {% if current_show %}
+                    <div class="mt-5 max-w-[26rem]" data-progress
+                         data-start="{{ current.start.timestamp }}" data-end="{{ current.end.timestamp }}">
+                        <div class="h-1.5 overflow-hidden rounded-sm bg-black/25">
+                            <div class="h-full rounded-sm bg-white transition-[width] duration-500"
+                                 style="width: {{ progress }}%" data-progress-bar></div>
+                        </div>
+                        <div class="mt-1.5 flex justify-between text-xs font-bold text-white/70 tabular-nums">
+                            <span>{{ current.start|date('H:i') }}</span>
+                            <span data-progress-label>nog {{ remaining }} min</span>
+                            <span>{{ current.end|date('H:i') }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if stream_sources is not empty %}
+            {# Hidden on purpose: VideoJS drives the stream, the buttons in this page are the controls. #}
+            <div class="hidden" aria-hidden="true">
+                <audio id="zw-fm-stream" class="video-js" preload="none" playsinline>
+                    {% for source in stream_sources %}
+                        <source src="{{ source.url }}" type="{{ source.type }}">
+                    {% endfor %}
+                </audio>
+            </div>
+        {% endif %}
+
+        <section class="mx-auto max-w-960 px-4 pt-7">
+            <div class="{{ card }} flex items-center gap-4 p-4" data-now-card>
+                {% if stream_sources is not empty %}
+                    <button type="button" aria-label="Luister live" data-play
+                            class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
+                        <span class="[&>svg]:size-7" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                        <span class="[&>svg]:size-7" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                    </button>
+                {% endif %}
+                {{ _self.cover('size-14', on_air, '', true) }}
+                <div class="min-w-0 flex-1">
+                    <span class="{{ card_title }}">Nu op de radio</span>
+                    <p class="truncate text-xl leading-tight font-black" data-now-title>{{ on_air }}</p>
+                    <p class="truncate text-sm {{ muted }}">
+                        <span data-now-artist>{{ maker_names|join(', ', ' en ') }}</span><span data-now-duration></span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        {% if upcoming is not empty %}
+            <section class="mx-auto max-w-960 px-4 pt-7">
+                <h2 class="mb-5 text-3xl font-bold">Straks</h2>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    {% for item in upcoming %}
+                        <a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze"
+                           href="{{ item.show.link }}">
+                            <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums">{{ item.broadcast.start|date('H:i') }}</span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ item.label }}</span>
+                                <span class="mt-0.5 block truncate text-base leading-tight font-bold">{{ item.show.title }}</span>
+                                {% if item.makers is not empty %}
+                                    <span class="block truncate text-sm {{ muted }}">{{ item.makers|join(', ', ' en ') }}</span>
+                                {% endif %}
+                            </span>
+                            {% if item.photo %}
+                                <img src="{{ item.photo|imgproxy(44, 44) }}" srcset="{{ item.photo|imgproxy(88, 88) }} 2x"
+                                     alt="" width="44" height="44" loading="lazy"
+                                     class="size-11 flex-none rounded-sm object-cover object-[50%_18%]">
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if recent is not empty %}
+            <section class="mx-auto max-w-960 px-4 pt-7">
+                <h2 class="mb-5 text-3xl font-bold">Net gedraaid</h2>
+                <div class="{{ card }} px-4" data-recent>
+                    {% for track in recent %}
+                        {{ _self.track_row(track) }}
+                    {% endfor %}
+                </div>
+                <template data-recent-row>{{ _self.track_row({}) }}</template>
+            </section>
+        {% endif %}
+
+        {% if has_frequencies %}
+            <section class="mx-auto max-w-960 px-4 pt-7">
+                <h2 class="mb-5 text-3xl font-bold">Waar je ons vindt</h2>
+
+                {% if frequencies.ether is not empty %}
+                    <div class="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr))]">
+                        {% for channel in frequencies.ether %}
+                            <div class="{{ card }} px-3.5 py-3">
+                                <p class="text-2xl leading-none font-black tabular-nums">
+                                    {{- channel.value -}}
+                                    {%- if 'fm' not in channel.value|lower -%}
+                                        <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">FM</span>
+                                    {%- endif -%}
+                                </p>
+                                {% if channel.place %}
+                                    <p class="mt-1 text-sm leading-snug {{ muted }}">{{ channel.place }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if frequencies.dab is not empty or frequencies.kabel is not empty %}
+                    <div class="mt-4 grid gap-4 sm:grid-cols-[1fr_1.5fr]">
+                        {% if frequencies.dab is not empty %}
+                            <div class="{{ card }} p-4">
+                                <h3 class="{{ card_title }}">DAB+</h3>
+                                {% for channel in frequencies.dab %}
+                                    <p class="text-xl leading-tight font-black">{{ channel.value }}</p>
+                                    {% if channel.place %}
+                                        <p class="text-sm {{ muted }}">{{ channel.place }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         {% endif %}
-                        {% if options.radio_webplayer_ogg_stream %}
-                            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
+
+                        {% if frequencies.kabel is not empty %}
+                            <div class="{{ card }} p-4">
+                                <h3 class="{{ card_title }} mb-3">Kabel</h3>
+                                <ul class="flex flex-wrap gap-2">
+                                    {% for channel in frequencies.kabel %}
+                                        <li class="rounded-sm bg-gray-100 px-2 py-1 text-sm whitespace-nowrap text-gray-900 dark:bg-gray-700 dark:text-gray-100">
+                                            {{- channel.place -}}
+                                            <b class="ml-1.5 font-bold tabular-nums">{{ channel.value }}</b>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         {% endif %}
-                        {% if options.radio_webplayer_hls_stream %}
-                            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
-                        {% endif %}
-                        Your browser does not support the audio tag.
-                    </audio>
+                    </div>
+                {% endif %}
+            </section>
+        {% endif %}
+    </article>
+
+    {% if stream_sources is not empty %}
+        {#
+            The docked player rises once the card above has scrolled away, so there is never more
+            than one set of controls in view.
+        #}
+        <div class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-gray-900 bg-gray-800 text-white transition-transform duration-300 motion-reduce:transition-none data-[open]:translate-y-0 dark:border-gray-700"
+             data-dock>
+            <div class="mx-auto flex max-w-960 items-center gap-3 px-4 py-2">
+                <button type="button" aria-label="Luister live" data-play
+                        class="grid size-10 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
+                    <span class="[&>svg]:size-5" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                    <span class="[&>svg]:size-5" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                </button>
+                {{ _self.cover('size-10', on_air, '', true) }}
+                <div class="min-w-0 flex-1">
+                    <p class="font-round text-xs font-bold tracking-wide text-gray-400 uppercase">Luister live</p>
+                    <p class="truncate text-[0.9375rem] leading-tight font-bold" data-dock-line>
+                        <span data-now-title>{{ on_air }}</span>
+                        <span class="font-normal text-gray-400" data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
+                    </p>
+                </div>
+                <div class="hidden flex-none border-l border-white/15 pl-3 text-sm text-gray-400 md:block">
+                    <span>Nu op de radio</span>
+                    <b class="block text-[0.8125rem] font-bold text-white uppercase">{{ on_air }}</b>
                 </div>
             </div>
         </div>
+    {% endif %}
+{% endblock %}
 
-        <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
-            <h1 class="font-bold text-3xl">{{ post.title }}</h1>
-
-            <h2 class="mt-4 font-bold text-xl">Nu</h2>
-            <p>{{ current.name }}</p>
-
-            <h2 class="mt-4 font-bold text-xl">Straks</h2>
-            <p>{{ next.name }}</p>
-
-            <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
-            <ul>
-                {% for channel in options.radio_frequenties %}
-                    <li>{{ channel.radio_frequenties_medium }}: {{ channel.radio_frequenties_frequentie }}</li>
-                {% endfor %}
-            </ul>
-
-        </div>
-    </div>
+{% block footer %}
+    {{ include('footer.twig') }}
+    {% if stream_sources is not empty %}
+        {# Room for the docked player at the very bottom, in the footer's own colour, so it never
+           covers the last line of the page. #}
+        <div class="h-15 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></div>
+    {% endif %}
+    {{ function('wp_footer') }}
 {% endblock %}

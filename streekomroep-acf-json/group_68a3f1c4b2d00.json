@@ -1,0 +1,73 @@
+{
+    "key": "group_68a3f1c4b2d00",
+    "title": "Radio - Live",
+    "fields": [
+        {
+            "key": "field_68a3f1c4b2d02",
+            "label": "WebSocket van zwfm-metadata",
+            "name": "radio_live_metadata_url",
+            "type": "url",
+            "instructions": "Adres van de WebSocket-uitgang van zwfm-metadata, bijvoorbeeld wss:\/\/metadata.zuidwest.cloud\/ws\/metadata. Leeg laten zet de live titelweergave uit.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "wss:\/\/metadata.zuidwest.cloud\/ws\/metadata"
+        },
+        {
+            "key": "field_68a3f1c4b2d03",
+            "label": "Aeron Toolbox",
+            "name": "radio_live_toolbox_url",
+            "type": "url",
+            "instructions": "Basisadres van Aeron Toolbox, zonder \/api erachter. Nodig voor de lijst met net gedraaide platen en voor de albumhoezen. Leeg laten zet beide uit.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https:\/\/toolbox.zuidwest.cloud"
+        },
+        {
+            "key": "field_68a3f1c4b2d04",
+            "label": "API-sleutel van Aeron Toolbox",
+            "name": "radio_live_toolbox_key",
+            "type": "password",
+            "instructions": "De sleutel die als X-API-Key wordt meegestuurd. Deze blijft op de server: de website haalt hoezen zelf op en geeft ze door.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "radio-instellingen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1784937600
+}
