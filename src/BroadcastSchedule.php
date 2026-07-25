@@ -52,21 +52,21 @@ class BroadcastSchedule
                 $dayname = $day->getName();
 
                 foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
-                    if (
-                        ($entry['dag'] ?? null) !== $dayname
-                        || !(($entry['show'] ?? null) instanceof \WP_Post)
-                    ) {
+                    if (($entry['dag'] ?? null) !== $dayname) {
                         continue;
                     }
 
-                    $show = Timber::get_post($entry['show']->ID);
-                    if (!$show) {
+                    $name = is_string($entry['naam_override'] ?? null) ? trim($entry['naam_override']) : '';
+                    $show = ($entry['show'] ?? null) instanceof \WP_Post ? Timber::get_post($entry['show']->ID) : null;
+
+                    // Override-only rows are valid for generic schedule entries such as reruns.
+                    if (!$show && $name === '') {
                         continue;
                     }
 
                     $day->addTelevision(new TelevisionBroadcast(
                         $show,
-                        is_string($entry['naam_override'] ?? null) ? $entry['naam_override'] : '',
+                        $name,
                         is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : ''
                     ));
                 }
