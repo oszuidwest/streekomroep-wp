@@ -86,7 +86,7 @@ These optional plugins complement the theme:
 
 - [NLPO Dashboard API](https://github.com/oszuidwest/nlpo-dashboard-api) provides article and traffic data to the NLPO audience dashboard.
 - [TekstTV](https://github.com/oszuidwest/teksttv-wp-plugin) manages Tekst TV slides and provides the JSON feed for the playout application.
-- [TekstTV Streekomroep Extensions](https://github.com/oszuidwest/teksttv-wp-extensions) adds radio and television schedule ticker messages from this theme to TekstTV.
+- [TekstTV Extensions](https://github.com/oszuidwest/teksttv-wp-extensions) adds radio and television schedule ticker messages from this theme to TekstTV.
 - [ZuidWest Cache Manager](https://github.com/oszuidwest/zw-cacheman) purges and warms the Cloudflare cache when content changes.
 - [ZuidWest GR 2026](https://github.com/oszuidwest/zw-gr26-wp) adds pages for the 2026 municipal elections to the website and app.
 - [ZuidWest Knabbel](https://github.com/oszuidwest/zw-knabbel-wp) sends WordPress posts to the Babbel API for radio news.
