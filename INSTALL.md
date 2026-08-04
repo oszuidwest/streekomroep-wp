@@ -42,7 +42,7 @@ Tekst TV is now provided by the separate [TekstTV plugin](https://github.com/osz
    wp eval-file scripts/clean-teksttv-acf-fields.php
    ```
 
-6. Review every listed option name, metadata key, and ACF post ID. Then remove the old data:
+6. Review every listed option name, metadata key, and ACF post ID. Then remove the old data. On multisite, include `--url=<site-url>` and repeat this step for each site:
 
    ```bash
    wp eval-file scripts/clean-teksttv-acf-fields.php delete

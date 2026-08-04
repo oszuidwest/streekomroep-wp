@@ -417,10 +417,6 @@ function zw_teksttv_cleaner_delete_acf_posts(array $posts): array
         return [];
     }
 
-    if (!function_exists('acf_delete_field') || !function_exists('acf_delete_field_group')) {
-        WP_CLI::error('Secure Custom Fields or Advanced Custom Fields must be active to delete ACF posts safely.');
-    }
-
     $posts_by_id = [];
     $fields = [];
     $groups = [];
@@ -447,13 +443,13 @@ function zw_teksttv_cleaner_delete_acf_posts(array $posts): array
     $failures = [];
 
     foreach ($fields as $field) {
-        if (!acf_delete_field((int) $field['ID'])) {
+        if (!acf_delete_field((int) $field['ID']) && get_post((int) $field['ID']) !== null) {
             $failures[] = 'ACF field post ' . $field['ID'];
         }
     }
 
     foreach ($groups as $group) {
-        if (!acf_delete_field_group((int) $group['ID'])) {
+        if (!acf_delete_field_group((int) $group['ID']) && get_post((int) $group['ID']) !== null) {
             $failures[] = 'ACF field group post ' . $group['ID'];
         }
     }
@@ -529,6 +525,15 @@ WP_CLI::log('Found termmeta rows: ' . $term_meta_count);
 WP_CLI::log('Found option rows: ' . $option_count);
 
 zw_teksttv_cleaner_log_targets($acf_posts, $post_meta_matches, $term_meta_matches, $option_names);
+
+if (!empty($acf_posts) && (!function_exists('acf_delete_field') || !function_exists('acf_delete_field_group'))) {
+    $message = 'Secure Custom Fields or Advanced Custom Fields must be active to delete ACF posts safely.';
+    if ($dry_run) {
+        WP_CLI::warning($message . ' Activate it before running the delete step.');
+    } else {
+        WP_CLI::error($message);
+    }
+}
 
 if ($dry_run) {
     WP_CLI::success('Dry run complete. Review every target above, then add "delete" to remove these rows.');
