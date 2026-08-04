@@ -436,8 +436,13 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
     }
 
     $width = intval($iframe->getAttribute('width'));
-    $iframe->removeAttribute('width');
     $height = intval($iframe->getAttribute('height'));
+
+    if ($width <= 0 || $height <= 0) {
+        return $cache;
+    }
+
+    $iframe->removeAttribute('width');
     $iframe->removeAttribute('height');
     $iframe->setAttribute('class', 'absolute inset-0 w-full h-full');
     $padding = $height / $width * 100;
