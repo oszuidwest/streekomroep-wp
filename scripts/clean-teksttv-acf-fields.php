@@ -35,6 +35,7 @@ $field_keys = [
     'field_603c120ff28ce',
     'field_603c1232f28cf',
     'field_603c126bf28d0',
+    'field_665f7219edaef',
     'field_665f7258edaf1',
     'field_665f73aa4951f',
     'field_665f7426c46ce',
@@ -67,6 +68,7 @@ $post_meta_fields = [
     'post_kabelkrant_content',
     'post_kabelkrant_content_gpt',
     'post_kabelkrant_dagen',
+    'post_kabelkrant_datum_in',
     'post_kabelkrant_datum_uit',
     'post_kabelkrant_extra_afbeeldingen',
 ];
@@ -106,6 +108,10 @@ $option_like_patterns = [
     '\_teksttv\_instellingen\_openweather\_api\_key',
     'options\_openweather\_api\_key',
     '\_options\_openweather\_api\_key',
+    // Legacy options from the pre-0.7 zw-ttvgpt plugin; its uninstaller never removed these.
+    'ttvgpt\_api\_key',
+    'ttvgpt\_model',
+    'ttvgpt\_word\_limit',
 ];
 
 /**
