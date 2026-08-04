@@ -78,7 +78,7 @@ $term_meta_fields = [
 ];
 
 $option_like_patterns = [
-    'options_teksttv\_%\_teksttv\_blokken%',
+    'options\_teksttv\_%\_teksttv\_blokken%',
     '\_options\_teksttv\_%\_teksttv\_blokken%',
     'teksttv\_%\_teksttv\_blokken%',
     '\_teksttv\_%\_teksttv\_blokken%',
@@ -86,7 +86,7 @@ $option_like_patterns = [
     '\_options\_teksttv\_blokken%',
     'teksttv\_blokken%',
     '\_teksttv\_blokken%',
-    'options_teksttv\_%\_teksttv\_ticker%',
+    'options\_teksttv\_%\_teksttv\_ticker%',
     '\_options\_teksttv\_%\_teksttv\_ticker%',
     'teksttv\_%\_teksttv\_ticker%',
     '\_teksttv\_%\_teksttv\_ticker%',
@@ -94,7 +94,7 @@ $option_like_patterns = [
     '\_options\_teksttv\_ticker%',
     'teksttv\_ticker%',
     '\_teksttv\_ticker%',
-    'options_teksttv\_%\_teksttv\_reclame%',
+    'options\_teksttv\_%\_teksttv\_reclame%',
     '\_options\_teksttv\_%\_teksttv\_reclame%',
     'teksttv\_%\_teksttv\_reclame%',
     '\_teksttv\_%\_teksttv\_reclame%',
@@ -156,20 +156,21 @@ function zw_teksttv_cleaner_count_exact(string $table, string $column, array $ke
 }
 
 /**
- * Delete rows by exact key.
+ * Delete metadata rows by exact key through the WordPress metadata API.
  *
- * @param string        $table  Table name.
- * @param string        $column Column name.
- * @param array<string> $keys   Keys to delete.
+ * @param string        $meta_type Metadata type.
+ * @param string        $table     Metadata table name.
+ * @param array<string> $keys      Keys to delete.
  * @return int
  */
-function zw_teksttv_cleaner_delete_exact(string $table, string $column, array $keys): int
+function zw_teksttv_cleaner_delete_metadata(string $meta_type, string $table, array $keys): int
 {
-    global $wpdb;
-
     $deleted = 0;
     foreach ($keys as $key) {
-        $deleted += (int) $wpdb->delete($table, [$column => $key], ['%s']);
+        $count = zw_teksttv_cleaner_count_exact($table, 'meta_key', [$key]);
+        if ($count > 0 && delete_metadata($meta_type, 0, $key, '', true)) {
+            $deleted += $count;
+        }
     }
 
     return $deleted;
@@ -208,11 +209,9 @@ function zw_teksttv_cleaner_get_option_names(array $patterns): array
  */
 function zw_teksttv_cleaner_delete_options(array $option_names): int
 {
-    global $wpdb;
-
     $deleted = 0;
     foreach ($option_names as $option_name) {
-        $deleted += (int) $wpdb->delete($wpdb->options, ['option_name' => $option_name], ['%s']);
+        $deleted += (int) delete_option($option_name);
     }
 
     return $deleted;
@@ -336,8 +335,8 @@ if ($dry_run) {
 }
 
 $deleted_acf_posts = zw_teksttv_cleaner_delete_acf_posts($acf_post_ids);
-$deleted_post_meta = zw_teksttv_cleaner_delete_exact($wpdb->postmeta, 'meta_key', $post_meta_keys);
-$deleted_term_meta = zw_teksttv_cleaner_delete_exact($wpdb->termmeta, 'meta_key', $term_meta_keys);
+$deleted_post_meta = zw_teksttv_cleaner_delete_metadata('post', $wpdb->postmeta, $post_meta_keys);
+$deleted_term_meta = zw_teksttv_cleaner_delete_metadata('term', $wpdb->termmeta, $term_meta_keys);
 $deleted_options = zw_teksttv_cleaner_delete_options($option_names);
 
 WP_CLI::success(
