@@ -85,6 +85,7 @@ These optional plugins complement the theme:
 ## Extra functionality with first-party plugins
 
 - [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
+- [TekstTV](https://github.com/oszuidwest/teksttv-wp-plugin) manages Tekst TV slides and provides the JSON feed for the playout application.
 
 ## Integrations
 
