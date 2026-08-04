@@ -94,6 +94,8 @@ These optional plugins complement the theme:
 - [ZuidWest Staart](https://github.com/oszuidwest/zw-staart) adds related reading and podcast promotion below articles.
 - [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
 
+Existing installations should follow the [Tekst TV migration steps](INSTALL.md#migrating-an-existing-tekst-tv-installation), including the dry-run cleanup, before removing the old theme-owned data.
+
 ## Integrations
 
 ### imgproxy
