@@ -39,6 +39,8 @@ GET /wp-json/zw/v1/broadcast_data
 ```
 
 Returns the current and next radio broadcast, plus today's and tomorrow's TV schedule.
+The `fm.now` and `fm.next` values are program names when broadcasts are
+available, and `null` otherwise.
 
 Response format:
 
@@ -46,7 +48,7 @@ Response format:
 {
   "fm": {
     "now": "Program Name",
-    "next": "Program Name"
+    "next": null
   },
   "tv": {
     "today": ["Show 1", "Show 2"],
@@ -54,3 +56,6 @@ Response format:
   }
 }
 ```
+
+When a next broadcast is scheduled, `fm.next` contains its program name, for
+example `"next": "Program Name"`.
