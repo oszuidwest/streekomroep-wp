@@ -3,13 +3,11 @@
 /**
  * Template Name: FM Player
  *
- * The live radio page: what is on air now, what plays next, what was just played and where to
- * find the station. The now playing card and the recently played list are refreshed in the
- * browser by static/fm-live.js.
+ * The live radio page: what is on air now, what plays next and where to find the station.
+ * The now playing card is refreshed from the live metadata websocket by static/fm-live.js.
  */
 
 use Carbon\Carbon;
-use Streekomroep\AeronToolbox;
 use Streekomroep\BroadcastSchedule;
 use Streekomroep\RadioBroadcast;
 
@@ -92,8 +90,6 @@ foreach (zw_acf_rows(get_field('radio_frequenties', 'option')) as $row) {
 
 $context['frequencies'] = $frequencies;
 $context['has_frequencies'] = $frequencies['ether'] || $frequencies['dab'] || $frequencies['kabel'];
-
-$context['recent'] = AeronToolbox::recentTracks();
 
 $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
 $context['fm_post_type'] = get_post_type_object('fm');

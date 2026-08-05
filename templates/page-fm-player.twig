@@ -6,38 +6,13 @@
 {% set radio_fallback_title = 'De stem van de streek' %}
 {% set radio_fallback_artist = 'In heel West-Brabant' %}
 
-{#
-    A cover slot. Stays an empty tinted square until fm-live.js paints the theme's triangle
-    pattern in it and, if Aeron has one, lays the album art on top.
-#}
-{% macro cover(size, seed, id) %}
-    <span class="relative {{ size }} flex-none overflow-hidden rounded-sm bg-gray-100 dark:bg-gray-700"
-          data-cover-seed="{{ seed|default('') }}" data-cover-id="{{ id|default('') }}"></span>
-{% endmacro %}
-
-{#
-    One line in "Net gedraaid". Rendered server-side for the initial list and once more, empty,
-    inside a <template> so the script can rebuild the list from the same markup.
-#}
-{% macro track_row(track) %}
-    <div class="grid grid-cols-[2.5rem_2.75rem_1fr] items-center gap-2.5 border-t border-gray-800/10 py-2.5 first:border-t-0 min-[480px]:grid-cols-[3.25rem_2.75rem_1fr] min-[480px]:gap-3.5 dark:border-gray-200/10"
-         data-track>
-        <span class="text-sm font-bold tabular-nums {{ track.current|default(false) ? 'text-roze' : 'text-gray-400' }}"
-              data-track-time>{{ track.current|default(false) ? 'nu' : track.time|default('') }}</span>
-        {{ _self.cover('size-11', track.artist|default('') ~ '|' ~ track.title|default(''), track.has_image|default(false) ? track.id|default('') : '') }}
-        <span class="min-w-0">
-            <span class="block truncate text-base leading-snug font-bold" data-track-title>{{ track.title|default('') }}</span>
-            <span class="block truncate text-sm text-gray-500 dark:text-gray-400" data-track-artist>{{ track.artist|default('') }}</span>
-        </span>
-    </div>
-{% endmacro %}
-
 {% set stream_sources = [
     {url: options.radio_webplayer_aac_stream, type: 'audio/mp4'},
     {url: options.radio_webplayer_mp3_stream, type: 'audio/mp3'},
     {url: options.radio_webplayer_ogg_stream, type: 'audio/ogg'},
     {url: options.radio_webplayer_hls_stream, type: 'application/x-mpegURL'},
 ]|filter(source => source.url) %}
+{% set radio_poster = get_image(options.radio_webplayer_poster) %}
 {% set maker_names = current_makers|column('fm_show_maker_naam')|filter(name => name) %}
 {% set on_air = current ? current.getName() : post.title %}
 
@@ -111,32 +86,46 @@
             </div>
         {% endif %}
 
-        <section class="mx-auto max-w-960 px-4 pt-7">
-            <h2 class="mb-5 text-3xl font-bold">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
-                {% if stream_sources is not empty %}
-                    <button type="button" aria-label="Luister live" data-play
-                            class="grid size-16 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-20">
-                        <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
-                        <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
-                    </button>
-                {% endif %}
-                {% if stream_sources is not empty %}
-                    <div class="min-w-0 flex-1" data-listen-prompt>
-                        <p class="text-lg leading-tight font-bold sm:text-xl">Klik op play om live te luisteren</p>
-                        <p class="mt-1 text-sm {{ muted }}">Daarna verschijnt hier het nummer dat speelt.</p>
+        <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
+            <h2 id="live-player-title" class="sr-only">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
+            <div class="{{ card }} grid overflow-hidden md:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)]">
+                <div class="relative grid min-h-[17.875rem] place-items-center overflow-hidden bg-[linear-gradient(145deg,rgba(230,0,126,0.045),#f8f9fa_48%,rgba(230,0,126,0.085))] p-3.5 md:min-h-[25rem] dark:bg-[linear-gradient(145deg,rgba(230,0,126,0.08),#1f2937_48%,rgba(230,0,126,0.12))]">
+                    {{ include('partial/fm-logo-mark.twig', {
+                        class: 'pointer-events-none absolute size-[24.375rem] -rotate-[8deg] text-roze opacity-[0.105] md:size-[34rem] dark:opacity-[0.14]',
+                    }) }}
+                    {% if radio_poster %}
+                        <img src="{{ radio_poster|imgproxy(704, 704) }}"
+                             srcset="{{ radio_poster|imgproxy(520, 520) }} 520w, {{ radio_poster|imgproxy(704, 704) }} 704w"
+                             sizes="(min-width: 768px) 22rem, 16.25rem"
+                             alt="" width="704" height="704" fetchpriority="high"
+                             class="relative z-10 size-[16.25rem] rounded-sm border-[6px] border-white object-cover shadow-[0_7px_18px_rgba(24,35,54,0.12)] md:size-[22rem] dark:border-gray-600">
+                    {% else %}
+                        <span class="relative z-10 grid size-[16.25rem] place-items-center rounded-sm border-[6px] border-white bg-gray-100 text-roze shadow-[0_7px_18px_rgba(24,35,54,0.12)] md:size-[22rem] dark:border-gray-600 dark:bg-gray-700">
+                            {{ include('partial/fm-logo-mark.twig', {
+                                class: 'size-2/3 opacity-20',
+                            }) }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="grid {{ stream_sources is not empty ? 'grid-cols-[4rem_minmax(0,1fr)] md:grid-cols-[5rem_minmax(0,1fr)]' }} items-center gap-3.5 border-t border-gray-800/10 bg-white p-3.5 shadow-[inset_0_3px_0_rgba(230,0,126,0.16)] md:gap-5 md:border-t-0 md:border-l md:p-6 dark:border-gray-200/10 dark:bg-gray-800">
+                    {% if stream_sources is not empty %}
+                        <button type="button" aria-label="Luister live" data-play
+                                class="grid size-16 touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze md:size-20 motion-reduce:transition-none">
+                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                        </button>
+                    {% endif %}
+                    <div class="min-w-0" data-now-details
+                         data-fallback-title="{{ radio_fallback_title }}"
+                         data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
+                        <p class="font-round line-clamp-4 text-2xl leading-[1.02] font-black break-words text-gray-900 md:text-3xl dark:text-white" data-now-title>
+                            {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
+                        </p>
+                        <p class="mt-1.5 truncate text-sm font-bold md:text-base {{ muted }}" data-now-artist>
+                            {{- stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') -}}
+                        </p>
                     </div>
-                {% endif %}
-                <div class="min-w-0 flex-1" data-now-details
-                     data-fallback-title="{{ radio_fallback_title }}"
-                     data-fallback-artist="{{ radio_fallback_artist }}"
-                     {{ stream_sources is not empty ? 'hidden' }} aria-live="polite">
-                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>
-                        {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
-                    </p>
-                    <p class="mt-1 truncate text-sm sm:text-base {{ muted }}">
-                        <span data-now-artist>{{ stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') }}</span>
-                    </p>
                 </div>
             </div>
         </section>
@@ -164,18 +153,6 @@
                         </a>
                     {% endfor %}
                 </div>
-            </section>
-        {% endif %}
-
-        {% if recent is not empty %}
-            <section class="mx-auto max-w-960 px-4 pt-7">
-                <h2 class="mb-5 text-3xl font-bold">Net gedraaid</h2>
-                <div class="{{ card }} px-4" data-recent>
-                    {% for track in recent %}
-                        {{ _self.track_row(track) }}
-                    {% endfor %}
-                </div>
-                <template data-recent-row>{{ _self.track_row({}) }}</template>
             </section>
         {% endif %}
 

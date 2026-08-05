@@ -412,24 +412,6 @@ function zw_rest_api_init()
         ]
     );
 
-    register_rest_route('zw/v1', '/fm/recent', [
-        'methods' => 'GET',
-        'permission_callback' => '__return_true',
-        'callback' => function () {
-            $response = rest_ensure_response(['tracks' => \Streekomroep\AeronToolbox::recentTracks()]);
-            $response->header('Cache-Control', 'public, max-age=30');
-
-            return $response;
-        }
-    ]);
-
-    // Album art lives behind an API key, so the theme fetches it and serves it same-origin.
-    register_rest_route('zw/v1', '/fm/track/(?P<id>[0-9a-fA-F-]{36})/image', [
-        'methods' => 'GET',
-        'permission_callback' => '__return_true',
-        'callback' => 'zw_rest_fm_track_image',
-    ]);
-
     register_rest_route('zw/v1', '/broadcast_data', [
         'methods' => 'GET',
         'permission_callback' => '__return_true',
@@ -452,45 +434,6 @@ function zw_rest_api_init()
             ];
         }
     ]);
-}
-
-/**
- * Serves the album art of an Aeron track.
- *
- * The response body is raw image data; zw_rest_serve_fm_track_image() writes it out instead of
- * the usual JSON encoding.
- */
-function zw_rest_fm_track_image(WP_REST_Request $request)
-{
-    $image = \Streekomroep\AeronToolbox::trackImage((string)$request['id']);
-    if (!$image) {
-        return new WP_Error('zw_fm_track_image_not_found', 'Track image not found', ['status' => 404]);
-    }
-
-    $response = new WP_REST_Response($image['body']);
-    $response->header('Content-Type', $image['type']);
-    $response->header('Content-Length', (string)strlen($image['body']));
-    // Art belongs to one immutable track id, so it may sit in a browser or CDN cache for a day.
-    $response->header('Cache-Control', 'public, max-age=86400');
-
-    return $response;
-}
-
-add_filter('rest_pre_serve_request', 'zw_rest_serve_fm_track_image', 10, 3);
-
-function zw_rest_serve_fm_track_image($served, $result, $request)
-{
-    if ($served || !str_starts_with($request->get_route(), '/zw/v1/fm/track/')) {
-        return $served;
-    }
-
-    if (!$result instanceof WP_REST_Response || $result->get_status() !== 200) {
-        return $served;
-    }
-
-    echo $result->get_data();
-
-    return true;
 }
 
 /**
@@ -1055,12 +998,8 @@ function zw_enqueue_fm_live_assets()
         true
     );
 
-    $toolbox = \Streekomroep\AeronToolbox::isConfigured();
     wp_localize_script('zw-fm-live', 'zwFmLive', [
         'metadataUrl' => (string)get_field('radio_live_metadata_url', 'option'),
-        'recentUrl' => $toolbox ? rest_url('zw/v1/fm/recent') : '',
-        // TRACKID is a placeholder the script swaps for the Aeron track id.
-        'imageUrl' => $toolbox ? rest_url('zw/v1/fm/track/TRACKID/image') : '',
     ]);
 }
 
