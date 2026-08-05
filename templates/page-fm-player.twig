@@ -31,11 +31,12 @@
     </div>
 {% endmacro %}
 
-{% set radio_streams = [
-    options.radio_webplayer_aac_stream,
-    options.radio_webplayer_mp3_stream,
-    options.radio_webplayer_ogg_stream,
-]|filter(url => url) %}
+{% set stream_sources = [
+    {url: options.radio_webplayer_aac_stream, type: 'audio/mp4'},
+    {url: options.radio_webplayer_mp3_stream, type: 'audio/mp3'},
+    {url: options.radio_webplayer_ogg_stream, type: 'audio/ogg'},
+    {url: options.radio_webplayer_hls_stream, type: 'application/x-mpegURL'},
+]|filter(source => source.url) %}
 {% set maker_names = current_makers|column('fm_show_maker_naam')|filter(name => name) %}
 {% set on_air = current ? current.getName() : post.title %}
 
@@ -98,10 +99,21 @@
             </div>
         </header>
 
+        {% if stream_sources is not empty %}
+            {# Hidden on purpose: VideoJS drives the stream, the buttons in this page are the controls. #}
+            <div class="hidden" aria-hidden="true">
+                <audio id="zw-fm-stream" class="video-js" preload="none" playsinline>
+                    {% for source in stream_sources %}
+                        <source src="{{ source.url }}" type="{{ source.type }}">
+                    {% endfor %}
+                </audio>
+            </div>
+        {% endif %}
+
         <section class="mx-auto max-w-960 px-4 pt-7">
-            <div class="{{ card }} flex items-center gap-4 p-4">
-                {% if radio_streams is not empty %}
-                    <button type="button" aria-label="Luister live" data-radio-play
+            <div class="{{ card }} flex items-center gap-4 p-4" data-now-card>
+                {% if stream_sources is not empty %}
+                    <button type="button" aria-label="Luister live" data-play
                             class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
                         <span class="[&>svg]:size-7" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
                         <span class="[&>svg]:size-7" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
@@ -210,4 +222,42 @@
         {% endif %}
     </article>
 
+    {% if stream_sources is not empty %}
+        {#
+            The docked player rises once the card above has scrolled away, so there is never more
+            than one set of controls in view.
+        #}
+        <div class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-gray-900 bg-gray-800 text-white transition-transform duration-300 motion-reduce:transition-none data-[open]:translate-y-0 dark:border-gray-700"
+             data-dock>
+            <div class="mx-auto flex max-w-960 items-center gap-3 px-4 py-2">
+                <button type="button" aria-label="Luister live" data-play
+                        class="grid size-10 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
+                    <span class="[&>svg]:size-5" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                    <span class="[&>svg]:size-5" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                </button>
+                {{ _self.cover('size-10', on_air, '', true) }}
+                <div class="min-w-0 flex-1">
+                    <p class="font-round text-xs font-bold tracking-wide text-gray-400 uppercase">Luister live</p>
+                    <p class="truncate text-[0.9375rem] leading-tight font-bold" data-dock-line>
+                        <span data-now-title>{{ on_air }}</span>
+                        <span class="font-normal text-gray-400" data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
+                    </p>
+                </div>
+                <div class="hidden flex-none border-l border-white/15 pl-3 text-sm text-gray-400 md:block">
+                    <span>Nu op de radio</span>
+                    <b class="block text-[0.8125rem] font-bold text-white uppercase">{{ on_air }}</b>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block footer %}
+    {{ include('footer.twig') }}
+    {% if stream_sources is not empty %}
+        {# Room for the docked player at the very bottom, in the footer's own colour, so it never
+           covers the last line of the page. #}
+        <div class="h-15 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></div>
+    {% endif %}
+    {{ function('wp_footer') }}
 {% endblock %}

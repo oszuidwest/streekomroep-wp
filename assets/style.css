@@ -135,29 +135,6 @@
     }
 }
 
-/* A page being fetched by static/soft-nav.js. Indeterminate: the answer is usually there
-   before the line finishes, and it beats a page that looks like it ignored the click. */
-@keyframes zw-navigating {
-    from {
-        transform: scaleX(0);
-    }
-
-    to {
-        transform: scaleX(0.9);
-    }
-}
-
-html[data-navigating]::before {
-    content: "";
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 50;
-    height: 2px;
-    transform-origin: left;
-    @apply bg-roze;
-    animation: zw-navigating 2s ease-out forwards;
-}
-
 /* Contact Form 7 styles */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-300 rounded-sm;

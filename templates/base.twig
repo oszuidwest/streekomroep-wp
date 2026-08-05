@@ -9,9 +9,6 @@
 {% set submenu = null %}
 
 <body class="{{ body_class }} bg-white dark:bg-gray-800" data-template="base.twig">
-{# Everything inside #zw-page is replaced wholesale by static/soft-nav.js, so the radio player
-   below it survives a navigation and keeps playing. #}
-<div id="zw-page">
 <div class="bg-gray-800 border-b border-gray-900 dark:border-gray-700 text-white sticky top-0 z-40">
     <div class="-mb-px">
         <div class="mx-auto max-w-960">
@@ -95,15 +92,8 @@
 
 {% block footer %}
     {{ include('footer.twig') }}
+    {{ function('wp_footer') }}
 {% endblock %}
-
-{# Room for the radio player, in the footer's own colour. Only takes up space while someone
-   is listening, so a page nobody listens to looks exactly as it did. #}
-<div class="hidden h-15 bg-gray-200 dark:bg-gray-800" data-radio-spacer aria-hidden="true"></div>
-</div>
-
-{{ include('partial/radio-player.twig') }}
-{{ function('wp_footer') }}
 
 </body>
 </html>

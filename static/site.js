@@ -3,78 +3,53 @@ function initDarkMode() {
     const dark = localStorage.theme === 'dark'
         || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', dark);
-    const light = document.getElementById('themeLightBtn');
-    const night = document.getElementById('themeDarkBtn');
-    if (light && night) {
-        light.hidden = !dark;
-        night.hidden = dark;
-    }
+    document.getElementById('themeLightBtn').hidden = !dark;
+    document.getElementById('themeDarkBtn').hidden = dark;
 }
 
-function initThemeToggle() {
-    document.querySelectorAll('[data-theme]').forEach(function (button) {
-        button.onclick = function () {
-            localStorage.theme = button.dataset.theme;
-            initDarkMode();
-        };
-    });
-    initDarkMode();
-}
+document.querySelectorAll('[data-theme]').forEach(function (button) {
+    button.onclick = function () {
+        localStorage.theme = button.dataset.theme;
+        initDarkMode();
+    };
+});
+initDarkMode();
 
 // Share paging and disabled-state handling across every horizontal carousel.
 const SCROLLER_TOLERANCE = 4;
-
-// One resize listener for all of them, so a soft navigation cannot pile up handlers on
-// carousels that are no longer in the document.
-let scrollerUpdates = [];
-window.addEventListener('resize', () => scrollerUpdates.forEach((update) => update()));
-
-function initScrollers() {
-    scrollerUpdates = [];
-    document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
-        const find = (part) => scroller.querySelector(`[data-scroller-${part}]`);
-        const [track, nav, prev, next] = ['track', 'nav', 'prev', 'next'].map(find);
-        if (!track || !nav || !prev || !next) {
-            return;
+document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
+    const find = (part) => scroller.querySelector(`[data-scroller-${part}]`);
+    const [track, nav, prev, next] = ['track', 'nav', 'prev', 'next'].map(find);
+    if (!track || !nav || !prev || !next) {
+        return;
+    }
+    function pageSize() {
+        const style = getComputedStyle(track);
+        const padding = (parseFloat(style.scrollPaddingLeft) || 0)
+            + (parseFloat(style.scrollPaddingRight) || 0);
+        const visible = Math.max(track.clientWidth - padding, 0);
+        const item = track.firstElementChild;
+        if (!item) {
+            return visible;
         }
-        function pageSize() {
-            const style = getComputedStyle(track);
-            const padding = (parseFloat(style.scrollPaddingLeft) || 0)
-                + (parseFloat(style.scrollPaddingRight) || 0);
-            const visible = Math.max(track.clientWidth - padding, 0);
-            const item = track.firstElementChild;
-            if (!item) {
-                return visible;
-            }
-            // Page by whole item strides so paging lands on the snap grid; the
-            // last visible item has no trailing gap, hence the gap credit.
-            const gap = parseFloat(style.columnGap) || 0;
-            const stride = item.getBoundingClientRect().width + gap;
-            if (stride <= 0) {
-                return visible;
-            }
-            return stride * Math.max(1, Math.floor((visible + gap + SCROLLER_TOLERANCE) / stride));
+        // Page by whole item strides so paging lands on the snap grid; the
+        // last visible item has no trailing gap, hence the gap credit.
+        const gap = parseFloat(style.columnGap) || 0;
+        const stride = item.getBoundingClientRect().width + gap;
+        if (stride <= 0) {
+            return visible;
         }
-        function update() {
-            const max = track.scrollWidth - track.clientWidth;
-            nav.hidden = max <= SCROLLER_TOLERANCE;
-            prev.disabled = track.scrollLeft <= SCROLLER_TOLERANCE;
-            next.disabled = track.scrollLeft >= max - SCROLLER_TOLERANCE;
-        }
-        prev.onclick = () => track.scrollBy({left: -pageSize(), behavior: 'smooth'});
-        next.onclick = () => track.scrollBy({left: pageSize(), behavior: 'smooth'});
-        track.addEventListener('scroll', update, {passive: true});
-        scrollerUpdates.push(update);
-        update();
-    });
-}
-
-function initPage() {
-    initThemeToggle();
-    initScrollers();
-}
-
-initPage();
-
-// A soft navigation replaces the whole page, so everything above binds itself again.
-document.addEventListener('zw:page', initPage);
+        return stride * Math.max(1, Math.floor((visible + gap + SCROLLER_TOLERANCE) / stride));
+    }
+    function update() {
+        const max = track.scrollWidth - track.clientWidth;
+        nav.hidden = max <= SCROLLER_TOLERANCE;
+        prev.disabled = track.scrollLeft <= SCROLLER_TOLERANCE;
+        next.disabled = track.scrollLeft >= max - SCROLLER_TOLERANCE;
+    }
+    prev.onclick = () => track.scrollBy({left: -pageSize(), behavior: 'smooth'});
+    next.onclick = () => track.scrollBy({left: pageSize(), behavior: 'smooth'});
+    track.addEventListener('scroll', update, {passive: true});
+    window.addEventListener('resize', update);
+    update();
+});
