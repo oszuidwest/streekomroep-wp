@@ -8,9 +8,8 @@
     A cover slot. Stays an empty tinted square until fm-live.js paints the theme's triangle
     pattern in it and, if Aeron has one, lays the album art on top.
 #}
-{% macro cover(size, seed, id, live) %}
+{% macro cover(size, seed, id) %}
     <span class="relative {{ size }} flex-none overflow-hidden rounded-sm bg-gray-100 dark:bg-gray-700"
-          {{ live|default(false) ? 'data-cover-live' }}
           data-cover-seed="{{ seed|default('') }}" data-cover-id="{{ id|default('') }}"></span>
 {% endmacro %}
 
@@ -112,7 +111,7 @@
 
         <section class="mx-auto max-w-960 px-4 pt-7">
             <h2 class="mb-5 text-3xl font-bold">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5" data-now-card>
+            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
                 {% if stream_sources is not empty %}
                     <button type="button" aria-label="Luister live" data-play
                             class="grid size-16 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-20">
@@ -120,7 +119,13 @@
                         <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
                     </button>
                 {% endif %}
-                <div class="min-w-0 flex-1">
+                {% if stream_sources is not empty %}
+                    <div class="min-w-0 flex-1" data-listen-prompt>
+                        <p class="text-lg leading-tight font-bold sm:text-xl">Klik op play om live te luisteren</p>
+                        <p class="mt-1 text-sm {{ muted }}">Daarna verschijnt hier het nummer dat speelt.</p>
+                    </div>
+                {% endif %}
+                <div class="min-w-0 flex-1" data-now-details {{ stream_sources is not empty ? 'hidden' }} aria-live="polite">
                     <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>{{ on_air }}</p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}">
                         <span data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
@@ -251,39 +256,4 @@
             </section>
         {% endif %}
     </article>
-
-    {% if stream_sources is not empty %}
-        {#
-            The docked player rises once the card above has scrolled away, so there is never more
-            than one set of controls in view.
-        #}
-        <div class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-gray-900 bg-gray-800 text-white transition-transform duration-300 motion-reduce:transition-none data-[open]:translate-y-0 dark:border-gray-700"
-             data-dock>
-            <div class="mx-auto flex max-w-960 items-center gap-3 px-4 py-2">
-                <button type="button" aria-label="Luister live" data-play
-                        class="grid size-10 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e]">
-                    <span class="[&>svg]:size-5" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
-                    <span class="[&>svg]:size-5" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
-                </button>
-                {{ _self.cover('size-10', on_air, '', true) }}
-                <div class="min-w-0 flex-1">
-                    <p class="font-round text-xs font-bold tracking-wide text-gray-400 uppercase">Luister live</p>
-                    <p class="truncate text-[0.9375rem] leading-tight font-bold" data-dock-line>
-                        <span data-now-title>{{ on_air }}</span>
-                        <span class="font-normal text-gray-400" data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block footer %}
-    {{ include('footer.twig') }}
-    {% if stream_sources is not empty %}
-        {# Room for the docked player at the very bottom, in the footer's own colour, so it never
-           covers the last line of the page. #}
-        <div class="h-15 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></div>
-    {% endif %}
-    {{ function('wp_footer') }}
 {% endblock %}

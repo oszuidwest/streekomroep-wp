@@ -1,9 +1,9 @@
 /**
  * Live radio page
  *
- * Keeps the now playing card, the docked player and the recently played list in step with
- * zwfm-metadata, and drives the VideoJS stream from the buttons in the page. Everything here is
- * an enhancement: without it the page still shows the programme, the schedule and the frequencies.
+ * Keeps the now playing card and the recently played list in step with zwfm-metadata, and drives
+ * the VideoJS stream from the button in the page. Everything here is an enhancement: without it
+ * the page still shows the programme, the schedule and the frequencies.
  */
 (function () {
     const config = window.zwFmLive || {};
@@ -111,6 +111,21 @@
 
     let current = null;
     let recentTimer = null;
+    let nowPlayingDisclosed = false;
+
+    function discloseNowPlaying() {
+        if (nowPlayingDisclosed) {
+            return;
+        }
+
+        nowPlayingDisclosed = true;
+        all('[data-listen-prompt]').forEach((node) => {
+            node.hidden = true;
+        });
+        all('[data-now-details]').forEach((node) => {
+            node.hidden = false;
+        });
+    }
 
     function renderNow(track) {
         all('[data-now-title]').forEach((node) => {
@@ -119,9 +134,6 @@
         all('[data-now-artist]').forEach((node) => {
             node.textContent = track.artist;
         });
-
-        const seed = track.isSong ? trackKey(track) : `nu:${track.title}`;
-        all('[data-cover-live]').forEach((node) => paintCover(node, seed, track.isSong ? track.id : ''));
     }
 
     function renderRecent(tracks) {
@@ -285,7 +297,10 @@
             });
         };
 
-        player.on('playing', () => setPlaying(true));
+        player.on('playing', function () {
+            discloseNowPlaying();
+            setPlaying(true);
+        });
         player.on('pause', () => setPlaying(false));
         player.on('error', () => setPlaying(false));
 
@@ -315,24 +330,9 @@
         window.addEventListener('DOMContentLoaded', setupPlayer, {once: true});
     }
 
-    function setupDock() {
-        const dock = document.querySelector('[data-dock]');
-        const card = document.querySelector('[data-now-card]');
-        if (!dock || !card || !('IntersectionObserver' in window)) {
-            return;
-        }
-
-        // Show the dock once the card with the same controls has scrolled out of view. The page
-        // ends with a spacer the height of the dock, so it never covers anything.
-        new IntersectionObserver(function (entries) {
-            dock.toggleAttribute('data-open', !entries[entries.length - 1].isIntersecting);
-        }, {rootMargin: '-8px 0px 0px 0px'}).observe(card);
-    }
-
     all('[data-cover-seed]').forEach(paintFromMarkup);
     startProgress();
     bootPlayer();
-    setupDock();
     connectMetadata();
 
     if (config.recentUrl) {
