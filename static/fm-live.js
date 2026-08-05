@@ -104,7 +104,6 @@
             id: id,
             title: title,
             artist: artist,
-            duration: String(payload.duration || '').trim(),
             // Station idents and programme names travel through the same feed but are not records.
             isSong: Boolean(artist && (id || payload.source_type === 'dynamic')),
         };
@@ -120,11 +119,6 @@
         all('[data-now-artist]').forEach((node) => {
             node.textContent = track.artist;
         });
-
-        const duration = document.querySelector('[data-now-duration]');
-        if (duration) {
-            duration.textContent = track.isSong && track.duration ? ` · ${track.duration}` : '';
-        }
 
         const seed = track.isSong ? trackKey(track) : `nu:${track.title}`;
         all('[data-cover-live]').forEach((node) => paintCover(node, seed, track.isSong ? track.id : ''));
