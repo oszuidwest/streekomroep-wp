@@ -12,27 +12,6 @@
                     </div>
                 {% endif %}
 
-                {% set knoppen = post.meta('colofon_knoppen')|rows %}
-                {% if knoppen is not empty %}
-                    <div class="mt-6 flex flex-wrap gap-2.5">
-                        {% for knop in knoppen %}
-                            {% set is_mailto = knop.colofon_knop_url|default('')|slice(0, 7) == 'mailto:' %}
-                            {% if knop.colofon_knop_stijl == 'omlijnd' %}
-                                <a href="{{ knop.colofon_knop_url }}"
-                                   class="inline-flex items-center gap-2 rounded-md border-2 border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 transition hover:border-gray-900 dark:border-gray-600 dark:text-white dark:hover:border-white [&>svg]:h-4 [&>svg]:w-4">
-                                    {% if is_mailto %}{{ icon('icon-mail') }}{% endif %}
-                                    <span>{{ knop.colofon_knop_tekst }}</span>
-                                </a>
-                            {% else %}
-                                <a href="{{ knop.colofon_knop_url }}"
-                                   class="inline-flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 [&>svg]:h-4 [&>svg]:w-4">
-                                    {% if is_mailto %}{{ icon('icon-mail') }}{% endif %}
-                                    <span>{{ knop.colofon_knop_tekst }}</span>
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
             </header>
 
             {% if people is not empty %}
