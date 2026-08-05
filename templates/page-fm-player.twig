@@ -121,8 +121,7 @@
                     </button>
                 {% endif %}
                 <div class="min-w-0 flex-1">
-                    <span class="{{ card_title }}">Nu op de radio</span>
-                    <p class="mt-1 truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>{{ on_air }}</p>
+                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>{{ on_air }}</p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}">
                         <span data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
                     </p>
@@ -273,10 +272,6 @@
                         <span data-now-title>{{ on_air }}</span>
                         <span class="font-normal text-gray-400" data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
                     </p>
-                </div>
-                <div class="hidden flex-none border-l border-white/15 pl-3 text-sm text-gray-400 md:block">
-                    <span>Nu op de radio</span>
-                    <b class="block text-[0.8125rem] font-bold text-white uppercase">{{ on_air }}</b>
                 </div>
             </div>
         </div>
