@@ -3,24 +3,6 @@
     "title": "Desking – Algemene invulling",
     "fields": [
         {
-            "key": "field_5f99e9a496ebd",
-            "label": "Toon deze gebruikers in colofon",
-            "name": "colofon_users",
-            "type": "user",
-            "instructions": "Vul biografie etc in bij profielen van gebruikers.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "role": "",
-            "allow_null": 0,
-            "multiple": 1,
-            "return_format": "id"
-        },
-        {
             "key": "field_5ff0b973dbc61",
             "label": "Geen regio placeholder",
             "name": "placeholder_geen_regio",
@@ -57,5 +39,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610988334
+    "modified": 1785888000
 }
