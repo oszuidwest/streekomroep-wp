@@ -169,54 +169,84 @@
 
         {% if has_frequencies %}
             <section class="mx-auto max-w-960 px-4 pt-7">
-                <h2 class="mb-5 text-3xl font-bold">Waar je ons vindt</h2>
+                <h2 class="text-3xl font-bold">Waar je ons vindt</h2>
+                <p class="mt-1 mb-5 text-sm {{ muted }}">Kies hoe je luistert en bekijk de juiste frequentie.</p>
 
                 {% if frequencies.ether is not empty %}
-                    <div class="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr))]">
-                        {% for channel in frequencies.ether %}
-                            <div class="{{ card }} px-3.5 py-3">
-                                <p class="text-2xl leading-none font-black tabular-nums">
-                                    {{- channel.value -}}
-                                    {%- if 'fm' not in channel.value|lower -%}
-                                        <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">FM</span>
-                                    {%- endif -%}
-                                </p>
-                                {% if channel.place %}
-                                    <p class="mt-1 text-sm leading-snug {{ muted }}">{{ channel.place }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                {% if frequencies.dab is not empty or frequencies.kabel is not empty %}
-                    <div class="mt-4 grid gap-4 sm:grid-cols-[1fr_1.5fr]">
-                        {% if frequencies.dab is not empty %}
-                            <div class="{{ card }} p-4">
-                                <h3 class="{{ card_title }}">DAB+</h3>
-                                {% for channel in frequencies.dab %}
-                                    <p class="text-xl leading-tight font-black">{{ channel.value }}</p>
-                                    {% if channel.place %}
-                                        <p class="text-sm {{ muted }}">{{ channel.place }}</p>
-                                    {% endif %}
+                    <details class="group {{ card }} overflow-hidden" open>
+                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
+                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">FM</span>
+                            <span class="font-bold">Via de ether</span>
+                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
+                                {{ icon('icon-chevron_right') }}
+                            </span>
+                        </summary>
+                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                {% for channel in frequencies.ether %}
+                                    <div class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                        {% if channel.place %}
+                                            <p class="text-sm leading-snug {{ muted }}">{{ channel.place }}</p>
+                                        {% endif %}
+                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">
+                                            {{- channel.value -}}
+                                            {%- if 'fm' not in channel.value|lower -%}
+                                                <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">FM</span>
+                                            {%- endif -%}
+                                        </p>
+                                    </div>
                                 {% endfor %}
                             </div>
-                        {% endif %}
+                        </div>
+                    </details>
+                {% endif %}
 
-                        {% if frequencies.kabel is not empty %}
-                            <div class="{{ card }} p-4">
-                                <h3 class="{{ card_title }} mb-3">Kabel</h3>
-                                <ul class="flex flex-wrap gap-2">
-                                    {% for channel in frequencies.kabel %}
-                                        <li class="rounded-sm bg-gray-100 px-2 py-1 text-sm whitespace-nowrap text-gray-900 dark:bg-gray-700 dark:text-gray-100">
-                                            {{- channel.place -}}
-                                            <b class="ml-1.5 font-bold tabular-nums">{{ channel.value }}</b>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
+                {% if frequencies.dab is not empty %}
+                    <details class="group {{ card }} mt-3 overflow-hidden" {{ frequencies.ether is empty ? 'open' }}>
+                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
+                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">DAB+</span>
+                            <span class="font-bold">Digitale radio</span>
+                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
+                                {{ icon('icon-chevron_right') }}
+                            </span>
+                        </summary>
+                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                {% for channel in frequencies.dab %}
+                                    <div class="flex items-end justify-between gap-4 rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                        {% if channel.place %}
+                                            <p class="text-sm {{ muted }}">{{ channel.place }}</p>
+                                        {% else %}
+                                            <p class="text-sm {{ muted }}">DAB+</p>
+                                        {% endif %}
+                                        <p class="text-3xl leading-none font-black tabular-nums">{{ channel.value }}</p>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    </details>
+                {% endif %}
+
+                {% if frequencies.kabel is not empty %}
+                    <details class="group {{ card }} mt-3 overflow-hidden" {{ frequencies.ether is empty and frequencies.dab is empty ? 'open' }}>
+                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
+                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">Kabel</span>
+                            <span class="font-bold">Via je aanbieder</span>
+                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
+                                {{ icon('icon-chevron_right') }}
+                            </span>
+                        </summary>
+                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
+                            <ul class="divide-y divide-gray-800/10 rounded-sm bg-gray-100 px-3.5 dark:divide-gray-200/10 dark:bg-gray-800">
+                                {% for channel in frequencies.kabel %}
+                                    <li class="flex items-center justify-between gap-4 py-2.5">
+                                        <span class="text-sm {{ muted }}">{{ channel.place ?: 'Kabel' }}</span>
+                                        <b class="text-lg font-black tabular-nums">{{ channel.value }}</b>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </details>
                 {% endif %}
             </section>
         {% endif %}
