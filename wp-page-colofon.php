@@ -25,11 +25,18 @@ foreach (is_array($user_ids) ? $user_ids : [] as $user_id) {
         $initials .= mb_substr(end($name_parts), 0, 1);
     }
 
+    // Yoast SEO Premium stores the profile field "Functienaam" in the
+    // wpseo_user_schema array; the same value feeds the jobTitle in Yoast's
+    // Person schema. Newer Yoast versions read a plain job_title meta as well.
+    $yoast_schema = get_user_meta($user_id, 'wpseo_user_schema', true);
+    $role = is_array($yoast_schema) ? trim((string)($yoast_schema['jobTitle'] ?? '')) : '';
+    if ($role === '') {
+        $role = trim((string)get_user_meta($user_id, 'job_title', true));
+    }
+
     $people[] = [
         'name' => $user->display_name,
-        // Yoast SEO Premium stores the profile field "Functienaam" in this user meta;
-        // the same value feeds the jobTitle in Yoast's Person schema.
-        'role' => trim((string)get_user_meta($user_id, 'job_title', true)),
+        'role' => $role,
         'photo' => $photo ?: null,
         'email' => $user->user_email,
         'author_url' => count_user_posts($user_id, 'post', true) > 0 ? get_author_posts_url($user_id) : null,
