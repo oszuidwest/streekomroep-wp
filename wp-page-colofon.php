@@ -29,14 +29,14 @@ foreach (is_array($user_ids) ? $user_ids : [] as $user_id) {
     // wpseo_user_schema array; the same value feeds the jobTitle in Yoast's
     // Person schema. Newer Yoast versions read a plain job_title meta as well.
     $yoast_schema = get_user_meta($user_id, 'wpseo_user_schema', true);
-    $role = is_array($yoast_schema) ? trim((string)($yoast_schema['jobTitle'] ?? '')) : '';
-    if ($role === '') {
-        $role = trim((string)get_user_meta($user_id, 'job_title', true));
+    $job_title = is_array($yoast_schema) ? trim((string)($yoast_schema['jobTitle'] ?? '')) : '';
+    if ($job_title === '') {
+        $job_title = trim((string)get_user_meta($user_id, 'job_title', true));
     }
 
     $people[] = [
         'name' => $user->display_name,
-        'role' => $role,
+        'role' => $job_title,
         'photo' => $photo ?: null,
         'email' => $user->user_email,
         'author_url' => count_user_posts($user_id, 'post', true) > 0 ? get_author_posts_url($user_id) : null,
