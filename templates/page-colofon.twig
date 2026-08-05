@@ -105,12 +105,11 @@
                             {% endif %}
                         </div>
                         {% if post.meta('colofon_stage_notitie_tekst') %}
-                            {# Dark tone matches the footer app banner: gray-700/50 composited on the gray-800 footer. #}
-                            <div class="rounded-sm bg-gray-700/50 p-5 dark:bg-[color-mix(in_srgb,var(--color-gray-700)_50%,var(--color-gray-800))]">
+                            <div class="rounded-sm bg-blauw p-5">
                                 {% if post.meta('colofon_stage_notitie_titel') %}
-                                    <span class="font-round text-xs font-black tracking-wide text-gray-400 uppercase">{{ post.meta('colofon_stage_notitie_titel') }}</span>
+                                    <span class="font-round text-xs font-black tracking-wide text-gray-900/70 uppercase">{{ post.meta('colofon_stage_notitie_titel') }}</span>
                                 {% endif %}
-                                <p class="mt-2 font-bold text-white">{{ post.meta('colofon_stage_notitie_tekst') }}</p>
+                                <p class="mt-2 font-bold text-gray-900">{{ post.meta('colofon_stage_notitie_tekst') }}</p>
                             </div>
                         {% endif %}
                     </div>
