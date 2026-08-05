@@ -4,7 +4,7 @@
         groen: 'bg-groen text-white',
         blauw: 'bg-blauw text-white',
         roze: 'bg-roze text-white',
-        neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
+        neutral: 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900',
     } -%}
     {%- set classes = base ~ ' ' ~ (intents[intent]|default(intents.neutral)) ~ (class ? ' ' ~ class) -%}
     {%- if href is not null -%}
