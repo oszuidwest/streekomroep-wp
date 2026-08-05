@@ -89,7 +89,7 @@
         <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
             <h2 id="live-player-title" class="sr-only">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
             <div class="{{ card }} grid overflow-hidden md:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)]">
-                <div class="relative grid min-h-[17.875rem] place-items-center overflow-hidden bg-[linear-gradient(145deg,rgba(230,0,126,0.045),#f8f9fa_48%,rgba(230,0,126,0.085))] p-3.5 md:min-h-[25rem] dark:bg-[linear-gradient(145deg,rgba(230,0,126,0.08),#1f2937_48%,rgba(230,0,126,0.12))]">
+                <div class="relative grid min-h-[17.875rem] place-items-center overflow-hidden bg-[linear-gradient(145deg,rgba(230,0,126,0.04),#f9fafb_48%,rgba(230,0,126,0.07))] p-3.5 md:min-h-[25rem] dark:bg-[linear-gradient(145deg,rgba(230,0,126,0.08),rgba(55,65,81,0.4)_48%,rgba(230,0,126,0.1))]">
                     {{ include('partial/fm-logo-mark.twig', {
                         class: 'pointer-events-none absolute size-[24.375rem] -rotate-[8deg] text-roze opacity-[0.105] md:size-[34rem] dark:opacity-[0.14]',
                     }) }}
@@ -108,7 +108,7 @@
                     {% endif %}
                 </div>
 
-                <div class="grid {{ stream_sources is not empty ? 'grid-cols-[4rem_minmax(0,1fr)] md:grid-cols-[5rem_minmax(0,1fr)]' }} items-center gap-3.5 border-t border-gray-800/10 bg-white p-3.5 shadow-[inset_0_3px_0_rgba(230,0,126,0.16)] md:gap-5 md:border-t-0 md:border-l md:p-6 dark:border-gray-200/10 dark:bg-gray-800">
+                <div class="grid {{ stream_sources is not empty ? 'grid-cols-[4rem_minmax(0,1fr)] md:grid-cols-[5rem_minmax(0,1fr)]' }} items-center gap-3.5 border-t border-gray-800/10 p-3.5 shadow-[inset_0_3px_0_rgba(230,0,126,0.16)] md:gap-5 md:border-t-0 md:border-l md:p-6 dark:border-gray-200/10">
                     {% if stream_sources is not empty %}
                         <button type="button" aria-label="Luister live" data-play
                                 class="grid size-16 touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze md:size-20 motion-reduce:transition-none">
