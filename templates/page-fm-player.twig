@@ -112,21 +112,16 @@
 
         <section class="mx-auto max-w-960 px-4 pt-7">
             <h2 class="mb-5 text-3xl font-bold">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="relative flex items-center gap-4 overflow-hidden rounded-sm border border-gray-800/10 bg-gray-50 p-4 pl-5 shadow-sm ring-1 ring-roze/10 sm:gap-5 sm:p-5 sm:pl-6 dark:border-gray-200/10 dark:bg-gray-700/40"
-                 data-now-card>
-                <span class="absolute inset-y-0 left-0 w-1 bg-roze" aria-hidden="true"></span>
+            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5" data-now-card>
                 {% if stream_sources is not empty %}
                     <button type="button" aria-label="Luister live" data-play
-                            class="grid size-16 flex-none place-items-center rounded-sm bg-roze text-white shadow-lg shadow-roze/20 transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-20">
+                            class="grid size-16 flex-none place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-20">
                         <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
                         <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
                     </button>
                 {% endif %}
                 <div class="min-w-0 flex-1">
-                    <span class="flex items-center gap-2 font-round text-xs font-bold tracking-wide text-roze uppercase">
-                        <span class="size-2 flex-none rounded-full bg-groen" aria-hidden="true"></span>
-                        Nu op de radio
-                    </span>
+                    <span class="{{ card_title }}">Nu op de radio</span>
                     <p class="mt-1 truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>{{ on_air }}</p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}">
                         <span data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
