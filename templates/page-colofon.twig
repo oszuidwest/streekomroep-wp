@@ -76,33 +76,39 @@
                 {% set internship_knop_tekst = post.meta('colofon_internship_knop_tekst') %}
                 {% set internship_notitie_titel = post.meta('colofon_internship_notitie_titel') %}
                 {% set internship_notitie_tekst = post.meta('colofon_internship_notitie_tekst') %}
-                <section class="mt-12 rounded-sm bg-gray-800 p-6 text-white md:p-10 dark:border dark:border-gray-700/50 dark:bg-gray-900">
-                    <div class="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-10">
-                        <div>
-                            {% if internship_kicker %}
-                                <span class="font-round text-xs font-black tracking-widest text-groen uppercase">{{ internship_kicker }}</span>
-                            {% endif %}
-                            {% if internship_titel %}
-                                <h2 class="mt-2 font-round text-3xl leading-tight font-black text-white md:text-4xl">{{ internship_titel }}</h2>
-                            {% endif %}
-                            {% if internship_tekst %}
-                                <p class="mt-3 max-w-[44ch] font-semibold text-white/85">{{ internship_tekst }}</p>
-                            {% endif %}
-                            {% if internship_email and internship_knop_tekst %}
-                                <a href="mailto:{{ internship_email }}"
-                                   class="mt-5 inline-block rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90">{{ internship_knop_tekst }}</a>
+                {% set internship_has_content = internship_titel|trim
+                    or internship_tekst|trim
+                    or internship_notitie_tekst|trim
+                    or (internship_email|trim and internship_knop_tekst|trim) %}
+                {% if internship_has_content %}
+                    <section class="mt-12 rounded-sm bg-gray-800 p-6 text-white md:p-10 dark:border dark:border-gray-700/50 dark:bg-gray-900">
+                        <div class="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-10">
+                            <div>
+                                {% if internship_kicker %}
+                                    <span class="font-round text-xs font-black tracking-widest text-groen uppercase">{{ internship_kicker }}</span>
+                                {% endif %}
+                                {% if internship_titel %}
+                                    <h2 class="mt-2 font-round text-3xl leading-tight font-black text-white md:text-4xl">{{ internship_titel }}</h2>
+                                {% endif %}
+                                {% if internship_tekst %}
+                                    <p class="mt-3 max-w-[44ch] font-semibold text-white/85">{{ internship_tekst }}</p>
+                                {% endif %}
+                                {% if internship_email and internship_knop_tekst %}
+                                    <a href="mailto:{{ internship_email }}"
+                                       class="mt-5 inline-block rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90">{{ internship_knop_tekst }}</a>
+                                {% endif %}
+                            </div>
+                            {% if internship_notitie_tekst %}
+                                <div class="rounded-sm bg-gray-700/50 p-5 dark:bg-gray-700">
+                                    {% if internship_notitie_titel %}
+                                        <span class="font-round text-xs font-black tracking-wide text-gray-300 uppercase">{{ internship_notitie_titel }}</span>
+                                    {% endif %}
+                                    <p class="mt-2 font-bold text-white">{{ internship_notitie_tekst }}</p>
+                                </div>
                             {% endif %}
                         </div>
-                        {% if internship_notitie_tekst %}
-                            <div class="rounded-sm bg-gray-700/50 p-5 dark:bg-gray-700">
-                                {% if internship_notitie_titel %}
-                                    <span class="font-round text-xs font-black tracking-wide text-gray-300 uppercase">{{ internship_notitie_titel }}</span>
-                                {% endif %}
-                                <p class="mt-2 font-bold text-white">{{ internship_notitie_tekst }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </section>
+                    </section>
+                {% endif %}
             {% endif %}
 
         </div>
