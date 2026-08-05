@@ -84,32 +84,32 @@
             {% endif %}
 
             {% if post.meta('colofon_stage_tonen') %}
-                <section class="mt-12 rounded-sm bg-groen p-6 md:p-10">
+                <section class="mt-12 rounded-sm bg-gray-800 p-6 text-white md:p-10 dark:border dark:border-gray-700/50">
                     <div class="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-10">
                         <div>
                             {% if post.meta('colofon_stage_kicker') %}
-                                <span class="font-round text-xs font-black tracking-widest text-gray-900/70 uppercase">{{ post.meta('colofon_stage_kicker') }}</span>
+                                <span class="font-round text-xs font-black tracking-widest text-groen uppercase">{{ post.meta('colofon_stage_kicker') }}</span>
                             {% endif %}
                             {% if post.meta('colofon_stage_titel') %}
-                                <h2 class="mt-2 font-round text-3xl leading-tight font-black text-gray-900 md:text-4xl">{{ post.meta('colofon_stage_titel') }}</h2>
+                                <h2 class="mt-2 font-round text-3xl leading-tight font-black text-white md:text-4xl">{{ post.meta('colofon_stage_titel') }}</h2>
                             {% endif %}
                             {% if post.meta('colofon_stage_tekst') %}
-                                <p class="mt-3 max-w-[44ch] font-semibold text-gray-900">{{ post.meta('colofon_stage_tekst') }}</p>
+                                <p class="mt-3 max-w-[44ch] font-semibold text-white/85">{{ post.meta('colofon_stage_tekst') }}</p>
                             {% endif %}
                             {% if post.meta('colofon_stage_email') and post.meta('colofon_stage_knop_tekst') %}
                                 <a href="mailto:{{ post.meta('colofon_stage_email') }}"
-                                   class="mt-5 inline-flex items-center gap-2 rounded-md bg-gray-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-black [&>svg]:h-4 [&>svg]:w-4">
+                                   class="mt-5 inline-flex items-center gap-2 rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90 [&>svg]:h-4 [&>svg]:w-4">
                                     <span>{{ post.meta('colofon_stage_knop_tekst') }}</span>
                                     {{ icon('icon-arrow_forward') }}
                                 </a>
                             {% endif %}
                         </div>
                         {% if post.meta('colofon_stage_notitie_tekst') %}
-                            <div class="rounded-sm bg-white p-5 dark:bg-gray-800">
+                            <div class="rounded-sm bg-gray-700/50 p-5">
                                 {% if post.meta('colofon_stage_notitie_titel') %}
                                     <span class="font-round text-xs font-black tracking-wide text-gray-400 uppercase">{{ post.meta('colofon_stage_notitie_titel') }}</span>
                                 {% endif %}
-                                <p class="mt-2 font-bold text-gray-900 dark:text-white">{{ post.meta('colofon_stage_notitie_tekst') }}</p>
+                                <p class="mt-2 font-bold text-white">{{ post.meta('colofon_stage_notitie_tekst') }}</p>
                             </div>
                         {% endif %}
                     </div>
