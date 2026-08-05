@@ -1,0 +1,113 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+    <article class="post-type-{{ post.post_type }}" id="post-{{ post.ID }}">
+        <div class="mx-auto w-full max-w-960 px-4 py-7 lg:py-9">
+
+            <header class="max-w-3xl">
+                <h1 class="font-round text-4xl font-black text-black lg:text-5xl dark:text-white">{{ post.title }}</h1>
+                {% if post.content %}
+                    <div class="prose md:prose-lg dark:prose-invert mt-4 max-w-none">
+                        {{ post.content }}
+                    </div>
+                {% endif %}
+
+                {% set knoppen = post.meta('colofon_knoppen')|rows %}
+                {% if knoppen is not empty %}
+                    <div class="mt-6 flex flex-wrap gap-2.5">
+                        {% for knop in knoppen %}
+                            {% set is_mailto = knop.colofon_knop_url|default('')|slice(0, 7) == 'mailto:' %}
+                            {% if knop.colofon_knop_stijl == 'omlijnd' %}
+                                <a href="{{ knop.colofon_knop_url }}"
+                                   class="inline-flex items-center gap-2 rounded-md border-2 border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 transition hover:border-gray-900 dark:border-gray-600 dark:text-white dark:hover:border-white [&>svg]:h-4 [&>svg]:w-4">
+                                    {% if is_mailto %}{{ icon('icon-mail') }}{% endif %}
+                                    <span>{{ knop.colofon_knop_tekst }}</span>
+                                </a>
+                            {% else %}
+                                <a href="{{ knop.colofon_knop_url }}"
+                                   class="inline-flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 [&>svg]:h-4 [&>svg]:w-4">
+                                    {% if is_mailto %}{{ icon('icon-mail') }}{% endif %}
+                                    <span>{{ knop.colofon_knop_tekst }}</span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </header>
+
+            {% if people is not empty %}
+                <section class="mt-9">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                        {% for person in people %}
+                            <article>
+                                {% if person.photo %}
+                                    <img src="{{ person.photo|imgproxy(240, 240) }}"
+                                         srcset="{{ person.photo|imgproxy(240 * 2, 240 * 2) }} 2x"
+                                         alt="{{ person.name }}" width="240" height="240" loading="lazy"
+                                         class="aspect-square w-full rounded-sm bg-gray-100 object-cover dark:bg-gray-700">
+                                {% else %}
+                                    <div class="flex aspect-square w-full items-center justify-center rounded-sm bg-gray-100 dark:bg-gray-700" aria-hidden="true">
+                                        <span class="font-round text-4xl font-black text-gray-400 dark:text-gray-500">{{ person.initials }}</span>
+                                    </div>
+                                {% endif %}
+                                {% if person.role %}
+                                    <div class="mt-3">
+                                        <span class="inline-block rounded-md bg-groen px-2 py-0.5 font-round text-xs font-black tracking-wide text-white uppercase">{{ person.role }}</span>
+                                    </div>
+                                {% endif %}
+                                <h2 class="mt-1.5 font-round text-lg leading-tight font-bold text-gray-900 dark:text-white">
+                                    {% if person.author_url %}
+                                        <a class="transition hover:underline" href="{{ person.author_url }}">{{ person.name }}</a>
+                                    {% else %}
+                                        {{ person.name }}
+                                    {% endif %}
+                                </h2>
+                                {% if person.email %}
+                                    <a href="mailto:{{ person.email }}" title="Mail {{ person.name }} ({{ person.email }})"
+                                       class="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white [&>svg]:h-4 [&>svg]:w-4">
+                                        {{ icon('icon-mail') }}
+                                        <span>Mail</span>
+                                    </a>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if post.meta('colofon_stage_tonen') %}
+                <section class="mt-12 rounded-sm bg-groen p-6 md:p-10">
+                    <div class="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-10">
+                        <div>
+                            {% if post.meta('colofon_stage_kicker') %}
+                                <span class="font-round text-xs font-black tracking-widest text-gray-900/70 uppercase">{{ post.meta('colofon_stage_kicker') }}</span>
+                            {% endif %}
+                            {% if post.meta('colofon_stage_titel') %}
+                                <h2 class="mt-2 font-round text-3xl leading-tight font-black text-gray-900 md:text-4xl">{{ post.meta('colofon_stage_titel') }}</h2>
+                            {% endif %}
+                            {% if post.meta('colofon_stage_tekst') %}
+                                <p class="mt-3 max-w-[44ch] font-semibold text-gray-900">{{ post.meta('colofon_stage_tekst') }}</p>
+                            {% endif %}
+                            {% if post.meta('colofon_stage_email') and post.meta('colofon_stage_knop_tekst') %}
+                                <a href="mailto:{{ post.meta('colofon_stage_email') }}"
+                                   class="mt-5 inline-flex items-center gap-2 rounded-md bg-gray-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-black [&>svg]:h-4 [&>svg]:w-4">
+                                    <span>{{ post.meta('colofon_stage_knop_tekst') }}</span>
+                                    {{ icon('icon-arrow_forward') }}
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% if post.meta('colofon_stage_notitie_tekst') %}
+                            <div class="rounded-sm bg-white p-5 dark:bg-gray-800">
+                                {% if post.meta('colofon_stage_notitie_titel') %}
+                                    <span class="font-round text-xs font-black tracking-wide text-gray-400 uppercase">{{ post.meta('colofon_stage_notitie_titel') }}</span>
+                                {% endif %}
+                                <p class="mt-2 font-bold text-gray-900 dark:text-white">{{ post.meta('colofon_stage_notitie_tekst') }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+
+        </div>
+    </article>
+{% endblock %}

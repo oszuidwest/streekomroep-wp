@@ -1,0 +1,339 @@
+{
+    "key": "group_colofon_page",
+    "title": "Colofon",
+    "fields": [
+        {
+            "key": "field_colofon_users",
+            "label": "Personen in het colofon",
+            "name": "colofon_users",
+            "type": "user",
+            "instructions": "De volgorde van selectie bepaalt de volgorde in het grid. Foto en functie komen van het gebruikersprofiel: de foto uit het veld Profielfoto, de functie uit het Yoast-veld Functienaam (Informatie van de werkgever).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "role": "",
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "id"
+        },
+        {
+            "key": "field_colofon_knoppen",
+            "label": "Knoppen onder de intro",
+            "name": "colofon_knoppen",
+            "type": "repeater",
+            "instructions": "Bijvoorbeeld 'Mail de redactie' (mailto:redactie@...) en 'Tip de redactie' (link naar de tippagina). Bij een mailto-link verschijnt automatisch een envelop-icoon.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Knop toevoegen",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_colofon_knop_tekst",
+                    "label": "Tekst",
+                    "name": "colofon_knop_tekst",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_colofon_knoppen"
+                },
+                {
+                    "key": "field_colofon_knop_url",
+                    "label": "Link",
+                    "name": "colofon_knop_url",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "https:\/\/... of mailto:...",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": "",
+                    "parent_repeater": "field_colofon_knoppen"
+                },
+                {
+                    "key": "field_colofon_knop_stijl",
+                    "label": "Stijl",
+                    "name": "colofon_knop_stijl",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "donker": "Donker",
+                        "omlijnd": "Omlijnd"
+                    },
+                    "default_value": "donker",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "parent_repeater": "field_colofon_knoppen"
+                }
+            ]
+        },
+        {
+            "key": "field_colofon_stage_tonen",
+            "label": "Stage-sectie tonen",
+            "name": "colofon_stage_tonen",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_colofon_stage_kicker",
+            "label": "Stage: bovenregel",
+            "name": "colofon_stage_kicker",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Stage lopen",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_colofon_stage_titel",
+            "label": "Stage: titel",
+            "name": "colofon_stage_titel",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Meelopen op de redactie?",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_colofon_stage_tekst",
+            "label": "Stage: tekst",
+            "name": "colofon_stage_tekst",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": "br"
+        },
+        {
+            "key": "field_colofon_stage_knop_tekst",
+            "label": "Stage: knoptekst",
+            "name": "colofon_stage_knop_tekst",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Mail Anne",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_colofon_stage_email",
+            "label": "Stage: e-mailadres",
+            "name": "colofon_stage_email",
+            "type": "email",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_colofon_stage_notitie_titel",
+            "label": "Stage: notitie-titel",
+            "name": "colofon_stage_notitie_titel",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Let op",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_colofon_stage_notitie_tekst",
+            "label": "Stage: notitietekst",
+            "name": "colofon_stage_notitie_tekst",
+            "type": "textarea",
+            "instructions": "Leeg laten om de notitiekaart te verbergen.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_colofon_stage_tonen",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": "br"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "wp-page-colofon.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1785888000
+}
