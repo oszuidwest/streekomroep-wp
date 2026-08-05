@@ -32,7 +32,7 @@
                                         ) }}
                                     {% else %}
                                         <div class="flex aspect-square w-full items-center justify-center rounded-sm bg-gray-100 dark:bg-gray-700" aria-hidden="true">
-                                            <span class="font-round text-4xl font-black text-gray-400 dark:text-gray-500">{{ person.initials }}</span>
+                                            <span class="font-round text-4xl font-black text-gray-500 dark:text-gray-400">{{ person.initials }}</span>
                                         </div>
                                     {% endif %}
                                 {% endset %}
@@ -44,7 +44,7 @@
                                 {% endif %}
                                 {% if person.role %}
                                     <div class="mt-3">
-                                        <span class="inline-block rounded-md bg-groen px-2 py-0.5 font-round text-xs font-black tracking-wide text-white uppercase">{{ person.role }}</span>
+                                        <span class="inline-block rounded-md bg-groen px-2 py-0.5 font-round text-xs font-black tracking-wide text-gray-900 uppercase">{{ person.role }}</span>
                                     </div>
                                 {% endif %}
                                 <h2 class="mt-1.5 text-lg leading-tight font-bold text-gray-900 dark:text-white">
@@ -95,7 +95,7 @@
                         {% if internship_notitie_tekst %}
                             <div class="rounded-sm bg-gray-700/50 p-5 dark:bg-gray-700">
                                 {% if internship_notitie_titel %}
-                                    <span class="font-round text-xs font-black tracking-wide text-gray-400 uppercase">{{ internship_notitie_titel }}</span>
+                                    <span class="font-round text-xs font-black tracking-wide text-gray-300 uppercase">{{ internship_notitie_titel }}</span>
                                 {% endif %}
                                 <p class="mt-2 font-bold text-white">{{ internship_notitie_tekst }}</p>
                             </div>

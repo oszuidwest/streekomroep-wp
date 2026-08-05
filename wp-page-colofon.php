@@ -12,7 +12,6 @@ $people = [];
 $user_ids = get_field('colofon_users', $timber_post->ID) ?: [];
 if ($user_ids) {
     $users = get_users(['include' => $user_ids, 'orderby' => 'include']);
-    update_meta_cache('user', $user_ids);
     $post_counts = count_many_users_posts($user_ids, 'post', true);
 
     foreach ($users as $user) {
