@@ -173,7 +173,7 @@
                 <p class="mt-1 mb-5 text-sm {{ muted }}">Kies hoe je luistert en bekijk de juiste frequentie.</p>
 
                 {% if frequencies.ether is not empty %}
-                    <details class="group {{ card }} overflow-hidden" open>
+                    <details class="group {{ card }} overflow-hidden">
                         <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
                             <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">FM</span>
                             <span class="font-bold">Via de ether</span>
@@ -202,7 +202,7 @@
                 {% endif %}
 
                 {% if frequencies.dab is not empty %}
-                    <details class="group {{ card }} mt-3 overflow-hidden" {{ frequencies.ether is empty ? 'open' }}>
+                    <details class="group {{ card }} mt-3 overflow-hidden">
                         <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
                             <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">DAB+</span>
                             <span class="font-bold">Digitale radio</span>
@@ -213,13 +213,13 @@
                         <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
                             <div class="grid gap-3 sm:grid-cols-2">
                                 {% for channel in frequencies.dab %}
-                                    <div class="flex items-end justify-between gap-4 rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                    <div class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
                                         {% if channel.place %}
-                                            <p class="text-sm {{ muted }}">{{ channel.place }}</p>
+                                            <p class="text-sm leading-snug {{ muted }}">{{ channel.place }}</p>
                                         {% else %}
-                                            <p class="text-sm {{ muted }}">DAB+</p>
+                                            <p class="text-sm leading-snug {{ muted }}">DAB+</p>
                                         {% endif %}
-                                        <p class="text-3xl leading-none font-black tabular-nums">{{ channel.value }}</p>
+                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">{{ channel.value }}</p>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -228,7 +228,7 @@
                 {% endif %}
 
                 {% if frequencies.kabel is not empty %}
-                    <details class="group {{ card }} mt-3 overflow-hidden" {{ frequencies.ether is empty and frequencies.dab is empty ? 'open' }}>
+                    <details class="group {{ card }} mt-3 overflow-hidden">
                         <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
                             <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">Kabel</span>
                             <span class="font-bold">Via je aanbieder</span>
@@ -237,11 +237,11 @@
                             </span>
                         </summary>
                         <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
-                            <ul class="divide-y divide-gray-800/10 rounded-sm bg-gray-100 px-3.5 dark:divide-gray-200/10 dark:bg-gray-800">
+                            <ul class="grid gap-3 sm:grid-cols-2">
                                 {% for channel in frequencies.kabel %}
-                                    <li class="flex items-center justify-between gap-4 py-2.5">
-                                        <span class="text-sm {{ muted }}">{{ channel.place ?: 'Kabel' }}</span>
-                                        <b class="text-lg font-black tabular-nums">{{ channel.value }}</b>
+                                    <li class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                        <p class="text-sm leading-snug {{ muted }}">{{ channel.place ?: 'Kabel' }}</p>
+                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">{{ channel.value }}</p>
                                     </li>
                                 {% endfor %}
                             </ul>
