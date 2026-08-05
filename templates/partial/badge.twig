@@ -1,12 +1,12 @@
-{% macro render(text, intent = 'neutral', href = null, class = '') %}
+{% macro render(text, tone = 'neutral', href = null, class = '') %}
     {%- set base = 'inline-flex rounded-md px-2 py-0.5 font-round text-xs font-black tracking-wide uppercase' -%}
-    {%- set intents = {
+    {%- set tones = {
         groen: 'bg-groen text-white',
         blauw: 'bg-blauw text-white',
         roze: 'bg-roze text-white',
         neutral: 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900',
     } -%}
-    {%- set classes = base ~ ' ' ~ (intents[intent]|default(intents.neutral)) ~ (class ? ' ' ~ class) -%}
+    {%- set classes = base ~ ' ' ~ (tones[tone] ?? tones.neutral) ~ (class ? ' ' ~ class) -%}
     {%- if href is not null -%}
         <a href="{{ href }}"
            class="{{ classes }} transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blauw">{{ text }}</a>

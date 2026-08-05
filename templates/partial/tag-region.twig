@@ -2,11 +2,7 @@
 
 <div class="flex">
    {% if region %}
-       {% if link is not defined or link %}
-           {{ badge.render(region.title, 'groen', region.link) }}
-       {% else %}
-           {{ badge.render(region.title, 'groen') }}
-       {% endif %}
+       {{ badge.render(region.title, 'groen', (link is not defined or link) ? region.link : null) }}
    {% else %}
        {{ badge.render(options.placeholder_geen_regio, 'groen') }}
    {% endif %}
