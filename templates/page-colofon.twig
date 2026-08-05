@@ -77,10 +77,7 @@
                             {% endif %}
                             {% if post.meta('colofon_stage_email') and post.meta('colofon_stage_knop_tekst') %}
                                 <a href="mailto:{{ post.meta('colofon_stage_email') }}"
-                                   class="mt-5 inline-flex items-center gap-2 rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90 [&>svg]:h-4 [&>svg]:w-4">
-                                    <span>{{ post.meta('colofon_stage_knop_tekst') }}</span>
-                                    {{ icon('icon-arrow_forward') }}
-                                </a>
+                                   class="mt-5 inline-block rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90">{{ post.meta('colofon_stage_knop_tekst') }}</a>
                             {% endif %}
                         </div>
                         {% if post.meta('colofon_stage_notitie_tekst') %}
