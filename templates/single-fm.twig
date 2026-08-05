@@ -107,7 +107,7 @@
                             {% for dayname in weekday_names %}
                                 {{ badge.render(
                                     dayname|slice(0, 2),
-                                    dayname in schedule_days ? 'highlight' : 'neutral',
+                                    dayname in schedule_days ? 'roze' : 'neutral',
                                     null,
                                     'flex-1 justify-center py-1.5',
                                 ) }}

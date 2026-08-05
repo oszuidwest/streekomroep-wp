@@ -1,11 +1,10 @@
 {% macro render(text, intent = 'neutral', href = null, class = '') %}
     {%- set base = 'inline-flex rounded-md px-2 py-0.5 font-round text-xs font-black tracking-wide uppercase' -%}
     {%- set intents = {
-        brand: 'bg-groen text-white',
-        info: 'bg-blauw text-white',
-        highlight: 'bg-roze text-white',
+        groen: 'bg-groen text-white',
+        blauw: 'bg-blauw text-white',
+        roze: 'bg-roze text-white',
         neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
-        inverse: 'bg-white/15 text-white',
     } -%}
     {%- set classes = base ~ ' ' ~ (intents[intent]|default(intents.neutral)) ~ (class ? ' ' ~ class) -%}
     {%- if href is not null -%}

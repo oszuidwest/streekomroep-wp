@@ -3,11 +3,11 @@
 <div class="flex">
    {% if region %}
        {% if link is not defined or link %}
-           {{ badge.render(region.title, 'brand', region.link) }}
+           {{ badge.render(region.title, 'groen', region.link) }}
        {% else %}
-           {{ badge.render(region.title, 'brand') }}
+           {{ badge.render(region.title, 'groen') }}
        {% endif %}
    {% else %}
-       {{ badge.render(options.placeholder_geen_regio, 'brand') }}
+       {{ badge.render(options.placeholder_geen_regio, 'groen') }}
    {% endif %}
 </div>
