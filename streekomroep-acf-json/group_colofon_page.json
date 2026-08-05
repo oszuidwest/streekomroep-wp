@@ -21,9 +21,9 @@
             "return_format": "id"
         },
         {
-            "key": "field_colofon_stage_tonen",
+            "key": "field_colofon_internship_tonen",
             "label": "Stage-sectie tonen",
-            "name": "colofon_stage_tonen",
+            "name": "colofon_internship_tonen",
             "type": "true_false",
             "instructions": "",
             "required": 0,
@@ -40,16 +40,16 @@
             "ui_off_text": ""
         },
         {
-            "key": "field_colofon_stage_kicker",
+            "key": "field_colofon_internship_kicker",
             "label": "Stage: bovenregel",
-            "name": "colofon_stage_kicker",
+            "name": "colofon_internship_kicker",
             "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -67,16 +67,16 @@
             "maxlength": ""
         },
         {
-            "key": "field_colofon_stage_titel",
+            "key": "field_colofon_internship_titel",
             "label": "Stage: titel",
-            "name": "colofon_stage_titel",
+            "name": "colofon_internship_titel",
             "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -94,16 +94,16 @@
             "maxlength": ""
         },
         {
-            "key": "field_colofon_stage_tekst",
+            "key": "field_colofon_internship_tekst",
             "label": "Stage: tekst",
-            "name": "colofon_stage_tekst",
+            "name": "colofon_internship_tekst",
             "type": "textarea",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -121,16 +121,16 @@
             "new_lines": "br"
         },
         {
-            "key": "field_colofon_stage_knop_tekst",
+            "key": "field_colofon_internship_knop_tekst",
             "label": "Stage: knoptekst",
-            "name": "colofon_stage_knop_tekst",
+            "name": "colofon_internship_knop_tekst",
             "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -148,16 +148,16 @@
             "maxlength": ""
         },
         {
-            "key": "field_colofon_stage_email",
+            "key": "field_colofon_internship_email",
             "label": "Stage: e-mailadres",
-            "name": "colofon_stage_email",
+            "name": "colofon_internship_email",
             "type": "email",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -174,16 +174,16 @@
             "append": ""
         },
         {
-            "key": "field_colofon_stage_notitie_titel",
+            "key": "field_colofon_internship_notitie_titel",
             "label": "Stage: notitie-titel",
-            "name": "colofon_stage_notitie_titel",
+            "name": "colofon_internship_notitie_titel",
             "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
@@ -201,16 +201,16 @@
             "maxlength": ""
         },
         {
-            "key": "field_colofon_stage_notitie_tekst",
+            "key": "field_colofon_internship_notitie_tekst",
             "label": "Stage: notitietekst",
-            "name": "colofon_stage_notitie_tekst",
+            "name": "colofon_internship_notitie_tekst",
             "type": "textarea",
             "instructions": "Leeg laten om de notitiekaart te verbergen.",
             "required": 0,
             "conditional_logic": [
                 [
                     {
-                        "field": "field_colofon_stage_tonen",
+                        "field": "field_colofon_internship_tonen",
                         "operator": "==",
                         "value": "1"
                     }
