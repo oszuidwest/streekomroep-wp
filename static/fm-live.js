@@ -128,11 +128,15 @@
     }
 
     function renderNow(track) {
+        const details = document.querySelector('[data-now-details]');
+        const title = track && track.isSong ? track.title : (details?.dataset.fallbackTitle || '');
+        const artist = track && track.isSong ? track.artist : (details?.dataset.fallbackArtist || '');
+
         all('[data-now-title]').forEach((node) => {
-            node.textContent = track.title;
+            node.textContent = title;
         });
         all('[data-now-artist]').forEach((node) => {
-            node.textContent = track.artist;
+            node.textContent = artist;
         });
     }
 

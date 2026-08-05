@@ -3,6 +3,8 @@
 {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 dark:border-gray-200/10 dark:bg-gray-700/40' %}
 {% set card_title = 'font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
 {% set muted = 'text-gray-500 dark:text-gray-400' %}
+{% set radio_fallback_title = 'De stem van de streek' %}
+{% set radio_fallback_artist = 'In heel West-Brabant' %}
 
 {#
     A cover slot. Stays an empty tinted square until fm-live.js paints the theme's triangle
@@ -125,10 +127,15 @@
                         <p class="mt-1 text-sm {{ muted }}">Daarna verschijnt hier het nummer dat speelt.</p>
                     </div>
                 {% endif %}
-                <div class="min-w-0 flex-1" data-now-details {{ stream_sources is not empty ? 'hidden' }} aria-live="polite">
-                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>{{ on_air }}</p>
+                <div class="min-w-0 flex-1" data-now-details
+                     data-fallback-title="{{ radio_fallback_title }}"
+                     data-fallback-artist="{{ radio_fallback_artist }}"
+                     {{ stream_sources is not empty ? 'hidden' }} aria-live="polite">
+                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>
+                        {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
+                    </p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}">
-                        <span data-now-artist>{{ maker_names|join(', ', ' en ') }}</span>
+                        <span data-now-artist>{{ stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') }}</span>
                     </p>
                 </div>
             </div>
