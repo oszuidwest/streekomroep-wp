@@ -1,6 +1,7 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/badge.twig' as badge %}
     {% import 'partial/responsive-image.twig' as responsive %}
     <article class="post-type-{{ post.post_type }}" id="post-{{ post.ID }}">
         <div class="mx-auto w-full max-w-960 px-4 py-7 lg:py-9">
@@ -44,7 +45,7 @@
                                 {% endif %}
                                 {% if person.role %}
                                     <div class="mt-3">
-                                        <span class="inline-block rounded-md bg-groen/15 px-2 py-0.5 font-round text-xs font-black tracking-wide text-green-800 uppercase dark:text-groen">{{ person.role }}</span>
+                                        {{ badge.render(person.role, 'brand') }}
                                     </div>
                                 {% endif %}
                                 <h2 class="mt-1.5 text-lg leading-tight font-bold text-gray-900 dark:text-white">
