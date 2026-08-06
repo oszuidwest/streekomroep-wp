@@ -85,7 +85,9 @@
                     </button>
                 {% endif %}
                 <div class="min-w-0 flex-1" data-now-details
-                     data-metadata-url="{{ options.radio_live_metadata_url }}" aria-live="polite">
+                     data-metadata-url="{{ options.radio_live_metadata_url }}"
+                     data-fallback-title="{{ radio_fallback_title }}"
+                     data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
                     <p class="line-clamp-2 text-2xl leading-tight font-black sm:line-clamp-1 sm:text-3xl" data-now-title>
                         {{- has_stream ? radio_fallback_title : on_air -}}
                     </p>

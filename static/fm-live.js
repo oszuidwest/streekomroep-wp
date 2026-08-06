@@ -44,6 +44,12 @@
         artistNode.textContent = artist;
     }
 
+    function renderFallback() {
+        clearTimeout(expiryTimer);
+        expiryTimer = null;
+        renderNow(null);
+    }
+
     function trackIsCurrent(expiresAt) {
         clearTimeout(expiryTimer);
         const remaining = Date.parse(expiresAt) - Date.now();
@@ -52,11 +58,11 @@
         }
 
         if (remaining <= 0) {
-            renderNow(null);
+            renderFallback();
             return false;
         }
 
-        expiryTimer = setTimeout(() => renderNow(null), remaining);
+        expiryTimer = setTimeout(renderFallback, remaining);
         return true;
     }
 
@@ -107,6 +113,10 @@
 
             const track = readTrack(payload);
             if (!track) {
+                // An empty metadata update explicitly means that nothing is playing.
+                if (!payload.type || payload.type === 'metadata_update') {
+                    renderFallback();
+                }
                 return;
             }
 

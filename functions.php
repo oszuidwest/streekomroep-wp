@@ -985,11 +985,14 @@ function zw_enqueue_fm_live_assets()
         return;
     }
 
+    $scriptPath = get_theme_file_path('static/fm-live.js');
+    $scriptVersion = filemtime($scriptPath) ?: wp_get_theme()->get('Version');
+
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
         ['zw-videojs-init'],
-        wp_get_theme()->get('Version'),
+        $scriptVersion,
         ['strategy' => 'defer', 'in_footer' => true]
     );
 }
