@@ -12,7 +12,6 @@
     {url: options.radio_webplayer_ogg_stream, type: 'audio/ogg'},
     {url: options.radio_webplayer_hls_stream, type: 'application/x-mpegURL'},
 ]|filter(source => source.url) %}
-{% set radio_poster = get_image(options.radio_webplayer_poster) %}
 {% set maker_names = current_makers|column('fm_show_maker_naam')|filter(name => name) %}
 {% set on_air = current ? current.getName() : post.title %}
 
@@ -48,7 +47,7 @@
                                     <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
                                          srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
                                          alt="{{ maker.fm_show_maker_naam }}" width="40" height="40" loading="lazy"
-                                         class="size-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/55 not-first:-ml-2 md:size-10">
+                                         class="size-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/55 not-first:-ml-1 md:size-10">
                                 {% endfor %}
                             </span>
                         {% endif %}
@@ -87,45 +86,24 @@
         {% endif %}
 
         <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
-            <h2 id="live-player-title" class="sr-only">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="{{ card }} grid overflow-hidden md:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)]">
-                <div class="relative grid min-h-[17.875rem] place-items-center overflow-hidden bg-[linear-gradient(145deg,rgba(230,0,126,0.04),#f9fafb_48%,rgba(230,0,126,0.07))] p-3.5 md:min-h-[25rem] dark:bg-[linear-gradient(145deg,rgba(230,0,126,0.08),rgba(55,65,81,0.4)_48%,rgba(230,0,126,0.1))]">
-                    {{ include('partial/fm-logo-mark.twig', {
-                        class: 'pointer-events-none absolute size-[24.375rem] -rotate-[8deg] text-roze opacity-[0.105] md:size-[34rem] dark:opacity-[0.14]',
-                    }) }}
-                    {% if radio_poster %}
-                        <img src="{{ radio_poster|imgproxy(704, 704) }}"
-                             srcset="{{ radio_poster|imgproxy(520, 520) }} 520w, {{ radio_poster|imgproxy(704, 704) }} 704w"
-                             sizes="(min-width: 768px) 22rem, 16.25rem"
-                             alt="" width="704" height="704" fetchpriority="high"
-                             class="relative z-10 size-[16.25rem] rounded-sm border-[6px] border-white object-cover shadow-[0_7px_18px_rgba(24,35,54,0.12)] md:size-[22rem] dark:border-gray-600">
-                    {% else %}
-                        <span class="relative z-10 grid size-[16.25rem] place-items-center rounded-sm border-[6px] border-white bg-gray-100 text-roze shadow-[0_7px_18px_rgba(24,35,54,0.12)] md:size-[22rem] dark:border-gray-600 dark:bg-gray-700">
-                            {{ include('partial/fm-logo-mark.twig', {
-                                class: 'size-2/3 opacity-20',
-                            }) }}
-                        </span>
-                    {% endif %}
-                </div>
-
-                <div class="grid {{ stream_sources is not empty ? 'grid-cols-[4rem_minmax(0,1fr)] md:grid-cols-[5rem_minmax(0,1fr)]' }} items-center gap-3.5 border-t border-gray-800/10 p-3.5 shadow-[inset_0_3px_0_rgba(230,0,126,0.16)] md:gap-5 md:border-t-0 md:border-l md:p-6 dark:border-gray-200/10">
-                    {% if stream_sources is not empty %}
-                        <button type="button" aria-label="Luister live" data-play
-                                class="grid size-16 touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze md:size-20 motion-reduce:transition-none">
-                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
-                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
-                        </button>
-                    {% endif %}
-                    <div class="min-w-0" data-now-details
-                         data-fallback-title="{{ radio_fallback_title }}"
-                         data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
-                        <p class="font-round line-clamp-4 text-2xl leading-[1.02] font-black break-words text-gray-900 md:text-3xl dark:text-white" data-now-title>
-                            {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
-                        </p>
-                        <p class="mt-1.5 truncate text-sm font-bold md:text-base {{ muted }}" data-now-artist>
-                            {{- stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') -}}
-                        </p>
-                    </div>
+            <h2 id="live-player-title" class="mb-5 text-3xl font-bold">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
+            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
+                {% if stream_sources is not empty %}
+                    <button type="button" aria-label="Luister live" data-play
+                            class="grid size-16 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-20 motion-reduce:transition-none">
+                        <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                        <span class="[&>svg]:size-8 sm:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                    </button>
+                {% endif %}
+                <div class="min-w-0 flex-1" data-now-details
+                     data-fallback-title="{{ radio_fallback_title }}"
+                     data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
+                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>
+                        {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
+                    </p>
+                    <p class="mt-1 truncate text-sm sm:text-base {{ muted }}" data-now-artist>
+                        {{- stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') -}}
+                    </p>
                 </div>
             </div>
         </section>
