@@ -35,10 +35,10 @@ if ($show) {
     $context['remaining'] = (int)ceil(($length - $elapsed) / 60);
 }
 
-/** Describes a show relative to today, so the same card reads well tonight and next Saturday. */
+/** Labels shows beyond today; today's shows are already covered by the "Straks" section heading. */
 $whenLabel = function (Carbon $start) {
     if ($start->isToday()) {
-        return 'straks';
+        return null;
     }
 
     return $start->isTomorrow() ? 'morgen' : $start->locale('nl')->isoFormat('dddd');
