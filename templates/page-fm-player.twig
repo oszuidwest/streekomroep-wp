@@ -31,7 +31,7 @@
                     <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3">
                         {% set portraits = current_makers|filter(maker => maker.fm_show_maker_foto)|slice(0, 2) %}
                         {% if portraits is not empty %}
-                            <span class="flex flex-none gap-1.5">
+                            <span class="flex flex-none gap-3">
                                 {% for maker in portraits %}
                                     <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
                                          srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
