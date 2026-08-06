@@ -167,8 +167,6 @@
         player.on('error', () => setPlaying(false));
 
         buttons.forEach((button) => button.addEventListener('click', function () {
-            button.classList.remove('zw-play-hint');
-
             if (!player.paused()) {
                 player.pause();
                 return;
