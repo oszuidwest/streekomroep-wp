@@ -21,7 +21,7 @@
                     {% if live_show %}
                         Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
                     {% else %}
-                        Nu op {{ fm_post_type.labels.name }}
+                        Nu op {{ radio_fallback_title }}
                     {% endif %}
                 </p>
 
