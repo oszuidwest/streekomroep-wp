@@ -22,13 +22,12 @@
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
                 <nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
                     <a class="transition hover:text-white hover:underline"
-                       href="{{ function('get_post_type_archive_link', 'fm') }}">{{ fm_post_type.labels.all_items }}</a>
+                       href="{{ function('get_post_type_archive_link', 'fm') }}">ZuidWest FM</a>
                     <span class="opacity-60">{{ breadcrumb_separator }}</span>
                     <span class="text-white/60">{{ post.title }}</span>
                 </nav>
 
-                <p class="mb-2 flex items-center gap-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
-                    <span class="zw-pulse size-2 flex-none rounded-full bg-groen" data-live-dot></span>
+                <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
                     {% if current_show %}
                         Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
                     {% else %}
@@ -52,7 +51,7 @@
                             </span>
                         {% endif %}
                         <span class="min-w-0 text-sm text-white/85 md:text-base">
-                            Met <b class="font-bold text-white">{{ maker_names|join(', ', ' en ') }}</b>
+                            Met <b class="font-semibold text-white">{{ maker_names|join(', ', ' en ') }}</b>
                         </span>
                     </p>
                 {% endif %}

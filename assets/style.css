@@ -113,28 +113,6 @@
     }
 }
 
-/* Live radio page: the on-air dot next to the programme that is being broadcast now */
-@keyframes zw-pulse {
-    70% {
-        box-shadow: 0 0 0 0.55rem rgb(0 222 1 / 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgb(0 222 1 / 0);
-    }
-}
-
-.zw-pulse {
-    box-shadow: 0 0 0 0 rgb(0 222 1 / 0.7);
-    animation: zw-pulse 2s infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .zw-pulse {
-        animation: none;
-    }
-}
-
 /* Contact Form 7 styles */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-300 rounded-sm;

@@ -131,11 +131,6 @@
 
             // The slot ran out while the page stayed open; stop claiming this show is on air.
             label.textContent = 'afgelopen';
-            const dot = document.querySelector('[data-live-dot]');
-            if (dot) {
-                dot.classList.remove('zw-pulse');
-                dot.classList.add('opacity-40');
-            }
             clearInterval(timer);
         };
 
