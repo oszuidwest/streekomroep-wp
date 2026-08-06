@@ -130,38 +130,40 @@
         {% endif %}
 
         {% if frequency_groups is not empty %}
-            <section class="mx-auto max-w-960 px-4 pt-7">
-                <h2 class="text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
-                <p class="mt-1 mb-5 text-sm {{ muted }}">Kies hoe je luistert en bekijk de juiste frequentie.</p>
+            <section class="mt-7 bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
+                <div class="mx-auto w-full max-w-960 px-4 py-8">
+                    <h2 class="text-3xl font-bold">Waar je ons vindt</h2>
+                    <p class="mt-1 mb-5 text-sm text-gray-400">Kies hoe je luistert en bekijk de juiste frequentie.</p>
 
-                {% for group in frequency_groups %}
-                    <details class="group {{ card }} {{ not loop.first ? 'mt-3 ' }}overflow-hidden">
-                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
-                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase dark:bg-gray-100 dark:text-gray-900">{{ group.badge }}</span>
-                            <span class="font-bold">{{ group.title }}</span>
-                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
-                                {{ icon('icon-chevron_right') }}
-                            </span>
-                        </summary>
-                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
-                            <ul class="grid gap-3 sm:grid-cols-2">
-                                {% for channel in group.channels %}
-                                    <li class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
-                                        {% if channel.place %}
-                                            <p class="text-sm leading-snug {{ muted }}">{{ channel.place }}</p>
-                                        {% endif %}
-                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">
-                                            {{- channel.value -}}
-                                            {%- if group.unit -%}
-                                                <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">{{ group.unit }}</span>
-                                            {%- endif -%}
-                                        </p>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </details>
-                {% endfor %}
+                    {% for group in frequency_groups %}
+                        <details class="group {{ not loop.first ? 'mt-3 ' }}overflow-hidden rounded-sm border border-white/10 bg-gray-700/50">
+                            <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
+                                <span class="min-w-14 rounded-sm bg-gray-100 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-gray-900 uppercase">{{ group.badge }}</span>
+                                <span class="font-bold">{{ group.title }}</span>
+                                <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
+                                    {{ icon('icon-chevron_right') }}
+                                </span>
+                            </summary>
+                            <div class="border-t border-white/10 px-4 pt-3 pb-4">
+                                <ul class="grid gap-3 sm:grid-cols-2">
+                                    {% for channel in group.channels %}
+                                        <li class="rounded-sm bg-gray-700 px-3.5 py-3">
+                                            {% if channel.place %}
+                                                <p class="text-sm leading-snug text-gray-400">{{ channel.place }}</p>
+                                            {% endif %}
+                                            <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">
+                                                {{- channel.value -}}
+                                                {%- if group.unit -%}
+                                                    <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">{{ group.unit }}</span>
+                                                {%- endif -%}
+                                            </p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </details>
+                    {% endfor %}
+                </div>
             </section>
         {% endif %}
     </article>
