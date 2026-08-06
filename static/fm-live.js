@@ -25,11 +25,12 @@
     }
 
     let current = null;
+    let expiryTimer = null;
     function renderNow(track) {
         const details = document.querySelector('[data-now-details]');
         // Station idents and programme names travel through the same feed but are not records.
-        const title = track.artist ? track.title : (details?.dataset.fallbackTitle || '');
-        const artist = track.artist || details?.dataset.fallbackArtist || '';
+        const title = track?.artist ? track.title : (details?.dataset.fallbackTitle || '');
+        const artist = track?.artist || details?.dataset.fallbackArtist || '';
 
         document.querySelectorAll('[data-now-title]').forEach((node) => {
             node.textContent = title;
@@ -37,6 +38,27 @@
         document.querySelectorAll('[data-now-artist]').forEach((node) => {
             node.textContent = artist;
         });
+    }
+
+    function expireTrack() {
+        current = null;
+        renderNow(null);
+    }
+
+    function trackIsCurrent(expiresAt) {
+        const remaining = Date.parse(expiresAt) - Date.now();
+        if (!Number.isFinite(remaining)) {
+            return true;
+        }
+
+        clearTimeout(expiryTimer);
+        if (remaining <= 0) {
+            expireTrack();
+            return false;
+        }
+
+        expiryTimer = setTimeout(expireTrack, remaining);
+        return true;
     }
 
     let reconnectDelay = RECONNECT_START;
@@ -81,6 +103,10 @@
 
             const track = readTrack(payload);
             if (!track) {
+                return;
+            }
+
+            if (!trackIsCurrent(payload.expires_at)) {
                 return;
             }
 
