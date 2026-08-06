@@ -129,8 +129,26 @@
     animation: zw-pulse 2s infinite;
 }
 
+/* Briefly draw attention to the live player without leaving a perpetual animation on the page. */
+@keyframes zw-play-hint {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgb(230 0 126 / 0);
+        transform: scale(1);
+    }
+
+    45% {
+        box-shadow: 0 0 0 0.45rem rgb(230 0 126 / 0.14);
+        transform: scale(1.025);
+    }
+}
+
+.zw-play-hint {
+    animation: zw-play-hint 2.4s ease-in-out 1s 2;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .zw-pulse {
+    .zw-pulse,
+    .zw-play-hint {
         animation: none;
     }
 }
