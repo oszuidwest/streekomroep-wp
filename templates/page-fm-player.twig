@@ -76,7 +76,7 @@
 
         <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
             <h2 id="live-player-title" class="mb-5 text-2xl font-bold md:text-3xl">{{ has_stream ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
+            <div class="{{ card }} flex min-h-29 items-center gap-4 p-4 sm:gap-5 sm:p-5">
                 {% if has_stream %}
                     <button type="button" aria-label="Luister live" data-play
                             class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-22 motion-reduce:transition-none">
