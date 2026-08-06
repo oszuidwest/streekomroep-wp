@@ -975,7 +975,12 @@ function zw_enqueue_theme_assets()
     $version = wp_get_theme()->get('Version');
     wp_enqueue_style('streekomroep-style', get_theme_file_uri('dist/style.css'), [], $version);
     wp_enqueue_script('streekomroep-site', get_theme_file_uri('static/site.js'), [], $version, true);
+}
 
+add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
+
+function zw_enqueue_fm_live_assets()
+{
     if (!is_page_template('wp-page-fm-player.php')) {
         return;
     }
@@ -984,16 +989,12 @@ function zw_enqueue_theme_assets()
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
         ['video.js'],
-        $version,
+        wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );
-
-    wp_localize_script('zw-fm-live', 'zwFmLive', [
-        'metadataUrl' => (string)get_field('radio_live_metadata_url', 'option'),
-    ]);
 }
 
-add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
+add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets');
 
 /**
  * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues

@@ -53,6 +53,7 @@ class Site extends \Timber\Site
         $context['socials'] = zw_get_socials();
         $context['site'] = $this;
         $context['options'] = get_fields('option') ?: [];
+        $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? \WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
         return $context;
     }
 

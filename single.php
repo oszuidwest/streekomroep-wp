@@ -209,7 +209,6 @@ if ($timber_post->post_type == 'fm') {
     $context['schedule_days'] = $rules ? array_merge(...array_column($rules, 'fm_show_dagen')) : [];
     $context['weekday_names'] = array_values(BroadcastDay::WEEKDAY_NAMES);
 
-    $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
     $context['fm_post_type'] = get_post_type_object('fm');
 }
 

@@ -6,13 +6,13 @@
  * programme, the schedule and the frequencies.
  */
 (function () {
-    const config = window.zwFmLive || {};
-
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
     const PROGRESS_INTERVAL = 30000;
 
-    const trackKey = (track) => (track ? `${track.artist}|${track.title}` : '');
+    const details = document.querySelector('[data-now-details]');
+    const titleNode = document.querySelector('[data-now-title]');
+    const artistNode = document.querySelector('[data-now-artist]');
 
     function readTrack(payload) {
         const title = String(payload.title || '').trim();
@@ -24,25 +24,12 @@
         return {title: title, artist: artist};
     }
 
-    let current = null;
     let expiryTimer = null;
     function renderNow(track) {
-        const details = document.querySelector('[data-now-details]');
         // Station idents and programme names travel through the same feed but are not records.
-        const title = track?.artist ? track.title : (details?.dataset.fallbackTitle || '');
-        const artist = track?.artist || details?.dataset.fallbackArtist || '';
-
-        document.querySelectorAll('[data-now-title]').forEach((node) => {
-            node.textContent = title;
-        });
-        document.querySelectorAll('[data-now-artist]').forEach((node) => {
-            node.textContent = artist;
-        });
-    }
-
-    function expireTrack() {
-        current = null;
-        renderNow(null);
+        const isTrack = Boolean(track && track.artist);
+        titleNode.textContent = isTrack ? track.title : (details.dataset.fallbackTitle || '');
+        artistNode.textContent = isTrack ? track.artist : (details.dataset.fallbackArtist || '');
     }
 
     function trackIsCurrent(expiresAt) {
@@ -53,11 +40,11 @@
 
         clearTimeout(expiryTimer);
         if (remaining <= 0) {
-            expireTrack();
+            renderNow(null);
             return false;
         }
 
-        expiryTimer = setTimeout(expireTrack, remaining);
+        expiryTimer = setTimeout(() => renderNow(null), remaining);
         return true;
     }
 
@@ -71,7 +58,7 @@
     }
 
     function connectMetadata() {
-        if (!config.metadataUrl || !('WebSocket' in window)) {
+        if (!details || !details.dataset.metadataUrl || !('WebSocket' in window)) {
             return;
         }
 
@@ -79,7 +66,7 @@
 
         let socket;
         try {
-            socket = new WebSocket(config.metadataUrl);
+            socket = new WebSocket(details.dataset.metadataUrl);
         } catch (error) {
             scheduleReconnect();
             return;
@@ -110,12 +97,6 @@
                 return;
             }
 
-            const changed = trackKey(track) !== trackKey(current);
-            if (!changed) {
-                return;
-            }
-
-            current = track;
             renderNow(track);
         });
 
@@ -160,28 +141,36 @@
 
     function setupPlayer() {
         const media = document.getElementById('zw-fm-stream');
-        const buttons = document.querySelectorAll('[data-play]');
-        if (!media || !buttons.length || typeof videojs === 'undefined') {
+        const button = document.querySelector('[data-play]');
+        if (!media || !button || typeof videojs === 'undefined') {
             return;
         }
 
-        const player = videojs(media, {controls: false, liveui: true, preload: 'none'});
+        const player = videojs(media, {
+            controls: false,
+            liveui: true,
+            preload: 'none',
+            // Keep in step with videojs-init.js: Chrome needs VHS instead of native HLS.
+            html5: {
+                vhs: {overrideNative: !videojs.browser.IS_SAFARI},
+                nativeAudioTracks: false,
+                nativeVideoTracks: false
+            }
+        });
 
+        const playIcon = button.querySelector('[data-play-icon="play"]');
+        const pauseIcon = button.querySelector('[data-play-icon="pause"]');
         const setPlaying = function (playing) {
-            buttons.forEach((button) => {
-                button.setAttribute('aria-label', playing ? 'Pauzeer' : 'Luister live');
-                button.querySelector('[data-play-icon="play"]').hidden = playing;
-                button.querySelector('[data-play-icon="pause"]').hidden = !playing;
-            });
+            button.setAttribute('aria-label', playing ? 'Pauzeer' : 'Luister live');
+            playIcon.hidden = playing;
+            pauseIcon.hidden = !playing;
         };
 
-        player.on('playing', function () {
-            setPlaying(true);
-        });
+        player.on('playing', () => setPlaying(true));
         player.on('pause', () => setPlaying(false));
         player.on('error', () => setPlaying(false));
 
-        buttons.forEach((button) => button.addEventListener('click', function () {
+        button.addEventListener('click', function () {
             if (!player.paused()) {
                 player.pause();
                 return;
@@ -194,7 +183,7 @@
                 started.catch(() => setPlaying(false));
             }
             setPlaying(true);
-        }));
+        });
     }
 
     startProgress();

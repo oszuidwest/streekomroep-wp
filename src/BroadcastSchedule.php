@@ -169,6 +169,29 @@ class BroadcastSchedule
         return $index === false ? null : ($broadcasts[$index + 1] ?? null);
     }
 
+    /**
+     * Returns the next programmed broadcasts, skipping filler such as non-stop music.
+     *
+     * @return RadioBroadcast[]
+     */
+    public function getUpcomingRadioBroadcasts(int $limit)
+    {
+        $now = Carbon::now(wp_timezone());
+        $upcoming = [];
+
+        foreach ($this->getRadioBroadcasts() as $broadcast) {
+            if (count($upcoming) === $limit) {
+                break;
+            }
+
+            if ($broadcast->show && $broadcast->start->isAfter($now)) {
+                $upcoming[] = $broadcast;
+            }
+        }
+
+        return $upcoming;
+    }
+
     /** Returns the broadcast immediately following this show's current or next slot. */
     public function getFollowingRadioBroadcast(int $showId)
     {

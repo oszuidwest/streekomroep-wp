@@ -8,26 +8,20 @@
  */
 
 use Carbon\Carbon;
+use Streekomroep\BroadcastDay;
 use Streekomroep\BroadcastSchedule;
-use Streekomroep\RadioBroadcast;
-
-/** Shows to list under "Straks". */
-$upcomingLimit = 2;
 
 $context = Timber::context();
 $context['post'] = Timber::get_post();
 
-$now = Carbon::now(wp_timezone());
 $schedule = new BroadcastSchedule();
 $current = $schedule->getCurrentRadioBroadcast();
 
 $context['current'] = $current;
 
-// Filler broadcasts carry only a name, so the byline and the progress bar belong to real shows.
-$show = $current?->show;
-$context['current_makers'] = $show ? zw_acf_rows($show->meta('fm_show_makers')) : [];
-
-if ($show) {
+// Filler broadcasts carry only a name, so the progress bar belongs to real shows.
+if ($current?->show) {
+    $now = Carbon::now(wp_timezone());
     $length = max(1, $current->start->diffInSeconds($current->end));
     $elapsed = min($length, max(0, $current->start->diffInSeconds($now)));
     $context['progress'] = (int)round($elapsed / $length * 100);
@@ -40,55 +34,62 @@ $whenLabel = function (Carbon $start) {
         return null;
     }
 
-    return $start->isTomorrow() ? 'morgen' : $start->locale('nl')->isoFormat('dddd');
+    return $start->isTomorrow() ? 'morgen' : BroadcastDay::WEEKDAY_NAMES[$start->dayOfWeekIso];
 };
 
-// Skip the filler: "Straks" is about programmes, and non-stop music is what happens in between.
-$upcoming = [];
-$broadcast = $current;
-while ($broadcast && count($upcoming) < $upcomingLimit) {
-    $broadcast = $schedule->getNextRadioBroadcast($broadcast);
-    if (!$broadcast instanceof RadioBroadcast || !$broadcast->show) {
-        continue;
+$context['upcoming'] = array_map(fn ($broadcast) => [
+    'broadcast' => $broadcast,
+    'label' => $whenLabel($broadcast->start),
+], $schedule->getUpcomingRadioBroadcasts(2));
+
+// VideoJS tries sources in order, so list them by preference.
+$streamTypes = [
+    'radio_webplayer_aac_stream' => 'audio/mp4',
+    'radio_webplayer_mp3_stream' => 'audio/mp3',
+    'radio_webplayer_ogg_stream' => 'audio/ogg',
+    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
+];
+
+$context['stream_sources'] = [];
+foreach ($streamTypes as $field => $mimeType) {
+    $url = get_field($field, 'option');
+    if ($url) {
+        $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
     }
-
-    $makers = zw_acf_rows($broadcast->show->meta('fm_show_makers'));
-    $photos = array_values(array_filter(array_column($makers, 'fm_show_maker_foto')));
-
-    $upcoming[] = [
-        'broadcast' => $broadcast,
-        'label' => $whenLabel($broadcast->start),
-        'makers' => array_values(array_filter(array_column($makers, 'fm_show_maker_naam'))),
-        'photo' => $photos[0] ?? null,
-    ];
 }
-
-$context['upcoming'] = $upcoming;
 
 // One repeater holds every way to receive the station; the page shows a section per medium.
-$frequencies = ['ether' => [], 'dab' => [], 'kabel' => []];
-foreach (zw_acf_rows(get_field('radio_frequenties', 'option')) as $row) {
-    $medium = match ($row['radio_frequenties_medium'] ?? null) {
-        'Ether' => 'ether',
-        'DAB+' => 'dab',
-        'Kabel' => 'kabel',
-        default => null,
-    };
+$groups = [
+    'Ether' => ['badge' => 'FM', 'title' => 'Via de ether', 'unit' => 'FM', 'channels' => []],
+    'DAB+' => ['badge' => 'DAB+', 'title' => 'Digitale radio', 'unit' => '', 'channels' => []],
+    'Kabel' => ['badge' => 'Kabel', 'title' => 'Via je aanbieder', 'unit' => '', 'channels' => []],
+];
 
-    $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
-    if ($medium === null || $value === '') {
+foreach (zw_acf_rows(get_field('radio_frequenties', 'option')) as $row) {
+    $medium = $row['radio_frequenties_medium'] ?? null;
+    if (!isset($groups[$medium])) {
         continue;
     }
 
-    $frequencies[$medium][] = [
+    // The field asks for the number only, but older rows may still carry the unit.
+    $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
+    if ($groups[$medium]['unit']) {
+        $value = trim(preg_replace('/\s*' . preg_quote($groups[$medium]['unit'], '/') . '$/i', '', $value));
+    }
+
+    if ($value === '') {
+        continue;
+    }
+
+    $groups[$medium]['channels'][] = [
         'value' => $value,
-        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')),
+        // Ether rows without a place stay bare; other media fall back to their medium name.
+        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')) ?: ($medium === 'Ether' ? '' : $medium),
     ];
 }
 
-$context['frequencies'] = $frequencies;
+$context['frequency_groups'] = array_values(array_filter($groups, fn ($group) => $group['channels']));
 
-$context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
 $context['fm_post_type'] = get_post_type_object('fm');
 
 zw_require_videojs();
