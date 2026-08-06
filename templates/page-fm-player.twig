@@ -130,15 +130,15 @@
         {% endif %}
 
         {% if frequency_groups is not empty %}
-            <section class="mt-7 bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
-                <div class="mx-auto w-full max-w-960 px-4 py-8">
+            <section class="mx-auto max-w-960 px-4 pt-7">
+                <div class="rounded-sm bg-gray-800 px-4 py-6 text-white sm:px-5 sm:py-7 dark:border dark:border-gray-700/50">
                     <h2 class="text-3xl font-bold">Waar je ons vindt</h2>
                     <p class="mt-1 mb-5 text-sm text-gray-400">Kies hoe je luistert en bekijk de juiste frequentie.</p>
 
                     {% for group in frequency_groups %}
                         <details class="group {{ not loop.first ? 'mt-3 ' }}overflow-hidden rounded-sm border border-white/10 bg-gray-700/50">
                             <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-roze [&::-webkit-details-marker]:hidden">
-                                <span class="min-w-14 rounded-sm bg-gray-100 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-gray-900 uppercase">{{ group.badge }}</span>
+                                <span class="min-w-14 rounded-sm bg-gray-700 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-gray-100 uppercase">{{ group.badge }}</span>
                                 <span class="font-bold">{{ group.title }}</span>
                                 <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
                                     {{ icon('icon-chevron_right') }}
