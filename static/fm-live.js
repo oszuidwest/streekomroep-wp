@@ -9,10 +9,14 @@
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
     const PROGRESS_INTERVAL = 30000;
+    const FRESH_PERIOD_MAX = 15 * 60 * 1000;
 
     const details = document.querySelector('[data-now-details]');
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
+    // The server renders the no-track state, so that text doubles as the fallback.
+    const fallbackTitle = titleNode ? titleNode.textContent : '';
+    const fallbackArtist = artistNode ? artistNode.textContent : '';
 
     function readTrack(payload) {
         const title = String(payload.title || '').trim();
@@ -28,8 +32,16 @@
     function renderNow(track) {
         // Station idents and programme names travel through the same feed but are not records.
         const isTrack = Boolean(track && track.artist);
-        titleNode.textContent = isTrack ? track.title : (details.dataset.fallbackTitle || '');
-        artistNode.textContent = isTrack ? track.artist : (details.dataset.fallbackArtist || '');
+        const title = isTrack ? track.title : fallbackTitle;
+        const artist = isTrack ? track.artist : fallbackArtist;
+
+        // The container is aria-live, so rewriting identical text would re-announce it.
+        if (titleNode.textContent === title && artistNode.textContent === artist) {
+            return;
+        }
+
+        titleNode.textContent = title;
+        artistNode.textContent = artist;
     }
 
     function trackIsCurrent(expiresAt) {
@@ -50,9 +62,15 @@
 
     let reconnectDelay = RECONNECT_START;
     let reconnectTimer = null;
+    let socket = null;
 
     function scheduleReconnect() {
         clearTimeout(reconnectTimer);
+        // Hidden tabs cannot show the metadata anyway; reconnecting resumes on return.
+        if (document.hidden) {
+            return;
+        }
+
         reconnectTimer = setTimeout(connectMetadata, reconnectDelay);
         reconnectDelay = Math.min(reconnectDelay * 2, RECONNECT_MAX);
     }
@@ -64,7 +82,6 @@
 
         clearTimeout(reconnectTimer);
 
-        let socket;
         try {
             socket = new WebSocket(details.dataset.metadataUrl);
         } catch (error) {
@@ -104,6 +121,14 @@
         socket.addEventListener('close', scheduleReconnect);
     }
 
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            clearTimeout(reconnectTimer);
+        } else if (!socket || socket.readyState >= WebSocket.CLOSING) {
+            connectMetadata();
+        }
+    });
+
     function startProgress() {
         const wrap = document.querySelector('[data-progress]');
         if (!wrap) {
@@ -119,6 +144,16 @@
             return;
         }
 
+        const formatRemaining = function (minutes) {
+            if (minutes < 60) {
+                return `${minutes} min te gaan`;
+            }
+
+            const hours = Math.floor(minutes / 60);
+            const rest = minutes % 60;
+            return rest > 0 ? `${hours} uur ${rest} min te gaan` : `${hours} uur te gaan`;
+        };
+
         const tick = function () {
             const now = Date.now();
             const done = Math.min(Math.max(now - start, 0), span);
@@ -126,7 +161,8 @@
 
             const minutes = Math.ceil((end - now) / 60000);
             if (minutes > 0) {
-                label.textContent = `nog ${minutes} min`;
+                const freshPeriod = Math.min(FRESH_PERIOD_MAX, span * 0.15);
+                label.textContent = done < freshPeriod ? 'net gestart' : formatRemaining(minutes);
                 return;
             }
 
@@ -142,7 +178,7 @@
     function setupPlayer() {
         const media = document.getElementById('zw-fm-stream');
         const button = document.querySelector('[data-play]');
-        if (!media || !button || typeof videojs === 'undefined') {
+        if (!media || !button || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
             return;
         }
 
@@ -150,12 +186,7 @@
             controls: false,
             liveui: true,
             preload: 'none',
-            // Keep in step with videojs-init.js: Chrome needs VHS instead of native HLS.
-            html5: {
-                vhs: {overrideNative: !videojs.browser.IS_SAFARI},
-                nativeAudioTracks: false,
-                nativeVideoTracks: false
-            }
+            html5: window.zwVideoJsHtml5()
         });
 
         const playIcon = button.querySelector('[data-play-icon="play"]');

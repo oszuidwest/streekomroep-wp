@@ -1,0 +1,7 @@
+{# Breadcrumb for the FM header; pass `label` for the archive link text. #}
+<nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
+    <a class="transition hover:text-white hover:underline"
+       href="{{ function('get_post_type_archive_link', 'fm') }}">{{ label }}</a>
+    <span class="opacity-60">{{ breadcrumb_separator }}</span>
+    <span class="text-white/60">{{ post.title }}</span>
+</nav>

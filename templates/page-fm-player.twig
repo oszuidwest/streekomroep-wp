@@ -5,24 +5,20 @@
 {% set radio_fallback_title = 'De stem van de streek' %}
 {% set radio_fallback_artist = 'In heel West-Brabant' %}
 
-{% set current_makers = current and current.show ? current.show.meta('fm_show_makers')|rows : [] %}
+{% set has_stream = stream_sources is not empty %}
+{% set current_makers = live_show ? live_show.meta('fm_show_makers')|rows : [] %}
 {% set maker_names = current_makers|column('fm_show_maker_naam')|filter(name => name) %}
-{% set on_air = current ? current.getName() : post.title %}
+{% set on_air = current ? current.name : post.title %}
 
 {% block content %}
     <article id="post-{{ post.id }}" class="{{ post.class }} pb-7 text-gray-900 lg:pb-9 dark:text-white">
         <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             {{ include('partial/fm-header-pattern.twig') }}
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
-                <nav class="mb-5 text-xs font-medium text-white/70" aria-label="Kruimelpad">
-                    <a class="transition hover:text-white hover:underline"
-                       href="{{ function('get_post_type_archive_link', 'fm') }}">ZuidWest FM</a>
-                    <span class="text-white/50">{{ breadcrumb_separator }}</span>
-                    <span class="text-white/80">{{ post.title }}</span>
-                </nav>
+                {{ include('partial/fm-breadcrumb.twig', {label: 'ZuidWest FM'}) }}
 
                 <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
-                    {% if current and current.show %}
+                    {% if live_show %}
                         Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
                     {% else %}
                         Nu op {{ fm_post_type.labels.name }}
@@ -35,12 +31,12 @@
                     <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3">
                         {% set portraits = current_makers|filter(maker => maker.fm_show_maker_foto)|slice(0, 2) %}
                         {% if portraits is not empty %}
-                            <span class="flex flex-none">
+                            <span class="flex flex-none gap-1.5">
                                 {% for maker in portraits %}
                                     <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
                                          srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
                                          alt="{{ maker.fm_show_maker_naam }}" width="40" height="40" loading="lazy"
-                                         class="size-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/55 not-first:-ml-1 md:size-10">
+                                         class="size-8 rounded-sm object-cover object-[50%_16%] md:size-10">
                                 {% endfor %}
                             </span>
                         {% endif %}
@@ -50,7 +46,7 @@
                     </p>
                 {% endif %}
 
-                {% if current and current.show %}
+                {% if live_show %}
                     <div class="mt-5 max-w-[26rem]" data-progress
                          data-start="{{ current.start.timestamp }}" data-end="{{ current.end.timestamp }}">
                         <div class="h-1.5 overflow-hidden rounded-sm bg-black/25">
@@ -59,7 +55,7 @@
                         </div>
                         <div class="mt-1.5 flex justify-between text-xs font-bold text-white/80 tabular-nums">
                             <span>{{ current.start|date('H:i') }}</span>
-                            <span data-progress-label>nog {{ remaining }} min</span>
+                            <span data-progress-label>{{ progress_label }}</span>
                             <span>{{ current.end|date('H:i') }}</span>
                         </div>
                     </div>
@@ -67,7 +63,7 @@
             </div>
         </header>
 
-        {% if stream_sources is not empty %}
+        {% if has_stream %}
             {# Hidden on purpose: VideoJS drives the stream, the buttons in this page are the controls. #}
             <div class="hidden" aria-hidden="true">
                 <audio id="zw-fm-stream" class="video-js" preload="none" playsinline>
@@ -79,9 +75,9 @@
         {% endif %}
 
         <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
-            <h2 id="live-player-title" class="mb-5 text-2xl font-bold md:text-3xl">{{ stream_sources is not empty ? 'Luister live' : 'Nu op de radio' }}</h2>
+            <h2 id="live-player-title" class="mb-5 text-2xl font-bold md:text-3xl">{{ has_stream ? 'Luister live' : 'Nu op de radio' }}</h2>
             <div class="{{ card }} flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
-                {% if stream_sources is not empty %}
+                {% if has_stream %}
                     <button type="button" aria-label="Luister live" data-play
                             class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-22 motion-reduce:transition-none">
                         <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
@@ -89,14 +85,12 @@
                     </button>
                 {% endif %}
                 <div class="min-w-0 flex-1" data-now-details
-                     data-metadata-url="{{ options.radio_live_metadata_url }}"
-                     data-fallback-title="{{ radio_fallback_title }}"
-                     data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
+                     data-metadata-url="{{ options.radio_live_metadata_url }}" aria-live="polite">
                     <p class="line-clamp-2 text-2xl leading-tight font-black sm:line-clamp-1 sm:text-3xl" data-now-title>
-                        {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
+                        {{- has_stream ? radio_fallback_title : on_air -}}
                     </p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}" data-now-artist>
-                        {{- stream_sources is not empty ? radio_fallback_artist : maker_names|join(', ', ' en ') -}}
+                        {{- has_stream ? radio_fallback_artist : maker_names|join(', ', ' en ') -}}
                     </p>
                 </div>
             </div>

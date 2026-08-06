@@ -20,12 +20,28 @@ $current = $schedule->getCurrentRadioBroadcast();
 $context['current'] = $current;
 
 // Filler broadcasts carry only a name, so the progress bar belongs to real shows.
-if ($current?->show) {
+$context['live_show'] = $current?->show;
+if ($context['live_show']) {
     $now = Carbon::now(wp_timezone());
     $length = max(1, $current->start->diffInSeconds($current->end));
     $elapsed = min($length, max(0, $current->start->diffInSeconds($now)));
+    $remaining = (int)ceil(($length - $elapsed) / 60);
+    $freshPeriod = min(15 * 60, $length * 0.15);
+
     $context['progress'] = (int)round($elapsed / $length * 100);
-    $context['remaining'] = (int)ceil(($length - $elapsed) / 60);
+    if ($elapsed < $freshPeriod) {
+        $context['progress_label'] = 'net gestart';
+    } elseif ($remaining >= 60) {
+        $hours = intdiv($remaining, 60);
+        $minutes = $remaining % 60;
+        if ($minutes > 0) {
+            $context['progress_label'] = sprintf('%d uur %d min te gaan', $hours, $minutes);
+        } else {
+            $context['progress_label'] = sprintf('%d uur te gaan', $hours);
+        }
+    } else {
+        $context['progress_label'] = sprintf('%d min te gaan', $remaining);
+    }
 }
 
 /** Labels shows beyond today; today's shows are already covered by the "Straks" section heading. */
@@ -52,7 +68,7 @@ $streamTypes = [
 
 $context['stream_sources'] = [];
 foreach ($streamTypes as $field => $mimeType) {
-    $url = get_field($field, 'option');
+    $url = $context['options'][$field] ?? null;
     if ($url) {
         $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
     }
@@ -65,16 +81,16 @@ $groups = [
     'Kabel' => ['badge' => 'Kabel', 'title' => 'Via je aanbieder', 'unit' => '', 'channels' => []],
 ];
 
-foreach (zw_acf_rows(get_field('radio_frequenties', 'option')) as $row) {
+foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) {
     $medium = $row['radio_frequenties_medium'] ?? null;
     if (!isset($groups[$medium])) {
         continue;
     }
 
-    // The field asks for the number only, but older rows may still carry the unit.
+    // The field asks for the number only, but older ether rows may still carry an "FM" suffix.
     $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
-    if ($groups[$medium]['unit']) {
-        $value = trim(preg_replace('/\s*' . preg_quote($groups[$medium]['unit'], '/') . '$/i', '', $value));
+    if ($medium === 'Ether') {
+        $value = trim(preg_replace('/\s*FM$/i', '', $value));
     }
 
     if ($value === '') {

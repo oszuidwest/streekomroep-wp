@@ -988,7 +988,7 @@ function zw_enqueue_fm_live_assets()
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
-        ['video.js'],
+        ['zw-videojs-init'],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );

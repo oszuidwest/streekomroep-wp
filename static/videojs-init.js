@@ -4,6 +4,17 @@
  * Chrome has issues with native HLS playback. This script configures VideoJS
  * to use VHS (Video.js HTTP Streaming) with the correct settings.
  */
+// Shared by every VideoJS player in the theme (fm-live.js pulls this in too).
+window.zwVideoJsHtml5 = function () {
+    return {
+        vhs: {
+            overrideNative: !videojs.browser.IS_SAFARI
+        },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false
+    };
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof videojs === 'undefined') {
         return;
@@ -17,13 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var isLive = element.hasAttribute('data-vjs-live');
 
         var options = {
-            html5: {
-                vhs: {
-                    overrideNative: !videojs.browser.IS_SAFARI
-                },
-                nativeAudioTracks: false,
-                nativeVideoTracks: false
-            }
+            html5: window.zwVideoJsHtml5()
         };
 
         if (isLive) {
