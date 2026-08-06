@@ -25,7 +25,6 @@ $context['current'] = $current;
 
 // Filler broadcasts carry only a name, so the byline and the progress bar belong to real shows.
 $show = $current?->show;
-$context['current_show'] = $show;
 $context['current_makers'] = $show ? zw_acf_rows($show->meta('fm_show_makers')) : [];
 
 if ($show) {
@@ -58,7 +57,6 @@ while ($broadcast && count($upcoming) < $upcomingLimit) {
 
     $upcoming[] = [
         'broadcast' => $broadcast,
-        'show' => $broadcast->show,
         'label' => $whenLabel($broadcast->start),
         'makers' => array_values(array_filter(array_column($makers, 'fm_show_maker_naam'))),
         'photo' => $photos[0] ?? null,
@@ -89,7 +87,6 @@ foreach (zw_acf_rows(get_field('radio_frequenties', 'option')) as $row) {
 }
 
 $context['frequencies'] = $frequencies;
-$context['has_frequencies'] = $frequencies['ether'] || $frequencies['dab'] || $frequencies['kabel'];
 
 $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
 $context['fm_post_type'] = get_post_type_object('fm');

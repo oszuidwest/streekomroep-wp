@@ -12,8 +12,6 @@
     const RECONNECT_MAX = 30000;
     const PROGRESS_INTERVAL = 30000;
 
-    const all = (selector, scope) => Array.from((scope || document).querySelectorAll(selector));
-
     const trackKey = (track) => (track ? `${track.artist}|${track.title}` : '');
 
     function readTrack(payload) {
@@ -23,24 +21,20 @@
         }
 
         const artist = String(payload.artist || '').trim();
-        return {
-            title: title,
-            artist: artist,
-            // Station idents and programme names travel through the same feed but are not records.
-            isSong: Boolean(artist),
-        };
+        return {title: title, artist: artist};
     }
 
     let current = null;
     function renderNow(track) {
         const details = document.querySelector('[data-now-details]');
-        const title = track && track.isSong ? track.title : (details?.dataset.fallbackTitle || '');
-        const artist = track && track.isSong ? track.artist : (details?.dataset.fallbackArtist || '');
+        // Station idents and programme names travel through the same feed but are not records.
+        const title = track.artist ? track.title : (details?.dataset.fallbackTitle || '');
+        const artist = track.artist || details?.dataset.fallbackArtist || '';
 
-        all('[data-now-title]').forEach((node) => {
+        document.querySelectorAll('[data-now-title]').forEach((node) => {
             node.textContent = title;
         });
-        all('[data-now-artist]').forEach((node) => {
+        document.querySelectorAll('[data-now-artist]').forEach((node) => {
             node.textContent = artist;
         });
     }
@@ -140,7 +134,7 @@
 
     function setupPlayer() {
         const media = document.getElementById('zw-fm-stream');
-        const buttons = all('[data-play]');
+        const buttons = document.querySelectorAll('[data-play]');
         if (!media || !buttons.length || typeof videojs === 'undefined') {
             return;
         }
@@ -177,18 +171,8 @@
         }));
     }
 
-    function bootPlayer() {
-        if (typeof videojs !== 'undefined') {
-            setupPlayer();
-            return;
-        }
-
-        // VideoJS is deferred, so it may not have run yet when this script executes.
-        window.addEventListener('DOMContentLoaded', setupPlayer, {once: true});
-    }
-
     startProgress();
-    bootPlayer();
+    setupPlayer();
     connectMetadata();
 
 })();
