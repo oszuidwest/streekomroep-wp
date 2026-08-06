@@ -97,7 +97,7 @@
                 <div class="min-w-0 flex-1" data-now-details
                      data-fallback-title="{{ radio_fallback_title }}"
                      data-fallback-artist="{{ radio_fallback_artist }}" aria-live="polite">
-                    <p class="truncate text-2xl leading-tight font-black sm:text-3xl" data-now-title>
+                    <p class="line-clamp-2 text-2xl leading-tight font-black sm:line-clamp-1 sm:text-3xl" data-now-title>
                         {{- stream_sources is not empty ? radio_fallback_title : on_air -}}
                     </p>
                     <p class="mt-1 truncate text-sm sm:text-base {{ muted }}" data-now-artist>
