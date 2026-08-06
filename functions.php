@@ -339,7 +339,7 @@ function zw_rest_api_init()
                     }
                 } elseif ($type === \Streekomroep\Fragment::TYPE_AUDIO) {
                     return [
-                        ['type' => 'audio/mp3', 'src' => get_field('fragment_url', $post_arr['id'], false)]
+                        ['type' => 'audio/mpeg', 'src' => get_field('fragment_url', $post_arr['id'], false)]
                     ];
                 }
 

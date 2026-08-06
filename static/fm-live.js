@@ -45,12 +45,12 @@
     }
 
     function trackIsCurrent(expiresAt) {
+        clearTimeout(expiryTimer);
         const remaining = Date.parse(expiresAt) - Date.now();
         if (!Number.isFinite(remaining)) {
             return true;
         }
 
-        clearTimeout(expiryTimer);
         if (remaining <= 0) {
             renderNow(null);
             return false;

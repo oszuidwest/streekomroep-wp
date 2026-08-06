@@ -61,7 +61,7 @@ $context['upcoming'] = array_map(fn ($broadcast) => [
 // VideoJS tries sources in order, so list them by preference.
 $streamTypes = [
     'radio_webplayer_aac_stream' => 'audio/mp4',
-    'radio_webplayer_mp3_stream' => 'audio/mp3',
+    'radio_webplayer_mp3_stream' => 'audio/mpeg',
     'radio_webplayer_ogg_stream' => 'audio/ogg',
     'radio_webplayer_hls_stream' => 'application/x-mpegURL',
 ];
