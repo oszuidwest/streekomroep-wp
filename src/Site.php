@@ -162,6 +162,7 @@ class Site extends \Timber\Site
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));
         $twig->addFilter(new \Twig\TwigFilter('rows', 'zw_acf_rows'));
+        $twig->addFilter(new \Twig\TwigFilter('plain', 'zw_plain_text'));
         return $twig;
     }
 }

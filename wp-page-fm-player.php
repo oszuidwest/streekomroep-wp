@@ -17,39 +17,22 @@ $context['post'] = Timber::get_post();
 $schedule = new BroadcastSchedule();
 $current = $schedule->getCurrentRadioBroadcast();
 
-$context['current'] = $current;
+// Templates and fm-live.js consume the same toArray() shape the REST endpoint serves,
+// so a schedule refresh reproduces the server-rendered markup exactly.
+$context['broadcast'] = $current?->toArray();
 $context['broadcast_data_url'] = BroadcastDataController::url();
 $context['schedule_refresh_after'] = $schedule->getRefreshAfter($current);
 
 // Filler broadcasts carry only a name, so the progress bar belongs to real shows.
-$context['live_show'] = $current?->show;
-if ($context['live_show']) {
+// The textual countdown lives in fm-live.js alone; it overwrites this render on load anyway.
+if ($current?->show) {
     $now = Carbon::now(wp_timezone());
     $length = max(1, $current->start->diffInSeconds($current->end));
     $elapsed = min($length, max(0, $current->start->diffInSeconds($now)));
-    $remaining = (int)ceil(($length - $elapsed) / 60);
-    $freshPeriod = min(15 * 60, $length * 0.15);
-
     $context['progress'] = (int)round($elapsed / $length * 100);
-    if ($elapsed < $freshPeriod) {
-        $context['progress_label'] = 'net gestart';
-    } elseif ($remaining >= 60) {
-        $hours = intdiv($remaining, 60);
-        $minutes = $remaining % 60;
-        if ($minutes > 0) {
-            $context['progress_label'] = sprintf('%d uur %d min te gaan', $hours, $minutes);
-        } else {
-            $context['progress_label'] = sprintf('%d uur te gaan', $hours);
-        }
-    } else {
-        $context['progress_label'] = sprintf('%d min te gaan', $remaining);
-    }
 }
 
-$context['upcoming'] = array_map(fn ($broadcast) => [
-    'broadcast' => $broadcast,
-    'label' => $broadcast->getDayLabel(),
-], $schedule->getUpcomingRadioBroadcasts(2));
+$context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $schedule->getUpcomingRadioBroadcasts(2));
 
 // VideoJS tries sources in order, so list them by preference.
 $streamTypes = [

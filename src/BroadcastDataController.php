@@ -2,21 +2,19 @@
 
 namespace Streekomroep;
 
-use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
 
 /** Serves the current broadcast state to public theme clients. */
-final class BroadcastDataController extends WP_REST_Controller
+final class BroadcastDataController
 {
     private const REST_NAMESPACE = 'zw/v1';
     private const REST_BASE = 'broadcast_data';
 
-    public function __construct()
-    {
-        $this->namespace = self::REST_NAMESPACE;
-        $this->rest_base = self::REST_BASE;
-    }
+    private const TRANSIENT = 'zw_broadcast_data';
+
+    /** Upper bound on the cache lifetime, and thus on how long schedule edits stay invisible. */
+    private const CACHE_TTL_MAX = 60;
 
     /** The URL clients poll for broadcast data. */
     public static function url(): string
@@ -28,15 +26,12 @@ final class BroadcastDataController extends WP_REST_Controller
     public function register_routes(): void
     {
         register_rest_route(
-            $this->namespace,
-            '/' . $this->rest_base,
+            self::REST_NAMESPACE,
+            '/' . self::REST_BASE,
             [
-                [
-                    'methods' => WP_REST_Server::READABLE,
-                    'callback' => [$this, 'get_item'],
-                    'permission_callback' => '__return_true',
-                ],
-                'schema' => [$this, 'get_public_item_schema'],
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => [$this, 'get_item'],
+                'permission_callback' => '__return_true',
             ]
         );
     }
@@ -48,18 +43,45 @@ final class BroadcastDataController extends WP_REST_Controller
      */
     public function get_item($request): WP_REST_Response
     {
+        // Clients poll in sync around programme boundaries; the transient absorbs that
+        // stampede so only the first request rebuilds the schedule. It expires at the
+        // boundary itself, so a new slot is never served from the old cache.
+        $payload = get_transient(self::TRANSIENT);
+        if (!is_array($payload)) {
+            $payload = $this->build();
+            set_transient(
+                self::TRANSIENT,
+                $payload,
+                min($payload['fm']['schedule']['refresh_after'], self::CACHE_TTL_MAX)
+            );
+        }
+
+        // The countdown keeps moving while the payload sits in cache.
+        $payload['fm']['schedule']['refresh_after'] = BroadcastSchedule::refreshAfter(
+            $payload['fm']['schedule']['current']['end'] ?? null
+        );
+
+        $response = rest_ensure_response($payload);
+        $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+
+        return $response;
+    }
+
+    /** Builds the full response payload; `fm.now`/`next` and `tv` are the legacy contract. */
+    private function build(): array
+    {
         $schedule = new BroadcastSchedule();
         $current = $schedule->getCurrentRadioBroadcast();
         $next = $schedule->getNextRadioBroadcast($current);
 
-        $response = rest_ensure_response([
+        return [
             'fm' => [
                 'now' => $current ? $this->decode($current->getName()) : null,
                 'next' => $next ? $this->decode($next->getName()) : null,
                 'schedule' => [
-                    'current' => $current ? $this->formatRadioBroadcast($current) : null,
+                    'current' => $current?->toArray(),
                     'upcoming' => array_map(
-                        fn (RadioBroadcast $broadcast) => $this->formatRadioBroadcast($broadcast),
+                        fn (RadioBroadcast $broadcast) => $broadcast->toArray(),
                         $schedule->getUpcomingRadioBroadcasts(2)
                     ),
                     // Derived from the same broadcast that is being sent, so the two cannot disagree.
@@ -76,137 +98,12 @@ final class BroadcastDataController extends WP_REST_Controller
                     $schedule->getTomorrow()->television
                 ),
             ],
-        ]);
-        $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-
-        return $response;
-    }
-
-    /** Describes the response for REST discovery and client validation. */
-    public function get_item_schema(): array
-    {
-        return [
-            '$schema' => 'http://json-schema.org/draft-04/schema#',
-            'title' => 'broadcast-data',
-            'type' => 'object',
-            'properties' => [
-                'fm' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'now' => ['type' => ['string', 'null']],
-                        'next' => ['type' => ['string', 'null']],
-                        'schedule' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'current' => [
-                                    'type' => ['object', 'null'],
-                                    'properties' => $this->getRadioBroadcastSchema(),
-                                ],
-                                'upcoming' => [
-                                    'type' => 'array',
-                                    'items' => [
-                                        'type' => 'object',
-                                        'properties' => $this->getRadioBroadcastSchema(),
-                                    ],
-                                ],
-                                'refresh_after' => [
-                                    'type' => 'integer',
-                                    'minimum' => 1,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'tv' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'today' => [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ],
-                        'tomorrow' => [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /** Returns the shared schema for current and upcoming radio slots. */
-    private function getRadioBroadcastSchema(): array
-    {
-        return [
-            'name' => ['type' => 'string'],
-            'start' => ['type' => 'integer'],
-            'end' => ['type' => 'integer'],
-            'start_time' => ['type' => 'string'],
-            'end_time' => ['type' => 'string'],
-            'label' => ['type' => ['string', 'null']],
-            'show' => [
-                'type' => ['object', 'null'],
-                'properties' => [
-                    'title' => ['type' => 'string'],
-                    'link' => ['type' => 'string', 'format' => 'uri'],
-                    'makers' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'name' => ['type' => 'string'],
-                                'photo' => [
-                                    'type' => ['object', 'null'],
-                                    'properties' => [
-                                        'src' => ['type' => 'string', 'format' => 'uri'],
-                                        'srcset' => ['type' => 'string'],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /** Formats one radio slot for REST consumers. */
-    private function formatRadioBroadcast(RadioBroadcast $broadcast): array
-    {
-        return [
-            'name' => $this->decode($broadcast->getName()),
-            'start' => $broadcast->start->timestamp,
-            'end' => $broadcast->end->timestamp,
-            'start_time' => $broadcast->start->format('H:i'),
-            'end_time' => $broadcast->end->format('H:i'),
-            'label' => $broadcast->getDayLabel(),
-            'show' => $broadcast->show ? $this->formatShow($broadcast->show) : null,
-        ];
-    }
-
-    /** Formats the public show fields used by the live page. */
-    private function formatShow(\Timber\Post $show): array
-    {
-        return [
-            'title' => $this->decode($show->title()),
-            'link' => $show->link(),
-            'makers' => array_map(function (array $maker) {
-                $photo = $maker['fm_show_maker_foto'] ?? null;
-
-                return [
-                    'name' => $this->decode((string) ($maker['fm_show_maker_naam'] ?? '')),
-                    'photo' => $photo ? [
-                        'src' => zw_imgproxy($photo, 44, 44),
-                        'srcset' => zw_imgproxy($photo, 88, 88) . ' 2x',
-                    ] : null,
-                ];
-            }, zw_acf_rows($show->meta('fm_show_makers'))),
         ];
     }
 
     /** Decodes stored HTML entities for JSON text values. */
     private function decode(string $text): string
     {
-        return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return zw_plain_text($text);
     }
 }

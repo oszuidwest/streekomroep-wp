@@ -53,4 +53,59 @@ class RadioBroadcast
 
         return $this->show->post_title;
     }
+
+    /**
+     * The one serialization of a slot. The REST payload, the page controller and the
+     * templates all consume this shape, so the server-rendered markup and the client
+     * re-render cannot drift apart.
+     */
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->decode($this->getName()),
+            'start' => $this->start->timestamp,
+            'end' => $this->end->timestamp,
+            'start_time' => $this->start->format('H:i'),
+            'end_time' => $this->end->format('H:i'),
+            'label' => $this->getDayLabel(),
+            'show' => $this->show ? $this->serializeShow() : null,
+        ];
+    }
+
+    /** The public show fields used by the live page. */
+    private function serializeShow(): array
+    {
+        $makers = array_map(function (array $maker) {
+            $photo = $maker['fm_show_maker_foto'] ?? null;
+
+            return [
+                'name' => $this->decode(trim((string) ($maker['fm_show_maker_naam'] ?? ''))),
+                'photo' => $photo ? [
+                    'src' => zw_imgproxy($photo, 44, 44),
+                    'srcset' => zw_imgproxy($photo, 88, 88) . ' 2x',
+                ] : null,
+            ];
+        }, zw_acf_rows($this->show->meta('fm_show_makers')));
+
+        return [
+            'title' => $this->decode($this->show->title()),
+            'link' => $this->show->link(),
+            'makers' => $makers,
+            'makers_label' => $this->joinNames(array_column($makers, 'name')),
+        ];
+    }
+
+    /** Joins names the way Twig's `join(', ', ' en ')` renders them. */
+    private function joinNames(array $names): string
+    {
+        $names = array_values(array_filter($names));
+        $last = array_pop($names);
+
+        return $names ? implode(', ', $names) . ' en ' . $last : (string) $last;
+    }
+
+    private function decode(string $text): string
+    {
+        return zw_plain_text($text);
+    }
 }

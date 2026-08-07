@@ -201,6 +201,16 @@ class BroadcastSchedule
         return $upcoming;
     }
 
+    /** Seconds until the slot with the given end timestamp goes stale for clients. */
+    public static function refreshAfter(?int $endTimestamp): int
+    {
+        if (!$endTimestamp) {
+            return self::REFRESH_FALLBACK;
+        }
+
+        return max(1, $endTimestamp - time());
+    }
+
     /**
      * Seconds until the given slot ends, which is when the view a client was handed goes stale.
      *
@@ -210,11 +220,7 @@ class BroadcastSchedule
      */
     public function getRefreshAfter(?RadioBroadcast $current): int
     {
-        if (!$current) {
-            return self::REFRESH_FALLBACK;
-        }
-
-        return max(1, $current->end->timestamp - Carbon::now(wp_timezone())->timestamp);
+        return self::refreshAfter($current?->end->timestamp);
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */

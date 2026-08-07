@@ -76,6 +76,18 @@ function zw_acf_rows($value): array
 }
 
 /**
+ * Decodes stored HTML entities into canonical plain text.
+ *
+ * WordPress stores titles and options entity encoded (wptexturize et al). Consumers get one
+ * plain form and escape it again for their own output context: Twig sinks with `|plain|e`,
+ * JSON output as-is (fm-live.js assigns via textContent). Exposed to Twig as the `plain` filter.
+ */
+function zw_plain_text(string $text): string
+{
+    return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+/**
  * Returns complete, usable FM schedule rows.
  *
  * @return array<int, array<string, mixed>>
@@ -959,8 +971,8 @@ function zw_enqueue_theme_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
 /**
- * The live page only needs VideoJS when a stream is configured, so the dependency follows
- * whatever zw_maybe_enqueue_videojs() decided at priority 20; fm-live.js feature-detects the rest.
+ * The live page only needs VideoJS when a stream is configured. The page controller signals
+ * that intent via zw_require_videojs() before this hook fires; fm-live.js feature-detects the rest.
  */
 function zw_enqueue_fm_live_assets()
 {
@@ -971,7 +983,7 @@ function zw_enqueue_fm_live_assets()
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
-        wp_script_is('zw-videojs-init', 'enqueued') ? ['zw-videojs-init'] : [],
+        empty($GLOBALS['zw_requires_videojs']) ? [] : ['zw-videojs-init'],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );

@@ -20,6 +20,7 @@
     const SCHEDULE_TIMEOUT = 10000;
 
     const radioPage = document.querySelector('[data-radio-live]');
+    const streamElement = document.getElementById('zw-fm-stream');
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
     // The server renders the no-track state, so that text doubles as the fallback.
@@ -28,12 +29,8 @@
 
     const stationTitle = radioPage ? radioPage.dataset.radioTitle : '';
     const stationTagline = radioPage ? radioPage.dataset.radioTagline : '';
-    let sessionArtwork = [];
-    try {
-        sessionArtwork = JSON.parse((radioPage && radioPage.dataset.artwork) || '[]');
-    } catch (error) {
-        sessionArtwork = [];
-    }
+    // The attribute is the theme's own json_encode output, so it parses or the page is broken anyway.
+    const sessionArtwork = JSON.parse(radioPage?.dataset.artwork || '[]');
 
     const currentTitleNode = document.querySelector('[data-current-title]');
     let programName = currentTitleNode ? currentTitleNode.textContent.trim() : '';
@@ -63,24 +60,23 @@
     }
 
     function readTrack(payload) {
+        // Station idents and programme names travel through the same feed but are not records.
         const title = String(payload.title || '').trim();
-        if (!title) {
-            return null;
-        }
-
         const artist = String(payload.artist || '').trim();
-        return {title: title, artist: artist};
+        return title && artist ? {title: title, artist: artist} : null;
     }
 
     let expiryTimer = null;
     function renderNow(track) {
-        // Station idents and programme names travel through the same feed but are not records.
-        const isTrack = Boolean(track && track.artist);
-        currentTrack = isTrack ? track : null;
-        updateMediaSession();
+        const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
+        currentTrack = track;
+        // The lock screen redraws on every metadata assignment, so only touch it on a real change.
+        if (changed) {
+            updateMediaSession();
+        }
 
-        const title = isTrack ? track.title : fallbackTitle;
-        const artist = isTrack ? track.artist : fallbackArtist;
+        const title = track ? track.title : fallbackTitle;
+        const artist = track ? track.artist : fallbackArtist;
 
         // The container is aria-live, so rewriting identical text would re-announce it.
         if (titleNode.textContent === title && artistNode.textContent === artist) {
@@ -178,14 +174,8 @@
         socket.addEventListener('close', scheduleReconnect);
     }
 
-    document.addEventListener('visibilitychange', function () {
-        if (document.hidden) {
-            if (!isPlaying) {
-                clearTimeout(reconnectTimer);
-            }
-            return;
-        }
-
+    /** Reopens the metadata socket and catches up on a deferred schedule refresh. */
+    function resumeFeeds() {
         if (!socket || socket.readyState >= WebSocket.CLOSING) {
             connectMetadata();
         }
@@ -194,6 +184,19 @@
             scheduleStale = false;
             refreshSchedule();
         }
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            if (!isPlaying) {
+                // Nothing can show the feed now; close the socket and reconnect on return.
+                clearTimeout(reconnectTimer);
+                socket?.close();
+            }
+            return;
+        }
+
+        resumeFeeds();
     });
 
     let progressTimer = null;
@@ -247,35 +250,26 @@
         tick();
     }
 
-    // Matches Twig's `|join(', ', ' en ')` on the server-rendered markup.
-    const nameList = new Intl.ListFormat('nl', {type: 'conjunction'});
-
-    function formatNames(makers) {
-        return nameList.format(makers.map((maker) => String(maker.name || '').trim()).filter(Boolean));
-    }
-
-    function renderCurrentMakers(makers) {
+    function renderCurrentMakers(show) {
         const wrap = document.querySelector('[data-current-makers]');
         const portraits = document.querySelector('[data-current-portraits]');
         const names = document.querySelector('[data-current-maker-names]');
-        if (!wrap || !portraits || !names) {
+        const template = document.querySelector('[data-portrait-template]');
+        if (!wrap || !portraits || !names || !template) {
             return;
         }
 
-        const makerNames = formatNames(makers);
-        names.textContent = makerNames;
-        wrap.hidden = !makerNames;
+        const label = show ? show.makers_label || '' : '';
+        names.textContent = label;
+        wrap.hidden = !label;
 
+        const makers = show && Array.isArray(show.makers) ? show.makers : [];
         portraits.replaceChildren();
         makers.filter((maker) => maker.photo).slice(0, 2).forEach((maker) => {
-            const image = document.createElement('img');
+            const image = template.content.firstElementChild.cloneNode(true);
             image.src = maker.photo.src;
             image.srcset = maker.photo.srcset;
             image.alt = maker.name;
-            image.width = 40;
-            image.height = 40;
-            image.loading = 'lazy';
-            image.className = 'size-8 rounded-sm object-cover object-[50%_16%] md:size-10';
             portraits.append(image);
         });
         portraits.hidden = !portraits.childElementCount;
@@ -327,7 +321,7 @@
             label.hidden = !item.label;
             title.textContent = item.show.title;
             title.classList.toggle('mt-0.5', Boolean(item.label));
-            makerNames.textContent = formatNames(makers);
+            makerNames.textContent = item.show.makers_label || '';
             makerNames.hidden = !makerNames.textContent;
 
             if (photoMaker) {
@@ -360,25 +354,24 @@
             return;
         }
 
-        const makers = current.show && Array.isArray(current.show.makers) ? current.show.makers : [];
         const status = document.querySelector('[data-current-status]');
         const title = document.querySelector('[data-current-title]');
         status.textContent = current.show
             ? `Nu live · ${current.start_time} – ${current.end_time}`
-            : `Nu op ${radioPage.dataset.radioTitle}`;
+            : `Nu op ${stationTitle}`;
         title.textContent = current.name;
         programName = current.name;
         updateMediaSession();
 
-        renderCurrentMakers(makers);
+        renderCurrentMakers(current.show);
         renderProgress(current);
         renderUpcoming(Array.isArray(schedule.upcoming) ? schedule.upcoming : []);
 
-        if (!document.getElementById('zw-fm-stream')) {
+        if (!streamElement) {
             // Only swap the idle text when a track is not currently on screen.
             const showingFallback = titleNode.textContent === fallbackTitle;
             fallbackTitle = current.name;
-            fallbackArtist = formatNames(makers);
+            fallbackArtist = current.show ? current.show.makers_label || '' : '';
             if (showingFallback) {
                 renderFallback();
             }
@@ -427,13 +420,12 @@
     }
 
     function setupPlayer() {
-        const media = document.getElementById('zw-fm-stream');
         const button = document.querySelector('[data-play]');
-        if (!media || !button || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
+        if (!streamElement || !button || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
             return;
         }
 
-        const player = videojs(media, {
+        const player = videojs(streamElement, {
             controls: false,
             liveui: true,
             preload: 'none',
@@ -461,14 +453,7 @@
             updateMediaSession();
 
             // The feeds pause in a hidden idle tab; resuming from the lock screen revives them.
-            if (!socket || socket.readyState >= WebSocket.CLOSING) {
-                connectMetadata();
-            }
-
-            if (scheduleStale) {
-                scheduleStale = false;
-                refreshSchedule();
-            }
+            resumeFeeds();
         };
 
         player.on('playing', () => setPlaying(true));
