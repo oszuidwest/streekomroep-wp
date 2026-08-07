@@ -31,7 +31,6 @@ class RadioBroadcast
         return $lhs->start <=> $rhs->start;
     }
 
-    /** Names the day of a future slot: null when it airs today, otherwise 'morgen' or the weekday. */
     public function getDayLabel(): ?string
     {
         if ($this->start->isToday()) {
@@ -54,11 +53,7 @@ class RadioBroadcast
         return $this->show->post_title;
     }
 
-    /**
-     * The one serialization of a slot. The REST payload, the page controller and the
-     * templates all consume this shape, so the server-rendered markup and the client
-     * re-render cannot drift apart.
-     */
+    /** Serializes the schedule contract shared by server and client renderers. */
     public function toArray(): array
     {
         return [
@@ -72,7 +67,6 @@ class RadioBroadcast
         ];
     }
 
-    /** The public show fields used by the live page. */
     private function serializeShow(): array
     {
         $makers = array_map(function (array $maker) {
@@ -95,7 +89,6 @@ class RadioBroadcast
         ];
     }
 
-    /** Joins names the way Twig's `join(', ', ' en ')` renders them. */
     private function joinNames(array $names): string
     {
         $names = array_values(array_filter($names));

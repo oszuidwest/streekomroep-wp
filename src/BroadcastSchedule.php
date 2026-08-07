@@ -9,7 +9,7 @@ use Timber\Timber;
 
 class BroadcastSchedule
 {
-    /** Seconds clients wait before re-reading the schedule when nothing is on air. */
+    /** Retry interval when no current slot supplies a refresh boundary. */
     private const REFRESH_FALLBACK = 30;
 
     /** @var BroadcastDay[] */
@@ -165,7 +165,6 @@ class BroadcastSchedule
 
     private function getRadioBroadcasts()
     {
-        // Every lookup below walks the same flattened week; the days no longer change after construction.
         return $this->radioBroadcasts ??= array_merge(...array_column($this->days, 'radio'));
     }
 
@@ -186,8 +185,7 @@ class BroadcastSchedule
         $now = Carbon::now(wp_timezone());
         $upcoming = [];
 
-        // Stops at the limit rather than filtering the whole week, and keeps the result a real
-        // list: array_filter preserves keys, which json_encode would emit as an object.
+        // Direct appends preserve JSON list semantics and stop work at the requested limit.
         foreach ($this->getRadioBroadcasts() as $broadcast) {
             if (count($upcoming) === $limit) {
                 break;
@@ -201,7 +199,6 @@ class BroadcastSchedule
         return $upcoming;
     }
 
-    /** Seconds until the slot with the given end timestamp goes stale for clients. */
     public static function refreshAfter(?int $endTimestamp): int
     {
         if (!$endTimestamp) {
@@ -212,11 +209,8 @@ class BroadcastSchedule
     }
 
     /**
-     * Seconds until the given slot ends, which is when the view a client was handed goes stale.
-     *
-     * Takes the broadcast the caller is rendering rather than looking it up again: a boundary
-     * crossed between the two calls would otherwise pair the old programme with the new one's
-     * full remaining runtime, leaving the client on a stale slot for its entire duration.
+     * Uses the caller's slot so crossing a boundary between lookups cannot extend stale data
+     * through the following slot.
      */
     public function getRefreshAfter(?RadioBroadcast $current): int
     {

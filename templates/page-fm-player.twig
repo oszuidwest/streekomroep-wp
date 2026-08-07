@@ -7,7 +7,7 @@
 
 {% set has_stream = stream_sources is not empty %}
 {% set live_show = broadcast ? broadcast.show : null %}
-{# Both branches yield canonical plain text; every sink escapes it again itself. #}
+{# Normalize the page title to the same plain-text contract as serialized broadcasts. #}
 {% set on_air = broadcast ? broadcast.name : post.title|plain %}
 
 {% block content %}
@@ -60,7 +60,6 @@
                     </div>
                     <div class="mt-1.5 flex justify-between text-xs font-bold text-white/80 tabular-nums">
                         <span data-progress-start>{{ live_show ? broadcast.start_time : '' }}</span>
-                        {# fm-live.js owns the countdown text and fills it on load. #}
                         <span data-progress-label></span>
                         <span data-progress-end>{{ live_show ? broadcast.end_time : '' }}</span>
                     </div>
@@ -69,7 +68,7 @@
         </header>
 
         {% if has_stream %}
-            {# Hidden on purpose: VideoJS drives the stream, the buttons in this page are the controls. #}
+            {# VideoJS owns this hidden media element; the visible button is its control. #}
             <div class="hidden" aria-hidden="true">
                 <audio id="zw-fm-stream" class="video-js" preload="none" playsinline>
                     {% for source in stream_sources %}
@@ -117,7 +116,7 @@
             </div>
         </section>
 
-        {# Cloned by fm-live.js on schedule refresh, so the markup has a single definition. #}
+        {# Client refreshes clone these templates to preserve the server-rendered structure. #}
         <template data-upcoming-template>
             {{ include('partial/fm-upcoming-card.twig', {
                 href: '', time: '', label: '', title: '', names: '', photo: null,

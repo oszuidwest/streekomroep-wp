@@ -1,12 +1,3 @@
-/**
- * Live radio page
- *
- * Keeps the now playing card in step with zwfm-metadata and drives the VideoJS stream from the
- * button in the page. While the stream plays the same data feeds the Media Session API, so the
- * lock screen shows the current track, the programme and the station artwork. Everything here
- * is an enhancement: without it the page still shows the programme, the schedule and the
- * frequencies.
- */
 (function () {
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
@@ -14,8 +5,7 @@
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
     const SCHEDULE_RETRY_SECONDS = 30;
     const SCHEDULE_RETRY_MAX_SECONDS = 300;
-    // Every client shares the same broadcast boundary, so spread the refresh instead of stampeding it.
-    // Kept short: this is also how long the header can lag behind a programme change.
+    // Spread boundary refreshes across ten seconds to reduce synchronized load.
     const SCHEDULE_JITTER = 10000;
     const SCHEDULE_TIMEOUT = 10000;
 
@@ -23,13 +13,11 @@
     const streamElement = document.getElementById('zw-fm-stream');
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
-    // The server renders the no-track state, so that text doubles as the fallback.
     let fallbackTitle = titleNode ? titleNode.textContent : '';
     let fallbackArtist = artistNode ? artistNode.textContent : '';
 
     const stationTitle = radioPage ? radioPage.dataset.radioTitle : '';
     const stationTagline = radioPage ? radioPage.dataset.radioTagline : '';
-    // The attribute is the theme's own json_encode output, so it parses or the page is broken anyway.
     const sessionArtwork = JSON.parse(radioPage?.dataset.artwork || '[]');
 
     const currentTitleNode = document.querySelector('[data-current-title]');
@@ -42,7 +30,7 @@
             return;
         }
 
-        // Nonstop slots are already named after the station, so skip the redundant suffix.
+        // Do not repeat the station name when the programme label already contains it.
         const album = programName && !programName.includes(stationTitle)
             ? `${programName} · ${stationTitle}`
             : (programName || stationTitle);
@@ -60,7 +48,7 @@
     }
 
     function readTrack(payload) {
-        // Station idents and programme names travel through the same feed but are not records.
+        // The feed includes non-track events; tracks require both a title and an artist.
         const title = String(payload.title || '').trim();
         const artist = String(payload.artist || '').trim();
         return title && artist ? {title: title, artist: artist} : null;
@@ -70,7 +58,7 @@
     function renderNow(track) {
         const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
         currentTrack = track;
-        // The lock screen redraws on every metadata assignment, so only touch it on a real change.
+        // Avoid redundant Media Session assignments and system UI redraws.
         if (changed) {
             updateMediaSession();
         }
@@ -156,7 +144,7 @@
 
             const track = readTrack(payload);
             if (!track) {
-                // An empty metadata update explicitly means that nothing is playing.
+                // An empty metadata update ends the current track.
                 if (!payload.type || payload.type === 'metadata_update') {
                     renderFallback();
                 }
@@ -170,11 +158,10 @@
             renderNow(track);
         });
 
-        // An error is always followed by a close, which is where reconnecting is handled.
+        // Reconnect from `close` so failed and clean disconnects share one path.
         socket.addEventListener('close', scheduleReconnect);
     }
 
-    /** Reopens the metadata socket and catches up on a deferred schedule refresh. */
     function resumeFeeds() {
         if (!socket || socket.readyState >= WebSocket.CLOSING) {
             connectMetadata();
@@ -189,7 +176,7 @@
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             if (!isPlaying) {
-                // Nothing can show the feed now; close the socket and reconnect on return.
+                // Suspend the idle metadata socket while the page is hidden.
                 clearTimeout(reconnectTimer);
                 socket?.close();
             }
@@ -240,7 +227,7 @@
                 return;
             }
 
-            // The slot ran out while the page stayed open; stop claiming this show is on air.
+            // Mark the timer as ended while the boundary refresh catches up.
             label.textContent = 'afgelopen';
             clearInterval(progressTimer);
             progressTimer = null;
@@ -289,7 +276,6 @@
             wrap.querySelector('[data-progress-end]').textContent = current.end_time;
         }
 
-        // Clears the timer when the bar is hidden and restarts it otherwise.
         startProgress();
     }
 
@@ -368,7 +354,7 @@
         renderUpcoming(Array.isArray(schedule.upcoming) ? schedule.upcoming : []);
 
         if (!streamElement) {
-            // Only swap the idle text when a track is not currently on screen.
+            // Preserve active track metadata while updating its fallback.
             const showingFallback = titleNode.textContent === fallbackTitle;
             fallbackTitle = current.name;
             fallbackArtist = current.show ? current.show.makers_label || '' : '';
@@ -385,8 +371,7 @@
             return;
         }
 
-        // A hidden tab cannot show the update, so defer the request until it is looked at again.
-        // While playing it still feeds the lock screen, which names the current programme.
+        // Defer hidden-tab refreshes unless playback needs current Media Session metadata.
         if (document.hidden && !isPlaying) {
             scheduleStale = true;
             return;
@@ -411,7 +396,7 @@
             scheduleRetrySeconds = SCHEDULE_RETRY_SECONDS;
             applySchedule(payload.fm.schedule);
         } catch (error) {
-            // Back off like the socket does, so a struggling endpoint is not retried by every tab at once.
+            // Exponential backoff plus jitter limits retries during endpoint failures.
             queueScheduleRefresh(scheduleRetrySeconds);
             scheduleRetrySeconds = Math.min(scheduleRetrySeconds * 2, SCHEDULE_RETRY_MAX_SECONDS);
         } finally {
@@ -452,7 +437,7 @@
             setPlaying(true);
             updateMediaSession();
 
-            // The feeds pause in a hidden idle tab; resuming from the lock screen revives them.
+            // Media Session can start playback while hidden; reconnect its feeds too.
             resumeFeeds();
         };
 
@@ -475,7 +460,7 @@
             try {
                 navigator.mediaSession.setActionHandler('stop', () => player.pause());
             } catch (error) {
-                // Ignore: not every browser knows the stop action.
+                // Some browsers expose Media Session without the `stop` action.
             }
         }
     }

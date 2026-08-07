@@ -1,4 +1,3 @@
-{# Triangle pattern shared by the FM show header and the live page header. #}
 {% macro driehoeken(items) %}
     {% for d in items %}
         <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
@@ -6,7 +5,6 @@
     {% endfor %}
 {% endmacro %}
 <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-    {# Anchors stay more than 112 × (scale A + scale B) apart, preventing overlap at every rotation. #}
     <svg class="absolute h-0 w-0" focusable="false">
         <defs>
             <path id="zwfm-driehoek" d="M28 -98 L28 98 L-56 0 Z" stroke-width="20" stroke-linejoin="round"/>

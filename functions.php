@@ -76,11 +76,9 @@ function zw_acf_rows($value): array
 }
 
 /**
- * Decodes stored HTML entities into canonical plain text.
+ * Converts HTML entities to characters before context-specific escaping.
  *
- * WordPress stores titles and options entity encoded (wptexturize et al). Consumers get one
- * plain form and escape it again for their own output context: Twig sinks with `|plain|e`,
- * JSON output as-is (fm-live.js assigns via textContent). Exposed to Twig as the `plain` filter.
+ * Exposed to Twig as the `plain` filter.
  */
 function zw_plain_text(string $text): string
 {
@@ -970,10 +968,7 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
-/**
- * The live page only needs VideoJS when a stream is configured. The page controller signals
- * that intent via zw_require_videojs() before this hook fires; fm-live.js feature-detects the rest.
- */
+/** Adds VideoJS as a dependency only when the controller requested a stream player. */
 function zw_enqueue_fm_live_assets()
 {
     if (!is_page_template('wp-page-fm-player.php')) {

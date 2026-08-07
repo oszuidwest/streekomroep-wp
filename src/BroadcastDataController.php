@@ -5,7 +5,6 @@ namespace Streekomroep;
 use WP_REST_Response;
 use WP_REST_Server;
 
-/** Serves the current broadcast state to public theme clients. */
 final class BroadcastDataController
 {
     private const REST_NAMESPACE = 'zw/v1';
@@ -13,16 +12,14 @@ final class BroadcastDataController
 
     private const TRANSIENT = 'zw_broadcast_data';
 
-    /** Upper bound on the cache lifetime, and thus on how long schedule edits stay invisible. */
+    /** Maximum time schedule edits can remain hidden by this cache. */
     private const CACHE_TTL_MAX = 60;
 
-    /** The URL clients poll for broadcast data. */
     public static function url(): string
     {
         return rest_url(self::REST_NAMESPACE . '/' . self::REST_BASE);
     }
 
-    /** Registers the public read-only broadcast route. */
     public function register_routes(): void
     {
         register_rest_route(
@@ -36,16 +33,9 @@ final class BroadcastDataController
         );
     }
 
-    /**
-     * Returns current radio and television schedule data.
-     *
-     * @param \WP_REST_Request $request Full details about the request.
-     */
     public function get_item($request): WP_REST_Response
     {
-        // Clients poll in sync around programme boundaries; the transient absorbs that
-        // stampede so only the first request rebuilds the schedule. It expires at the
-        // boundary itself, so a new slot is never served from the old cache.
+        // A short transient reduces duplicate rebuilds when clients poll at slot boundaries.
         $payload = get_transient(self::TRANSIENT);
         if (!is_array($payload)) {
             $payload = $this->build();
@@ -56,7 +46,7 @@ final class BroadcastDataController
             );
         }
 
-        // The countdown keeps moving while the payload sits in cache.
+        // Recompute the relative countdown from the cached absolute end time.
         $payload['fm']['schedule']['refresh_after'] = BroadcastSchedule::refreshAfter(
             $payload['fm']['schedule']['current']['end'] ?? null
         );
@@ -67,7 +57,7 @@ final class BroadcastDataController
         return $response;
     }
 
-    /** Builds the full response payload; `fm.now`/`next` and `tv` are the legacy contract. */
+    /** Preserves the legacy `fm.now`, `fm.next` and `tv` fields alongside the live-page schedule. */
     private function build(): array
     {
         $schedule = new BroadcastSchedule();
@@ -84,7 +74,6 @@ final class BroadcastDataController
                         fn (RadioBroadcast $broadcast) => $broadcast->toArray(),
                         $schedule->getUpcomingRadioBroadcasts(2)
                     ),
-                    // Derived from the same broadcast that is being sent, so the two cannot disagree.
                     'refresh_after' => $schedule->getRefreshAfter($current),
                 ],
             ],
@@ -101,7 +90,6 @@ final class BroadcastDataController
         ];
     }
 
-    /** Decodes stored HTML entities for JSON text values. */
     private function decode(string $text): string
     {
         return zw_plain_text($text);

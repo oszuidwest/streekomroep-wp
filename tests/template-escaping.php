@@ -1,20 +1,15 @@
 <?php
 
 /**
- * Regression test: the FM live page templates must escape broadcast text at the sink.
+ * Regression coverage for explicit escaping in FM live-page templates.
  *
- * The theme keeps broadcast data as canonical plain text (see zw_plain_text()), and Timber
- * runs Twig without autoescaping, so every template sink escapes explicitly. These renders
- * feed the partials and the live page the payloads that would break out again if an escape
- * is dropped, plus an entity-encoded title that would display wrong if one is doubled.
- *
+ * Timber autoescaping is disabled, so every covered sink must escape plain text itself.
  * Run with: composer test:templates
  */
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// The templates escape URLs through WordPress' esc_url via Twig's function(); outside
-// WordPress stubs with equivalent behaviour are enough to render them.
+// Fixed safe URLs need attribute escaping only; URL validation is outside this test.
 function esc_url(string $url): string
 {
     return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
@@ -57,7 +52,6 @@ $attribute_payload = '" onerror="alert(1)';
 $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
 
-// Attribute context: a decoded quote must not break out of alt="...".
 $check(
     'fm-portrait.twig (attribute)',
     $twig->render('partial/fm-portrait.twig', [
@@ -68,7 +62,6 @@ $check(
     []
 );
 
-// Text context: decoded markup must render as text, not as elements.
 $check(
     'fm-upcoming-card.twig (text)',
     $twig->render('partial/fm-upcoming-card.twig', [
@@ -85,8 +78,7 @@ $check(
     ['&lt;img src=x', '&lt;script&gt;']
 );
 
-// The full page: every sink that prints broadcast data gets a payload, and the
-// entity-encoded page title guards against double encoding (|plain|e, not bare |e).
+// Populate every live-page broadcast sink; the encoded title also catches double encoding.
 $show = [
     'title' => $text_payload,
     'link' => 'https://example.test/show',

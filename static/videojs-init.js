@@ -4,7 +4,7 @@
  * Chrome has issues with native HLS playback. This script configures VideoJS
  * to use VHS (Video.js HTTP Streaming) with the correct settings.
  */
-// Shared by every VideoJS player in the theme (fm-live.js pulls this in too).
+// fm-live.js uses the same HTML5 options for its page-scoped player.
 window.zwVideoJsHtml5 = function () {
     return {
         vhs: {

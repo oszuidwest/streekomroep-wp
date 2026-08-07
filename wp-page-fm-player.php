@@ -2,9 +2,6 @@
 
 /**
  * Template Name: FM Player
- *
- * The live radio page: what is on air now, what plays next and where to find the station.
- * The now playing card is refreshed from the live metadata websocket by static/fm-live.js.
  */
 
 use Carbon\Carbon;
@@ -17,14 +14,12 @@ $context['post'] = Timber::get_post();
 $schedule = new BroadcastSchedule();
 $current = $schedule->getCurrentRadioBroadcast();
 
-// Templates and fm-live.js consume the same toArray() shape the REST endpoint serves,
-// so a schedule refresh reproduces the server-rendered markup exactly.
+// Keep initial rendering and REST refreshes on the same schedule contract.
 $context['broadcast'] = $current?->toArray();
 $context['broadcast_data_url'] = BroadcastDataController::url();
 $context['schedule_refresh_after'] = $schedule->getRefreshAfter($current);
 
-// Filler broadcasts carry only a name, so the progress bar belongs to real shows.
-// The textual countdown lives in fm-live.js alone; it overwrites this render on load anyway.
+// Filler slots have no show and therefore no programme progress bar.
 if ($current?->show) {
     $now = Carbon::now(wp_timezone());
     $length = max(1, $current->start->diffInSeconds($current->end));
@@ -34,7 +29,7 @@ if ($current?->show) {
 
 $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $schedule->getUpcomingRadioBroadcasts(2));
 
-// VideoJS tries sources in order, so list them by preference.
+// VideoJS tries sources in insertion order.
 $streamTypes = [
     'radio_webplayer_aac_stream' => 'audio/mp4',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
@@ -50,7 +45,6 @@ foreach ($streamTypes as $field => $mimeType) {
     }
 }
 
-// Square renditions for the lock screen and system player (Media Session artwork).
 $context['media_artwork'] = [];
 $artworkUrl = $context['options']['radio_fallback_img']['url'] ?? null;
 if ($artworkUrl && $context['stream_sources']) {
@@ -62,7 +56,6 @@ if ($artworkUrl && $context['stream_sources']) {
     }
 }
 
-// One repeater holds every way to receive the station; the page shows a section per medium.
 $groups = [
     'Ether' => ['badge' => 'FM', 'title' => 'Via de ether', 'unit' => 'FM', 'channels' => []],
     'DAB+' => ['badge' => 'DAB+', 'title' => 'Digitale radio', 'unit' => '', 'channels' => []],
@@ -75,7 +68,7 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
         continue;
     }
 
-    // The field asks for the number only, but older ether rows may still carry an "FM" suffix.
+    // Normalize legacy ether values that include the unit.
     $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
     if ($medium === 'Ether') {
         $value = trim(preg_replace('/\s*FM$/i', '', $value));
@@ -87,14 +80,14 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
 
     $groups[$medium]['channels'][] = [
         'value' => $value,
-        // Ether rows without a place stay bare; other media fall back to their medium name.
+        // Only non-ether media use the medium name as a missing place label.
         'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')) ?: ($medium === 'Ether' ? '' : $medium),
     ];
 }
 
 $context['frequency_groups'] = array_values(array_filter($groups, fn ($group) => $group['channels']));
 
-// Without a configured stream the page has no player, so it should not pull in VideoJS either.
+// Avoid loading VideoJS when the page has no stream.
 if ($context['stream_sources']) {
     zw_require_videojs();
 }
