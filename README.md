@@ -99,7 +99,7 @@ Existing deployments can use the `IMGPROXY_KEY`, `IMGPROXY_SALT`, and `IMGPROXY_
 
 The theme provides two public read-only endpoints:
 
-- `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme and the television schedules for today and tomorrow.
+- `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme, the detailed live-page radio schedule, and the television schedules for today and tomorrow.
 - `GET /wp-json/zw/v1/teksttv?channel=tv1` returns slides and ticker messages for a channel configured in `ZW_TEKSTTV_CHANNELS`.
 
 ## License

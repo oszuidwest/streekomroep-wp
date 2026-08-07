@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./templates/**/*.twig', './src/**/*.php'],
+  content: ['./templates/**/*.twig', './src/**/*.php', './static/**/*.js'],
   darkMode: 'class',
   theme: {
     extend: {

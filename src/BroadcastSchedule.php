@@ -9,8 +9,14 @@ use Timber\Timber;
 
 class BroadcastSchedule
 {
+    /** Retry interval when no current slot supplies a refresh boundary. */
+    private const REFRESH_FALLBACK = 30;
+
     /** @var BroadcastDay[] */
     public $days;
+
+    /** @var RadioBroadcast[]|null */
+    private $radioBroadcasts = null;
 
     public function __construct()
     {
@@ -159,7 +165,7 @@ class BroadcastSchedule
 
     private function getRadioBroadcasts()
     {
-        return array_merge(...array_column($this->days, 'radio'));
+        return $this->radioBroadcasts ??= array_merge(...array_column($this->days, 'radio'));
     }
 
     public function getNextRadioBroadcast(?RadioBroadcast $after = null)
@@ -167,6 +173,48 @@ class BroadcastSchedule
         $broadcasts = $this->getRadioBroadcasts();
         $index = array_search($after ?: $this->getCurrentRadioBroadcast(), $broadcasts, true);
         return $index === false ? null : ($broadcasts[$index + 1] ?? null);
+    }
+
+    /**
+     * Returns the next programmed broadcasts, skipping filler such as non-stop music.
+     *
+     * @return RadioBroadcast[]
+     */
+    public function getUpcomingRadioBroadcasts(int $limit)
+    {
+        $now = Carbon::now(wp_timezone());
+        $upcoming = [];
+
+        // Direct appends preserve JSON list semantics and stop work at the requested limit.
+        foreach ($this->getRadioBroadcasts() as $broadcast) {
+            if (count($upcoming) === $limit) {
+                break;
+            }
+
+            if ($broadcast->show && $broadcast->start->isAfter($now)) {
+                $upcoming[] = $broadcast;
+            }
+        }
+
+        return $upcoming;
+    }
+
+    public static function refreshAfter(?int $endTimestamp): int
+    {
+        if (!$endTimestamp) {
+            return self::REFRESH_FALLBACK;
+        }
+
+        return max(1, $endTimestamp - time());
+    }
+
+    /**
+     * Uses the caller's slot so crossing a boundary between lookups cannot extend stale data
+     * through the following slot.
+     */
+    public function getRefreshAfter(?RadioBroadcast $current): int
+    {
+        return self::refreshAfter($current?->end->getTimestamp());
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */

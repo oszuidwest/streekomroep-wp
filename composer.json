@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "lint:twig": "twig-cs-fixer lint",
-    "fix:twig": "twig-cs-fixer lint --fix"
+    "fix:twig": "twig-cs-fixer lint --fix",
+    "test:templates": "php tests/template-escaping.php"
   },
   "repositories": [
     {

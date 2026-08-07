@@ -76,6 +76,16 @@ function zw_acf_rows($value): array
 }
 
 /**
+ * Converts HTML entities to characters before context-specific escaping.
+ *
+ * Exposed to Twig as the `plain` filter.
+ */
+function zw_plain_text(string $text): string
+{
+    return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+/**
  * Returns complete, usable FM schedule rows.
  *
  * @return array<int, array<string, mixed>>
@@ -280,6 +290,8 @@ add_action('rest_api_init', 'zw_rest_api_init');
 
 function zw_rest_api_init()
 {
+    (new \Streekomroep\BroadcastDataController())->register_routes();
+
     $fields = [
         'image_wide' => 'dossier_afbeelding_breed',
         'image_tall' => 'dossier_afbeelding_hoog'
@@ -339,7 +351,7 @@ function zw_rest_api_init()
                     }
                 } elseif ($type === \Streekomroep\Fragment::TYPE_AUDIO) {
                     return [
-                        ['type' => 'audio/mp3', 'src' => get_field('fragment_url', $post_arr['id'], false)]
+                        ['type' => 'audio/mpeg', 'src' => get_field('fragment_url', $post_arr['id'], false)]
                     ];
                 }
 
@@ -411,31 +423,7 @@ function zw_rest_api_init()
             }
         ]
     );
-
-    register_rest_route('zw/v1', '/broadcast_data', [
-        'methods' => 'GET',
-        'permission_callback' => '__return_true',
-        'callback' => function (WP_REST_Request $request) {
-            $decode = fn($text) => html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-            $schedule = new \Streekomroep\BroadcastSchedule();
-            $currentRadioBroadcast = $schedule->getCurrentRadioBroadcast();
-            $nextBroadcast = $schedule->getNextRadioBroadcast();
-
-            return [
-                'fm' => [
-                    'now' => $currentRadioBroadcast ? $decode($currentRadioBroadcast->getName()) : null,
-                    'next' => $nextBroadcast ? $decode($nextBroadcast->getName()) : null,
-                ],
-                'tv' => [
-                    'today' => array_map(fn($item) => $decode($item->name), $schedule->getToday()->television),
-                    'tomorrow' => array_map(fn($item) => $decode($item->name), $schedule->getTomorrow()->television),
-                ],
-            ];
-        }
-    ]);
 }
-
 
 /**
  * @param $url
@@ -979,6 +967,24 @@ function zw_enqueue_theme_assets()
 }
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
+
+/** Adds VideoJS as a dependency only when the controller requested a stream player. */
+function zw_enqueue_fm_live_assets()
+{
+    if (!is_page_template('wp-page-fm-player.php')) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'zw-fm-live',
+        get_theme_file_uri('static/fm-live.js'),
+        empty($GLOBALS['zw_requires_videojs']) ? [] : ['zw-videojs-init'],
+        wp_get_theme()->get('Version'),
+        ['strategy' => 'defer', 'in_footer' => true]
+    );
+}
+
+add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets', 21);
 
 /**
  * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues
