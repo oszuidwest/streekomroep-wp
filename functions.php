@@ -958,25 +958,26 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
+/**
+ * The live page only needs VideoJS when a stream is configured, so the dependency follows
+ * whatever zw_maybe_enqueue_videojs() decided at priority 20; fm-live.js feature-detects the rest.
+ */
 function zw_enqueue_fm_live_assets()
 {
     if (!is_page_template('wp-page-fm-player.php')) {
         return;
     }
 
-    $scriptPath = get_theme_file_path('static/fm-live.js');
-    $scriptVersion = filemtime($scriptPath) ?: wp_get_theme()->get('Version');
-
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
-        ['zw-videojs-init'],
-        $scriptVersion,
+        wp_script_is('zw-videojs-init', 'enqueued') ? ['zw-videojs-init'] : [],
+        wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );
 }
 
-add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets');
+add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets', 21);
 
 /**
  * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues

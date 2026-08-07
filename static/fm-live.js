@@ -10,11 +10,14 @@
     const RECONNECT_MAX = 30000;
     const PROGRESS_INTERVAL = 30000;
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
-    const SCHEDULE_RETRY = 30000;
+    const SCHEDULE_RETRY_SECONDS = 30;
+    const SCHEDULE_RETRY_MAX_SECONDS = 300;
+    // Every client shares the same broadcast boundary, so spread the refresh instead of stampeding it.
+    // Kept short: this is also how long the header can lag behind a programme change.
+    const SCHEDULE_JITTER = 10000;
     const SCHEDULE_TIMEOUT = 10000;
 
     const radioPage = document.querySelector('[data-radio-live]');
-    const details = document.querySelector('[data-now-details]');
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
     // The server renders the no-track state, so that text doubles as the fallback.
@@ -32,13 +35,11 @@
     }
 
     let expiryTimer = null;
-    let showingTrack = false;
     function renderNow(track) {
         // Station idents and programme names travel through the same feed but are not records.
         const isTrack = Boolean(track && track.artist);
         const title = isTrack ? track.title : fallbackTitle;
         const artist = isTrack ? track.artist : fallbackArtist;
-        showingTrack = isTrack;
 
         // The container is aria-live, so rewriting identical text would re-announce it.
         if (titleNode.textContent === title && artistNode.textContent === artist) {
@@ -87,14 +88,14 @@
     }
 
     function connectMetadata() {
-        if (!details || !details.dataset.metadataUrl || !('WebSocket' in window)) {
+        if (!radioPage || !radioPage.dataset.metadataUrl || !('WebSocket' in window)) {
             return;
         }
 
         clearTimeout(reconnectTimer);
 
         try {
-            socket = new WebSocket(details.dataset.metadataUrl);
+            socket = new WebSocket(radioPage.dataset.metadataUrl);
         } catch (error) {
             scheduleReconnect();
             return;
@@ -139,8 +140,16 @@
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             clearTimeout(reconnectTimer);
-        } else if (!socket || socket.readyState >= WebSocket.CLOSING) {
+            return;
+        }
+
+        if (!socket || socket.readyState >= WebSocket.CLOSING) {
             connectMetadata();
+        }
+
+        if (scheduleStale) {
+            scheduleStale = false;
+            refreshSchedule();
         }
     });
 
@@ -195,13 +204,11 @@
         tick();
     }
 
-    function formatNames(makers) {
-        const names = makers.map((maker) => String(maker.name || '').trim()).filter(Boolean);
-        if (names.length < 2) {
-            return names.join('');
-        }
+    // Matches Twig's `|join(', ', ' en ')` on the server-rendered markup.
+    const nameList = new Intl.ListFormat('nl', {type: 'conjunction'});
 
-        return `${names.slice(0, -1).join(', ')} en ${names[names.length - 1]}`;
+    function formatNames(makers) {
+        return nameList.format(makers.map((maker) => String(maker.name || '').trim()).filter(Boolean));
     }
 
     function renderCurrentMakers(makers) {
@@ -237,18 +244,15 @@
             return;
         }
 
-        if (!current.show) {
-            wrap.hidden = true;
-            clearInterval(progressTimer);
-            progressTimer = null;
-            return;
+        wrap.hidden = !current.show;
+        if (current.show) {
+            wrap.dataset.start = current.start;
+            wrap.dataset.end = current.end;
+            wrap.querySelector('[data-progress-start]').textContent = current.start_time;
+            wrap.querySelector('[data-progress-end]').textContent = current.end_time;
         }
 
-        wrap.hidden = false;
-        wrap.dataset.start = current.start;
-        wrap.dataset.end = current.end;
-        wrap.querySelector('[data-progress-start]').textContent = current.start_time;
-        wrap.querySelector('[data-progress-end]').textContent = current.end_time;
+        // Clears the timer when the bar is hidden and restarts it otherwise.
         startProgress();
     }
 
@@ -296,17 +300,19 @@
 
     let scheduleTimer = null;
     let schedulePending = false;
+    let scheduleStale = false;
+    let scheduleRetrySeconds = SCHEDULE_RETRY_SECONDS;
 
     function queueScheduleRefresh(seconds) {
         clearTimeout(scheduleTimer);
-        const delay = Math.max(1, Number(seconds) || SCHEDULE_RETRY / 1000) * 1000;
+        const delay = Math.max(1, Number(seconds) || SCHEDULE_RETRY_SECONDS) * 1000;
         // Broadcast boundaries are inclusive server-side, so fetch just after the old slot ends.
-        scheduleTimer = setTimeout(refreshSchedule, delay + 1000);
+        scheduleTimer = setTimeout(refreshSchedule, delay + 1000 + Math.random() * SCHEDULE_JITTER);
     }
 
     function applySchedule(schedule) {
         const current = schedule.current;
-        if (!current || !radioPage) {
+        if (!current) {
             queueScheduleRefresh(schedule.refresh_after);
             return;
         }
@@ -324,14 +330,15 @@
         renderUpcoming(Array.isArray(schedule.upcoming) ? schedule.upcoming : []);
 
         if (!document.getElementById('zw-fm-stream')) {
+            // Only swap the idle text when a track is not currently on screen.
+            const showingFallback = titleNode.textContent === fallbackTitle;
             fallbackTitle = current.name;
             fallbackArtist = formatNames(makers);
-            if (!showingTrack) {
+            if (showingFallback) {
                 renderFallback();
             }
         }
 
-        radioPage.dataset.scheduleRefreshAfter = schedule.refresh_after;
         queueScheduleRefresh(schedule.refresh_after);
     }
 
@@ -340,14 +347,18 @@
             return;
         }
 
+        // A hidden tab cannot show the update, so defer the request until it is looked at again.
+        if (document.hidden) {
+            scheduleStale = true;
+            return;
+        }
+
         schedulePending = true;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), SCHEDULE_TIMEOUT);
         try {
             const response = await fetch(radioPage.dataset.scheduleUrl, {
                 cache: 'no-store',
                 headers: {Accept: 'application/json'},
-                signal: controller.signal
+                signal: AbortSignal.timeout(SCHEDULE_TIMEOUT)
             });
             if (!response.ok) {
                 throw new Error(`Schedule request failed with ${response.status}`);
@@ -358,11 +369,13 @@
                 throw new Error('Schedule response is incomplete');
             }
 
+            scheduleRetrySeconds = SCHEDULE_RETRY_SECONDS;
             applySchedule(payload.fm.schedule);
         } catch (error) {
-            queueScheduleRefresh(SCHEDULE_RETRY / 1000);
+            // Back off like the socket does, so a struggling endpoint is not retried by every tab at once.
+            queueScheduleRefresh(scheduleRetrySeconds);
+            scheduleRetrySeconds = Math.min(scheduleRetrySeconds * 2, SCHEDULE_RETRY_MAX_SECONDS);
         } finally {
-            clearTimeout(timeout);
             schedulePending = false;
         }
     }
@@ -401,10 +414,7 @@
 
             // Reload before playing: this is a live stream, so resuming must jump to the edge.
             player.load();
-            const started = player.play();
-            if (started && started.catch) {
-                started.catch(() => setPlaying(false));
-            }
+            player.play()?.catch(() => setPlaying(false));
             setPlaying(true);
         });
     }

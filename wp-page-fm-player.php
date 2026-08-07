@@ -8,7 +8,7 @@
  */
 
 use Carbon\Carbon;
-use Streekomroep\BroadcastDay;
+use Streekomroep\BroadcastDataController;
 use Streekomroep\BroadcastSchedule;
 
 $context = Timber::context();
@@ -18,11 +18,8 @@ $schedule = new BroadcastSchedule();
 $current = $schedule->getCurrentRadioBroadcast();
 
 $context['current'] = $current;
-$context['broadcast_data_url'] = rest_url('zw/v1/broadcast_data');
-$context['schedule_refresh_after'] = $current ? max(
-    1,
-    $current->end->timestamp - Carbon::now(wp_timezone())->timestamp
-) : 30;
+$context['broadcast_data_url'] = BroadcastDataController::url();
+$context['schedule_refresh_after'] = $schedule->getRefreshAfter($current);
 
 // Filler broadcasts carry only a name, so the progress bar belongs to real shows.
 $context['live_show'] = $current?->show;
@@ -49,18 +46,9 @@ if ($context['live_show']) {
     }
 }
 
-/** Labels shows beyond today; today's shows are already covered by the "Straks" section heading. */
-$whenLabel = function (Carbon $start) {
-    if ($start->isToday()) {
-        return null;
-    }
-
-    return $start->isTomorrow() ? 'morgen' : BroadcastDay::WEEKDAY_NAMES[$start->dayOfWeekIso];
-};
-
 $context['upcoming'] = array_map(fn ($broadcast) => [
     'broadcast' => $broadcast,
-    'label' => $whenLabel($broadcast->start),
+    'label' => $broadcast->getDayLabel(),
 ], $schedule->getUpcomingRadioBroadcasts(2));
 
 // VideoJS tries sources in order, so list them by preference.
@@ -111,7 +99,9 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
 
 $context['frequency_groups'] = array_values(array_filter($groups, fn ($group) => $group['channels']));
 
-$context['fm_post_type'] = get_post_type_object('fm');
+// Without a configured stream the page has no player, so it should not pull in VideoJS either.
+if ($context['stream_sources']) {
+    zw_require_videojs();
+}
 
-zw_require_videojs();
 Timber::render(['page-fm-player.twig', 'page.twig'], $context);

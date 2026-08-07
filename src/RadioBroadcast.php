@@ -31,6 +31,16 @@ class RadioBroadcast
         return $lhs->start <=> $rhs->start;
     }
 
+    /** Names the day of a future slot: null when it airs today, otherwise 'morgen' or the weekday. */
+    public function getDayLabel(): ?string
+    {
+        if ($this->start->isToday()) {
+            return null;
+        }
+
+        return $this->start->isTomorrow() ? 'morgen' : BroadcastDay::WEEKDAY_NAMES[$this->start->dayOfWeekIso];
+    }
+
     public function getName()
     {
         if ($this->title) {

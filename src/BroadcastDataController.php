@@ -2,7 +2,6 @@
 
 namespace Streekomroep;
 
-use Carbon\Carbon;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -10,10 +9,19 @@ use WP_REST_Server;
 /** Serves the current broadcast state to public theme clients. */
 final class BroadcastDataController extends WP_REST_Controller
 {
+    private const REST_NAMESPACE = 'zw/v1';
+    private const REST_BASE = 'broadcast_data';
+
     public function __construct()
     {
-        $this->namespace = 'zw/v1';
-        $this->rest_base = 'broadcast_data';
+        $this->namespace = self::REST_NAMESPACE;
+        $this->rest_base = self::REST_BASE;
+    }
+
+    /** The URL clients poll for broadcast data. */
+    public static function url(): string
+    {
+        return rest_url(self::REST_NAMESPACE . '/' . self::REST_BASE);
     }
 
     /** Registers the public read-only broadcast route. */
@@ -42,7 +50,7 @@ final class BroadcastDataController extends WP_REST_Controller
     {
         $schedule = new BroadcastSchedule();
         $current = $schedule->getCurrentRadioBroadcast();
-        $next = $schedule->getNextRadioBroadcast();
+        $next = $schedule->getNextRadioBroadcast($current);
 
         $response = rest_ensure_response([
             'fm' => [
@@ -51,16 +59,11 @@ final class BroadcastDataController extends WP_REST_Controller
                 'schedule' => [
                     'current' => $current ? $this->formatRadioBroadcast($current) : null,
                     'upcoming' => array_map(
-                        fn (RadioBroadcast $broadcast) => $this->formatRadioBroadcast(
-                            $broadcast,
-                            $this->whenLabel($broadcast->start)
-                        ),
+                        fn (RadioBroadcast $broadcast) => $this->formatRadioBroadcast($broadcast),
                         $schedule->getUpcomingRadioBroadcasts(2)
                     ),
-                    'refresh_after' => $current ? max(
-                        1,
-                        $current->end->timestamp - Carbon::now(wp_timezone())->timestamp
-                    ) : 30,
+                    // Derived from the same broadcast that is being sent, so the two cannot disagree.
+                    'refresh_after' => $schedule->getRefreshAfter($current),
                 ],
             ],
             'tv' => [
@@ -168,7 +171,7 @@ final class BroadcastDataController extends WP_REST_Controller
     }
 
     /** Formats one radio slot for REST consumers. */
-    private function formatRadioBroadcast(RadioBroadcast $broadcast, ?string $label = null): array
+    private function formatRadioBroadcast(RadioBroadcast $broadcast): array
     {
         return [
             'name' => $this->decode($broadcast->getName()),
@@ -176,7 +179,7 @@ final class BroadcastDataController extends WP_REST_Controller
             'end' => $broadcast->end->timestamp,
             'start_time' => $broadcast->start->format('H:i'),
             'end_time' => $broadcast->end->format('H:i'),
-            'label' => $label,
+            'label' => $broadcast->getDayLabel(),
             'show' => $broadcast->show ? $this->formatShow($broadcast->show) : null,
         ];
     }
@@ -199,16 +202,6 @@ final class BroadcastDataController extends WP_REST_Controller
                 ];
             }, zw_acf_rows($show->meta('fm_show_makers'))),
         ];
-    }
-
-    /** Labels future slots that do not occur today. */
-    private function whenLabel(Carbon $start): ?string
-    {
-        if ($start->isToday()) {
-            return null;
-        }
-
-        return $start->isTomorrow() ? 'morgen' : BroadcastDay::WEEKDAY_NAMES[$start->dayOfWeekIso];
     }
 
     /** Decodes stored HTML entities for JSON text values. */

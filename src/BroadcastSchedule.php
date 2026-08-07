@@ -9,8 +9,14 @@ use Timber\Timber;
 
 class BroadcastSchedule
 {
+    /** Seconds clients wait before re-reading the schedule when nothing is on air. */
+    private const REFRESH_FALLBACK = 30;
+
     /** @var BroadcastDay[] */
     public $days;
+
+    /** @var RadioBroadcast[]|null */
+    private $radioBroadcasts = null;
 
     public function __construct()
     {
@@ -159,7 +165,8 @@ class BroadcastSchedule
 
     private function getRadioBroadcasts()
     {
-        return array_merge(...array_column($this->days, 'radio'));
+        // Every lookup below walks the same flattened week; the days no longer change after construction.
+        return $this->radioBroadcasts ??= array_merge(...array_column($this->days, 'radio'));
     }
 
     public function getNextRadioBroadcast(?RadioBroadcast $after = null)
@@ -179,6 +186,8 @@ class BroadcastSchedule
         $now = Carbon::now(wp_timezone());
         $upcoming = [];
 
+        // Stops at the limit rather than filtering the whole week, and keeps the result a real
+        // list: array_filter preserves keys, which json_encode would emit as an object.
         foreach ($this->getRadioBroadcasts() as $broadcast) {
             if (count($upcoming) === $limit) {
                 break;
@@ -190,6 +199,22 @@ class BroadcastSchedule
         }
 
         return $upcoming;
+    }
+
+    /**
+     * Seconds until the given slot ends, which is when the view a client was handed goes stale.
+     *
+     * Takes the broadcast the caller is rendering rather than looking it up again: a boundary
+     * crossed between the two calls would otherwise pair the old programme with the new one's
+     * full remaining runtime, leaving the client on a stale slot for its entire duration.
+     */
+    public function getRefreshAfter(?RadioBroadcast $current): int
+    {
+        if (!$current) {
+            return self::REFRESH_FALLBACK;
+        }
+
+        return max(1, $current->end->timestamp - Carbon::now(wp_timezone())->timestamp);
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */
