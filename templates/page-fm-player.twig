@@ -132,7 +132,7 @@
                 {% for group in frequency_groups %}
                     <details class="group {{ card }} {{ not loop.first ? 'mt-3 ' }}overflow-hidden">
                         <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gray-800 dark:focus-visible:outline-gray-200 [&::-webkit-details-marker]:hidden">
-                            <span class="min-w-14 rounded-sm bg-gray-200 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-gray-700 uppercase dark:bg-gray-600 dark:text-white">{{ group.badge }}</span>
+                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase">{{ group.badge }}</span>
                             <span class="font-bold">{{ group.title }}</span>
                             <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
                                 {{ icon('icon-chevron_right') }}
