@@ -67,6 +67,18 @@ foreach ($streamTypes as $field => $mimeType) {
     }
 }
 
+// Square renditions for the lock screen and system player (Media Session artwork).
+$context['media_artwork'] = [];
+$artworkUrl = $context['options']['radio_fallback_img']['url'] ?? null;
+if ($artworkUrl && $context['stream_sources']) {
+    foreach ([96, 192, 512] as $size) {
+        $context['media_artwork'][] = [
+            'src' => zw_imgproxy($artworkUrl, $size, $size),
+            'sizes' => $size . 'x' . $size,
+        ];
+    }
+}
+
 // One repeater holds every way to receive the station; the page shows a section per medium.
 $groups = [
     'Ether' => ['badge' => 'FM', 'title' => 'Via de ether', 'unit' => 'FM', 'channels' => []],

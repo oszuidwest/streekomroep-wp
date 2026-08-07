@@ -17,6 +17,30 @@
             },
             "default_value": "",
             "placeholder": "wss:\/\/metadata.zuidwest.cloud\/ws\/metadata"
+        },
+        {
+            "key": "field_68a3f1c4b2d03",
+            "label": "Fallback afbeelding",
+            "name": "radio_fallback_img",
+            "type": "image",
+            "instructions": "Vierkant stationslogo voor het vergrendelscherm en de systeemspeler tijdens het live luisteren. Minimaal 512 bij 512 pixels.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 512,
+            "min_height": 512,
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": ""
         }
     ],
     "location": [
@@ -36,5 +60,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1785969291
+    "modified": 1786115624
 }

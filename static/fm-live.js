@@ -2,8 +2,10 @@
  * Live radio page
  *
  * Keeps the now playing card in step with zwfm-metadata and drives the VideoJS stream from the
- * button in the page. Everything here is an enhancement: without it the page still shows the
- * programme, the schedule and the frequencies.
+ * button in the page. While the stream plays the same data feeds the Media Session API, so the
+ * lock screen shows the current track, the programme and the station artwork. Everything here
+ * is an enhancement: without it the page still shows the programme, the schedule and the
+ * frequencies.
  */
 (function () {
     const RECONNECT_START = 1000;
@@ -24,6 +26,42 @@
     let fallbackTitle = titleNode ? titleNode.textContent : '';
     let fallbackArtist = artistNode ? artistNode.textContent : '';
 
+    const stationTitle = radioPage ? radioPage.dataset.radioTitle : '';
+    const stationTagline = radioPage ? radioPage.dataset.radioTagline : '';
+    let sessionArtwork = [];
+    try {
+        sessionArtwork = JSON.parse((radioPage && radioPage.dataset.artwork) || '[]');
+    } catch (error) {
+        sessionArtwork = [];
+    }
+
+    const currentTitleNode = document.querySelector('[data-current-title]');
+    let programName = currentTitleNode ? currentTitleNode.textContent.trim() : '';
+    let currentTrack = null;
+    let isPlaying = false;
+
+    function updateMediaSession() {
+        if (!('mediaSession' in navigator)) {
+            return;
+        }
+
+        // Nonstop slots are already named after the station, so skip the redundant suffix.
+        const album = programName && !programName.includes(stationTitle)
+            ? `${programName} · ${stationTitle}`
+            : (programName || stationTitle);
+
+        navigator.mediaSession.metadata = new MediaMetadata(currentTrack ? {
+            title: currentTrack.title,
+            artist: currentTrack.artist,
+            album: album,
+            artwork: sessionArtwork
+        } : {
+            title: stationTitle,
+            artist: stationTagline,
+            artwork: sessionArtwork
+        });
+    }
+
     function readTrack(payload) {
         const title = String(payload.title || '').trim();
         if (!title) {
@@ -38,6 +76,9 @@
     function renderNow(track) {
         // Station idents and programme names travel through the same feed but are not records.
         const isTrack = Boolean(track && track.artist);
+        currentTrack = isTrack ? track : null;
+        updateMediaSession();
+
         const title = isTrack ? track.title : fallbackTitle;
         const artist = isTrack ? track.artist : fallbackArtist;
 
@@ -78,8 +119,8 @@
 
     function scheduleReconnect() {
         clearTimeout(reconnectTimer);
-        // Hidden tabs cannot show the metadata anyway; reconnecting resumes on return.
-        if (document.hidden) {
+        // A hidden tab cannot show the metadata, but the lock screen still can while playing.
+        if (document.hidden && !isPlaying) {
             return;
         }
 
@@ -139,7 +180,9 @@
 
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
-            clearTimeout(reconnectTimer);
+            if (!isPlaying) {
+                clearTimeout(reconnectTimer);
+            }
             return;
         }
 
@@ -324,6 +367,8 @@
             ? `Nu live · ${current.start_time} – ${current.end_time}`
             : `Nu op ${radioPage.dataset.radioTitle}`;
         title.textContent = current.name;
+        programName = current.name;
+        updateMediaSession();
 
         renderCurrentMakers(makers);
         renderProgress(current);
@@ -348,7 +393,8 @@
         }
 
         // A hidden tab cannot show the update, so defer the request until it is looked at again.
-        if (document.hidden) {
+        // While playing it still feeds the lock screen, which names the current programme.
+        if (document.hidden && !isPlaying) {
             scheduleStale = true;
             return;
         }
@@ -397,9 +443,32 @@
         const playIcon = button.querySelector('[data-play-icon="play"]');
         const pauseIcon = button.querySelector('[data-play-icon="pause"]');
         const setPlaying = function (playing) {
+            isPlaying = playing;
             button.setAttribute('aria-label', playing ? 'Pauzeer' : 'Luister live');
             playIcon.hidden = playing;
             pauseIcon.hidden = !playing;
+
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+            }
+        };
+
+        const startPlayback = function () {
+            // Reload before playing: this is a live stream, so resuming must jump to the edge.
+            player.load();
+            player.play()?.catch(() => setPlaying(false));
+            setPlaying(true);
+            updateMediaSession();
+
+            // The feeds pause in a hidden idle tab; resuming from the lock screen revives them.
+            if (!socket || socket.readyState >= WebSocket.CLOSING) {
+                connectMetadata();
+            }
+
+            if (scheduleStale) {
+                scheduleStale = false;
+                refreshSchedule();
+            }
         };
 
         player.on('playing', () => setPlaying(true));
@@ -412,11 +481,18 @@
                 return;
             }
 
-            // Reload before playing: this is a live stream, so resuming must jump to the edge.
-            player.load();
-            player.play()?.catch(() => setPlaying(false));
-            setPlaying(true);
+            startPlayback();
         });
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', startPlayback);
+            navigator.mediaSession.setActionHandler('pause', () => player.pause());
+            try {
+                navigator.mediaSession.setActionHandler('stop', () => player.pause());
+            } catch (error) {
+                // Ignore: not every browser knows the stop action.
+            }
+        }
     }
 
     startProgress();
