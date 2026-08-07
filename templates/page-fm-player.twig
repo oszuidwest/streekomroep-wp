@@ -16,12 +16,12 @@
              data-schedule-refresh-after="{{ schedule_refresh_after }}"
              data-metadata-url="{{ options.radio_live_metadata_url }}"
              data-radio-title="{{ radio_fallback_title }}">
-        <header class="relative overflow-hidden bg-gray-950 bg-gradient-to-r from-gray-950 via-gray-900 to-[#341326]">
+        <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             {{ include('partial/fm-header-pattern.twig') }}
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
                 {{ include('partial/fm-breadcrumb.twig', {label: 'ZuidWest FM'}) }}
 
-                <p class="mb-3 inline-flex items-center rounded-sm bg-roze px-2.5 py-1 font-round text-xs font-extrabold tracking-wide text-white uppercase shadow-sm"
+                <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase"
                    data-current-status>
                     {% if live_show %}
                         Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
