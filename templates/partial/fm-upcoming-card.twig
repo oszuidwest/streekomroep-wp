@@ -1,6 +1,8 @@
 {# One "Straks" card. Rendered per upcoming show and once, empty, into the template fm-live.js clones,
    so the markup and its data hooks have a single definition. #}
-<a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze"
+{# min-w-0: as a grid item the card would otherwise grow to the nowrap text width and
+   push the page past the viewport on mobile. #}
+<a class="{{ card }} flex min-w-0 items-center gap-3 p-3 transition hover:border-roze"
    {% if href %}href="{{ function('esc_url', href) }}"{% endif %}>
     <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums"
           data-upcoming-time>{{ time }}</span>
