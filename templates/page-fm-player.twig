@@ -11,13 +11,17 @@
 {% set on_air = current ? current.name : post.title %}
 
 {% block content %}
-    <article id="post-{{ post.id }}" class="{{ post.class }} pb-7 text-gray-900 lg:pb-9 dark:text-white">
+    <article id="post-{{ post.id }}" class="{{ post.class }} pb-7 text-gray-900 lg:pb-9 dark:text-white"
+             data-radio-live data-schedule-url="{{ broadcast_data_url }}"
+             data-schedule-refresh-after="{{ schedule_refresh_after }}"
+             data-radio-title="{{ radio_fallback_title }}">
         <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             {{ include('partial/fm-header-pattern.twig') }}
             <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
                 {{ include('partial/fm-breadcrumb.twig', {label: 'ZuidWest FM'}) }}
 
-                <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase">
+                <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase"
+                   data-current-status>
                     {% if live_show %}
                         Nu live · {{ current.start|date('H:i') }} – {{ current.end|date('H:i') }}
                     {% else %}
@@ -25,41 +29,40 @@
                     {% endif %}
                 </p>
 
-                <h1 class="font-round text-4xl leading-none font-black break-words text-white uppercase md:text-5xl">{{ on_air }}</h1>
+                <h1 class="font-round text-4xl leading-none font-black break-words text-white uppercase md:text-5xl"
+                    data-current-title>{{ on_air }}</h1>
 
-                {% if maker_names is not empty %}
-                    <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3">
-                        {% set portraits = current_makers|filter(maker => maker.fm_show_maker_foto)|slice(0, 2) %}
-                        {% if portraits is not empty %}
-                            <span class="flex flex-none -space-x-1">
-                                {% for maker in portraits %}
-                                    <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
-                                         srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
-                                         alt="{{ maker.fm_show_maker_naam }}" width="40" height="40" loading="lazy"
-                                         class="size-8 rounded-sm object-cover object-[50%_16%] md:size-10">
-                                {% endfor %}
-                            </span>
-                        {% endif %}
-                        <span class="min-w-0 text-sm text-white/85 md:text-base">
-                            Met <b class="font-semibold text-white">{{ maker_names|join(', ', ' en ') }}</b>
-                        </span>
-                    </p>
-                {% endif %}
+                <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3" data-current-makers
+                   {% if maker_names is empty %}hidden{% endif %}>
+                    {% set portraits = current_makers|filter(maker => maker.fm_show_maker_foto)|slice(0, 2) %}
+                    <span class="flex flex-none -space-x-1" data-current-portraits
+                          {% if portraits is empty %}hidden{% endif %}>
+                        {% for maker in portraits %}
+                            <img src="{{ maker.fm_show_maker_foto|imgproxy(40, 40) }}"
+                                 srcset="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }} 2x"
+                                 alt="{{ maker.fm_show_maker_naam }}" width="40" height="40" loading="lazy"
+                                 class="size-8 rounded-sm object-cover object-[50%_16%] md:size-10">
+                        {% endfor %}
+                    </span>
+                    <span class="min-w-0 text-sm text-white/85 md:text-base">
+                        Met <b class="font-semibold text-white" data-current-maker-names>{{ maker_names|join(', ', ' en ') }}</b>
+                    </span>
+                </p>
 
-                {% if live_show %}
-                    <div class="mt-5 max-w-[26rem] md:max-w-[34rem]" data-progress
-                         data-start="{{ current.start.timestamp }}" data-end="{{ current.end.timestamp }}">
-                        <div class="h-1.5 overflow-hidden rounded-sm bg-black/25">
-                            <div class="h-full rounded-sm bg-white transition-[width] duration-500"
-                                 style="width: {{ progress }}%" data-progress-bar></div>
-                        </div>
-                        <div class="mt-1.5 flex justify-between text-xs font-bold text-white/80 tabular-nums">
-                            <span>{{ current.start|date('H:i') }}</span>
-                            <span data-progress-label>{{ progress_label }}</span>
-                            <span>{{ current.end|date('H:i') }}</span>
-                        </div>
+                <div class="mt-5 max-w-[26rem] md:max-w-[34rem]" data-progress
+                     data-start="{{ live_show ? current.start.timestamp : 0 }}"
+                     data-end="{{ live_show ? current.end.timestamp : 0 }}"
+                     {% if not live_show %}hidden{% endif %}>
+                    <div class="h-1.5 overflow-hidden rounded-sm bg-black/25">
+                        <div class="h-full rounded-sm bg-white transition-[width] duration-500"
+                             style="width: {{ progress|default(0) }}%" data-progress-bar></div>
                     </div>
-                {% endif %}
+                    <div class="mt-1.5 flex justify-between text-xs font-bold text-white/80 tabular-nums">
+                        <span data-progress-start>{{ live_show ? current.start|date('H:i') : '' }}</span>
+                        <span data-progress-label>{{ progress_label|default('') }}</span>
+                        <span data-progress-end>{{ live_show ? current.end|date('H:i') : '' }}</span>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -98,36 +101,51 @@
             </div>
         </section>
 
-        {% if upcoming is not empty %}
-            <section class="mx-auto max-w-960 px-4 pt-7">
-                <h2 class="mb-5 text-2xl font-bold md:text-3xl">Straks</h2>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    {% for item in upcoming %}
-                        {% set makers = item.broadcast.show.meta('fm_show_makers')|rows %}
-                        {% set names = makers|column('fm_show_maker_naam')|filter(name => name) %}
-                        {% set photo = makers|column('fm_show_maker_foto')|filter(photo => photo)|first %}
-                        <a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze"
-                           href="{{ item.broadcast.show.link }}">
-                            <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums">{{ item.broadcast.start|date('H:i') }}</span>
-                            <span class="min-w-0 flex-1">
-                                {% if item.label %}
-                                    <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ item.label }}</span>
-                                {% endif %}
-                                <span class="{{ item.label ? 'mt-0.5 ' }}block truncate text-base leading-tight font-bold">{{ item.broadcast.show.title }}</span>
-                                {% if names is not empty %}
-                                    <span class="block truncate text-sm {{ muted }}">{{ names|join(', ', ' en ') }}</span>
-                                {% endif %}
-                            </span>
-                            {% if photo %}
-                                <img src="{{ photo|imgproxy(44, 44) }}" srcset="{{ photo|imgproxy(88, 88) }} 2x"
-                                     alt="" width="44" height="44" loading="lazy"
-                                     class="size-11 flex-none rounded-sm object-cover object-[50%_18%]">
+        <section class="mx-auto max-w-960 px-4 pt-7" data-upcoming
+                 {% if upcoming is empty %}hidden{% endif %}>
+            <h2 class="mb-5 text-2xl font-bold md:text-3xl">Straks</h2>
+            <div class="grid gap-4 sm:grid-cols-2" data-upcoming-list>
+                {% for item in upcoming %}
+                    {% set makers = item.broadcast.show.meta('fm_show_makers')|rows %}
+                    {% set names = makers|column('fm_show_maker_naam')|filter(name => name) %}
+                    {% set photo = makers|column('fm_show_maker_foto')|filter(photo => photo)|first %}
+                    <a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze"
+                       href="{{ item.broadcast.show.link }}">
+                        <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums">{{ item.broadcast.start|date('H:i') }}</span>
+                        <span class="min-w-0 flex-1">
+                            {% if item.label %}
+                                <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ item.label }}</span>
                             {% endif %}
-                        </a>
-                    {% endfor %}
-                </div>
-            </section>
-        {% endif %}
+                            <span class="{{ item.label ? 'mt-0.5 ' }}block truncate text-base leading-tight font-bold">{{ item.broadcast.show.title }}</span>
+                            {% if names is not empty %}
+                                <span class="block truncate text-sm {{ muted }}">{{ names|join(', ', ' en ') }}</span>
+                            {% endif %}
+                        </span>
+                        {% if photo %}
+                            <img src="{{ photo|imgproxy(44, 44) }}" srcset="{{ photo|imgproxy(88, 88) }} 2x"
+                                 alt="" width="44" height="44" loading="lazy"
+                                 class="size-11 flex-none rounded-sm object-cover object-[50%_18%]">
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <template data-upcoming-template>
+            <a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze" data-upcoming-link>
+                <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums"
+                      data-upcoming-time></span>
+                <span class="min-w-0 flex-1">
+                    <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase"
+                          data-upcoming-label hidden></span>
+                    <span class="block truncate text-base leading-tight font-bold" data-upcoming-title></span>
+                    <span class="block truncate text-sm {{ muted }}" data-upcoming-makers hidden></span>
+                </span>
+                <img alt="" width="44" height="44" loading="lazy"
+                     class="size-11 flex-none rounded-sm object-cover object-[50%_18%]"
+                     data-upcoming-photo hidden>
+            </a>
+        </template>
 
         {% if frequency_groups is not empty %}
             <section class="mx-auto max-w-960 px-4 pt-7">

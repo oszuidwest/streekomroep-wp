@@ -18,6 +18,11 @@ $schedule = new BroadcastSchedule();
 $current = $schedule->getCurrentRadioBroadcast();
 
 $context['current'] = $current;
+$context['broadcast_data_url'] = rest_url('zw/v1/broadcast_data');
+$context['schedule_refresh_after'] = $current ? max(
+    1,
+    $current->end->timestamp - Carbon::now(wp_timezone())->timestamp
+) : 30;
 
 // Filler broadcasts carry only a name, so the progress bar belongs to real shows.
 $context['live_show'] = $current?->show;

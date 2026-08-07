@@ -10,13 +10,16 @@
     const RECONNECT_MAX = 30000;
     const PROGRESS_INTERVAL = 30000;
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
+    const SCHEDULE_RETRY = 30000;
+    const SCHEDULE_TIMEOUT = 10000;
 
+    const radioPage = document.querySelector('[data-radio-live]');
     const details = document.querySelector('[data-now-details]');
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
     // The server renders the no-track state, so that text doubles as the fallback.
-    const fallbackTitle = titleNode ? titleNode.textContent : '';
-    const fallbackArtist = artistNode ? artistNode.textContent : '';
+    let fallbackTitle = titleNode ? titleNode.textContent : '';
+    let fallbackArtist = artistNode ? artistNode.textContent : '';
 
     function readTrack(payload) {
         const title = String(payload.title || '').trim();
@@ -29,11 +32,13 @@
     }
 
     let expiryTimer = null;
+    let showingTrack = false;
     function renderNow(track) {
         // Station idents and programme names travel through the same feed but are not records.
         const isTrack = Boolean(track && track.artist);
         const title = isTrack ? track.title : fallbackTitle;
         const artist = isTrack ? track.artist : fallbackArtist;
+        showingTrack = isTrack;
 
         // The container is aria-live, so rewriting identical text would re-announce it.
         if (titleNode.textContent === title && artistNode.textContent === artist) {
@@ -139,9 +144,13 @@
         }
     });
 
+    let progressTimer = null;
     function startProgress() {
+        clearInterval(progressTimer);
+        progressTimer = null;
+
         const wrap = document.querySelector('[data-progress]');
-        if (!wrap) {
+        if (!wrap || wrap.hidden) {
             return;
         }
 
@@ -178,11 +187,184 @@
 
             // The slot ran out while the page stayed open; stop claiming this show is on air.
             label.textContent = 'afgelopen';
-            clearInterval(timer);
+            clearInterval(progressTimer);
+            progressTimer = null;
         };
 
-        const timer = setInterval(tick, PROGRESS_INTERVAL);
+        progressTimer = setInterval(tick, PROGRESS_INTERVAL);
         tick();
+    }
+
+    function formatNames(makers) {
+        const names = makers.map((maker) => String(maker.name || '').trim()).filter(Boolean);
+        if (names.length < 2) {
+            return names.join('');
+        }
+
+        return `${names.slice(0, -1).join(', ')} en ${names[names.length - 1]}`;
+    }
+
+    function renderCurrentMakers(makers) {
+        const wrap = document.querySelector('[data-current-makers]');
+        const portraits = document.querySelector('[data-current-portraits]');
+        const names = document.querySelector('[data-current-maker-names]');
+        if (!wrap || !portraits || !names) {
+            return;
+        }
+
+        const makerNames = formatNames(makers);
+        names.textContent = makerNames;
+        wrap.hidden = !makerNames;
+
+        portraits.replaceChildren();
+        makers.filter((maker) => maker.photo).slice(0, 2).forEach((maker) => {
+            const image = document.createElement('img');
+            image.src = maker.photo.src;
+            image.srcset = maker.photo.srcset;
+            image.alt = maker.name;
+            image.width = 40;
+            image.height = 40;
+            image.loading = 'lazy';
+            image.className = 'size-8 rounded-sm object-cover object-[50%_16%] md:size-10';
+            portraits.append(image);
+        });
+        portraits.hidden = !portraits.childElementCount;
+    }
+
+    function renderProgress(current) {
+        const wrap = document.querySelector('[data-progress]');
+        if (!wrap) {
+            return;
+        }
+
+        if (!current.show) {
+            wrap.hidden = true;
+            clearInterval(progressTimer);
+            progressTimer = null;
+            return;
+        }
+
+        wrap.hidden = false;
+        wrap.dataset.start = current.start;
+        wrap.dataset.end = current.end;
+        wrap.querySelector('[data-progress-start]').textContent = current.start_time;
+        wrap.querySelector('[data-progress-end]').textContent = current.end_time;
+        startProgress();
+    }
+
+    function renderUpcoming(items) {
+        const section = document.querySelector('[data-upcoming]');
+        const list = document.querySelector('[data-upcoming-list]');
+        const template = document.querySelector('[data-upcoming-template]');
+        if (!section || !list || !template) {
+            return;
+        }
+
+        list.replaceChildren();
+        items.forEach((item) => {
+            if (!item.show) {
+                return;
+            }
+
+            const card = template.content.firstElementChild.cloneNode(true);
+            const makers = Array.isArray(item.show.makers) ? item.show.makers : [];
+            const label = card.querySelector('[data-upcoming-label]');
+            const title = card.querySelector('[data-upcoming-title]');
+            const makerNames = card.querySelector('[data-upcoming-makers]');
+            const photo = card.querySelector('[data-upcoming-photo]');
+            const photoMaker = makers.find((maker) => maker.photo);
+
+            card.href = item.show.link;
+            card.querySelector('[data-upcoming-time]').textContent = item.start_time;
+            label.textContent = item.label || '';
+            label.hidden = !item.label;
+            title.textContent = item.show.title;
+            title.classList.toggle('mt-0.5', Boolean(item.label));
+            makerNames.textContent = formatNames(makers);
+            makerNames.hidden = !makerNames.textContent;
+
+            if (photoMaker) {
+                photo.src = photoMaker.photo.src;
+                photo.srcset = photoMaker.photo.srcset;
+                photo.hidden = false;
+            }
+
+            list.append(card);
+        });
+        section.hidden = !list.childElementCount;
+    }
+
+    let scheduleTimer = null;
+    let schedulePending = false;
+
+    function queueScheduleRefresh(seconds) {
+        clearTimeout(scheduleTimer);
+        const delay = Math.max(1, Number(seconds) || SCHEDULE_RETRY / 1000) * 1000;
+        // Broadcast boundaries are inclusive server-side, so fetch just after the old slot ends.
+        scheduleTimer = setTimeout(refreshSchedule, delay + 1000);
+    }
+
+    function applySchedule(schedule) {
+        const current = schedule.current;
+        if (!current || !radioPage) {
+            queueScheduleRefresh(schedule.refresh_after);
+            return;
+        }
+
+        const makers = current.show && Array.isArray(current.show.makers) ? current.show.makers : [];
+        const status = document.querySelector('[data-current-status]');
+        const title = document.querySelector('[data-current-title]');
+        status.textContent = current.show
+            ? `Nu live · ${current.start_time} – ${current.end_time}`
+            : `Nu op ${radioPage.dataset.radioTitle}`;
+        title.textContent = current.name;
+
+        renderCurrentMakers(makers);
+        renderProgress(current);
+        renderUpcoming(Array.isArray(schedule.upcoming) ? schedule.upcoming : []);
+
+        if (!document.getElementById('zw-fm-stream')) {
+            fallbackTitle = current.name;
+            fallbackArtist = formatNames(makers);
+            if (!showingTrack) {
+                renderFallback();
+            }
+        }
+
+        radioPage.dataset.scheduleRefreshAfter = schedule.refresh_after;
+        queueScheduleRefresh(schedule.refresh_after);
+    }
+
+    async function refreshSchedule() {
+        if (!radioPage || !radioPage.dataset.scheduleUrl || schedulePending) {
+            return;
+        }
+
+        schedulePending = true;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), SCHEDULE_TIMEOUT);
+        try {
+            const response = await fetch(radioPage.dataset.scheduleUrl, {
+                cache: 'no-store',
+                headers: {Accept: 'application/json'},
+                signal: controller.signal
+            });
+            if (!response.ok) {
+                throw new Error(`Schedule request failed with ${response.status}`);
+            }
+
+            const payload = await response.json();
+            if (!payload || !payload.fm || !payload.fm.schedule) {
+                throw new Error('Schedule response is incomplete');
+            }
+
+            applySchedule(payload.fm.schedule);
+        } catch (error) {
+            queueScheduleRefresh(SCHEDULE_RETRY / 1000);
+        } finally {
+            clearTimeout(timeout);
+            schedulePending = false;
+        }
     }
 
     function setupPlayer() {
@@ -230,5 +412,8 @@
     startProgress();
     setupPlayer();
     connectMetadata();
+    if (radioPage) {
+        queueScheduleRefresh(radioPage.dataset.scheduleRefreshAfter);
+    }
 
 })();

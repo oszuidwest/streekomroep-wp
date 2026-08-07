@@ -280,6 +280,8 @@ add_action('rest_api_init', 'zw_rest_api_init');
 
 function zw_rest_api_init()
 {
+    (new \Streekomroep\BroadcastDataController())->register_routes();
+
     $fields = [
         'image_wide' => 'dossier_afbeelding_breed',
         'image_tall' => 'dossier_afbeelding_hoog'
@@ -411,29 +413,6 @@ function zw_rest_api_init()
             }
         ]
     );
-
-    register_rest_route('zw/v1', '/broadcast_data', [
-        'methods' => 'GET',
-        'permission_callback' => '__return_true',
-        'callback' => function (WP_REST_Request $request) {
-            $decode = fn($text) => html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-            $schedule = new \Streekomroep\BroadcastSchedule();
-            $currentRadioBroadcast = $schedule->getCurrentRadioBroadcast();
-            $nextBroadcast = $schedule->getNextRadioBroadcast();
-
-            return [
-                'fm' => [
-                    'now' => $currentRadioBroadcast ? $decode($currentRadioBroadcast->getName()) : null,
-                    'next' => $nextBroadcast ? $decode($nextBroadcast->getName()) : null,
-                ],
-                'tv' => [
-                    'today' => array_map(fn($item) => $decode($item->name), $schedule->getToday()->television),
-                    'tomorrow' => array_map(fn($item) => $decode($item->name), $schedule->getTomorrow()->television),
-                ],
-            ];
-        }
-    ]);
 }
 
 /**
