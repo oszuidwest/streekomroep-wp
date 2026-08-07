@@ -1,8 +1,8 @@
 {# One "Straks" card. Rendered per upcoming show and once, empty, into the template fm-live.js clones,
    so the markup and its data hooks have a single definition. #}
-<a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-roze"
+<a class="{{ card }} flex items-center gap-3 p-3 transition hover:border-blauw-donker dark:hover:border-blauw"
    {% if href %}href="{{ href }}"{% endif %}>
-    <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums"
+    <span class="grid size-14 flex-none place-items-center rounded-sm bg-blauw-donker text-sm font-black text-white tabular-nums"
           data-upcoming-time>{{ time }}</span>
     <span class="min-w-0 flex-1">
         <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase"

@@ -19,6 +19,7 @@ export default {
         },
         blauw: {
           DEFAULT: '#009fe3',
+          donker: '#00658f',
         },
         // Social media brand colors
         facebook: '#1877F2',
