@@ -28,23 +28,53 @@ These optional plugins complement the theme:
 - Contact Form 7 6.1.x: [free download](https://wordpress.org/plugins/contact-form-7/)
 - Disable Comments 2.7.x: [free download](https://wordpress.org/plugins/disable-comments/)
 
+## Migrating an existing Tekst TV installation
+
+Tekst TV is now provided by the separate [TekstTV plugin](https://github.com/oszuidwest/teksttv-wp-plugin). For an existing installation:
+
+1. Back up the WordPress database.
+2. Install and activate the TekstTV plugin, configure its channels and content, and verify its feed at `GET /wp-json/teksttv/v1/slides?channel=<channel-slug>`.
+3. Point every playout device at the new feed and verify that it is polling successfully. The old theme route `GET /wp-json/zw/v1/teksttv` is not retained by this theme.
+4. Deploy this theme version.
+5. Preview the old theme data that will be removed. On multisite, include `--url=<site-url>` and repeat this step for each site:
+
+   ```bash
+   wp eval-file scripts/clean-teksttv-acf-fields.php
+   ```
+
+6. Review every listed option name, metadata key, and ACF post ID. Then remove the old data. On multisite, include `--url=<site-url>` and repeat this step for each site:
+
+   ```bash
+   wp eval-file scripts/clean-teksttv-acf-fields.php delete
+   ```
+
+The cleanup is intentionally a dry run unless the `delete` argument is present. It removes the old theme-owned ACF data and three legacy `ttvgpt_*` options, but preserves the replacement plugin's `teksttv_*` configuration.
+
 ## REST API Endpoints
 
-The theme provides the following REST API endpoints:
+The theme provides the following REST API endpoint:
 
-### Tekst TV
+### Broadcast Data
 
 ```text
-GET /wp-json/zw/v1/teksttv?channel={channel}
+GET /wp-json/zw/v1/broadcast_data
 ```
 
-Returns slides and ticker messages for the Tekst TV system. The `channel` parameter is required and must match a configured channel (e.g., `tv1`).
+Returns the current and next radio broadcast, plus today's and tomorrow's TV schedule.
+The `fm.now` and `fm.next` values are program names when broadcasts are
+available, and `null` otherwise.
 
 Response format:
 
 ```json
 {
-  "slides": [...],
-  "ticker": [...]
+  "fm": {
+    "now": "Program Name",
+    "next": null
+  },
+  "tv": {
+    "today": ["Show 1", "Show 2"],
+    "tomorrow": ["Show 1", "Show 2"]
+  }
 }
 ```

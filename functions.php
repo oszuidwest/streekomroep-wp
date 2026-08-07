@@ -112,7 +112,6 @@ Timber::$dirname = ['templates'];
 
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
-require_once 'lib/teksttv.php';
 require_once 'lib/tinymce.php';
 
 // TEMPORARY: remove together with lib/migration_fm_makers.php once the upgrade has been rolled out.
@@ -155,28 +154,6 @@ function streekomroep_acf_json_load_point($paths)
     return $paths;
 }
 
-// Tekst TV channel configuration - add new channels here
-define('ZW_TEKSTTV_CHANNELS', [
-    'tv1' => 'ZuidWest TV 1',
-    'tv2' => 'ZuidWest TV 2',
-    // Add more channels: 'slug' => 'Name'
-]);
-
-// Dynamic ACF location matching for Tekst TV channels
-// Makes "teksttv_kanaal" in ACF location rules match all channels from ZW_TEKSTTV_CHANNELS
-add_filter('acf/location/rule_match/options_page', function ($match, $rule, $screen) {
-    if ($rule['value'] === 'teksttv_kanaal' && $rule['operator'] === '==') {
-        $current_page = $screen['options_page'] ?? '';
-        foreach (array_keys(ZW_TEKSTTV_CHANNELS) as $slug) {
-            if ($current_page === 'teksttv_' . $slug) {
-                return true;
-            }
-        }
-        return false;
-    }
-    return $match;
-}, 10, 3);
-
 add_action('acf/init', function () {
     if (!function_exists('acf_add_options_page') || !function_exists('acf_add_options_sub_page')) {
         add_action(
@@ -208,38 +185,6 @@ add_action('acf/init', function () {
         'capability' => 'manage_options',
         'icon_url' => 'dashicons-format-video',
         'redirect' => false
-    ]);
-
-    // Tekst TV main menu (redirects to first channel)
-    acf_add_options_page([
-        'page_title' => 'Tekst TV',
-        'menu_title' => 'Tekst TV',
-        'menu_slug' => 'teksttv',
-        'capability' => 'manage_options',
-        'icon_url' => 'dashicons-welcome-view-site',
-        'redirect' => true
-    ]);
-
-    // Sub-page for each channel with unique post_id for separate data storage
-    foreach (ZW_TEKSTTV_CHANNELS as $slug => $name) {
-        acf_add_options_sub_page([
-            'page_title' => 'Tekst TV - ' . $name,
-            'menu_title' => $name,
-            'menu_slug' => 'teksttv_' . $slug,
-            'parent_slug' => 'teksttv',
-            'capability' => 'manage_options',
-            'post_id' => 'teksttv_' . $slug
-        ]);
-    }
-
-    // Settings sub-page (API keys etc.)
-    acf_add_options_sub_page([
-        'page_title' => 'Tekst TV - Instellingen',
-        'menu_title' => 'Instellingen',
-        'menu_slug' => 'teksttv_instellingen',
-        'parent_slug' => 'teksttv',
-        'capability' => 'manage_options',
-        'post_id' => 'teksttv_instellingen'
     ]);
 
     acf_add_options_page([
@@ -491,8 +436,13 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
     }
 
     $width = intval($iframe->getAttribute('width'));
-    $iframe->removeAttribute('width');
     $height = intval($iframe->getAttribute('height'));
+
+    if ($width <= 0 || $height <= 0) {
+        return $cache;
+    }
+
+    $iframe->removeAttribute('width');
     $iframe->removeAttribute('height');
     $iframe->setAttribute('class', 'absolute inset-0 w-full h-full');
     $padding = $height / $width * 100;
