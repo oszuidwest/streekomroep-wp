@@ -8,8 +8,8 @@ class RadioBroadcast
 {
     public $title;
 
-    /** @var \Timber\Post */
-    public $show;
+    /** @var \Timber\Post|null */
+    public $show = null;
 
     public Carbon $start;
     public Carbon $end;

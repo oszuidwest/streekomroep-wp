@@ -214,7 +214,7 @@ class BroadcastSchedule
      */
     public function getRefreshAfter(?RadioBroadcast $current): int
     {
-        return self::refreshAfter($current?->end->timestamp);
+        return self::refreshAfter($current?->end->getTimestamp());
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */

@@ -406,7 +406,12 @@
 
     function setupPlayer() {
         const button = document.querySelector('[data-play]');
-        if (!streamElement || !button || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
+        if (!button) {
+            return;
+        }
+
+        if (!streamElement || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
+            button.hidden = true;
             return;
         }
 
