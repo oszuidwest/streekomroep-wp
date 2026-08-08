@@ -969,18 +969,19 @@ function zw_enqueue_theme_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
 /**
- * Whether the FM stream diagnostics panel was requested.
+ * Whether the FM stream diagnostics panel is shown.
  *
- * Gated on a query parameter rather than a capability so a listener reporting a playback
- * problem can be handed a working link without an account. The panel only reports what the
- * browser already exposes to any script on the page, so it discloses nothing extra.
+ * TEMPORARY: unconditionally on while the Android playback reports are being traced, so the
+ * panel survives navigation and shared links without anyone having to retype a query string.
+ * This means every visitor to the FM live page sees it. Put the ?debug=streams gate back, or
+ * remove the panel altogether, before this branch goes anywhere near production:
+ *
+ *   $debug = isset($_GET['debug']) ? sanitize_key(wp_unslash($_GET['debug'])) : '';
+ *   return $debug === 'streams';
  */
 function zw_fm_stream_diagnostics_enabled()
 {
-    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle.
-    $debug = isset($_GET['debug']) ? sanitize_key(wp_unslash($_GET['debug'])) : '';
-
-    return $debug === 'streams';
+    return true;
 }
 
 /** Drives a plain <audio> element, so the player needs no dependencies of its own. */
