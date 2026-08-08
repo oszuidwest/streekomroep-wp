@@ -35,10 +35,11 @@ $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $sche
 // it then hands to an MP4 demuxer, which strands devices that are strict about it on a dead source
 // instead of letting them fall through to MP3.
 $streamTypes = [
+    // TEMPORARY: prefer HLS on the staging-only diagnostics branch for comparison with AAC.
+    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
     'radio_webplayer_aac_stream' => 'audio/aac',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
     'radio_webplayer_ogg_stream' => 'audio/ogg',
-    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
 ];
 
 $context['stream_sources'] = [];
