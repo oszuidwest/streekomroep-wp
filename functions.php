@@ -968,6 +968,21 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
+/**
+ * Whether the FM stream diagnostics panel was requested.
+ *
+ * Gated on a query parameter rather than a capability so a listener reporting a playback
+ * problem can be handed a working link without an account. The panel only reports what the
+ * browser already exposes to any script on the page, so it discloses nothing extra.
+ */
+function zw_fm_stream_diagnostics_enabled()
+{
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle.
+    $debug = isset($_GET['debug']) ? sanitize_key(wp_unslash($_GET['debug'])) : '';
+
+    return $debug === 'streams';
+}
+
 /** Adds VideoJS as a dependency only when the controller requested a stream player. */
 function zw_enqueue_fm_live_assets()
 {
@@ -979,6 +994,18 @@ function zw_enqueue_fm_live_assets()
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
         empty($GLOBALS['zw_requires_videojs']) ? [] : ['zw-videojs-init'],
+        wp_get_theme()->get('Version'),
+        ['strategy' => 'defer', 'in_footer' => true]
+    );
+
+    if (!zw_fm_stream_diagnostics_enabled()) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'zw-fm-stream-diagnostics',
+        get_theme_file_uri('static/fm-stream-diagnostics.js'),
+        [],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );

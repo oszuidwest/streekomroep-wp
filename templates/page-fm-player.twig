@@ -121,6 +121,10 @@
             </div>
         </section>
 
+        {% if show_stream_diagnostics %}
+            {{ include('partial/fm-stream-diagnostics.twig', {card: card, muted: muted}) }}
+        {% endif %}
+
         <section class="mx-auto max-w-960 px-4 pt-7" data-upcoming
                  {% if upcoming is empty %}hidden{% endif %}>
             <h2 class="mb-5 text-2xl font-bold md:text-3xl">Straks</h2>

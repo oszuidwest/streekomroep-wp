@@ -1,0 +1,60 @@
+{# Reads its sources from the rendered #zw-fm-stream element rather than its own context, so the
+   panel can never report a source list that differs from the one the player was handed. #}
+<section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="stream-diagnostics-title" data-stream-diagnostics>
+    <h2 id="stream-diagnostics-title" class="mb-5 text-2xl font-bold md:text-3xl">Wat kan deze browser?</h2>
+
+    <div class="{{ card }} p-4 sm:p-5">
+        <p class="mb-4 text-sm {{ muted }}">
+            Deze sectie is alleen zichtbaar met <code>?debug=streams</code> in de URL en is bedoeld om
+            afspeelproblemen op een specifiek toestel te herleiden.
+        </p>
+
+        <p class="mb-5 rounded-sm border-l-4 border-roze bg-roze/5 px-4 py-3 text-sm font-bold"
+           data-diagnostics-verdict>Bezig met testen…</p>
+
+        <h3 class="mb-2 font-bold">Codecondersteuning</h3>
+        <p class="mb-3 text-sm {{ muted }}">
+            Het antwoord van <code>canPlayType()</code>, precies de vraag die de speler stelt voordat hij
+            een bron kiest. Een browser die <em>maybe</em> zegt, kan alsnog stilvallen bij het decoderen.
+        </p>
+        <div class="mb-6 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-800/10 dark:border-gray-200/10">
+                        <th scope="col" class="py-2 pr-3 font-bold">Formaat</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">MIME</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">canPlayType</th>
+                        <th scope="col" class="py-2 font-bold">MSE</th>
+                    </tr>
+                </thead>
+                <tbody data-diagnostics-codecs></tbody>
+            </table>
+        </div>
+
+        <h3 class="mb-2 font-bold">Ingestelde streams</h3>
+        <p class="mb-3 text-sm {{ muted }}">
+            De bronnen zoals ze in de pagina staan, in de volgorde waarin de speler ze afgaat.
+            De test speelt gedempt af, dus je hoort niets.
+        </p>
+        <div class="mb-4 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-800/10 dark:border-gray-200/10">
+                        <th scope="col" class="py-2 pr-3 font-bold">#</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">Bron</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">Keuze</th>
+                        <th scope="col" class="py-2 font-bold">Resultaat</th>
+                    </tr>
+                </thead>
+                <tbody data-diagnostics-sources></tbody>
+            </table>
+        </div>
+
+        <button type="button" data-diagnostics-run
+                class="rounded-sm bg-roze px-4 py-2 font-bold text-white transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze">
+            Test de streams
+        </button>
+
+        <p class="mt-5 text-xs break-words {{ muted }}" data-diagnostics-env></p>
+    </div>
+</section>
