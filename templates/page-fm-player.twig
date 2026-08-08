@@ -2,6 +2,7 @@
 
 {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 dark:border-gray-200/10 dark:bg-gray-700/40' %}
 {% set muted = 'text-gray-500 dark:text-gray-400' %}
+{% set focus_ring = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze' %}
 {% set radio_fallback_title = 'ZuidWest FM' %}
 {% set radio_fallback_artist = 'In heel West-Brabant' %}
 
@@ -83,7 +84,7 @@
             <div class="{{ card }} flex min-h-29 items-center gap-4 p-4 sm:gap-5 sm:p-5">
                 {% if has_stream %}
                     <button type="button" aria-label="Luister live" data-play
-                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze sm:size-22 motion-reduce:transition-none">
+                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px {{ focus_ring }} sm:size-22 motion-reduce:transition-none">
                         <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
                         <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
                     </button>
@@ -96,6 +97,27 @@
                         {{- (has_stream ? radio_fallback_artist : live_show.makers_label)|e -}}
                     </p>
                 </div>
+                {% if has_stream %}
+                    <div class="relative hidden flex-none md:block" data-volume-control>
+                        <button type="button" aria-label="Volume aanpassen" aria-expanded="false"
+                                aria-controls="zw-fm-volume-panel" data-volume-toggle
+                                class="grid size-10 place-items-center rounded-sm text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 {{ focus_ring }} dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200 motion-reduce:transition-none">
+                            <span class="[&>svg]:size-6" aria-hidden="true">{{ icon('icon-volume_up') }}</span>
+                        </button>
+                        <div id="zw-fm-volume-panel" class="absolute top-1/2 right-full z-10 mr-2 -translate-y-1/2 rounded-sm border border-gray-800/10 bg-gray-50 p-3 shadow-lg dark:border-gray-200/10 dark:bg-gray-700"
+                             data-volume-panel hidden>
+                            <div class="flex items-center gap-3">
+                                <label for="zw-fm-volume" class="sr-only">Volume</label>
+                                {# aria-valuetext carries the unit; the readout beside it is a visual mirror only. #}
+                                <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
+                                       class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
+                                       aria-valuetext="100%">
+                                <span class="w-10 text-right text-sm tabular-nums {{ muted }}"
+                                      aria-hidden="true" data-volume-value>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </section>
 
