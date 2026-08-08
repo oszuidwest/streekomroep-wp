@@ -1,0 +1,70 @@
+{# Reads its sources and its live state from the rendered #zw-fm-stream element rather than its own
+   context, so the panel can never report something the player did not actually do. #}
+<section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="stream-diagnostics-title" data-stream-diagnostics>
+    <h2 id="stream-diagnostics-title" class="mb-5 text-2xl font-bold md:text-3xl">Streamdiagnose</h2>
+
+    <div class="{{ card }} p-4 sm:p-5">
+        <p class="mb-4 text-sm {{ muted }}">
+            Alleen zichtbaar met <code>?debug=streams</code> in de URL.
+        </p>
+
+        <h3 class="mb-2 font-bold">Speler-status</h3>
+        <p class="mb-3 text-sm {{ muted }}">
+            Live stand van het echte audio-element. Druk hierboven op de gewone playknop en kijk
+            of <b>speelt</b> op ja springt en of de <b>tijd</b> oploopt.
+        </p>
+        <p class="mb-3 rounded-sm border-l-4 border-roze bg-roze/5 px-4 py-3 text-sm font-bold"
+           data-diagnostics-live-verdict>Wachten op een druk op play…</p>
+        <div class="mb-6 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <tbody data-diagnostics-live></tbody>
+            </table>
+        </div>
+
+        <h3 class="mb-2 font-bold">Codecondersteuning</h3>
+        <p class="mb-3 text-sm {{ muted }}">
+            Het antwoord van <code>canPlayType()</code>. Een browser die <em>maybe</em> zegt, kan
+            alsnog stilvallen bij het decoderen.
+        </p>
+        <p class="mb-3 rounded-sm border-l-4 border-roze bg-roze/5 px-4 py-3 text-sm font-bold"
+           data-diagnostics-verdict>Bezig met testen…</p>
+        <div class="mb-6 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-800/10 dark:border-gray-200/10">
+                        <th scope="col" class="py-2 pr-3 font-bold">Formaat</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">MIME</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">canPlayType</th>
+                        <th scope="col" class="py-2 font-bold">MSE</th>
+                    </tr>
+                </thead>
+                <tbody data-diagnostics-codecs></tbody>
+            </table>
+        </div>
+
+        <h3 class="mb-2 font-bold">Ingestelde streams</h3>
+        <p class="mb-3 text-sm {{ muted }}">
+            De bronnen in speler-volgorde. De test laadt elke bron los en gedempt, dus je hoort niets.
+        </p>
+        <div class="mb-4 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-800/10 dark:border-gray-200/10">
+                        <th scope="col" class="py-2 pr-3 font-bold">#</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">Bron</th>
+                        <th scope="col" class="py-2 pr-3 font-bold">Keuze</th>
+                        <th scope="col" class="py-2 font-bold">Resultaat</th>
+                    </tr>
+                </thead>
+                <tbody data-diagnostics-sources></tbody>
+            </table>
+        </div>
+
+        <button type="button" data-diagnostics-run
+                class="rounded-sm bg-roze px-4 py-2 font-bold text-white transition hover:bg-[#8f004e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze">
+            Test de streams
+        </button>
+
+        <p class="mt-5 text-xs break-words {{ muted }}" data-diagnostics-env></p>
+    </div>
+</section>

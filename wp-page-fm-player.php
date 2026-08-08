@@ -45,6 +45,8 @@ foreach ($streamTypes as $field => $mimeType) {
     }
 }
 
+$context['show_stream_diagnostics'] = zw_fm_stream_diagnostics_enabled();
+
 $context['media_artwork'] = [];
 $artworkUrl = $context['options']['radio_fallback_img']['url'] ?? null;
 if ($artworkUrl && $context['stream_sources']) {
