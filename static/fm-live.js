@@ -445,8 +445,10 @@
             }
         });
         // Escape only reaches this group while focus is inside it, so tabbing away must dismiss too.
+        // Native range controls can report no related target during pointer interaction; the
+        // document click handler below still closes the panel for an actual outside click.
         volumeGroup.addEventListener('focusout', function (event) {
-            if (!volumeGroup.contains(event.relatedTarget)) {
+            if (event.relatedTarget && !volumeGroup.contains(event.relatedTarget)) {
                 setVolumeOpen(false);
             }
         });
