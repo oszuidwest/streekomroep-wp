@@ -968,6 +968,22 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
+/**
+ * Whether the FM stream diagnostics panel is shown.
+ *
+ * TEMPORARY: unconditionally on while the Android playback reports are being traced, so the
+ * panel survives navigation and shared links without anyone having to retype a query string.
+ * This means every visitor to the FM live page sees it. Put the ?debug=streams gate back, or
+ * remove the panel altogether, before this branch goes anywhere near production:
+ *
+ *   $debug = isset($_GET['debug']) ? sanitize_key(wp_unslash($_GET['debug'])) : '';
+ *   return $debug === 'streams';
+ */
+function zw_fm_stream_diagnostics_enabled()
+{
+    return true;
+}
+
 /** Drives a plain <audio> element, so the player needs no dependencies of its own. */
 function zw_enqueue_fm_live_assets()
 {
@@ -978,6 +994,18 @@ function zw_enqueue_fm_live_assets()
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
+        [],
+        wp_get_theme()->get('Version'),
+        ['strategy' => 'defer', 'in_footer' => true]
+    );
+
+    if (!zw_fm_stream_diagnostics_enabled()) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'zw-fm-stream-diagnostics',
+        get_theme_file_uri('static/fm-stream-diagnostics.js'),
         [],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
