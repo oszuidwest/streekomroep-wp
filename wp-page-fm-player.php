@@ -87,9 +87,4 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
 
 $context['frequency_groups'] = array_values(array_filter($groups, fn ($group) => $group['channels']));
 
-// Avoid loading VideoJS when the page has no stream.
-if ($context['stream_sources']) {
-    zw_require_videojs();
-}
-
 Timber::render(['page-fm-player.twig', 'page.twig'], $context);

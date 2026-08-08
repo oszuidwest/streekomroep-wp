@@ -968,7 +968,7 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
-/** Adds VideoJS as a dependency only when the controller requested a stream player. */
+/** Drives a plain <audio> element, so the player needs no dependencies of its own. */
 function zw_enqueue_fm_live_assets()
 {
     if (!is_page_template('wp-page-fm-player.php')) {
@@ -978,7 +978,7 @@ function zw_enqueue_fm_live_assets()
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
-        empty($GLOBALS['zw_requires_videojs']) ? [] : ['zw-videojs-init'],
+        [],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );
