@@ -96,6 +96,16 @@
                         {{- (has_stream ? radio_fallback_artist : live_show.makers_label)|e -}}
                     </p>
                 </div>
+                {% if has_stream %}
+                    <div class="hidden flex-none items-center gap-3 md:flex" data-volume-control>
+                        <label for="zw-fm-volume" class="text-sm font-bold">Volume</label>
+                        <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
+                               class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
+                               aria-describedby="zw-fm-volume-value" aria-valuetext="100%">
+                        <output id="zw-fm-volume-value" for="zw-fm-volume"
+                                class="w-10 text-right text-sm tabular-nums {{ muted }}" data-volume-value>100%</output>
+                    </div>
+                {% endif %}
             </div>
         </section>
 

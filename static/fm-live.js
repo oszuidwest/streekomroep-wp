@@ -406,12 +406,18 @@
 
     function setupPlayer() {
         const button = document.querySelector('[data-play]');
+        const volumeGroup = document.querySelector('[data-volume-control]');
+        const volumeControl = volumeGroup?.querySelector('[data-volume]');
+        const volumeValue = volumeGroup?.querySelector('[data-volume-value]');
         if (!button) {
             return;
         }
 
         if (!streamElement || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
             button.hidden = true;
+            if (volumeGroup) {
+                volumeGroup.hidden = true;
+            }
             return;
         }
 
@@ -449,6 +455,24 @@
         player.on('playing', () => setPlaying(true));
         player.on('pause', () => setPlaying(false));
         player.on('error', () => setPlaying(false));
+
+        if (volumeControl && volumeValue) {
+            const renderVolume = function () {
+                const volume = player.muted() ? 0 : player.volume();
+                const percentage = Math.round(volume * 100);
+                volumeControl.value = percentage;
+                volumeControl.setAttribute('aria-valuetext', `${percentage}%`);
+                volumeValue.textContent = `${percentage}%`;
+            };
+
+            volumeControl.addEventListener('input', function () {
+                const volume = Number(volumeControl.value) / 100;
+                player.muted(false);
+                player.volume(volume);
+            });
+            player.on('volumechange', renderVolume);
+            renderVolume();
+        }
 
         button.addEventListener('click', function () {
             if (!player.paused()) {

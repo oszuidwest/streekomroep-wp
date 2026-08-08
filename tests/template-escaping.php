@@ -100,30 +100,38 @@ $broadcast = [
     'show' => $show,
 ];
 
+$fm_page_html = $twig->render('page-fm-player.twig', [
+    'post' => ['id' => 1, 'class' => '', 'title' => 'Titel &amp; pagina'],
+    'options' => ['radio_live_metadata_url' => 'wss://example.test/ws'],
+    'broadcast' => $broadcast,
+    'broadcast_data_url' => 'https://example.test/wp-json/zw/v1/broadcast_data',
+    'schedule_refresh_after' => 30,
+    'progress' => 50,
+    'stream_sources' => [['url' => 'https://example.test/live.mp3', 'type' => 'audio/mpeg']],
+    'media_artwork' => [],
+    'upcoming' => [$broadcast],
+    'frequency_groups' => [
+        [
+            'badge' => 'FM',
+            'title' => 'Via de ether',
+            'unit' => 'FM',
+            'channels' => [['value' => $text_payload, 'place' => $script_payload]],
+        ],
+    ],
+]);
+
 $check(
     'page-fm-player.twig (page)',
-    $twig->render('page-fm-player.twig', [
-        'post' => ['id' => 1, 'class' => '', 'title' => 'Titel &amp; pagina'],
-        'options' => ['radio_live_metadata_url' => 'wss://example.test/ws'],
-        'broadcast' => $broadcast,
-        'broadcast_data_url' => 'https://example.test/wp-json/zw/v1/broadcast_data',
-        'schedule_refresh_after' => 30,
-        'progress' => 50,
-        'stream_sources' => [],
-        'media_artwork' => [],
-        'upcoming' => [$broadcast],
-        'frequency_groups' => [
-            [
-                'badge' => 'FM',
-                'title' => 'Via de ether',
-                'unit' => 'FM',
-                'channels' => [['value' => $text_payload, 'place' => $script_payload]],
-            ],
-        ],
-    ]),
+    $fm_page_html,
     ['<img src=x', '<script>', '" onerror="', 'Titel &amp;amp; pagina'],
     ['&lt;img src=x', '&lt;script&gt;', 'Titel &amp; pagina']
 );
+
+foreach (['data-volume-control', 'data-volume', 'data-volume-value'] as $attribute) {
+    if (!str_contains($fm_page_html, $attribute)) {
+        $failures[] = sprintf('page-fm-player.twig (volume): output is missing %s', $attribute);
+    }
+}
 
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
