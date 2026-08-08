@@ -29,9 +29,13 @@ if ($current?->show) {
 
 $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $schedule->getUpcomingRadioBroadcasts(2));
 
-// VideoJS tries sources in insertion order.
+// The browser walks these in order and moves to the next candidate when one will not load, so
+// each stream has to be announced with the type the server actually sends. Icecast serves the AAC
+// mount as raw ADTS (Content-Type: audio/aac); calling that audio/mp4 makes a browser accept bytes
+// it then hands to an MP4 demuxer, which strands devices that are strict about it on a dead source
+// instead of letting them fall through to MP3.
 $streamTypes = [
-    'radio_webplayer_aac_stream' => 'audio/mp4',
+    'radio_webplayer_aac_stream' => 'audio/aac',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
     'radio_webplayer_ogg_stream' => 'audio/ogg',
     'radio_webplayer_hls_stream' => 'application/x-mpegURL',
