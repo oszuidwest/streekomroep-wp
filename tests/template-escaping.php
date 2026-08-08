@@ -127,7 +127,7 @@ $check(
     ['&lt;img src=x', '&lt;script&gt;', 'Titel &amp; pagina']
 );
 
-foreach (['data-volume-control', 'data-volume', 'data-volume-value'] as $attribute) {
+foreach (['data-volume-control', 'data-volume-toggle', 'data-volume-panel', 'data-volume', 'data-volume-value'] as $attribute) {
     if (!str_contains($fm_page_html, $attribute)) {
         $failures[] = sprintf('page-fm-player.twig (volume): output is missing %s', $attribute);
     }

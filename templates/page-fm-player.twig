@@ -97,13 +97,23 @@
                     </p>
                 </div>
                 {% if has_stream %}
-                    <div class="hidden flex-none items-center gap-3 md:flex" data-volume-control>
-                        <label for="zw-fm-volume" class="text-sm font-bold">Volume</label>
-                        <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
-                               class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
-                               aria-describedby="zw-fm-volume-value" aria-valuetext="100%">
-                        <output id="zw-fm-volume-value" for="zw-fm-volume"
-                                class="w-10 text-right text-sm tabular-nums {{ muted }}" data-volume-value>100%</output>
+                    <div class="relative hidden flex-none md:block" data-volume-control>
+                        <button type="button" aria-label="Volume aanpassen" aria-expanded="false"
+                                aria-controls="zw-fm-volume-panel" data-volume-toggle
+                                class="grid size-10 place-items-center rounded-sm text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200 motion-reduce:transition-none">
+                            <span class="[&>svg]:size-6" aria-hidden="true">{{ icon('icon-volume_up') }}</span>
+                        </button>
+                        <div id="zw-fm-volume-panel" class="absolute top-1/2 right-full z-10 mr-2 -translate-y-1/2 rounded-sm border border-gray-800/10 bg-gray-50 p-3 shadow-lg dark:border-gray-200/10 dark:bg-gray-700"
+                             data-volume-panel hidden>
+                            <div class="flex items-center gap-3">
+                                <label for="zw-fm-volume" class="sr-only">Volume</label>
+                                <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
+                                       class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
+                                       aria-describedby="zw-fm-volume-value" aria-valuetext="100%">
+                                <output id="zw-fm-volume-value" for="zw-fm-volume"
+                                        class="w-10 text-right text-sm tabular-nums {{ muted }}" data-volume-value>100%</output>
+                            </div>
+                        </div>
                     </div>
                 {% endif %}
             </div>

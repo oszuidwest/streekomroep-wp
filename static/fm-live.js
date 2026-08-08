@@ -407,6 +407,8 @@
     function setupPlayer() {
         const button = document.querySelector('[data-play]');
         const volumeGroup = document.querySelector('[data-volume-control]');
+        const volumeToggle = volumeGroup?.querySelector('[data-volume-toggle]');
+        const volumePanel = volumeGroup?.querySelector('[data-volume-panel]');
         const volumeControl = volumeGroup?.querySelector('[data-volume]');
         const volumeValue = volumeGroup?.querySelector('[data-volume-value]');
         if (!button) {
@@ -416,7 +418,7 @@
         if (!streamElement || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
             button.hidden = true;
             if (volumeGroup) {
-                volumeGroup.hidden = true;
+                volumeGroup.classList.remove('md:block');
             }
             return;
         }
@@ -456,7 +458,12 @@
         player.on('pause', () => setPlaying(false));
         player.on('error', () => setPlaying(false));
 
-        if (volumeControl && volumeValue) {
+        if (volumeToggle && volumePanel && volumeControl && volumeValue) {
+            const setVolumeOpen = function (open) {
+                volumePanel.hidden = !open;
+                volumeToggle.setAttribute('aria-expanded', String(open));
+            };
+
             const renderVolume = function () {
                 const volume = player.muted() ? 0 : player.volume();
                 const percentage = Math.round(volume * 100);
@@ -469,6 +476,24 @@
                 const volume = Number(volumeControl.value) / 100;
                 player.muted(false);
                 player.volume(volume);
+            });
+            volumeToggle.addEventListener('click', function () {
+                const open = volumePanel.hidden;
+                setVolumeOpen(open);
+                if (open) {
+                    volumeControl.focus();
+                }
+            });
+            volumeGroup.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && !volumePanel.hidden) {
+                    setVolumeOpen(false);
+                    volumeToggle.focus();
+                }
+            });
+            document.addEventListener('click', function (event) {
+                if (!volumePanel.hidden && !volumeGroup.contains(event.target)) {
+                    setVolumeOpen(false);
+                }
             });
             player.on('volumechange', renderVolume);
             renderVolume();
