@@ -43,7 +43,21 @@ $check = function (string $label, string $html, array $unescaped, array $escaped
 
     foreach ($escaped as $needle) {
         if (!str_contains($html, $needle)) {
-            $failures[] = sprintf('%s: output is missing escaped %s', $label, $needle);
+            $failures[] = sprintf('%s: output is missing %s', $label, $needle);
+        }
+    }
+};
+
+// Substring matching cannot assert a bare hook: `data-volume` also matches `data-volume-control`.
+// The JS contract is therefore checked against the parsed DOM, one element per attribute.
+$check_hooks = function (string $label, string $html, array $attributes) use (&$failures) {
+    $document = new DOMDocument();
+    $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $xpath = new DOMXPath($document);
+
+    foreach ($attributes as $attribute) {
+        if ($xpath->query(sprintf('//*[@%s]', $attribute))->length === 0) {
+            $failures[] = sprintf('%s: output has no element carrying %s', $label, $attribute);
         }
     }
 };
@@ -100,14 +114,13 @@ $broadcast = [
     'show' => $show,
 ];
 
-$fm_page_html = $twig->render('page-fm-player.twig', [
+$fm_page_context = [
     'post' => ['id' => 1, 'class' => '', 'title' => 'Titel &amp; pagina'],
     'options' => ['radio_live_metadata_url' => 'wss://example.test/ws'],
     'broadcast' => $broadcast,
     'broadcast_data_url' => 'https://example.test/wp-json/zw/v1/broadcast_data',
     'schedule_refresh_after' => 30,
     'progress' => 50,
-    'stream_sources' => [['url' => 'https://example.test/live.mp3', 'type' => 'audio/mpeg']],
     'media_artwork' => [],
     'upcoming' => [$broadcast],
     'frequency_groups' => [
@@ -118,20 +131,27 @@ $fm_page_html = $twig->render('page-fm-player.twig', [
             'channels' => [['value' => $text_payload, 'place' => $script_payload]],
         ],
     ],
-]);
+];
 
-$check(
-    'page-fm-player.twig (page)',
-    $fm_page_html,
-    ['<img src=x', '<script>', '" onerror="', 'Titel &amp;amp; pagina'],
-    ['&lt;img src=x', '&lt;script&gt;', 'Titel &amp; pagina']
-);
+// `has_stream` swaps the now-playing sinks between static copy and broadcast data, so cover both branches.
+$fm_page_html = [];
+foreach (['stream' => [['url' => 'https://example.test/live.mp3', 'type' => 'audio/mpeg']], 'no stream' => []] as $label => $sources) {
+    $fm_page_html[$label] = $twig->render('page-fm-player.twig', ['stream_sources' => $sources] + $fm_page_context);
 
-foreach (['data-volume-control', 'data-volume-toggle', 'data-volume-panel', 'data-volume', 'data-volume-value'] as $attribute) {
-    if (!str_contains($fm_page_html, $attribute)) {
-        $failures[] = sprintf('page-fm-player.twig (volume): output is missing %s', $attribute);
-    }
+    $check(
+        sprintf('page-fm-player.twig (%s)', $label),
+        $fm_page_html[$label],
+        ['<img src=x', '<script>', '" onerror="', 'Titel &amp;amp; pagina'],
+        ['&lt;img src=x', '&lt;script&gt;', 'Titel &amp; pagina']
+    );
 }
+
+// setupVolume() in static/fm-live.js queries all five; they only render alongside a stream.
+$check_hooks(
+    'page-fm-player.twig (volume)',
+    $fm_page_html['stream'],
+    ['data-volume-control', 'data-volume-toggle', 'data-volume-panel', 'data-volume', 'data-volume-value']
+);
 
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);

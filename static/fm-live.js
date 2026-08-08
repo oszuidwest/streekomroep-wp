@@ -404,21 +404,73 @@
         }
     }
 
+    function setupVolume(player, volumeGroup) {
+        const volumeToggle = volumeGroup.querySelector('[data-volume-toggle]');
+        const volumePanel = volumeGroup.querySelector('[data-volume-panel]');
+        const volumeControl = volumeGroup.querySelector('[data-volume]');
+        const volumeValue = volumeGroup.querySelector('[data-volume-value]');
+        // A template edit that drops one hook must not take the player down with it.
+        if (!volumeToggle || !volumePanel || !volumeControl || !volumeValue) {
+            return;
+        }
+
+        const setVolumeOpen = function (open) {
+            volumePanel.hidden = !open;
+            volumeToggle.setAttribute('aria-expanded', String(open));
+        };
+
+        const renderVolume = function () {
+            const volume = player.muted() ? 0 : player.volume();
+            const percentage = Math.round(volume * 100);
+            volumeControl.value = percentage;
+            volumeControl.setAttribute('aria-valuetext', `${percentage}%`);
+            volumeValue.textContent = `${percentage}%`;
+        };
+
+        volumeControl.addEventListener('input', function () {
+            player.muted(false);
+            player.volume(Number(volumeControl.value) / 100);
+        });
+        volumeToggle.addEventListener('click', function () {
+            const open = volumePanel.hidden;
+            setVolumeOpen(open);
+            if (open) {
+                volumeControl.focus();
+            }
+        });
+        volumeGroup.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !volumePanel.hidden) {
+                setVolumeOpen(false);
+                volumeToggle.focus();
+            }
+        });
+        // Escape only reaches this group while focus is inside it, so tabbing away must dismiss too.
+        volumeGroup.addEventListener('focusout', function (event) {
+            if (!volumeGroup.contains(event.relatedTarget)) {
+                setVolumeOpen(false);
+            }
+        });
+        document.addEventListener('click', function (event) {
+            if (!volumePanel.hidden && !volumeGroup.contains(event.target)) {
+                setVolumeOpen(false);
+            }
+        });
+        player.on('volumechange', renderVolume);
+        renderVolume();
+    }
+
     function setupPlayer() {
         const button = document.querySelector('[data-play]');
-        const volumeGroup = document.querySelector('[data-volume-control]');
-        const volumeToggle = volumeGroup?.querySelector('[data-volume-toggle]');
-        const volumePanel = volumeGroup?.querySelector('[data-volume-panel]');
-        const volumeControl = volumeGroup?.querySelector('[data-volume]');
-        const volumeValue = volumeGroup?.querySelector('[data-volume-value]');
         if (!button) {
             return;
         }
 
+        const volumeGroup = document.querySelector('[data-volume-control]');
+
         if (!streamElement || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
             button.hidden = true;
             if (volumeGroup) {
-                volumeGroup.classList.remove('md:block');
+                volumeGroup.hidden = true;
             }
             return;
         }
@@ -458,47 +510,6 @@
         player.on('pause', () => setPlaying(false));
         player.on('error', () => setPlaying(false));
 
-        if (volumeToggle && volumePanel && volumeControl && volumeValue) {
-            const setVolumeOpen = function (open) {
-                volumePanel.hidden = !open;
-                volumeToggle.setAttribute('aria-expanded', String(open));
-            };
-
-            const renderVolume = function () {
-                const volume = player.muted() ? 0 : player.volume();
-                const percentage = Math.round(volume * 100);
-                volumeControl.value = percentage;
-                volumeControl.setAttribute('aria-valuetext', `${percentage}%`);
-                volumeValue.textContent = `${percentage}%`;
-            };
-
-            volumeControl.addEventListener('input', function () {
-                const volume = Number(volumeControl.value) / 100;
-                player.muted(false);
-                player.volume(volume);
-            });
-            volumeToggle.addEventListener('click', function () {
-                const open = volumePanel.hidden;
-                setVolumeOpen(open);
-                if (open) {
-                    volumeControl.focus();
-                }
-            });
-            volumeGroup.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && !volumePanel.hidden) {
-                    setVolumeOpen(false);
-                    volumeToggle.focus();
-                }
-            });
-            document.addEventListener('click', function (event) {
-                if (!volumePanel.hidden && !volumeGroup.contains(event.target)) {
-                    setVolumeOpen(false);
-                }
-            });
-            player.on('volumechange', renderVolume);
-            renderVolume();
-        }
-
         button.addEventListener('click', function () {
             if (!player.paused()) {
                 player.pause();
@@ -516,6 +527,11 @@
             } catch (error) {
                 // Some browsers expose Media Session without the `stop` action.
             }
+        }
+
+        // Last: playback is the primary control, so it gets wired before the secondary one.
+        if (volumeGroup) {
+            setupVolume(player, volumeGroup);
         }
     }
 
