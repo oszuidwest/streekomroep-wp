@@ -404,7 +404,7 @@
         }
     }
 
-    function setupVolume(player, volumeGroup) {
+    function setupVolume(audio, volumeGroup) {
         const volumeToggle = volumeGroup.querySelector('[data-volume-toggle]');
         const volumePanel = volumeGroup.querySelector('[data-volume-panel]');
         const volumeControl = volumeGroup.querySelector('[data-volume]');
@@ -420,7 +420,7 @@
         };
 
         const renderVolume = function () {
-            const volume = player.muted() ? 0 : player.volume();
+            const volume = audio.muted ? 0 : audio.volume;
             const percentage = Math.round(volume * 100);
             volumeControl.value = percentage;
             volumeControl.setAttribute('aria-valuetext', `${percentage}%`);
@@ -428,8 +428,8 @@
         };
 
         volumeControl.addEventListener('input', function () {
-            player.muted(false);
-            player.volume(Number(volumeControl.value) / 100);
+            audio.muted = false;
+            audio.volume = Number(volumeControl.value) / 100;
         });
         volumeToggle.addEventListener('click', function () {
             const open = volumePanel.hidden;
@@ -445,8 +445,10 @@
             }
         });
         // Escape only reaches this group while focus is inside it, so tabbing away must dismiss too.
+        // Native range controls can report no related target during pointer interaction; the
+        // document click handler below still closes the panel for an actual outside click.
         volumeGroup.addEventListener('focusout', function (event) {
-            if (!volumeGroup.contains(event.relatedTarget)) {
+            if (event.relatedTarget && !volumeGroup.contains(event.relatedTarget)) {
                 setVolumeOpen(false);
             }
         });
@@ -455,7 +457,7 @@
                 setVolumeOpen(false);
             }
         });
-        player.on('volumechange', renderVolume);
+        audio.addEventListener('volumechange', renderVolume);
         renderVolume();
     }
 
@@ -467,20 +469,13 @@
 
         const volumeGroup = document.querySelector('[data-volume-control]');
 
-        if (!streamElement || typeof videojs === 'undefined' || !window.zwVideoJsHtml5) {
+        if (!streamElement) {
             button.hidden = true;
             if (volumeGroup) {
                 volumeGroup.hidden = true;
             }
             return;
         }
-
-        const player = videojs(streamElement, {
-            controls: false,
-            liveui: true,
-            preload: 'none',
-            html5: window.zwVideoJsHtml5()
-        });
 
         const playIcon = button.querySelector('[data-play-icon="play"]');
         const pauseIcon = button.querySelector('[data-play-icon="pause"]');
@@ -497,8 +492,10 @@
 
         const startPlayback = function () {
             // Reload before playing: this is a live stream, so resuming must jump to the edge.
-            player.load();
-            player.play()?.catch(() => setPlaying(false));
+            // load() also restarts source selection, so a codec that failed last time is retried
+            // from the top rather than staying demoted for the rest of the page view.
+            streamElement.load();
+            streamElement.play()?.catch(() => setPlaying(false));
             setPlaying(true);
             updateMediaSession();
 
@@ -506,13 +503,27 @@
             resumeFeeds();
         };
 
-        player.on('playing', () => setPlaying(true));
-        player.on('pause', () => setPlaying(false));
-        player.on('error', () => setPlaying(false));
+        streamElement.addEventListener('playing', () => setPlaying(true));
+        streamElement.addEventListener('pause', () => setPlaying(false));
+        // Fires for a source that dies after it was already selected, such as a mid-stream decode
+        // failure. Running out of candidates does not reach this handler.
+        streamElement.addEventListener('error', () => setPlaying(false));
+
+        // Exhausting every <source> leaves the element in NETWORK_NO_SOURCE and fires no error on
+        // the element itself, so the button would sit on "Pauzeer" forever after a failed start.
+        // Each rejected candidate fires its own error, which capture picks up on the way down, and
+        // the network state settles one task later.
+        streamElement.addEventListener('error', function () {
+            setTimeout(function () {
+                if (streamElement.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                    setPlaying(false);
+                }
+            });
+        }, true);
 
         button.addEventListener('click', function () {
-            if (!player.paused()) {
-                player.pause();
+            if (!streamElement.paused) {
+                streamElement.pause();
                 return;
             }
 
@@ -521,9 +532,9 @@
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.setActionHandler('play', startPlayback);
-            navigator.mediaSession.setActionHandler('pause', () => player.pause());
+            navigator.mediaSession.setActionHandler('pause', () => streamElement.pause());
             try {
-                navigator.mediaSession.setActionHandler('stop', () => player.pause());
+                navigator.mediaSession.setActionHandler('stop', () => streamElement.pause());
             } catch (error) {
                 // Some browsers expose Media Session without the `stop` action.
             }
@@ -531,7 +542,7 @@
 
         // Last: playback is the primary control, so it gets wired before the secondary one.
         if (volumeGroup) {
-            setupVolume(player, volumeGroup);
+            setupVolume(streamElement, volumeGroup);
         }
     }
 

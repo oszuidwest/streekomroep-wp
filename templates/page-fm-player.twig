@@ -69,14 +69,16 @@
         </header>
 
         {% if has_stream %}
-            {# VideoJS owns this hidden media element; the visible button is its control. #}
-            <div class="hidden" aria-hidden="true">
-                <audio id="zw-fm-stream" class="video-js" preload="none" playsinline>
-                    {% for source in stream_sources %}
-                        <source src="{{ function('esc_url', source.url) }}" type="{{ source.type }}">
-                    {% endfor %}
-                </audio>
-            </div>
+            {# Without `controls` the element renders nothing; the visible button drives it. Keeping
+               the streams as <source> children leaves codec fallback to the browser, which walks
+               them in order and moves on when one will not load. A single JS-assigned src cannot,
+               which is why a device that chokes on the AAC mount used to sit in silence rather
+               than dropping through to the MP3 behind it. #}
+            <audio id="zw-fm-stream" preload="none">
+                {% for source in stream_sources %}
+                    <source src="{{ function('esc_url', source.url) }}" type="{{ source.type }}">
+                {% endfor %}
+            </audio>
         {% endif %}
 
         <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
