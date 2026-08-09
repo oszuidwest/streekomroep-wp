@@ -9,6 +9,15 @@
             altijd aan en verdwijnt zodra de meting rond is.
         </p>
 
+        <nav class="mb-5 flex flex-wrap gap-2" aria-label="Kies een stream voor de diagnose">
+            {% for option in debug_stream_options %}
+                <a href="{{ option.url }}"
+                   class="rounded-sm border px-3 py-2 text-xs font-bold {{ debug_stream == option.key ? 'border-roze bg-roze text-white' : 'border-gray-800/15 hover:border-roze dark:border-gray-200/15' }}">
+                    {{ option.label }}
+                </a>
+            {% endfor %}
+        </nav>
+
         <h3 class="mb-2 font-bold">Speler-status</h3>
         <p class="mb-3 text-sm {{ muted }}">
             Live stand van het echte audio-element. Druk hierboven op de gewone playknop en kijk

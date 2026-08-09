@@ -66,6 +66,26 @@ $debugSources['mp3'] = [
     'type' => 'audio/mpeg',
 ];
 
+$debugLabels = [
+    'hls-master' => 'HLS master',
+    'hls-he-aac' => 'HLS HE-AAC 48',
+    'hls-aac-96' => 'HLS AAC-LC 96',
+    'hls-aac-192' => 'HLS AAC-LC 192',
+    'aac' => 'Icecast AAC',
+    'mp3' => 'Icecast MP3',
+];
+$context['debug_stream'] = $debugStream;
+$context['debug_stream_options'] = [];
+foreach ($debugLabels as $key => $label) {
+    if (!empty($debugSources[$key]['url'])) {
+        $context['debug_stream_options'][] = [
+            'key' => $key,
+            'label' => $label,
+            'url' => add_query_arg('debug_stream', $key, get_permalink()),
+        ];
+    }
+}
+
 if (isset($debugSources[$debugStream]) && $debugSources[$debugStream]['url']) {
     $context['stream_sources'][] = $debugSources[$debugStream];
 } else {
