@@ -81,11 +81,22 @@ class BroadcastSchedule
             }
         }
 
+        // Explicit status: the payload is cached publicly, so an editor's
+        // request must not bake private shows into the schedule.
         $shows = Timber::get_posts([
             'post_type' => 'fm',
+            'post_status' => 'publish',
             'posts_per_page' => -1,
             'ignore_sticky_posts' => true,
         ]);
+
+        $showRules = [];
+        foreach ($shows as $show) {
+            $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
+            if ($rules) {
+                $showRules[] = [$show, $rules];
+            }
+        }
 
         $date = clone $scheduleStart;
         while ($date <= $scheduleEnd) {
@@ -96,12 +107,7 @@ class BroadcastSchedule
 
         foreach ($this->days as $day) {
             $dayname = $day->getName();
-            foreach ($shows as $show) {
-                $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
-                if (!$rules) {
-                    continue;
-                }
-
+            foreach ($showRules as [$show, $rules]) {
                 foreach ($rules as $rule) {
                     if (!in_array($dayname, $rule['fm_show_dagen'])) {
                         continue;

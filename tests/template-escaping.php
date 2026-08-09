@@ -31,6 +31,7 @@ $twig = new \Twig\Environment($loader, ['autoescape' => false, 'strict_variables
 $twig->addFunction(new \Twig\TwigFunction('function', fn ($name, ...$args) => $name(...$args)));
 $twig->addFunction(new \Twig\TwigFunction('icon', fn () => ''));
 $twig->addFilter(new \Twig\TwigFilter('plain', fn (?string $text) => html_entity_decode((string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+$twig->addFilter(new \Twig\TwigFilter('imgproxy', fn ($src, $width, $height) => $src . '?w=' . $width . '&h=' . $height));
 
 $failures = [];
 
@@ -67,10 +68,12 @@ $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
 
 $check(
-    'fm-portrait.twig (attribute)',
-    $twig->render('partial/fm-portrait.twig', [
-        'name' => $attribute_payload,
-        'photo' => ['src' => 'https://example.test/a.jpg', 'srcset' => 'https://example.test/b.jpg 2x'],
+    'fm-headshot.twig (attribute)',
+    $twig->render('partial/fm-headshot.twig', [
+        'photo' => [
+            'src' => 'https://example.test/a.jpg' . $attribute_payload,
+            'srcset' => 'https://example.test/b.jpg 2x' . $attribute_payload,
+        ],
     ]),
     ['" onerror="'],
     []

@@ -54,8 +54,8 @@ if (is_post_type_archive() && get_post_type() === 'tv') {
 
 if (is_post_type_archive('fm')) {
     $context['posts'] = $context['posts']->to_array();
-    $context['fm_schedules'] = [];
     $sort_keys = [];
+    $title_keys = [];
 
     $weekdays = array_values(\Streekomroep\BroadcastDay::WEEKDAY_NAMES);
     if (get_field('radio_week_start', 'option') === 'zondag') {
@@ -64,30 +64,24 @@ if (is_post_type_archive('fm')) {
     $weekday_positions = array_flip($weekdays);
 
     foreach ($context['posts'] as $show) {
-        $schedule = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
-        $context['fm_schedules'][$show->id] = $schedule;
+        $show->schedule = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
         $first_slot = null;
 
-        foreach ($schedule as $entry) {
+        foreach ($show->schedule as $entry) {
             foreach ($entry['fm_show_dagen'] as $day) {
                 $slot = [$weekday_positions[$day], $entry['fm_show_starttijd']];
-                if ($first_slot === null || $slot < $first_slot) {
-                    $first_slot = $slot;
-                }
+                $first_slot = min($first_slot ?? $slot, $slot);
             }
         }
 
         $sort_keys[$show->id] = $first_slot ?? [PHP_INT_MAX, ''];
+        $title_keys[$show->id] = zw_plain_text($show->title());
     }
 
-    usort($context['posts'], function ($lhs, $rhs) use ($sort_keys) {
-        $slot_order = $sort_keys[$lhs->id] <=> $sort_keys[$rhs->id];
-        if ($slot_order !== 0) {
-            return $slot_order;
-        }
-
-        $title_order = strnatcasecmp(zw_plain_text($lhs->title()), zw_plain_text($rhs->title()));
-        return $title_order !== 0 ? $title_order : $lhs->id <=> $rhs->id;
+    // The id tiebreak keeps the order deterministic independent of the query's
+    // unspecified ordering for posts sharing a publish date.
+    usort($context['posts'], function ($lhs, $rhs) use ($sort_keys, $title_keys) {
+        return $sort_keys[$lhs->id] <=> $sort_keys[$rhs->id] ?: strnatcasecmp($title_keys[$lhs->id], $title_keys[$rhs->id]) ?: $lhs->id <=> $rhs->id;
     });
 }
 

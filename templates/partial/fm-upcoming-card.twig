@@ -11,11 +11,9 @@
         <span class="block truncate text-sm {{ muted }}"
               data-upcoming-makers {% if not names %}hidden{% endif %}>{{ names|e }}</span>
     </span>
-    <span data-upcoming-photo>
-        {{ include('partial/fm-headshot.twig', {
-            photo: photo,
-            size_class: 'size-11',
-            surface_class: 'bg-roze text-white',
-        }) }}
-    </span>
+    {{ include('partial/fm-headshot.twig', {
+        photo: photo,
+        size_class: 'size-11',
+        surface_class: 'bg-roze text-white',
+    }) }}
 </a>

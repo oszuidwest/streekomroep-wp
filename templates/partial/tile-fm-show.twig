@@ -4,20 +4,15 @@
 
 <a class="group flex h-full min-w-0 flex-col overflow-hidden rounded-sm border border-gray-800/10 bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze dark:border-gray-200/10 dark:bg-gray-700/40"
    href="{{ function('esc_url', post.link) }}">
-    <span class="relative block aspect-[2/1] flex-none overflow-hidden bg-roze bg-gradient-to-br from-[#8f004e] to-roze sm:aspect-video">
-        {{ include('partial/fm-header-pattern.twig', {
-            compact: true,
-            pattern_id: 'zwfm-driehoek-' ~ post.id,
-        }) }}
+    <span class="relative block aspect-[2/1] flex-none overflow-hidden bg-gradient-to-br from-[#8f004e] to-roze sm:aspect-video">
+        {{ include('partial/fm-header-pattern.twig', {compact: true}) }}
         {% if portraits is not empty %}
             <span class="absolute inset-0 flex items-center justify-center space-x-3 px-2 group-hover:space-x-4 group-focus-visible:space-x-4 [&>*]:transition-[margin] [&>*]:duration-300 [&>*]:ease-in-out motion-reduce:[&>*]:transition-none">
                 {% for maker in portraits %}
                     <span>
                         {{ include('partial/fm-headshot.twig', {
-                            photo: maker.fm_show_maker_foto ? {
-                                src: maker.fm_show_maker_foto|imgproxy(128, 128),
-                                srcset: maker.fm_show_maker_foto|imgproxy(128 * 2, 128 * 2) ~ ' 2x',
-                            } : null,
+                            image: maker.fm_show_maker_foto,
+                            px: 80,
                             size_class: 'size-20',
                             surface_class: 'bg-white/20 text-white ring-4 ring-white/90 shadow-lg',
                         }) }}
@@ -37,9 +32,9 @@
             </span>
         {% endif %}
 
-        {% if schedule is not empty %}
+        {% if post.schedule is not empty %}
             <span class="mt-3 block border-t border-gray-800/10 pt-3 font-round text-xs font-bold tracking-wide text-gray-500 uppercase sm:mt-4 dark:border-gray-200/10 dark:text-gray-400">
-                {% for entry in schedule %}
+                {% for entry in post.schedule %}
                     <span class="block">{{ entry|format_schedule_compact|e }}</span>
                 {% endfor %}
             </span>

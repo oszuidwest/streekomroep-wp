@@ -237,6 +237,17 @@
         tick();
     }
 
+    function applyHeadshot(root, photo) {
+        if (!photo) {
+            return;
+        }
+        const image = root.querySelector('[data-headshot-image]');
+        image.src = photo.src;
+        image.srcset = photo.srcset;
+        image.hidden = false;
+        root.querySelector('[data-headshot-placeholder]').hidden = true;
+    }
+
     function renderCurrentMakers(show) {
         const wrap = document.querySelector('[data-current-makers]');
         const portraits = document.querySelector('[data-current-portraits]');
@@ -254,14 +265,7 @@
         portraits.replaceChildren();
         makers.slice(0, 2).forEach((maker) => {
             const portrait = template.content.firstElementChild.cloneNode(true);
-            const image = portrait.querySelector('[data-headshot-image]');
-            const placeholder = portrait.querySelector('[data-headshot-placeholder]');
-            if (maker.photo) {
-                image.src = maker.photo.src;
-                image.srcset = maker.photo.srcset;
-                image.hidden = false;
-                placeholder.hidden = true;
-            }
+            applyHeadshot(portrait, maker.photo);
             portraits.append(portrait);
         });
         portraits.hidden = !portraits.childElementCount;
@@ -303,9 +307,6 @@
             const label = card.querySelector('[data-upcoming-label]');
             const title = card.querySelector('[data-upcoming-title]');
             const makerNames = card.querySelector('[data-upcoming-makers]');
-            const photo = card.querySelector('[data-upcoming-photo]');
-            const photoImage = photo.querySelector('[data-headshot-image]');
-            const photoPlaceholder = photo.querySelector('[data-headshot-placeholder]');
             const photoMaker = makers.find((maker) => maker.photo);
 
             card.href = item.show.link;
@@ -317,12 +318,7 @@
             makerNames.textContent = item.show.makers_label || '';
             makerNames.hidden = !makerNames.textContent;
 
-            if (photoMaker) {
-                photoImage.src = photoMaker.photo.src;
-                photoImage.srcset = photoMaker.photo.srcset;
-                photoImage.hidden = false;
-                photoPlaceholder.hidden = true;
-            }
+            applyHeadshot(card, photoMaker ? photoMaker.photo : null);
 
             list.append(card);
         });

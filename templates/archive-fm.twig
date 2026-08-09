@@ -1,7 +1,7 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    <div class="mx-auto max-w-960 px-4 pb-8 text-gray-900 dark:text-white">
+    <div class="mx-auto max-w-960 px-4 pb-8">
         {% embed 'partial/tabs.twig' %}
             {% block title %}
                 De programma's van
@@ -19,10 +19,7 @@
 
         <div class="grid grid-cols-1 gap-4 py-8 sm:grid-cols-2 md:grid-cols-3">
             {% for post in posts %}
-                {{ include('partial/tile-fm-show.twig', {
-                    post: post,
-                    schedule: fm_schedules[post.id],
-                }) }}
+                {{ include('partial/tile-fm-show.twig', {post: post}) }}
             {% endfor %}
         </div>
     </div>
