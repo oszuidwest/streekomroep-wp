@@ -109,6 +109,26 @@
                     "mime_types": "",
                     "preview_size": "thumbnail",
                     "parent_repeater": "field_687a3f5e0c1a1"
+                },
+                {
+                    "key": "field_68985c0e0f5a5",
+                    "label": "E-mailadres",
+                    "name": "fm_show_maker_email",
+                    "aria-label": "",
+                    "type": "email",
+                    "instructions": "Wordt als e-maillink onder deze maker op de programmapagina getoond.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_687a3f5e0c1a1"
                 }
             ],
             "rows_per_page": 20
@@ -277,5 +297,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1784232505
+    "modified": 1786280427
 }
