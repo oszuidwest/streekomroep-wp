@@ -307,7 +307,6 @@
             const label = card.querySelector('[data-upcoming-label]');
             const title = card.querySelector('[data-upcoming-title]');
             const makerNames = card.querySelector('[data-upcoming-makers]');
-            const photoMaker = makers.find((maker) => maker.photo);
 
             card.href = item.show.link;
             card.querySelector('[data-upcoming-time]').textContent = item.start_time;
@@ -318,7 +317,7 @@
             makerNames.textContent = item.show.makers_label || '';
             makerNames.hidden = !makerNames.textContent;
 
-            applyHeadshot(card, photoMaker?.photo);
+            applyHeadshot(card, makers.find((maker) => maker.photo)?.photo);
 
             list.append(card);
         });

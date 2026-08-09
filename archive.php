@@ -53,32 +53,7 @@ if (is_post_type_archive() && get_post_type() === 'tv') {
 }
 
 if (is_post_type_archive('fm')) {
-    $context['posts'] = $context['posts']->to_array();
-
-    $weekdays = array_values(\Streekomroep\BroadcastDay::WEEKDAY_NAMES);
-    if (get_field('radio_week_start', 'option') === 'zondag') {
-        array_unshift($weekdays, array_pop($weekdays));
-    }
-    $weekday_positions = array_flip($weekdays);
-
-    foreach ($context['posts'] as $show) {
-        $show->schedule = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
-        $first_slot = null;
-
-        foreach ($show->schedule as $entry) {
-            foreach ($entry['fm_show_dagen'] as $day) {
-                $slot = [$weekday_positions[$day], $entry['fm_show_starttijd']];
-                $first_slot = min($first_slot ?? $slot, $slot);
-            }
-        }
-
-        $show->sortKey = $first_slot ?? [PHP_INT_MAX, ''];
-        $show->titleKey = zw_plain_text($show->title());
-    }
-
-    usort($context['posts'], function ($lhs, $rhs) {
-        return $lhs->sortKey <=> $rhs->sortKey ?: strnatcasecmp($lhs->titleKey, $rhs->titleKey);
-    });
+    $context['posts'] = zw_fm_shows_in_broadcast_order($context['posts']->to_array());
 }
 
 Timber::render($templates, $context);

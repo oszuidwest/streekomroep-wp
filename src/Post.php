@@ -8,6 +8,7 @@ class Post extends \Timber\Post
 {
     public $_region;
     public $_topic;
+    public $_schedule;
 
     public function region()
     {
@@ -32,6 +33,17 @@ class Post extends \Timber\Post
             $this->_region = false;
         }
         return $this->_region;
+    }
+
+    /**
+     * Complete FM schedule rows for this show; empty for other post types.
+     */
+    public function schedule(): array
+    {
+        if ($this->_schedule === null) {
+            $this->_schedule = \zw_fm_schedule_rows($this->meta('fm_show_programmatie'));
+        }
+        return $this->_schedule;
     }
 
     public function topic()

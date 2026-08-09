@@ -92,7 +92,7 @@ class BroadcastSchedule
 
         $showRules = [];
         foreach ($shows as $show) {
-            $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
+            $rules = $show->schedule();
             if ($rules) {
                 $showRules[] = [$show, $rules];
             }

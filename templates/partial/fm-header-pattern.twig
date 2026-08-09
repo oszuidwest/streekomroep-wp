@@ -1,12 +1,29 @@
+{% macro defs() %}
+    <svg class="absolute h-0 w-0" focusable="false" aria-hidden="true">
+        <defs>
+            <path id="zwfm-driehoek" d="M28 -98 L28 98 L-56 0 Z" stroke-width="20" stroke-linejoin="round"/>
+            <g id="zwfm-patroon-klein">
+                {{ _self.driehoeken([
+                    [30, 110, 330, 0.14, '#8f004e', 0.22], [48, 198, 20, 0.18, '#ffffff', 0.14], [95, 52, 140, 0.15, '#ff9dce', 0.22], [150, 205, 250, 0.17, '#8f004e', 0.26],
+                    [205, 26, 75, 0.16, '#ffffff', 0.14], [240, 128, 310, 0.2, '#ff9dce', 0.24], [255, 178, 100, 0.13, '#ffffff', 0.12], [295, 205, 160, 0.2, '#8f004e', 0.28],
+                    [315, 55, 225, 0.22, '#ffffff', 0.16], [360, 145, 30, 0.24, '#ff9dce', 0.3], [374, 18, 190, 0.16, '#8f004e', 0.26],
+                ]) }}
+            </g>
+        </defs>
+    </svg>
+{% endmacro %}
+
 {% macro driehoeken(items) %}
     {% for d in items %}
-        <path d="M28 -98 L28 98 L-56 0 Z" stroke-width="20" stroke-linejoin="round"
-              fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
-              transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
+        <use href="#zwfm-driehoek" fill="{{ d[4] }}" stroke="{{ d[4] }}" opacity="{{ d[5] }}"
+             transform="translate({{ d[0] }} {{ d[1] }}) rotate({{ d[2] }}) scale({{ d[3] }})"/>
     {% endfor %}
 {% endmacro %}
+
+{# Compact callers repeat per card, so they rely on the page emitting defs() once (see archive-fm.twig). #}
 <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
     {% if not compact %}
+        {{ _self.defs() }}
         <svg class="absolute inset-0 h-full w-full max-md:hidden" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
             {{ _self.driehoeken([
                 [80, 255, 15, 0.22, '#ffffff', 0.08], [170, 120, 250, 0.12, '#ff9dce', 0.12], [230, 35, 130, 0.18, '#8f004e', 0.22], [300, 175, 290, 0.15, '#ffffff', 0.07],
@@ -16,12 +33,8 @@
             ]) }}
         </svg>
     {% endif %}
-    {# Mobile and cards need their own composition because slice-cropping hides the desktop anchors. #}
+    {# Mobile and cards share the narrow composition because slice-cropping hides the desktop anchors. #}
     <svg class="absolute inset-0 h-full w-full {{ not compact ? 'md:hidden' }}" viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice">
-        {{ _self.driehoeken([
-            [30, 110, 330, 0.14, '#8f004e', 0.22], [48, 198, 20, 0.18, '#ffffff', 0.14], [95, 52, 140, 0.15, '#ff9dce', 0.22], [150, 205, 250, 0.17, '#8f004e', 0.26],
-            [205, 26, 75, 0.16, '#ffffff', 0.14], [240, 128, 310, 0.2, '#ff9dce', 0.24], [255, 178, 100, 0.13, '#ffffff', 0.12], [295, 205, 160, 0.2, '#8f004e', 0.28],
-            [315, 55, 225, 0.22, '#ffffff', 0.16], [360, 145, 30, 0.24, '#ff9dce', 0.3], [374, 18, 190, 0.16, '#8f004e', 0.26],
-        ]) }}
+        <use href="#zwfm-patroon-klein"/>
     </svg>
 </div>

@@ -1,14 +1,13 @@
 {% set maker_rows = post.meta('fm_show_makers')|rows %}
 {% set makers = maker_rows|column('fm_show_maker_naam') %}
-{% set portraits = maker_rows|slice(0, 3) %}
 
 <a class="group flex h-full min-w-0 flex-col overflow-hidden rounded-sm border border-gray-800/10 bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze dark:border-gray-200/10 dark:bg-gray-700/40"
    href="{{ function('esc_url', post.link) }}">
     <span class="relative block aspect-[2/1] flex-none overflow-hidden bg-gradient-to-br from-[#8f004e] to-roze sm:aspect-video">
         {{ include('partial/fm-header-pattern.twig', {compact: true}) }}
-        {% if portraits is not empty %}
+        {% if maker_rows is not empty %}
             <span class="absolute inset-0 flex items-center justify-center space-x-3 px-2 group-hover:space-x-4 group-focus-visible:space-x-4 [&>*]:transition-[margin] [&>*]:duration-300 [&>*]:ease-in-out motion-reduce:[&>*]:transition-none">
-                {% for maker in portraits %}
+                {% for maker in maker_rows|slice(0, 3) %}
                     {{ include('partial/fm-headshot.twig', {
                         image: maker.fm_show_maker_foto,
                         px: 80,

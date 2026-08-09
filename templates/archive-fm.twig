@@ -1,6 +1,9 @@
 {% extends 'base.twig' %}
 
 {% block content %}
+    {% import 'partial/fm-header-pattern.twig' as pattern %}
+    {# Emitted once so every card's pattern is a single <use> instead of repeated geometry. #}
+    {{ pattern.defs() }}
     <div class="mx-auto max-w-960 px-4 pb-8">
         {% embed 'partial/tabs.twig' %}
             {% block title %}
