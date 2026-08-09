@@ -59,6 +59,14 @@
                                         {% if maker.fm_show_maker_bio %}
                                             <p class="mt-1 text-sm leading-snug text-gray-500 dark:text-gray-400">{{ maker.fm_show_maker_bio }}</p>
                                         {% endif %}
+                                        {% if maker.fm_show_maker_email %}
+                                            <a href="mailto:{{ maker.fm_show_maker_email }}"
+                                               title="Mail {{ maker.fm_show_maker_naam }} ({{ maker.fm_show_maker_email }})"
+                                               class="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white [&>svg]:h-4 [&>svg]:w-4">
+                                                {{ icon('icon-mail') }}
+                                                Mail
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endfor %}
