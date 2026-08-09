@@ -117,8 +117,9 @@ function zw_fm_schedule_rows($value): array
  * Sorts FM shows by their earliest broadcast slot in the configured week order;
  * unscheduled shows follow in natural title order.
  *
- * @param \Streekomroep\Post[] $shows
- * @return \Streekomroep\Post[]
+ * @param \Streekomroep\Post[] $shows FM shows to sort.
+ *
+ * @return \Streekomroep\Post[] Sorted FM shows.
  */
 function zw_fm_shows_in_broadcast_order(array $shows): array
 {

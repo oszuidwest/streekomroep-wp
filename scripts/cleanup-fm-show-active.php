@@ -1,13 +1,16 @@
 <?php
 /**
- * Replace the obsolete fm_show_actief flag with the WordPress post status.
+ * Migrates the obsolete fm_show_actief flag to the WordPress post status.
  *
  * Published FM shows that were inactive become drafts. Once every status update
  * succeeds, the obsolete ACF value and field-reference metadata are removed.
  *
  * Usage:
+ *
  *   wp eval-file scripts/cleanup-fm-show-active.php dry-run
  *   wp eval-file scripts/cleanup-fm-show-active.php
+ *
+ * @package Streekomroep
  */
 
 if (!defined('ABSPATH') || !defined('WP_CLI') || !WP_CLI) {

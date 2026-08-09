@@ -201,7 +201,8 @@ if ($timber_post->post_type == 'fm') {
 
     $context['gemist'] = ['days' => array_values($recordingDays), 'retention_label' => $retentionLabel];
 
-    // Only build the full schedule when this published show can have a successor.
+    // Only build the full schedule when this published show can have a
+    // successor.
     $context['following_show'] = $published && $rules ? (new \Streekomroep\BroadcastSchedule())
         ->getFollowingRadioBroadcast($show->ID) : null;
 

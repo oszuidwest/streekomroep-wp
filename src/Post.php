@@ -36,7 +36,9 @@ class Post extends \Timber\Post
     }
 
     /**
-     * Complete FM schedule rows for this show; empty for other post types.
+     * Retrieves complete FM schedule rows for this show.
+     *
+     * @return array Complete rows, or an empty array for other post types.
      */
     public function schedule(): array
     {

@@ -81,8 +81,8 @@ class BroadcastSchedule
             }
         }
 
-        // Explicit status: the payload is cached publicly, so an editor's
-        // request must not bake private shows into the schedule.
+        // Request published posts explicitly because the payload is cached
+        // publicly and must not include private shows visible to an editor.
         $shows = Timber::get_posts([
             'post_type' => 'fm',
             'post_status' => 'publish',

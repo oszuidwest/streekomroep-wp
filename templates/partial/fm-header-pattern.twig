@@ -20,7 +20,7 @@
     {% endfor %}
 {% endmacro %}
 
-{# Compact callers repeat per card, so they rely on the page emitting defs() once (see archive-fm.twig). #}
+{# Cards reuse the defs emitted once by archive-fm.twig. #}
 <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
     {% if not compact %}
         {{ _self.defs() }}
@@ -33,7 +33,7 @@
             ]) }}
         </svg>
     {% endif %}
-    {# Mobile and cards share the narrow composition because slice-cropping hides the desktop anchors. #}
+    {# Mobile and cards share a narrow pattern that survives slice cropping. #}
     <svg class="absolute inset-0 h-full w-full {{ not compact ? 'md:hidden' }}" viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice">
         <use href="#zwfm-patroon-klein"/>
     </svg>

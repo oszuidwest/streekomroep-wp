@@ -1,6 +1,6 @@
 {% set size_class = size_class|default('size-8 md:size-10') %}
 {% set surface_class = surface_class|default('bg-roze text-white ring-2 ring-white/90') %}
-{# Callers pass either a prebuilt {src, srcset} map (JS/JSON path) or an ACF image + px size. #}
+{# Accepts a {src, srcset} map or an ACF image and target size. #}
 {% set photo = photo|default(image ? {
     src: image|imgproxy(px, px),
     srcset: image|imgproxy(px * 2, px * 2) ~ ' 2x',
