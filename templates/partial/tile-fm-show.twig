@@ -9,14 +9,12 @@
         {% if portraits is not empty %}
             <span class="absolute inset-0 flex items-center justify-center space-x-3 px-2 group-hover:space-x-4 group-focus-visible:space-x-4 [&>*]:transition-[margin] [&>*]:duration-300 [&>*]:ease-in-out motion-reduce:[&>*]:transition-none">
                 {% for maker in portraits %}
-                    <span>
-                        {{ include('partial/fm-headshot.twig', {
-                            image: maker.fm_show_maker_foto,
-                            px: 80,
-                            size_class: 'size-20',
-                            surface_class: 'bg-white/20 text-white ring-4 ring-white/90 shadow-lg',
-                        }) }}
-                    </span>
+                    {{ include('partial/fm-headshot.twig', {
+                        image: maker.fm_show_maker_foto,
+                        px: 80,
+                        size_class: 'size-20',
+                        surface_class: 'bg-white/20 text-white ring-4 ring-white/90 shadow-lg',
+                    }) }}
                 {% endfor %}
             </span>
         {% endif %}

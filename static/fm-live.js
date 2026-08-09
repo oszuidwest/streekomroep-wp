@@ -318,7 +318,7 @@
             makerNames.textContent = item.show.makers_label || '';
             makerNames.hidden = !makerNames.textContent;
 
-            applyHeadshot(card, photoMaker ? photoMaker.photo : null);
+            applyHeadshot(card, photoMaker?.photo);
 
             list.append(card);
         });

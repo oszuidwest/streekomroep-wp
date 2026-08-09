@@ -54,8 +54,6 @@ if (is_post_type_archive() && get_post_type() === 'tv') {
 
 if (is_post_type_archive('fm')) {
     $context['posts'] = $context['posts']->to_array();
-    $sort_keys = [];
-    $title_keys = [];
 
     $weekdays = array_values(\Streekomroep\BroadcastDay::WEEKDAY_NAMES);
     if (get_field('radio_week_start', 'option') === 'zondag') {
@@ -74,14 +72,12 @@ if (is_post_type_archive('fm')) {
             }
         }
 
-        $sort_keys[$show->id] = $first_slot ?? [PHP_INT_MAX, ''];
-        $title_keys[$show->id] = zw_plain_text($show->title());
+        $show->sortKey = $first_slot ?? [PHP_INT_MAX, ''];
+        $show->titleKey = zw_plain_text($show->title());
     }
 
-    // The id tiebreak keeps the order deterministic independent of the query's
-    // unspecified ordering for posts sharing a publish date.
-    usort($context['posts'], function ($lhs, $rhs) use ($sort_keys, $title_keys) {
-        return $sort_keys[$lhs->id] <=> $sort_keys[$rhs->id] ?: strnatcasecmp($title_keys[$lhs->id], $title_keys[$rhs->id]) ?: $lhs->id <=> $rhs->id;
+    usort($context['posts'], function ($lhs, $rhs) {
+        return $lhs->sortKey <=> $rhs->sortKey ?: strnatcasecmp($lhs->titleKey, $rhs->titleKey);
     });
 }
 
