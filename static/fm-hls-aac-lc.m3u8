@@ -1,0 +1,6 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=104000,CODECS="mp4a.40.2"
+https://radiohls.zuidwest.cloud/zuidwesttest/aac_96.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=200000,CODECS="mp4a.40.2"
+https://radiohls.zuidwest.cloud/zuidwesttest/aac_192.m3u8

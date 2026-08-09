@@ -65,9 +65,14 @@ $debugSources['mp3'] = [
     'url' => $context['options']['radio_webplayer_mp3_stream'] ?? null,
     'type' => 'audio/mpeg',
 ];
+$debugSources['hls-aac-lc'] = [
+    'url' => get_theme_file_uri('static/fm-hls-aac-lc.m3u8'),
+    'type' => 'application/x-mpegURL',
+];
 
 $debugLabels = [
     'hls-master' => 'HLS master',
+    'hls-aac-lc' => 'HLS master LC-only',
     'hls-he-aac' => 'HLS HE-AAC 48',
     'hls-aac-96' => 'HLS AAC-LC 96',
     'hls-aac-192' => 'HLS AAC-LC 192',
