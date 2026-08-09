@@ -309,6 +309,7 @@
     function renderEnv() {
         PANEL.querySelector('[data-diagnostics-env]').textContent = [
             `userAgent: ${navigator.userAgent}`,
+            `query: ${location.search || 'geen'}`,
             `secure context: ${window.isSecureContext ? 'ja' : 'nee'}`,
             `MediaSource: ${window.MediaSource ? 'aanwezig' : 'afwezig'}`,
             `Video.js: ${typeof videojs === 'undefined' ? 'niet geladen' : videojs.VERSION}`

@@ -43,10 +43,37 @@ $streamTypes = [
 ];
 
 $context['stream_sources'] = [];
-foreach ($streamTypes as $field => $mimeType) {
-    $url = $context['options'][$field] ?? null;
-    if ($url) {
-        $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
+$debugStream = isset($_GET['debug_stream']) ? sanitize_key(wp_unslash($_GET['debug_stream'])) : '';
+$hlsUrl = $context['options']['radio_webplayer_hls_stream'] ?? null;
+$debugSources = [];
+
+if ($hlsUrl) {
+    $hlsBaseUrl = trailingslashit((string) preg_replace('#/[^/]+$#', '', $hlsUrl));
+    $debugSources = [
+        'hls-master' => ['url' => $hlsUrl, 'type' => 'application/x-mpegURL'],
+        'hls-he-aac' => ['url' => $hlsBaseUrl . 'aac_48.m3u8', 'type' => 'application/x-mpegURL'],
+        'hls-aac-96' => ['url' => $hlsBaseUrl . 'aac_96.m3u8', 'type' => 'application/x-mpegURL'],
+        'hls-aac-192' => ['url' => $hlsBaseUrl . 'aac_192.m3u8', 'type' => 'application/x-mpegURL'],
+    ];
+}
+
+$debugSources['aac'] = [
+    'url' => $context['options']['radio_webplayer_aac_stream'] ?? null,
+    'type' => 'audio/aac',
+];
+$debugSources['mp3'] = [
+    'url' => $context['options']['radio_webplayer_mp3_stream'] ?? null,
+    'type' => 'audio/mpeg',
+];
+
+if (isset($debugSources[$debugStream]) && $debugSources[$debugStream]['url']) {
+    $context['stream_sources'][] = $debugSources[$debugStream];
+} else {
+    foreach ($streamTypes as $field => $mimeType) {
+        $url = $context['options'][$field] ?? null;
+        if ($url) {
+            $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
+        }
     }
 }
 
