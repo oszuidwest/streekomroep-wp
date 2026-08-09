@@ -427,17 +427,6 @@ function zw_rest_api_init()
         ]
     );
 
-    // FM dropped its 'actief' flag; being published now means being on air.
-    register_rest_field(
-        'fm',
-        'active',
-        [
-            'get_callback' => function ($post_arr) {
-                return get_post_status($post_arr['id']) === 'publish';
-            }
-        ]
-    );
-
     // Television shows still point at WordPress users, so this stays a list of user IDs.
     register_rest_field(
         'tv',
