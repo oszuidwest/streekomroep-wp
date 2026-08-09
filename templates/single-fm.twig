@@ -2,6 +2,7 @@
 
 {% block content %}
     {% import 'partial/badge.twig' as badge %}
+    {% import 'partial/mail-link.twig' as mail_link %}
     {% set makers = post.meta('fm_show_makers')|rows %}
     {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40' %}
     {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
@@ -59,14 +60,7 @@
                                         {% if maker.fm_show_maker_bio %}
                                             <p class="mt-1 text-sm leading-snug text-gray-500 dark:text-gray-400">{{ maker.fm_show_maker_bio }}</p>
                                         {% endif %}
-                                        {% if maker.fm_show_maker_email %}
-                                            <a href="mailto:{{ maker.fm_show_maker_email }}"
-                                               title="Mail {{ maker.fm_show_maker_naam }} ({{ maker.fm_show_maker_email }})"
-                                               class="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white [&>svg]:h-4 [&>svg]:w-4">
-                                                {{ icon('icon-mail') }}
-                                                Mail
-                                            </a>
-                                        {% endif %}
+                                        {{ mail_link.render(maker.fm_show_maker_email, maker.fm_show_maker_naam) }}
                                     </div>
                                 </div>
                             {% endfor %}
