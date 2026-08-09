@@ -237,6 +237,17 @@
         tick();
     }
 
+    function applyHeadshot(root, photo) {
+        if (!photo) {
+            return;
+        }
+        const image = root.querySelector('[data-headshot-image]');
+        image.src = photo.src;
+        image.srcset = photo.srcset;
+        image.hidden = false;
+        root.querySelector('[data-headshot-placeholder]').hidden = true;
+    }
+
     function renderCurrentMakers(show) {
         const wrap = document.querySelector('[data-current-makers]');
         const portraits = document.querySelector('[data-current-portraits]');
@@ -252,12 +263,10 @@
 
         const makers = show && Array.isArray(show.makers) ? show.makers : [];
         portraits.replaceChildren();
-        makers.filter((maker) => maker.photo).slice(0, 2).forEach((maker) => {
-            const image = template.content.firstElementChild.cloneNode(true);
-            image.src = maker.photo.src;
-            image.srcset = maker.photo.srcset;
-            image.alt = maker.name;
-            portraits.append(image);
+        makers.slice(0, 2).forEach((maker) => {
+            const portrait = template.content.firstElementChild.cloneNode(true);
+            applyHeadshot(portrait, maker.photo);
+            portraits.append(portrait);
         });
         portraits.hidden = !portraits.childElementCount;
     }
@@ -298,8 +307,6 @@
             const label = card.querySelector('[data-upcoming-label]');
             const title = card.querySelector('[data-upcoming-title]');
             const makerNames = card.querySelector('[data-upcoming-makers]');
-            const photo = card.querySelector('[data-upcoming-photo]');
-            const photoMaker = makers.find((maker) => maker.photo);
 
             card.href = item.show.link;
             card.querySelector('[data-upcoming-time]').textContent = item.start_time;
@@ -310,11 +317,7 @@
             makerNames.textContent = item.show.makers_label || '';
             makerNames.hidden = !makerNames.textContent;
 
-            if (photoMaker) {
-                photo.src = photoMaker.photo.src;
-                photo.srcset = photoMaker.photo.srcset;
-                photo.hidden = false;
-            }
+            applyHeadshot(card, makers.find((maker) => maker.photo)?.photo);
 
             list.append(card);
         });

@@ -52,4 +52,8 @@ if (is_post_type_archive() && get_post_type() === 'tv') {
     });
 }
 
+if (is_post_type_archive('fm')) {
+    $context['posts'] = zw_fm_shows_in_broadcast_order($context['posts']->to_array());
+}
+
 Timber::render($templates, $context);

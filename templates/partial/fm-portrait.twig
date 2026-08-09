@@ -1,3 +1,0 @@
-<img {% if photo %}src="{{ function('esc_url', photo.src) }}" srcset="{{ photo.srcset|e('html_attr') }}"{% endif %}
-     alt="{{ name|e('html_attr') }}" width="40" height="40" loading="lazy"
-     class="size-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/90 md:size-10">

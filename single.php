@@ -148,10 +148,10 @@ if ($timber_post->post_type == 'tv') {
 
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
-    $active = (bool)$show->meta('fm_show_actief');
-    $gemist = $active && (bool)get_field('radio_gemist_actief', 'option');
+    $published = $show->post_status === 'publish';
+    $gemist = $published && (bool)get_field('radio_gemist_actief', 'option');
 
-    $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
+    $rules = $show->schedule();
     $retention = (int)get_field('radio_gemist_retentie', 'option');
 
     $recordings = [];
@@ -201,8 +201,9 @@ if ($timber_post->post_type == 'fm') {
 
     $context['gemist'] = ['days' => array_values($recordingDays), 'retention_label' => $retentionLabel];
 
-    // Only build the full schedule when this active show can have a successor.
-    $context['following_show'] = $active && $rules ? (new \Streekomroep\BroadcastSchedule())
+    // Only build the full schedule when this published show can have a
+    // successor.
+    $context['following_show'] = $published && $rules ? (new \Streekomroep\BroadcastSchedule())
         ->getFollowingRadioBroadcast($show->ID) : null;
 
     $context['programmatie'] = $rules;

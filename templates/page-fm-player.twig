@@ -39,11 +39,11 @@
 
                 <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3" data-current-makers
                    {% if live_show.makers_label is empty %}hidden{% endif %}>
-                    {% set portraits = (live_show.makers ?? [])|filter(maker => maker.photo)|slice(0, 2) %}
+                    {% set portraits = (live_show.makers ?? [])|slice(0, 2) %}
                     <span class="flex flex-none -space-x-1" data-current-portraits
                           {% if portraits is empty %}hidden{% endif %}>
                         {% for maker in portraits %}
-                            {{ include('partial/fm-portrait.twig', {photo: maker.photo, name: maker.name}) }}
+                            {{ include('partial/fm-headshot.twig', {photo: maker.photo}) }}
                         {% endfor %}
                     </span>
                     <span class="min-w-0 text-sm text-white/85 md:text-base">
@@ -147,7 +147,7 @@
             }) }}
         </template>
         <template data-portrait-template>
-            {{ include('partial/fm-portrait.twig', {photo: null, name: ''}) }}
+            {{ include('partial/fm-headshot.twig', {photo: null}) }}
         </template>
 
         {% if frequency_groups is not empty %}

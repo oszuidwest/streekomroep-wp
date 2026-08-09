@@ -3,26 +3,6 @@
     "title": "Radio – Programma eigenschappen",
     "fields": [
         {
-            "key": "field_5f21b1e3bd76d",
-            "label": "Actief",
-            "name": "fm_show_actief",
-            "aria-label": "",
-            "type": "true_false",
-            "instructions": "Wordt meegenomen in audiologger en in programmatie getoond.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "message": "",
-            "default_value": 0,
-            "ui": 1,
-            "ui_on_text": "",
-            "ui_off_text": ""
-        },
-        {
             "key": "field_687a3f5e0c1a1",
             "label": "De makers",
             "name": "fm_show_makers",

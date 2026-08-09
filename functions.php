@@ -113,6 +113,41 @@ function zw_fm_schedule_rows($value): array
     }));
 }
 
+/**
+ * Sorts FM shows by their earliest broadcast slot in the configured week order;
+ * unscheduled shows follow in natural title order.
+ *
+ * @param \Streekomroep\Post[] $shows FM shows to sort.
+ *
+ * @return \Streekomroep\Post[] Sorted FM shows.
+ */
+function zw_fm_shows_in_broadcast_order(array $shows): array
+{
+    $weekdays = array_values(\Streekomroep\BroadcastDay::WEEKDAY_NAMES);
+    if (get_field('radio_week_start', 'option') === 'zondag') {
+        array_unshift($weekdays, array_pop($weekdays));
+    }
+    $positions = array_flip($weekdays);
+
+    $keyed = [];
+    foreach ($shows as $show) {
+        $slots = [];
+        foreach ($show->schedule() as $entry) {
+            foreach ($entry['fm_show_dagen'] as $day) {
+                $slots[] = [$positions[$day], $entry['fm_show_starttijd']];
+            }
+        }
+
+        $keyed[] = [$slots ? min($slots) : [PHP_INT_MAX, ''], zw_plain_text($show->title()), $show];
+    }
+
+    usort($keyed, function ($lhs, $rhs) {
+        return $lhs[0] <=> $rhs[0] ?: strnatcasecmp($lhs[1], $rhs[1]);
+    });
+
+    return array_column($keyed, 2);
+}
+
 require 'fragment-thumbnail.php';
 
 /**
@@ -383,18 +418,15 @@ function zw_rest_api_init()
         ]
     );
 
-    $types = ['tv', 'fm'];
-    foreach ($types as $type) {
-        register_rest_field(
-            $type,
-            'active',
-            [
-                'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                    return get_field($object_type . '_show_actief', $post_arr['id']);
-                }
-            ]
-        );
-    }
+    register_rest_field(
+        'tv',
+        'active',
+        [
+            'get_callback' => function ($post_arr) {
+                return get_field('tv_show_actief', $post_arr['id']);
+            }
+        ]
+    );
 
     // Television shows still point at WordPress users, so this stays a list of user IDs.
     register_rest_field(
