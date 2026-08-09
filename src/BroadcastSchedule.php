@@ -97,10 +97,6 @@ class BroadcastSchedule
         foreach ($this->days as $day) {
             $dayname = $day->getName();
             foreach ($shows as $show) {
-                if (!$show->meta('fm_show_actief')) {
-                    continue;
-                }
-
                 $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
                 if (!$rules) {
                     continue;

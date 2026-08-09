@@ -49,12 +49,14 @@
                         <div class="flex flex-col gap-3.5">
                             {% for maker in makers %}
                                 <div class="flex items-center gap-3">
-                                    {% if maker.fm_show_maker_foto %}
-                                        <img src="{{ maker.fm_show_maker_foto|imgproxy(80, 80) }}"
-                                             srcset="{{ maker.fm_show_maker_foto|imgproxy(80 * 2, 80 * 2) }} 2x"
-                                             alt="{{ maker.fm_show_maker_naam }}" width="80" height="80"
-                                             loading="lazy" class="size-20 flex-none rounded-sm object-cover">
-                                    {% endif %}
+                                    {{ include('partial/fm-headshot.twig', {
+                                        photo: maker.fm_show_maker_foto ? {
+                                            src: maker.fm_show_maker_foto|imgproxy(80, 80),
+                                            srcset: maker.fm_show_maker_foto|imgproxy(80 * 2, 80 * 2) ~ ' 2x',
+                                        } : null,
+                                        size_class: 'size-20',
+                                        surface_class: 'bg-roze text-white',
+                                    }) }}
                                     <div class="min-w-0">
                                         <p class="font-round text-base leading-tight font-bold text-gray-900 dark:text-white">{{ maker.fm_show_maker_naam }}</p>
                                         {% if maker.fm_show_maker_bio %}

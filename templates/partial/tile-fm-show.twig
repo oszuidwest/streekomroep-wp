@@ -1,22 +1,48 @@
-{% import 'partial/responsive-image.twig' as responsive %}
+{% set maker_rows = post.meta('fm_show_makers')|rows %}
+{% set makers = maker_rows|column('fm_show_maker_naam') %}
+{% set portraits = maker_rows|slice(0, 3) %}
 
-<a class="block aspect-video relative" href="{{ post.link }}">
-    <div class="absolute inset-0 bg-gray-50 text-gray-800 rounded-sm overflow-hidden">
-        {% if post.thumbnail %}
-            {{ responsive.render(
-                src: post.thumbnail.src,
-                width: 320,
-                height: 180,
-                sizes: '(min-width: 960px) 299px, (min-width: 768px) calc((100vw - 4rem) / 3), (min-width: 640px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)',
-                alt: post.thumbnail.alt|default(post.title),
-                class: 'absolute inset-0 w-full h-full object-cover',
-            ) }}
+<a class="group flex h-full min-w-0 flex-col overflow-hidden rounded-sm border border-gray-800/10 bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze dark:border-gray-200/10 dark:bg-gray-700/40"
+   href="{{ function('esc_url', post.link) }}">
+    <span class="relative block aspect-[2/1] flex-none overflow-hidden bg-roze bg-gradient-to-br from-[#8f004e] to-roze sm:aspect-video">
+        {{ include('partial/fm-header-pattern.twig', {
+            compact: true,
+            pattern_id: 'zwfm-driehoek-' ~ post.id,
+        }) }}
+        {% if portraits is not empty %}
+            <span class="absolute inset-0 flex items-center justify-center space-x-3 px-2 group-hover:space-x-4 group-focus-visible:space-x-4 [&>*]:transition-[margin] [&>*]:duration-300 [&>*]:ease-in-out motion-reduce:[&>*]:transition-none">
+                {% for maker in portraits %}
+                    <span>
+                        {{ include('partial/fm-headshot.twig', {
+                            photo: maker.fm_show_maker_foto ? {
+                                src: maker.fm_show_maker_foto|imgproxy(128, 128),
+                                srcset: maker.fm_show_maker_foto|imgproxy(128 * 2, 128 * 2) ~ ' 2x',
+                            } : null,
+                            size_class: 'size-20',
+                            surface_class: 'bg-white/20 text-white ring-4 ring-white/90 shadow-lg',
+                        }) }}
+                    </span>
+                {% endfor %}
+            </span>
         {% endif %}
-        <div class="absolute flex flex-col inset-x-0 bottom-0 px-4 pb-3 pt-12 bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900">
-            <h1 class="uppercase font-round font-black text-2xl text-black dark:text-white">{{ post.title }}</h1>
+    </span>
 
-            <p class="text-sm text-black dark:text-gray-100">{{ post.meta('fm_show_makers')|rows|column('fm_show_maker_naam')|join(', ', ' en ') }}</p>
-        </div>
-        <div class="absolute inset-0 border rounded-sm border-gray-800/10 dark:border-gray-200/10 pointer-events-none"></div>
-    </div>
+    <span class="flex flex-1 flex-col p-3 sm:p-4">
+        <span class="block font-round text-lg leading-tight font-black text-gray-900 uppercase sm:text-xl dark:text-white">
+            {{ post.title|plain|e }}
+        </span>
+        {% if makers is not empty %}
+            <span class="mt-1 block text-sm leading-snug text-gray-500 dark:text-gray-400">
+                Met {{ makers|join(', ', ' en ')|e }}
+            </span>
+        {% endif %}
+
+        {% if schedule is not empty %}
+            <span class="mt-3 block border-t border-gray-800/10 pt-3 font-round text-xs font-bold tracking-wide text-gray-500 uppercase sm:mt-4 dark:border-gray-200/10 dark:text-gray-400">
+                {% for entry in schedule %}
+                    <span class="block">{{ entry|format_schedule_compact|e }}</span>
+                {% endfor %}
+            </span>
+        {% endif %}
+    </span>
 </a>

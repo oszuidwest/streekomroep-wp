@@ -252,12 +252,17 @@
 
         const makers = show && Array.isArray(show.makers) ? show.makers : [];
         portraits.replaceChildren();
-        makers.filter((maker) => maker.photo).slice(0, 2).forEach((maker) => {
-            const image = template.content.firstElementChild.cloneNode(true);
-            image.src = maker.photo.src;
-            image.srcset = maker.photo.srcset;
-            image.alt = maker.name;
-            portraits.append(image);
+        makers.slice(0, 2).forEach((maker) => {
+            const portrait = template.content.firstElementChild.cloneNode(true);
+            const image = portrait.querySelector('[data-headshot-image]');
+            const placeholder = portrait.querySelector('[data-headshot-placeholder]');
+            if (maker.photo) {
+                image.src = maker.photo.src;
+                image.srcset = maker.photo.srcset;
+                image.hidden = false;
+                placeholder.hidden = true;
+            }
+            portraits.append(portrait);
         });
         portraits.hidden = !portraits.childElementCount;
     }
@@ -299,6 +304,8 @@
             const title = card.querySelector('[data-upcoming-title]');
             const makerNames = card.querySelector('[data-upcoming-makers]');
             const photo = card.querySelector('[data-upcoming-photo]');
+            const photoImage = photo.querySelector('[data-headshot-image]');
+            const photoPlaceholder = photo.querySelector('[data-headshot-placeholder]');
             const photoMaker = makers.find((maker) => maker.photo);
 
             card.href = item.show.link;
@@ -311,9 +318,10 @@
             makerNames.hidden = !makerNames.textContent;
 
             if (photoMaker) {
-                photo.src = photoMaker.photo.src;
-                photo.srcset = photoMaker.photo.srcset;
-                photo.hidden = false;
+                photoImage.src = photoMaker.photo.src;
+                photoImage.srcset = photoMaker.photo.srcset;
+                photoImage.hidden = false;
+                photoPlaceholder.hidden = true;
             }
 
             list.append(card);
