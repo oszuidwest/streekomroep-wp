@@ -1,0 +1,19 @@
+{# min-w-0 prevents nowrap text from widening the grid beyond the mobile viewport. #}
+<a class="{{ card }} flex min-w-0 items-center gap-3 p-3 transition hover:border-roze"
+   {% if href %}href="{{ function('esc_url', href) }}"{% endif %}>
+    <span class="grid size-14 flex-none place-items-center rounded-sm bg-roze text-sm font-black text-white tabular-nums"
+          data-upcoming-time>{{ time }}</span>
+    <span class="min-w-0 flex-1">
+        <span class="block font-round text-xs font-bold tracking-wide text-gray-400 uppercase"
+              data-upcoming-label {% if not label %}hidden{% endif %}>{{ label }}</span>
+        <span class="{{ label ? 'mt-0.5 ' }}block truncate text-base leading-tight font-bold"
+              data-upcoming-title>{{ title|e }}</span>
+        <span class="block truncate text-sm {{ muted }}"
+              data-upcoming-makers {% if not names %}hidden{% endif %}>{{ names|e }}</span>
+    </span>
+    {{ include('partial/fm-headshot.twig', {
+        photo: photo,
+        size_class: 'size-11',
+        surface_class: 'bg-roze text-white',
+    }) }}
+</a>

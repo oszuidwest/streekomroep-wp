@@ -1,46 +1,189 @@
 {% extends 'base.twig' %}
 
+{% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 dark:border-gray-200/10 dark:bg-gray-700/40' %}
+{% set muted = 'text-gray-500 dark:text-gray-400' %}
+{% set focus_ring = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze' %}
+{% set radio_fallback_title = 'ZuidWest FM' %}
+{% set radio_fallback_artist = 'In heel West-Brabant' %}
+
+{% set has_stream = stream_sources is not empty %}
+{% set live_show = broadcast ? broadcast.show : null %}
+{# Normalize the page title to the same plain-text contract as serialized broadcasts. #}
+{% set on_air = broadcast ? broadcast.name : post.title|plain %}
+
 {% block content %}
-    <div class="bg-black text-white">
-        <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
-            <div class="aspect-video ">
-                <div>
-                    <audio class="video-js vjs-fluid vjs-big-play-centered" data-setup='{"liveui": true}' autoplay controls playsinline
-                           poster="{{ get_image(options.radio_webplayer_poster)|imgproxy(1280, 720) }}">
-                        {% if options.radio_webplayer_aac_stream %}
-                            <source src="{{ options.radio_webplayer_aac_stream }}" type="audio/mp4">
-                        {% endif %}
-                        {% if options.radio_webplayer_mp3_stream %}
-                            <source src="{{ options.radio_webplayer_mp3_stream }}" type="audio/mp3">
-                        {% endif %}
-                        {% if options.radio_webplayer_ogg_stream %}
-                            <source src="{{ options.radio_webplayer_ogg_stream }}" type="audio/ogg">
-                        {% endif %}
-                        {% if options.radio_webplayer_hls_stream %}
-                            <source src="{{ options.radio_webplayer_hls_stream }}" type="application/x-mpegURL">
-                        {% endif %}
-                        Your browser does not support the audio tag.
-                    </audio>
+    <article id="post-{{ post.id }}" class="{{ post.class }} pb-7 text-gray-900 lg:pb-9 dark:text-white"
+             data-radio-live data-schedule-url="{{ function('esc_url', broadcast_data_url) }}"
+             data-schedule-refresh-after="{{ schedule_refresh_after }}"
+             {# esc_url would strip the wss: scheme, so this attribute gets attribute escaping. #}
+             data-metadata-url="{{ options.radio_live_metadata_url|e('html_attr') }}"
+             data-radio-title="{{ radio_fallback_title }}"
+             data-radio-tagline="{{ radio_fallback_artist }}"
+             {% if media_artwork is not empty %}data-artwork="{{ media_artwork|json_encode|e('html_attr') }}"{% endif %}>
+        <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
+            {{ include('partial/fm-header-pattern.twig') }}
+            <div class="relative mx-auto max-w-960 px-4 pt-6 pb-8 md:pt-7 md:pb-9">
+                {{ include('partial/fm-breadcrumb.twig', {label: 'ZuidWest FM'}) }}
+
+                <p class="mb-2 font-round text-sm font-extrabold tracking-wide text-white/90 uppercase"
+                   data-current-status>
+                    {% if live_show %}
+                        Nu live · {{ broadcast.start_time }} – {{ broadcast.end_time }}
+                    {% else %}
+                        Nu op {{ radio_fallback_title }}
+                    {% endif %}
+                </p>
+
+                <h1 class="font-round text-4xl leading-none font-black break-words text-white uppercase md:text-5xl"
+                    data-current-title>{{ on_air|e }}</h1>
+
+                <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3" data-current-makers
+                   {% if live_show.makers_label is empty %}hidden{% endif %}>
+                    {% set portraits = (live_show.makers ?? [])|slice(0, 2) %}
+                    <span class="flex flex-none -space-x-1" data-current-portraits
+                          {% if portraits is empty %}hidden{% endif %}>
+                        {% for maker in portraits %}
+                            {{ include('partial/fm-headshot.twig', {photo: maker.photo}) }}
+                        {% endfor %}
+                    </span>
+                    <span class="min-w-0 text-sm text-white/85 md:text-base">
+                        Met <b class="font-semibold text-white" data-current-maker-names>{{ live_show.makers_label|e }}</b>
+                    </span>
+                </p>
+
+                <div class="mt-5 max-w-[26rem] md:max-w-[34rem]" data-progress
+                     data-start="{{ live_show ? broadcast.start : 0 }}"
+                     data-end="{{ live_show ? broadcast.end : 0 }}"
+                     {% if not live_show %}hidden{% endif %}>
+                    <div class="h-1.5 overflow-hidden rounded-sm bg-black/25">
+                        <div class="h-full rounded-sm bg-white transition-[width] duration-500"
+                             style="width: {{ progress|default(0) }}%" data-progress-bar></div>
+                    </div>
+                    <div class="mt-1.5 flex justify-between text-xs font-bold text-white/80 tabular-nums">
+                        <span data-progress-start>{{ live_show ? broadcast.start_time : '' }}</span>
+                        <span data-progress-label></span>
+                        <span data-progress-end>{{ live_show ? broadcast.end_time : '' }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <div class="mx-auto max-w-3xl px-4 lg:px-0 mt-6 pb-6">
-            <h1 class="font-bold text-3xl">{{ post.title }}</h1>
-
-            <h2 class="mt-4 font-bold text-xl">Nu</h2>
-            <p>{{ current.name }}</p>
-
-            <h2 class="mt-4 font-bold text-xl">Straks</h2>
-            <p>{{ next.name }}</p>
-
-            <h2 class="mt-4 font-bold text-xl">Frequenties</h2>
-            <ul>
-                {% for channel in options.radio_frequenties %}
-                    <li>{{ channel.radio_frequenties_medium }}: {{ channel.radio_frequenties_frequentie }}</li>
+        {% if has_stream %}
+            {# Without `controls` the element renders nothing; the visible button drives it. Keeping
+               the streams as <source> children leaves codec fallback to the browser, which walks
+               them in order and moves on when one will not load. A single JS-assigned src cannot,
+               which is why a device that chokes on the AAC mount used to sit in silence rather
+               than dropping through to the MP3 behind it. #}
+            <audio id="zw-fm-stream" preload="none">
+                {% for source in stream_sources %}
+                    <source src="{{ function('esc_url', source.url) }}" type="{{ source.type }}">
                 {% endfor %}
-            </ul>
+            </audio>
+        {% endif %}
 
-        </div>
-    </div>
+        <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
+            <h2 id="live-player-title" class="mb-5 text-2xl font-bold md:text-3xl">{{ has_stream ? 'Luister live' : 'Nu op de radio' }}</h2>
+            <div class="{{ card }} flex min-h-29 items-center gap-4 p-4 sm:gap-5 sm:p-5">
+                {% if has_stream %}
+                    <button type="button" aria-label="Luister live" data-play
+                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px {{ focus_ring }} sm:size-22 motion-reduce:transition-none">
+                        <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                        <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                    </button>
+                {% endif %}
+                <div class="min-w-0 flex-1" data-now-details aria-live="polite">
+                    <p class="line-clamp-2 text-2xl leading-tight font-black sm:line-clamp-1 sm:text-3xl" data-now-title>
+                        {{- (has_stream ? radio_fallback_title : on_air)|e -}}
+                    </p>
+                    <p class="mt-1 truncate text-sm sm:text-base {{ muted }}" data-now-artist>
+                        {{- (has_stream ? radio_fallback_artist : live_show.makers_label)|e -}}
+                    </p>
+                </div>
+                {% if has_stream %}
+                    <div class="relative hidden flex-none md:block" data-volume-control>
+                        <button type="button" aria-label="Volume aanpassen" aria-expanded="false"
+                                aria-controls="zw-fm-volume-panel" data-volume-toggle
+                                class="grid size-10 place-items-center rounded-sm text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 {{ focus_ring }} dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200 motion-reduce:transition-none">
+                            <span class="[&>svg]:size-6" aria-hidden="true">{{ icon('icon-volume_up') }}</span>
+                        </button>
+                        <div id="zw-fm-volume-panel" class="absolute top-1/2 right-full z-10 mr-2 -translate-y-1/2 rounded-sm border border-gray-800/10 bg-gray-50 p-3 shadow-lg dark:border-gray-200/10 dark:bg-gray-700"
+                             data-volume-panel hidden>
+                            <div class="flex items-center gap-3">
+                                <label for="zw-fm-volume" class="sr-only">Volume</label>
+                                {# aria-valuetext carries the unit; the readout beside it is a visual mirror only. #}
+                                <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
+                                       class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
+                                       aria-valuetext="100%">
+                                <span class="w-10 text-right text-sm tabular-nums {{ muted }}"
+                                      aria-hidden="true" data-volume-value>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="mx-auto max-w-960 px-4 pt-7" data-upcoming
+                 {% if upcoming is empty %}hidden{% endif %}>
+            <h2 class="mb-5 text-2xl font-bold md:text-3xl">Straks</h2>
+            <div class="grid gap-4 sm:grid-cols-2" data-upcoming-list>
+                {% for item in upcoming %}
+                    {{ include('partial/fm-upcoming-card.twig', {
+                        href: item.show.link,
+                        time: item.start_time,
+                        label: item.label,
+                        title: item.show.title,
+                        names: item.show.makers_label,
+                        photo: item.show.makers|column('photo')|filter(photo => photo)|first,
+                    }) }}
+                {% endfor %}
+            </div>
+        </section>
+
+        {# Client refreshes clone these templates to preserve the server-rendered structure. #}
+        <template data-upcoming-template>
+            {{ include('partial/fm-upcoming-card.twig', {
+                href: '', time: '', label: '', title: '', names: '', photo: null,
+            }) }}
+        </template>
+        <template data-portrait-template>
+            {{ include('partial/fm-headshot.twig', {photo: null}) }}
+        </template>
+
+        {% if frequency_groups is not empty %}
+            <section class="mx-auto max-w-960 px-4 pt-7">
+                <h2 class="text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
+                <p class="mt-1 mb-5 text-sm {{ muted }}">Kies hoe je luistert en bekijk de juiste frequentie.</p>
+
+                {% for group in frequency_groups %}
+                    <details class="group {{ card }} {{ not loop.first ? 'mt-3 ' }}overflow-hidden">
+                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gray-800 dark:focus-visible:outline-gray-200 [&::-webkit-details-marker]:hidden">
+                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase">{{ group.badge }}</span>
+                            <span class="font-bold">{{ group.title }}</span>
+                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
+                                {{ icon('icon-chevron_right') }}
+                            </span>
+                        </summary>
+                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
+                            <ul class="grid gap-3 sm:grid-cols-2">
+                                {% for channel in group.channels %}
+                                    <li class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                        {% if channel.place %}
+                                            <p class="text-sm leading-snug {{ muted }}">{{ channel.place|e }}</p>
+                                        {% endif %}
+                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">
+                                            {{- channel.value|e -}}
+                                            {%- if group.unit -%}
+                                                <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">{{ group.unit }}</span>
+                                            {%- endif -%}
+                                        </p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </details>
+                {% endfor %}
+            </section>
+        {% endif %}
+    </article>
 {% endblock %}

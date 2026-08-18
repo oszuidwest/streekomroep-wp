@@ -1,0 +1,7 @@
+<nav class="mb-5 text-xs font-medium text-white/50" aria-label="Kruimelpad">
+    <a class="transition hover:text-white hover:underline"
+       href="{{ function('esc_url', function('get_post_type_archive_link', 'fm')) }}">{{ label }}</a>
+    {# Yoast may return an entity such as &raquo;; escaping it would display the entity text. #}
+    <span class="opacity-60">{{ breadcrumb_separator }}</span>
+    <span class="text-white/60">{{ post.title|plain|e }}</span>
+</nav>

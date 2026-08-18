@@ -1,0 +1,111 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+    {% import 'partial/badge.twig' as badge %}
+    {% import 'partial/mail-link.twig' as mail_link %}
+    {% import 'partial/responsive-image.twig' as responsive %}
+    <article class="post-type-{{ post.post_type }}" id="post-{{ post.ID }}">
+        <div class="mx-auto w-full max-w-960 px-4 py-7 lg:py-9">
+
+            <header class="max-w-3xl">
+                <h1 class="font-round text-4xl font-black text-black lg:text-5xl dark:text-white">{{ post.title }}</h1>
+                {% if post.content %}
+                    <div class="prose md:prose-lg dark:prose-invert mt-4 max-w-none">
+                        {{ post.content }}
+                    </div>
+                {% endif %}
+
+            </header>
+
+            {% if people %}
+                <section class="mt-9">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                        {% for person in people %}
+                            <article>
+                                {% set photo %}
+                                    {% if person.photo %}
+                                        {{ responsive.render(
+                                            src: person.photo,
+                                            width: 299,
+                                            height: 299,
+                                            sizes: '(min-width: 1280px) 173px, (min-width: 1024px) 220px, (min-width: 960px) 299px, (min-width: 640px) calc((100vw - 4rem) / 3), calc((100vw - 3rem) / 2)',
+                                            alt: person.name,
+                                            class: 'aspect-square w-full rounded-sm bg-gray-100 object-cover dark:bg-gray-700',
+                                        ) }}
+                                    {% else %}
+                                        <div class="flex aspect-square w-full items-center justify-center rounded-sm bg-gray-100 dark:bg-gray-700" aria-hidden="true">
+                                            <span class="font-round text-4xl font-black text-gray-500 dark:text-gray-400">{{ person.initials }}</span>
+                                        </div>
+                                    {% endif %}
+                                {% endset %}
+                                {% if person.author_url %}
+                                    <a href="{{ person.author_url }}" aria-label="Artikelen van {{ person.name }}"
+                                       class="block transition hover:opacity-90">{{ photo }}</a>
+                                {% else %}
+                                    {{ photo }}
+                                {% endif %}
+                                {% if person.role %}
+                                    <div class="mt-3">
+                                        {{ badge.render(person.role, 'groen') }}
+                                    </div>
+                                {% endif %}
+                                <h2 class="mt-1.5 text-lg leading-tight font-bold text-gray-900 dark:text-white">
+                                    {% if person.author_url %}
+                                        <a class="transition hover:underline" href="{{ person.author_url }}">{{ person.name }}</a>
+                                    {% else %}
+                                        {{ person.name }}
+                                    {% endif %}
+                                </h2>
+                                {{ mail_link.render(person.email, person.name) }}
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if post.meta('colofon_internship_tonen') %}
+                {% set internship_kicker = post.meta('colofon_internship_kicker') %}
+                {% set internship_titel = post.meta('colofon_internship_titel') %}
+                {% set internship_tekst = post.meta('colofon_internship_tekst') %}
+                {% set internship_email = post.meta('colofon_internship_email') %}
+                {% set internship_knop_tekst = post.meta('colofon_internship_knop_tekst') %}
+                {% set internship_notitie_titel = post.meta('colofon_internship_notitie_titel') %}
+                {% set internship_notitie_tekst = post.meta('colofon_internship_notitie_tekst') %}
+                {% set internship_has_content = internship_titel|trim
+                    or internship_tekst|trim
+                    or internship_notitie_tekst|trim
+                    or (internship_email|trim and internship_knop_tekst|trim) %}
+                {% if internship_has_content %}
+                    <section class="mt-12 rounded-sm bg-gray-800 p-6 text-white md:p-10 dark:border dark:border-gray-700/50 dark:bg-gray-900">
+                        <div class="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-10">
+                            <div>
+                                {% if internship_kicker %}
+                                    <span class="font-round text-xs font-black tracking-widest text-groen uppercase">{{ internship_kicker }}</span>
+                                {% endif %}
+                                {% if internship_titel %}
+                                    <h2 class="mt-2 font-round text-3xl leading-tight font-black text-white md:text-4xl">{{ internship_titel }}</h2>
+                                {% endif %}
+                                {% if internship_tekst %}
+                                    <p class="mt-3 max-w-[44ch] font-semibold text-white/85">{{ internship_tekst }}</p>
+                                {% endif %}
+                                {% if internship_email and internship_knop_tekst %}
+                                    <a href="mailto:{{ internship_email }}"
+                                       class="mt-5 inline-block rounded-md bg-groen px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:bg-groen/90">{{ internship_knop_tekst }}</a>
+                                {% endif %}
+                            </div>
+                            {% if internship_notitie_tekst %}
+                                <div class="rounded-sm bg-gray-700/50 p-5 dark:bg-gray-700">
+                                    {% if internship_notitie_titel %}
+                                        <span class="font-round text-xs font-black tracking-wide text-gray-300 uppercase">{{ internship_notitie_titel }}</span>
+                                    {% endif %}
+                                    <p class="mt-2 font-bold text-white">{{ internship_notitie_tekst }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </article>
+{% endblock %}

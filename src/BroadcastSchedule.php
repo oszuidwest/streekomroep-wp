@@ -9,8 +9,14 @@ use Timber\Timber;
 
 class BroadcastSchedule
 {
+    /** Retry interval when no current slot supplies a refresh boundary. */
+    private const REFRESH_FALLBACK = 30;
+
     /** @var BroadcastDay[] */
     public $days;
+
+    /** @var RadioBroadcast[]|null */
+    private $radioBroadcasts = null;
 
     public function __construct()
     {
@@ -75,11 +81,22 @@ class BroadcastSchedule
             }
         }
 
+        // Request published posts explicitly because the payload is cached
+        // publicly and must not include private shows visible to an editor.
         $shows = Timber::get_posts([
             'post_type' => 'fm',
+            'post_status' => 'publish',
             'posts_per_page' => -1,
             'ignore_sticky_posts' => true,
         ]);
+
+        $showRules = [];
+        foreach ($shows as $show) {
+            $rules = $show->schedule();
+            if ($rules) {
+                $showRules[] = [$show, $rules];
+            }
+        }
 
         $date = clone $scheduleStart;
         while ($date <= $scheduleEnd) {
@@ -90,16 +107,7 @@ class BroadcastSchedule
 
         foreach ($this->days as $day) {
             $dayname = $day->getName();
-            foreach ($shows as $show) {
-                if (!$show->meta('fm_show_actief')) {
-                    continue;
-                }
-
-                $rules = zw_fm_schedule_rows($show->meta('fm_show_programmatie'));
-                if (!$rules) {
-                    continue;
-                }
-
+            foreach ($showRules as [$show, $rules]) {
                 foreach ($rules as $rule) {
                     if (!in_array($dayname, $rule['fm_show_dagen'])) {
                         continue;
@@ -159,7 +167,7 @@ class BroadcastSchedule
 
     private function getRadioBroadcasts()
     {
-        return array_merge(...array_column($this->days, 'radio'));
+        return $this->radioBroadcasts ??= array_merge(...array_column($this->days, 'radio'));
     }
 
     public function getNextRadioBroadcast(?RadioBroadcast $after = null)
@@ -167,6 +175,48 @@ class BroadcastSchedule
         $broadcasts = $this->getRadioBroadcasts();
         $index = array_search($after ?: $this->getCurrentRadioBroadcast(), $broadcasts, true);
         return $index === false ? null : ($broadcasts[$index + 1] ?? null);
+    }
+
+    /**
+     * Returns the next programmed broadcasts, skipping filler such as non-stop music.
+     *
+     * @return RadioBroadcast[]
+     */
+    public function getUpcomingRadioBroadcasts(int $limit)
+    {
+        $now = Carbon::now(wp_timezone());
+        $upcoming = [];
+
+        // Direct appends preserve JSON list semantics and stop work at the requested limit.
+        foreach ($this->getRadioBroadcasts() as $broadcast) {
+            if (count($upcoming) === $limit) {
+                break;
+            }
+
+            if ($broadcast->show && $broadcast->start->isAfter($now)) {
+                $upcoming[] = $broadcast;
+            }
+        }
+
+        return $upcoming;
+    }
+
+    public static function refreshAfter(?int $endTimestamp): int
+    {
+        if (!$endTimestamp) {
+            return self::REFRESH_FALLBACK;
+        }
+
+        return max(1, $endTimestamp - time());
+    }
+
+    /**
+     * Uses the caller's slot so crossing a boundary between lookups cannot extend stale data
+     * through the following slot.
+     */
+    public function getRefreshAfter(?RadioBroadcast $current): int
+    {
+        return self::refreshAfter($current?->end->getTimestamp());
     }
 
     /** Returns the broadcast immediately following this show's current or next slot. */

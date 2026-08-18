@@ -52,7 +52,26 @@
                     "label": "Frequentie",
                     "name": "radio_frequenties_frequentie",
                     "type": "text",
-                    "instructions": "",
+                    "instructions": "Alleen het getal, bijvoorbeeld 105.8 voor ether of 914 voor een kabelkanaal.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_68a3f1c4b2d01",
+                    "label": "Plaats of aanbieder",
+                    "name": "radio_frequenties_plaats",
+                    "type": "text",
+                    "instructions": "Bij ether de plaats, bij DAB+ het verzorgingsgebied en bij kabel de naam van de aanbieder.",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -86,5 +105,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1610555314
+    "modified": 1784937600
 }
