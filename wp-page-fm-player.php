@@ -35,19 +35,74 @@ $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $sche
 // it then hands to an MP4 demuxer, which strands devices that are strict about it on a dead source
 // instead of letting them fall through to MP3.
 $streamTypes = [
+    // TEMPORARY: prefer HLS on the staging-only diagnostics branch for comparison with AAC.
+    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
     'radio_webplayer_aac_stream' => 'audio/aac',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
     'radio_webplayer_ogg_stream' => 'audio/ogg',
-    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
 ];
 
 $context['stream_sources'] = [];
-foreach ($streamTypes as $field => $mimeType) {
-    $url = $context['options'][$field] ?? null;
-    if ($url) {
-        $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
+$debugStream = isset($_GET['debug_stream']) ? sanitize_key(wp_unslash($_GET['debug_stream'])) : '';
+$hlsUrl = $context['options']['radio_webplayer_hls_stream'] ?? null;
+$debugSources = [];
+
+if ($hlsUrl) {
+    $hlsBaseUrl = trailingslashit((string) preg_replace('#/[^/]+$#', '', $hlsUrl));
+    $debugSources = [
+        'hls-master' => ['url' => $hlsUrl, 'type' => 'application/x-mpegURL'],
+        'hls-he-aac' => ['url' => $hlsBaseUrl . 'aac_48.m3u8', 'type' => 'application/x-mpegURL'],
+        'hls-aac-96' => ['url' => $hlsBaseUrl . 'aac_96.m3u8', 'type' => 'application/x-mpegURL'],
+        'hls-aac-192' => ['url' => $hlsBaseUrl . 'aac_192.m3u8', 'type' => 'application/x-mpegURL'],
+    ];
+}
+
+$debugSources['aac'] = [
+    'url' => $context['options']['radio_webplayer_aac_stream'] ?? null,
+    'type' => 'audio/aac',
+];
+$debugSources['mp3'] = [
+    'url' => $context['options']['radio_webplayer_mp3_stream'] ?? null,
+    'type' => 'audio/mpeg',
+];
+$debugSources['hls-aac-lc'] = [
+    'url' => get_theme_file_uri('static/fm-hls-aac-lc.m3u8'),
+    'type' => 'application/x-mpegURL',
+];
+
+$debugLabels = [
+    'hls-master' => 'HLS master',
+    'hls-aac-lc' => 'HLS master LC-only',
+    'hls-he-aac' => 'HLS HE-AAC 48',
+    'hls-aac-96' => 'HLS AAC-LC 96',
+    'hls-aac-192' => 'HLS AAC-LC 192',
+    'aac' => 'Icecast AAC',
+    'mp3' => 'Icecast MP3',
+];
+$context['debug_stream'] = $debugStream;
+$context['debug_stream_options'] = [];
+foreach ($debugLabels as $key => $label) {
+    if (!empty($debugSources[$key]['url'])) {
+        $context['debug_stream_options'][] = [
+            'key' => $key,
+            'label' => $label,
+            'url' => add_query_arg('debug_stream', $key, get_permalink()),
+        ];
     }
 }
+
+if (isset($debugSources[$debugStream]) && $debugSources[$debugStream]['url']) {
+    $context['stream_sources'][] = $debugSources[$debugStream];
+} else {
+    foreach ($streamTypes as $field => $mimeType) {
+        $url = $context['options'][$field] ?? null;
+        if ($url) {
+            $context['stream_sources'][] = ['url' => $url, 'type' => $mimeType];
+        }
+    }
+}
+
+$context['show_stream_diagnostics'] = zw_fm_stream_diagnostics_enabled();
 
 $context['media_artwork'] = [];
 $artworkUrl = $context['options']['radio_fallback_img']['url'] ?? null;
