@@ -179,13 +179,19 @@ function zw_teksttv_cleaner_get_meta_matches(string $table, array $keys): array
  *
  * @param string        $meta_type Metadata type.
  * @param array<string> $keys      Keys to delete.
- * @return void
+ * @return array<string>
  */
-function zw_teksttv_cleaner_delete_metadata(string $meta_type, array $keys): void
+function zw_teksttv_cleaner_delete_metadata(string $meta_type, array $keys): array
 {
+    $failures = [];
+
     foreach ($keys as $key) {
-        delete_metadata($meta_type, 0, $key, '', true);
+        if (!delete_metadata($meta_type, 0, $key, '', true)) {
+            $failures[] = $meta_type . ' metadata key ' . $key;
+        }
     }
+
+    return $failures;
 }
 
 /**
@@ -234,13 +240,19 @@ function zw_teksttv_cleaner_get_option_names(array $patterns, array $exact_names
  * Delete option rows through the WordPress Options API.
  *
  * @param array<string> $option_names Option names.
- * @return void
+ * @return array<string>
  */
-function zw_teksttv_cleaner_delete_options(array $option_names): void
+function zw_teksttv_cleaner_delete_options(array $option_names): array
 {
+    $failures = [];
+
     foreach ($option_names as $option_name) {
-        delete_option($option_name);
+        if (!delete_option($option_name)) {
+            $failures[] = 'option ' . $option_name;
+        }
     }
+
+    return $failures;
 }
 
 /**
@@ -529,9 +541,12 @@ if ($dry_run) {
 }
 
 $failures = zw_teksttv_cleaner_delete_acf_posts($acf_posts);
-zw_teksttv_cleaner_delete_metadata('post', array_keys($post_meta_matches));
-zw_teksttv_cleaner_delete_metadata('term', array_keys($term_meta_matches));
-zw_teksttv_cleaner_delete_options($option_names);
+$failures = array_merge(
+    $failures,
+    zw_teksttv_cleaner_delete_metadata('post', array_keys($post_meta_matches)),
+    zw_teksttv_cleaner_delete_metadata('term', array_keys($term_meta_matches)),
+    zw_teksttv_cleaner_delete_options($option_names)
+);
 
 $remaining_acf_posts = zw_teksttv_cleaner_get_acf_posts_by_id(array_map('intval', array_column($acf_posts, 'ID')));
 $remaining_post_meta = zw_teksttv_cleaner_get_meta_matches($wpdb->postmeta, $post_meta_keys);
