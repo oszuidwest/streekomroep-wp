@@ -1,6 +1,6 @@
 # Streekomroep WordPress Theme
 
-The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/), built with [Timber](https://timber.github.io/docs/v2/), Twig, and Tailwind CSS. It supports regional news, radio, television, video, and Tekst TV.
+The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/), built with [Timber](https://timber.github.io/docs/v2/), Twig, and Tailwind CSS. It supports regional news, radio, television, and video.
 
 ## Requirements
 
@@ -84,8 +84,17 @@ These optional plugins complement the theme:
 
 ## Extra functionality with first-party plugins
 
+- [NLPO Dashboard API](https://github.com/oszuidwest/nlpo-dashboard-api) provides article and traffic data to the NLPO audience dashboard.
+- [TekstTV](https://github.com/oszuidwest/teksttv-wp-plugin) manages Tekst TV slides and provides the JSON feed for the playout application.
+- [TekstTV Extensions](https://github.com/oszuidwest/teksttv-wp-extensions) adds radio and television schedule ticker messages from this theme to TekstTV.
+- [ZuidWest Cache Manager](https://github.com/oszuidwest/zw-cacheman) purges and warms the Cloudflare cache when content changes.
+- [ZuidWest GR 2026](https://github.com/oszuidwest/zw-gr26-wp) adds pages for the 2026 municipal elections to the website and app.
+- [ZuidWest Knabbel](https://github.com/oszuidwest/zw-knabbel-wp) sends WordPress posts to the Babbel API for radio news.
+- [ZuidWest Liveblog](https://github.com/oszuidwest/zw-liveblog) embeds 24LiveBlog liveblogs and adds structured data.
+- [ZuidWest Staart](https://github.com/oszuidwest/zw-staart) adds related reading and podcast promotion below articles.
 - [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
-- [Tekst TV GPT](https://github.com/oszuidwest/teksttvgpt) adds AI-generated Tekst TV summaries to the editor.
+
+Existing installations should follow the [Tekst TV migration steps](INSTALL.md#migrating-an-existing-tekst-tv-installation), including the dry-run cleanup, before removing the old theme-owned data.
 
 ## Integrations
 
@@ -97,10 +106,9 @@ Existing deployments can use the `IMGPROXY_KEY`, `IMGPROXY_SALT`, and `IMGPROXY_
 
 ### REST API
 
-The theme provides two public read-only endpoints:
+The theme provides one public read-only endpoint:
 
 - `GET /wp-json/zw/v1/broadcast_data` returns the current and next radio programme, the detailed live-page radio schedule, and the television schedules for today and tomorrow.
-- `GET /wp-json/zw/v1/teksttv?channel=tv1` returns slides and ticker messages for a channel configured in `ZW_TEKSTTV_CHANNELS`.
 
 ## License
 
