@@ -8,9 +8,9 @@
             {% if post.thumbnail %}
                 {{ responsive.render(
                     src: post.thumbnail.src,
-                    width: 720,
-                    height: 405,
-                    sizes: '(min-width: 768px) 672px, calc(100vw - 3rem)',
+                    width: layout.content_width,
+                    height: layout.content_width * 9 / 16,
+                    sizes: layout.content_sizes,
                     alt: post.thumbnail.alt|default(post.title),
                     class: 'w-full',
                     loading: 'eager',

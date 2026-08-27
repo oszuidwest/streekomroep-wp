@@ -1,18 +1,5 @@
 <?php
-/**
- * Timber starter-theme
- * https://github.com/timber/starter-theme
- *
- * @package  WordPress
- * @subpackage  Timber
- * @since   Timber 0.1
- */
-
-/**
- * If you are installing Timber as a Composer dependency in your theme, you'll need this block
- * to load your dependencies and initialize Timber. If you are using Timber via the WordPress.org
- * plug-in, you can safely delete this block.
- */
+/** Streekomroep theme bootstrap */
 
 use Timber\Timber;
 
@@ -64,11 +51,9 @@ function zw_normalize_bunny_url($value)
 }
 
 /**
- * Normalises an ACF repeater read into rows.
+ * Normalizes an ACF repeater value to rows.
  *
- * A repeater whose ACF field key reference is missing reads back as a bare row count instead of
- * its rows, which every consumer that loops or calls array_column() would choke on. Exposed to
- * Twig as the `rows` filter.
+ * ACF returns a row count when the field-key reference is missing.
  */
 function zw_acf_rows($value): array
 {
@@ -76,9 +61,7 @@ function zw_acf_rows($value): array
 }
 
 /**
- * Converts HTML entities to characters before context-specific escaping.
- *
- * Exposed to Twig as the `plain` filter.
+ * Decodes HTML entities before context-specific escaping.
  */
 function zw_plain_text(string $text): string
 {
@@ -86,7 +69,7 @@ function zw_plain_text(string $text): string
 }
 
 /**
- * Returns complete, usable FM schedule rows.
+ * Returns valid FM schedule rows.
  *
  * @return array<int, array<string, mixed>>
  */
@@ -150,22 +133,18 @@ function zw_fm_shows_in_broadcast_order(array $shows): array
 
 require 'fragment-thumbnail.php';
 
-/**
- * Sets the directories (inside your theme) to find .twig files
- */
 Timber::$dirname = ['templates'];
 
+require_once 'lib/content_images.php';
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/tinymce.php';
 
-// TEMPORARY: remove together with lib/migration_fm_makers.php once the upgrade has been rolled out.
-// Admin only, because every hook it registers fires inside wp-admin.
+// TODO: Remove this loader and migration_fm_makers.php after the FM-maker migration.
 if (is_admin()) {
     require_once 'lib/migration_fm_makers.php';
 }
 
-// Use default class for all post types, except for pages.
 add_filter('timber/post/classmap', function ($base) {
     $custom = [
         'post' => \Streekomroep\Post::class,
@@ -179,10 +158,6 @@ add_filter('timber/post/classmap', function ($base) {
 
 new \Streekomroep\Site();
 
-/**
- * Include ACF Fields. These are saved as local JSON
- * This is not a function of Timber so we declare them after the Timber specific functions
- */
 add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
 
 function streekomroep_acf_json_save_point($path)
@@ -373,7 +348,7 @@ function zw_rest_api_init()
         ]
     );
 
-    // Television shows still point at WordPress users, so this stays a list of user IDs.
+    // TV presenters remain WordPress user IDs for API compatibility.
     register_rest_field(
         'tv',
         'presenters',
@@ -384,7 +359,7 @@ function zw_rest_api_init()
         ]
     );
 
-    // Radio shows moved to the fm_show_makers repeater, so this returns name, bio and photo URL.
+    // FM presenters expose embedded profiles instead of user IDs.
     register_rest_field(
         'fm',
         'presenters',
@@ -403,11 +378,12 @@ function zw_rest_api_init()
 }
 
 /**
- * @param $url
- * @param $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
- * user email, WP_User object, WP_Post object, or WP_Comment object.
- * @param $args
- * @return string
+ * Replaces a Gravatar URL with the user's ACF profile image.
+ *
+ * @param string $url         Default avatar URL.
+ * @param mixed  $id_or_email Avatar identifier.
+ * @param array  $args        Avatar arguments.
+ * @return string Avatar URL.
  */
 function zw_get_avatar_url($url, $id_or_email, $args)
 {
@@ -446,7 +422,7 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
 {
 
     $doc = new DOMDocument();
-    // Ignore warnings (invalid entities, unknown tags)
+    // Provider fragments may trigger libxml warnings for malformed markup.
     @$doc->loadHTML('<div id="oembed">' . $cache . '</div>');
 
     /** @var DOMElement|null $iframe */
@@ -473,11 +449,13 @@ function zw_embed_oembed_html_iframe($cache, $url, $attr, $post_ID)
 }
 
 /**
- * @param $cache (string|false) The cached HTML result, stored in post meta.
- * @param $url (string) The attempted embed URL.
- * @param $attr (array) An array of shortcode attributes.
- * @param $post_ID (int) Post ID.
- * @return string
+ * Makes YouTube and Vimeo embeds responsive.
+ *
+ * @param string $cache   Cached embed markup.
+ * @param string $url     Embed URL.
+ * @param array  $attr    Shortcode attributes.
+ * @param int    $post_ID Post ID.
+ * @return string Embed markup.
  */
 function zw_embed_oembed_html($cache, $url, $attr, $post_ID)
 {
@@ -608,26 +586,18 @@ function zw_get_page_by_template($template)
     return null;
 }
 
-/*
- * Sort fragments by newness when assigning a fragment to an article
- */
+// Show the highest fragment IDs first in the ACF selector.
 add_filter('acf/fields/relationship/query/name=post_gekoppeld_fragment', 'zw_sort_fragments_selector', 10, 3);
 function zw_sort_fragments_selector($args, $field, $post_id)
 {
-    // Sort by ID
     $args['orderby'] = 'ID';
-
-    // Newest (Highest) ID first
     $args['order'] = 'DESC';
 
     return $args;
 }
 
-/*
- * Create custom cron to refresh Bunny content every 10min
- */
+// Refresh Bunny collections every ten minutes.
 add_filter('cron_schedules', function ($schedules) {
-    // add a '10mins' schedule to the existing set
     $schedules['10mins'] = [
         'interval' => 10 * 60,
         'display' => __('Every 10 minutes', 'streekomroep'),
@@ -645,7 +615,7 @@ add_action('switch_theme', 'zw_deactivate');
 
 function zw_deactivate()
 {
-    // Legacy hook
+    // Clear the retired hourly schedule as well.
     wp_clear_scheduled_hook('zw_hourly');
     wp_clear_scheduled_hook('zw_10mins');
 }
@@ -697,8 +667,8 @@ function fragment_get_posts($fragmentID)
         'ignore_sticky_posts' => true,
         'meta_query' => [
             [
-                'key' => 'post_gekoppeld_fragment', // name of custom field
-                'value' => '"' . $fragmentID . '"', // matches exactly "123", not just 123. This prevents a match for "1234"
+                'key' => 'post_gekoppeld_fragment',
+                'value' => '"' . $fragmentID . '"', // Match a complete ID in the serialized ACF value.
                 'compare' => 'LIKE'
             ]
         ]
@@ -719,12 +689,9 @@ function zw_seo_article_add_region($data, $context)
     return $data;
 }
 
-/**
- * Image handling filters
- * The first filter disables resizing of 'big' images by WordPress, since we do this in timber
- * The second filter removes the width-element from the shortcode element to prevent images from showing up too big
- */
+// Preserve originals; Timber and imgproxy generate renditions on demand.
 add_filter('big_image_size_threshold', '__return_false');
+// Let CSS control caption width.
 add_filter('img_caption_shortcode_width', '__return_false');
 
 add_action('admin_init', 'zw_register_imgproxy_media_settings');
@@ -772,7 +739,7 @@ function zw_register_imgproxy_media_settings()
 
         add_settings_field(
             $option,
-            // Option names double as field labels (imgproxy terminology), not translatable strings.
+            // Keep imgproxy's canonical option names as field labels.
             str_replace('zw_', '', $option),
             'zw_render_imgproxy_settings_field',
             'media',
@@ -917,6 +884,26 @@ function zw_get_imgproxy_setting($option, $constant)
     return zw_get_imgproxy_constant($constant);
 }
 
+/**
+ * @return array{key: string, salt: string, host: string} Empty strings represent unset values.
+ */
+function zw_imgproxy_settings(): array
+{
+    // Cache lookups across src and srcset generation.
+    static $settings = null;
+
+    return $settings ??= [
+        'key' => zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY'),
+        'salt' => zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT'),
+        'host' => zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL')),
+    ];
+}
+
+function zw_imgproxy_is_configured(): bool
+{
+    return !in_array('', zw_imgproxy_settings(), true);
+}
+
 add_action('admin_notices', 'zw_imgproxy_admin_notice');
 
 function zw_imgproxy_admin_notice()
@@ -925,13 +912,10 @@ function zw_imgproxy_admin_notice()
         return;
     }
 
-    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
-    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
+    $settings = zw_imgproxy_settings();
+    $configured = count(array_filter($settings, fn ($value) => $value !== ''));
 
-    $configured = (int) ($key !== '') + (int) ($salt !== '') + (int) ($host !== '');
-
-    if ($configured === 0 || $configured === 3) {
+    if ($configured === 0 || $configured === count($settings)) {
         return;
     }
 
@@ -950,7 +934,7 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
-/** Drives a plain <audio> element, so the player needs no dependencies of its own. */
+/** Enqueues the dependency-free FM live player. */
 function zw_enqueue_fm_live_assets()
 {
     if (!is_page_template('wp-page-fm-player.php')) {
@@ -969,12 +953,9 @@ function zw_enqueue_fm_live_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets', 21);
 
 /**
- * Flag the current request as needing VideoJS so zw_maybe_enqueue_videojs() enqueues
- * the player on wp_enqueue_scripts (priority 20). Call from render paths that emit a
- * VideoJS-backed player (livestream, on-demand video, fragments) before wp_head() runs.
+ * Marks the request for VideoJS.
  *
- * If wp_enqueue_scripts has already fired by the time this is called, the assets are
- * enqueued directly so a late caller still gets a working player.
+ * Late calls enqueue immediately because wp_enqueue_scripts already ran.
  */
 function zw_require_videojs()
 {
@@ -985,9 +966,6 @@ function zw_require_videojs()
     }
 }
 
-/**
- * Add VideoJS player assets.
- */
 function zw_enqueue_videojs_assets()
 {
     static $videojs_enqueued = false;
@@ -1000,7 +978,7 @@ function zw_enqueue_videojs_assets()
     $videojs_version = '8.23.4';
     $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
 
-    // TODO: Defer Video.js CSS (script is already deferred; CSS still render-blocking).
+    // TODO: Defer the render-blocking Video.js stylesheet.
     wp_enqueue_style('video.js', $videojs_base_url . '/video-js.min.css', [], $videojs_version);
     wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy' => 'defer']);
     wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy' => 'defer']);
@@ -1030,8 +1008,9 @@ function zw_maybe_enqueue_videojs()
 add_action('wp_enqueue_scripts', 'zw_maybe_enqueue_videojs', 20);
 
 /**
- * Only scans raw post_content. ACF / flexible-content callers that render a player
- * must invoke zw_require_videojs() directly.
+ * Detects Bunny embeds in raw post content.
+ *
+ * ACF renderers must call zw_require_videojs() directly.
  */
 function zw_post_content_contains_videojs_embed(WP_Post $post): bool
 {
@@ -1092,21 +1071,18 @@ function zw_imgproxy($src, $width, $height)
         return 'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201%201%22%3E%3Crect%20width=%221%22%20height=%221%22%20fill=%22%23e5e7eb%22/%3E%3C/svg%3E';
     }
 
-    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
-    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
-
-    if (!$host || !$key || !$salt) {
-        // Partial configuration is surfaced via zw_imgproxy_admin_notice().
+    $settings = zw_imgproxy_settings();
+    if (in_array('', $settings, true)) {
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
+    ['key' => $key, 'salt' => $salt, 'host' => $host] = $settings;
+
     $resize = 'fill';
-    $gravity = 'ce'; // center
+    $gravity = 'ce'; // Imgproxy center gravity.
     $enlarge = 1;
     $extension = 'jpeg';
 
-    // Round dimensions
     $width = (int)round($width);
     $height = (int)round($height);
 

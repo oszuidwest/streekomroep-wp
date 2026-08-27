@@ -29,7 +29,6 @@ class Site extends \Timber\Site
         register_nav_menu('footer', 'Footer Menu');
     }
 
-    /** Registers custom post types. */
     public function register_post_types()
     {
         include(get_template_directory() . '/lib/post_type_fragment.php');
@@ -37,7 +36,6 @@ class Site extends \Timber\Site
         include(get_template_directory() . '/lib/post_type_fmshow.php');
     }
 
-    /** Registers custom taxonomies. */
     public function register_taxonomies()
     {
         include(get_template_directory() . '/lib/taxonomy_dossier.php');
@@ -54,28 +52,26 @@ class Site extends \Timber\Site
         $context['site'] = $this;
         $context['options'] = get_fields('option') ?: [];
         $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? \WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
+        $context['layout'] = [
+            'content_width' => Layout::CONTENT_WIDTH,
+            'content_sizes' => Layout::CONTENT_SIZES,
+        ];
         return $context;
     }
 
     public function theme_supports()
     {
-        // Let WordPress expose the site's RSS feeds.
         add_theme_support('automatic-feed-links');
 
-        // Let WordPress manage the document title.
         add_theme_support('title-tag');
 
-        // Enable featured images on supported post types.
         add_theme_support('post-thumbnails');
 
-        // Make embeds adapt to the available content width.
         add_theme_support('responsive-embeds');
 
-        // Load the theme's content styles in the block editor and Style Book.
         add_theme_support('editor-styles');
         add_editor_style('dist/editor.css');
 
-        // Use semantic HTML5 markup for WordPress-generated components.
         add_theme_support(
             'html5',
             [
@@ -144,7 +140,6 @@ class Site extends \Timber\Site
         return zw_imgproxy($src, $width, $height);
     }
 
-    /** Registers the theme's Twig extensions. */
     public function add_to_twig($twig)
     {
         $twig->addExtension(new MarkdownExtension());
