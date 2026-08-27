@@ -38,10 +38,20 @@ final class ResponsiveImage
 
         $srcset = [];
         foreach ($widths as $srcsetWidth) {
-            $srcsetHeight = (int) round($srcsetWidth / $width * $height);
+            $srcsetHeight = self::scaleHeight($srcsetWidth, $width, $height);
             $srcset[] = \zw_imgproxy($src, $srcsetWidth, $srcsetHeight) . ' ' . $srcsetWidth . 'w';
         }
 
         return implode(', ', $srcset);
+    }
+
+    /**
+     * Height at $targetWidth for the aspect ratio implied by $width x $height.
+     * Callers building a src attribute next to srcsetForWidths() must use this
+     * too, so both produce the identical imgproxy URL for the shared width.
+     */
+    public static function scaleHeight(int $targetWidth, int $width, int $height): int
+    {
+        return (int) round($targetWidth / $width * $height);
     }
 }

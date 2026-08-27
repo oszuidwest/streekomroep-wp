@@ -923,7 +923,11 @@ function zw_get_imgproxy_setting($option, $constant)
  */
 function zw_imgproxy_settings(): array
 {
-    return [
+    // The settings cannot change mid-request, and this runs several times per
+    // rendered image (src plus every srcset candidate).
+    static $settings = null;
+
+    return $settings ??= [
         'key' => zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY'),
         'salt' => zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT'),
         'host' => zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL')),
@@ -943,9 +947,10 @@ function zw_imgproxy_admin_notice()
         return;
     }
 
-    $configured = count(array_filter(zw_imgproxy_settings(), fn ($value) => $value !== ''));
+    $settings = zw_imgproxy_settings();
+    $configured = count(array_filter($settings, fn ($value) => $value !== ''));
 
-    if ($configured === 0 || $configured === 3) {
+    if ($configured === 0 || $configured === count($settings)) {
         return;
     }
 
@@ -1106,12 +1111,13 @@ function zw_imgproxy($src, $width, $height)
         return 'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201%201%22%3E%3Crect%20width=%221%22%20height=%221%22%20fill=%22%23e5e7eb%22/%3E%3C/svg%3E';
     }
 
-    if (!zw_imgproxy_is_configured()) {
+    $settings = zw_imgproxy_settings();
+    if (in_array('', $settings, true)) {
         // Partial configuration is surfaced via zw_imgproxy_admin_notice().
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
 
-    ['key' => $key, 'salt' => $salt, 'host' => $host] = zw_imgproxy_settings();
+    ['key' => $key, 'salt' => $salt, 'host' => $host] = $settings;
 
     $resize = 'fill';
     $gravity = 'ce'; // center
