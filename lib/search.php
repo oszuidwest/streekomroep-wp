@@ -50,7 +50,7 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
 
     $fragment_ids = [];
     foreach ($meta_values as $meta_value) {
-        $fragment_ids = array_merge($fragment_ids, (array) maybe_unserialize($meta_value));
+        array_push($fragment_ids, ...(array) maybe_unserialize($meta_value));
     }
 
     $fragment_ids = array_filter(wp_parse_id_list($fragment_ids));
@@ -58,7 +58,7 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
         return;
     }
 
-    $query->set('post__not_in', wp_parse_id_list(array_merge((array) $query->get('post__not_in'), $fragment_ids)));
+    $query->set('post__not_in', array_merge((array) $query->get('post__not_in'), $fragment_ids));
 }
 
 add_action('pre_get_posts', 'zw_exclude_linked_fragments_from_search');

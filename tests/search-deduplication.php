@@ -94,11 +94,10 @@ $wpdb = new class {
 };
 // phpcs:enable
 
+// The $wpdb double always serves serialize() output, so no not-serialized fallback is needed.
 function maybe_unserialize($data)
 {
-    $unserialized = @unserialize((string) $data);
-
-    return $unserialized !== false ? $unserialized : $data;
+    return unserialize((string) $data);
 }
 
 function wp_parse_id_list($list): array
@@ -142,7 +141,6 @@ assert_same(-1, $secondary_query_args['posts_per_page'], 'The article probe did 
 assert_same([90, 101, 102], $main_query->get('post__not_in'), 'Linked fragments were not excluded exactly once.');
 
 $article_ids = [];
-$secondary_query_args = null;
 $fragment_only_query = new WP_Query();
 $fragment_only_query->set('s', 'unieke fragmenttitel');
 

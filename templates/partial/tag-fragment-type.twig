@@ -1,0 +1,7 @@
+{% import 'partial/badge.twig' as badge %}
+
+{% if post.meta('fragment_type') == 'Video' %}
+    {{ badge.render('Video', 'blauw') }}
+{% else %}
+    {{ badge.render('Audio', 'roze') }}
+{% endif %}
