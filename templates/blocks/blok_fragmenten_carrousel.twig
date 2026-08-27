@@ -27,10 +27,11 @@
     <div class="overflow-x-auto clear-left sm:hidden">
         <div class="flex float-left px-2 py-4">
             {% for post in block.posts[1:] %}
-                <div class="block w-96 flex-none mx-2 !text-white"
+                <div class="block w-96 flex-none mx-2"
                      style="width: calc((100vw - (1rem * 2) - (1rem * 2)) /2); min-width: 160px; max-width: 220px">
                     {{ include('partial/tile-fragment.twig', {
                         post: post,
+                        dark: true,
                         sizes: '(max-width: 383px) 160px, (max-width: 503px) calc((100vw - 4rem) / 2), 220px',
                     }) }}
                 </div>
@@ -40,9 +41,9 @@
 
     <div class="w-full mx-auto max-w-960 py-4 px-4 hidden sm:block">
 
-        <div class="grid grid-cols-4 gap-4 !text-white">
+        <div class="grid grid-cols-4 gap-4">
             {% for post in block.posts[1:] %}
-                {{ include('partial/tile-fragment.twig', {post: post}) }}
+                {{ include('partial/tile-fragment.twig', {post: post, dark: true}) }}
             {% endfor %}
         </div>
     </div>

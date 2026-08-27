@@ -69,7 +69,7 @@
                 <h2 class="font-bold text-3xl pb-4">Meer video's en reportages uit {{ local.region }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {% for post in local.posts %}
-                        {{ include('partial/tile-fragment.twig', {post: post, region: false}) }}
+                        {{ include('partial/tile-fragment.twig', {post: post, region: false, dark: true}) }}
                     {% endfor %}
                 </div>
             </div>
