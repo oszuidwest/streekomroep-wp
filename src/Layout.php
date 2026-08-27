@@ -2,11 +2,7 @@
 
 namespace Streekomroep;
 
-/**
- * The article content column as Tailwind renders it: max-w-3xl (768px) minus
- * md:px-12 (2 x 48px) from the md breakpoint up, and full width minus
- * px-6 (2 x 24px) below it.
- */
+/** Article geometry for the max-w-3xl px-6 md:px-12 container. */
 final class Layout
 {
     public const int CONTENT_WIDTH = 672;

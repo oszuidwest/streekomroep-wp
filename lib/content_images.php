@@ -1,18 +1,11 @@
 <?php
 
-/**
- * WordPress core generates sizes="100vw" for content images, while the content
- * column (Layout::CONTENT_WIDTH) is far narrower on most screens. Core also
- * serves content images straight from wp-content as JPEG, bypassing the CDN's
- * WebP content negotiation. Rewriting the tags to imgproxy URLs fixes both.
- */
+/** Routes eligible JPEG content images through imgproxy with article-column sizing. */
 
 use Streekomroep\Layout;
 use Streekomroep\ResponsiveImage;
 
-// Priority 5 runs before core's wp_img_tag_add_auto_sizes() (priority 10), so
-// lazy-loaded images still get "auto" prepended to the rewritten sizes value.
-add_filter('wp_content_img_tag', 'zw_content_image_cdn', 5, 3);
+add_filter('wp_content_img_tag', 'zw_content_image_cdn', 10, 3);
 
 function zw_content_image_cdn($image, $context, $attachment_id)
 {
@@ -20,7 +13,7 @@ function zw_content_image_cdn($image, $context, $attachment_id)
         return $image;
     }
 
-    // Only photos; PNG transparency would be lost in imgproxy's JPEG output.
+    // Re-encoding other formats could discard transparency or animation.
     if (get_post_mime_type($attachment_id) !== 'image/jpeg') {
         return $image;
     }
@@ -36,14 +29,13 @@ function zw_content_image_cdn($image, $context, $attachment_id)
         return $image;
     }
 
-    // Editor-inserted thumbnails narrower than the column keep core's defaults,
-    // including wp-content delivery; they are knowingly left off the CDN.
+    // Preserve renditions narrower than the content column.
     $width_attr = (int) $processor->get_attribute('width');
     if ($width_attr > 0 && $width_attr < Layout::CONTENT_WIDTH) {
         return $image;
     }
 
-    // Twice the column width covers 2x displays; never upscale beyond the source.
+    // Cap candidates at 2x the desktop content width without upscaling.
     $max_width = min($full_width, Layout::CONTENT_WIDTH * 2);
     $widths = array_filter([480, Layout::CONTENT_WIDTH, 960, $max_width], fn ($w) => $w <= $max_width);
 
@@ -57,5 +49,6 @@ function zw_content_image_cdn($image, $context, $attachment_id)
     );
     $processor->set_attribute('sizes', Layout::CONTENT_SIZES);
 
-    return $processor->get_updated_html();
+    // Reapply Core's conditional "auto" prefix after replacing sizes.
+    return wp_img_tag_add_auto_sizes($processor->get_updated_html());
 }

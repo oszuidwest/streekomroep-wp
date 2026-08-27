@@ -5,9 +5,11 @@ namespace Streekomroep;
 final class ResponsiveImage
 {
     /**
-     * Build imgproxy srcset candidates for the largest 1x CSS-pixel slot in the sizes attribute.
+     * Builds imgproxy candidates around the supplied 1x slot.
      *
      * @param \Timber\ImageInterface|string|null $src Image source accepted by zw_imgproxy().
+     * @param int                                $width Largest 1x slot width.
+     * @param int                                $height Height at that width.
      */
     public static function srcset($src, int $width, int $height): string
     {
@@ -21,11 +23,12 @@ final class ResponsiveImage
     }
 
     /**
-     * Build imgproxy srcset candidates at the given widths, keeping the aspect
-     * ratio implied by $width x $height.
+     * Builds imgproxy candidates at explicit widths and the supplied aspect ratio.
      *
      * @param \Timber\ImageInterface|string|null $src Image source accepted by zw_imgproxy().
-     * @param int[] $widths
+     * @param int[]                              $widths Candidate widths.
+     * @param int                                $width Source width for the aspect ratio.
+     * @param int                                $height Source height for the aspect ratio.
      */
     public static function srcsetForWidths($src, array $widths, int $width, int $height): string
     {
@@ -46,9 +49,9 @@ final class ResponsiveImage
     }
 
     /**
-     * Height at $targetWidth for the aspect ratio implied by $width x $height.
-     * Callers building a src attribute next to srcsetForWidths() must use this
-     * too, so both produce the identical imgproxy URL for the shared width.
+     * Scales a height to the target width.
+     *
+     * Use with srcsetForWidths() to keep shared imgproxy URLs identical.
      */
     public static function scaleHeight(int $targetWidth, int $width, int $height): int
     {

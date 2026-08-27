@@ -13,15 +13,13 @@ class Gallery
     private const string DEFAULT_IMAGE_SIZE = 'large';
     private const int MAX_COLUMNS = 6;
 
-    // Tile widths inside the content column at the md breakpoint; gaps (gap-1) are ignored.
+    // Desktop tile widths; small grid gaps are intentionally ignored.
     private const int TILE_FULL = Layout::CONTENT_WIDTH;
     private const int TILE_HALF = Layout::CONTENT_WIDTH / 2;
     private const int TILE_THIRD = Layout::CONTENT_WIDTH / 3;
 
-    // Shared classes for every gallery tile wrapper.
     private const string ITEM_BASE = 'group relative m-0 overflow-hidden bg-gray-100';
 
-    // The distinct rectangular slots. Each geometry (classes/sizes/width/height) lives in exactly one place.
     private const array LAYOUT_HERO = [
         'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-6',
         'sizes' => '(min-width: 768px) ' . self::TILE_FULL . 'px, 100vw',
@@ -403,7 +401,6 @@ class Gallery
      */
     private static function getUniformItemLayout(array $attributes): array
     {
-        // Only the square and circle types reach this path; both render on a square grid.
         $columns = (int) $attributes['columns'];
         $width = (int) round(Layout::CONTENT_WIDTH / $columns);
         $rounded = $attributes['type'] === 'circle' ? ' rounded-full' : '';
