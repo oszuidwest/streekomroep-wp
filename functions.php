@@ -918,6 +918,23 @@ function zw_get_imgproxy_setting($option, $constant)
     return zw_get_imgproxy_constant($constant);
 }
 
+/**
+ * @return array{key: string, salt: string, host: string} Values are empty strings when unset.
+ */
+function zw_imgproxy_settings(): array
+{
+    return [
+        'key' => zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY'),
+        'salt' => zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT'),
+        'host' => zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL')),
+    ];
+}
+
+function zw_imgproxy_is_configured(): bool
+{
+    return !in_array('', zw_imgproxy_settings(), true);
+}
+
 add_action('admin_notices', 'zw_imgproxy_admin_notice');
 
 function zw_imgproxy_admin_notice()
@@ -926,11 +943,7 @@ function zw_imgproxy_admin_notice()
         return;
     }
 
-    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
-    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
-
-    $configured = (int) ($key !== '') + (int) ($salt !== '') + (int) ($host !== '');
+    $configured = count(array_filter(zw_imgproxy_settings(), fn ($value) => $value !== ''));
 
     if ($configured === 0 || $configured === 3) {
         return;
@@ -1093,14 +1106,12 @@ function zw_imgproxy($src, $width, $height)
         return 'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%201%201%22%3E%3Crect%20width=%221%22%20height=%221%22%20fill=%22%23e5e7eb%22/%3E%3C/svg%3E';
     }
 
-    $key = zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY');
-    $salt = zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT');
-    $host = zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL'));
-
-    if (!$host || !$key || !$salt) {
+    if (!zw_imgproxy_is_configured()) {
         // Partial configuration is surfaced via zw_imgproxy_admin_notice().
         return \Timber\ImageHelper::resize($src, $width, $height);
     }
+
+    ['key' => $key, 'salt' => $salt, 'host' => $host] = zw_imgproxy_settings();
 
     $resize = 'fill';
     $gravity = 'ce'; // center

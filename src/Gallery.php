@@ -13,8 +13,10 @@ class Gallery
     private const string DEFAULT_IMAGE_SIZE = 'large';
     private const int MAX_COLUMNS = 6;
 
-    // Galleries render inside the max-w-3xl content column, so image widths cap at 768px.
-    private const int CONTENT_WIDTH = 768;
+    // Tile widths inside the content column at the md breakpoint; gaps (gap-1) are ignored.
+    private const int TILE_FULL = Layout::CONTENT_WIDTH;
+    private const int TILE_HALF = Layout::CONTENT_WIDTH / 2;
+    private const int TILE_THIRD = Layout::CONTENT_WIDTH / 3;
 
     // Shared classes for every gallery tile wrapper.
     private const string ITEM_BASE = 'group relative m-0 overflow-hidden bg-gray-100';
@@ -22,27 +24,27 @@ class Gallery
     // The distinct rectangular slots. Each geometry (classes/sizes/width/height) lives in exactly one place.
     private const array LAYOUT_HERO = [
         'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-6',
-        'sizes' => '(min-width: 768px) 768px, 100vw',
-        'width' => 768,
-        'height' => 432,
+        'sizes' => '(min-width: 768px) ' . self::TILE_FULL . 'px, 100vw',
+        'width' => self::TILE_FULL,
+        'height' => self::TILE_FULL * 9 / 16,
     ];
     private const array LAYOUT_HALF = [
         'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-3',
-        'sizes' => '(min-width: 768px) 384px, 50vw',
-        'width' => 384,
-        'height' => 288,
+        'sizes' => '(min-width: 768px) ' . self::TILE_HALF . 'px, 50vw',
+        'width' => self::TILE_HALF,
+        'height' => self::TILE_HALF * 3 / 4,
     ];
     private const array LAYOUT_HERO_HALF = [
         'classes' => self::ITEM_BASE . ' col-span-2 aspect-[16/9] md:col-span-3 md:aspect-[4/3]',
-        'sizes' => '(min-width: 768px) 384px, 100vw',
-        'width' => 768,
-        'height' => 432,
+        'sizes' => '(min-width: 768px) ' . self::TILE_HALF . 'px, 100vw',
+        'width' => self::TILE_FULL,
+        'height' => self::TILE_FULL * 9 / 16,
     ];
     private const array LAYOUT_THIRD = [
         'classes' => self::ITEM_BASE . ' aspect-[4/3] md:col-span-2',
-        'sizes' => '(min-width: 768px) 256px, 50vw',
-        'width' => 256,
-        'height' => 192,
+        'sizes' => '(min-width: 768px) ' . self::TILE_THIRD . 'px, 50vw',
+        'width' => self::TILE_THIRD,
+        'height' => self::TILE_THIRD * 3 / 4,
     ];
 
     public static function register(): void
@@ -403,7 +405,7 @@ class Gallery
     {
         // Only the square and circle types reach this path; both render on a square grid.
         $columns = (int) $attributes['columns'];
-        $width = (int) round(self::CONTENT_WIDTH / $columns);
+        $width = (int) round(Layout::CONTENT_WIDTH / $columns);
         $rounded = $attributes['type'] === 'circle' ? ' rounded-full' : '';
 
         return [

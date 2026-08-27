@@ -54,6 +54,8 @@ class Site extends \Timber\Site
         $context['site'] = $this;
         $context['options'] = get_fields('option') ?: [];
         $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? \WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
+        $context['content_width'] = Layout::CONTENT_WIDTH;
+        $context['content_sizes'] = Layout::CONTENT_SIZES;
         return $context;
     }
 
