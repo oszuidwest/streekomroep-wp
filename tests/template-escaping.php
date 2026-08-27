@@ -20,6 +20,11 @@ function get_post_type_archive_link(string $post_type): string
     return 'https://example.test/' . $post_type;
 }
 
+function get_avatar_url(string $email, array $args = []): string
+{
+    return sprintf('https://example.test/avatar/%s?s=%d', rawurlencode($email), $args['size'] ?? 96);
+}
+
 // base.twig pulls in the full site chrome; the page under test only needs its content block.
 $loader = new \Twig\Loader\ChainLoader([
     new \Twig\Loader\ArrayLoader(['base.twig' => '{% block content %}{% endblock %}']),
@@ -83,6 +88,11 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
     if ($avatars->length !== $avatar_count) {
         $failures[] = sprintf('%s: expected %d avatars, got %d', $label, $avatar_count, $avatars->length);
     }
+
+    $avatar_groups = $xpath->query('//*[@aria-hidden="true"]');
+    if ($avatar_groups->length !== ($avatar_count > 0 ? 1 : 0)) {
+        $failures[] = sprintf('%s: avatar group visibility does not match its contents', $label);
+    }
 };
 
 $attribute_payload = '" onerror="alert(1)';
@@ -101,6 +111,7 @@ $byline_html = $twig->render('partial/byline.twig', [
                 'name' => 'Carol <script>',
                 'link' => 'https://example.test/author/carol',
                 'avatar' => null,
+                'user_email' => 'carol@example.test',
             ],
             [
                 'name' => 'Dave',
@@ -118,7 +129,7 @@ $check(
     ['<script>', '" onerror="'],
     ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot;&#x20;onerror&#x3D;&quot;']
 );
-$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave'], 2);
+$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave'], 3);
 
 $single_author_byline = $twig->render('partial/byline.twig', [
     'post' => [
