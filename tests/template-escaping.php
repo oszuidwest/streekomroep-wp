@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Regression coverage for explicit escaping in FM live-page templates.
+ * Regression coverage for explicit escaping in frontend templates.
  *
  * Timber autoescaping is disabled, so every covered sink must escape plain text itself.
  * Run with: composer test:templates
@@ -63,9 +63,75 @@ $check_hooks = function (string $label, string $html, array $attributes) use (&$
     }
 };
 
+$check_byline = function (string $label, string $html, array $names, int $avatar_count) use (&$failures) {
+    $document = new DOMDocument();
+    $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $xpath = new DOMXPath($document);
+
+    $links = $xpath->query('//a');
+    if ($links->length !== count($names)) {
+        $failures[] = sprintf('%s: expected %d author links, got %d', $label, count($names), $links->length);
+    }
+
+    foreach ($names as $index => $name) {
+        if (!$links->item($index) || $links->item($index)->textContent !== $name) {
+            $failures[] = sprintf('%s: author %d is missing or out of order', $label, $index + 1);
+        }
+    }
+
+    $avatars = $xpath->query('//img');
+    if ($avatars->length !== $avatar_count) {
+        $failures[] = sprintf('%s: expected %d avatars, got %d', $label, $avatar_count, $avatars->length);
+    }
+};
+
 $attribute_payload = '" onerror="alert(1)';
 $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
+
+$byline_html = $twig->render('partial/byline.twig', [
+    'post' => [
+        'authors' => [
+            [
+                'name' => 'Alice & Bob',
+                'link' => 'https://example.test/author/alice' . $attribute_payload,
+                'avatar' => 'https://example.test/alice.jpg' . $attribute_payload,
+            ],
+            [
+                'name' => 'Carol <script>',
+                'link' => 'https://example.test/author/carol',
+                'avatar' => null,
+            ],
+            [
+                'name' => 'Dave',
+                'link' => 'https://example.test/author/dave',
+                'avatar' => 'https://example.test/dave.jpg',
+            ],
+        ],
+    ],
+    'class' => 'mb-6' . $attribute_payload,
+]);
+
+$check(
+    'byline.twig (multiple authors)',
+    $byline_html,
+    ['<script>', '" onerror="'],
+    ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot;&#x20;onerror&#x3D;&quot;']
+);
+$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave'], 2);
+
+$single_author_byline = $twig->render('partial/byline.twig', [
+    'post' => [
+        'authors' => [
+            [
+                'name' => 'Enige auteur',
+                'link' => 'https://example.test/author/enige-auteur',
+                'avatar' => null,
+            ],
+        ],
+    ],
+]);
+$check_byline('byline.twig (single author fallback)', $single_author_byline, ['Enige auteur'], 0);
 
 $check(
     'fm-headshot.twig (attribute)',
@@ -161,4 +227,4 @@ if ($failures) {
     exit(1);
 }
 
-echo 'OK: FM template escaping holds for all payloads' . PHP_EOL;
+echo 'OK: template escaping holds for all payloads' . PHP_EOL;

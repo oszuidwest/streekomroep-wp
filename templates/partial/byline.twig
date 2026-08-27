@@ -1,0 +1,23 @@
+{% set authors = post.authors|filter(author => author) %}
+{% set avatars = authors|filter(author => author.avatar) %}
+
+{% if authors %}
+    <p class="flex flex-wrap items-center gap-3 {{ class|default('')|e('html_attr') }}">
+        {% if avatars %}
+            <span class="flex -space-x-2" aria-hidden="true">
+                {% for author in avatars %}
+                    {% set avatar = author.avatar %}
+                    <img src="{{ avatar|imgproxy(32, 32)|e('html_attr') }}"
+                         srcset="{{ avatar|imgproxy(32 * 2, 32 * 2)|e('html_attr') }} 2x"
+                         alt="" class="h-8 w-8 rounded-sm ring-2 ring-white dark:ring-gray-900">
+                {% endfor %}
+            </span>
+        {% endif %}
+
+        <span class="text-xs tracking-wide uppercase font-black font-round text-black dark:text-white">
+            {% for author in authors %}
+                <a href="{{ author.link|e('html_attr') }}" class="hover:underline">{{ author.name|e }}</a>{% if not loop.last %}{% if loop.revindex == 2 %} en {% else %}, {% endif %}{% endif %}
+            {% endfor %}
+        </span>
+    </p>
+{% endif %}

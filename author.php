@@ -9,13 +9,29 @@
  * @since    Timber 0.1
  */
 
-global $wp_query;
+use Timber\Integration\CoAuthorsPlus\CoAuthorsPlusUser;
+use Timber\Timber;
 
-$context          = Timber::context();
+$context = Timber::context();
 $context['posts'] = Timber::get_posts();
-if (isset($wp_query->query_vars['author'])) {
-    $author = Timber::get_user($wp_query->query_vars['author']);
-    $context['author'] = $author;
-    $context['title']  = 'Artikelen geschreven door ' . $author->name();
+
+$queried_author = get_queried_object();
+if ($queried_author instanceof WP_User) {
+    $author = Timber::get_user($queried_author);
+} elseif (
+    $queried_author instanceof stdClass
+    && isset($queried_author->type)
+    && $queried_author->type === 'guest-author'
+) {
+    $author = CoAuthorsPlusUser::from_guest_author($queried_author);
+} else {
+    $author_id = get_query_var('author');
+    $author = $author_id ? Timber::get_user((int) $author_id) : null;
 }
-Timber::render([ 'author.twig', 'archive.twig' ], $context);
+
+if ($author) {
+    $context['author'] = $author;
+    $context['title'] = 'Artikelen geschreven door ' . $author->name();
+}
+
+Timber::render($author ? ['author.twig', 'archive.twig'] : ['archive.twig'], $context);
