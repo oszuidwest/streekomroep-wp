@@ -4,14 +4,17 @@
  * Regression coverage for explicit escaping in frontend templates.
  *
  * Timber autoescaping is disabled, so every covered sink must escape plain text itself.
- * Run with: composer test:templates
  */
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Fixed safe URLs need attribute escaping only; URL validation is outside this test.
 function esc_url(string $url): string
 {
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if ($scheme === false || (is_string($scheme) && !in_array(strtolower($scheme), ['http', 'https'], true))) {
+        return '';
+    }
+
     return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
 }
 
@@ -60,8 +63,7 @@ $xpath_for = function (string $html): DOMXPath {
     return new DOMXPath($document);
 };
 
-// Substring matching cannot assert a bare hook: `data-volume` also matches `data-volume-control`.
-// The JS contract is therefore checked against the parsed DOM, one element per attribute.
+// DOM queries distinguish data-volume from data-volume-control.
 $check_hooks = function (string $label, string $html, array $attributes) use ($xpath_for, &$failures) {
     $xpath = $xpath_for($html);
 
@@ -72,7 +74,6 @@ $check_hooks = function (string $label, string $html, array $attributes) use ($x
     }
 };
 
-// Substring matching cannot assert link count or author order; check the parsed DOM.
 $check_byline = function (string $label, string $html, array $names) use ($xpath_for, &$failures) {
     $links = $xpath_for($html)->query('//a');
     if ($links->length !== count($names)) {
@@ -91,6 +92,28 @@ $check_byline = function (string $label, string $html, array $names) use ($xpath
 $attribute_payload = '" onerror="alert(1)';
 $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
+$protocol_payload = 'javascript:alert(3)';
+
+$empty_posts = new class extends ArrayObject {
+    public function pagination(array $options = []): array
+    {
+        return ['pages' => []];
+    }
+};
+
+$check(
+    'author.twig',
+    $twig->render('author.twig', [
+        'author' => [
+            'name' => $text_payload,
+            'description' => $script_payload,
+            'avatar' => 'https://example.test/author.jpg' . $attribute_payload,
+        ],
+        'posts' => $empty_posts,
+    ]),
+    [$text_payload, $script_payload, '" onerror="'],
+    ['&lt;img', '&lt;script&gt;', '&quot; onerror=&quot;']
+);
 
 $check(
     'index.twig (title)',
@@ -115,7 +138,7 @@ $byline_html = $twig->render('partial/byline.twig', [
             [
                 'name' => 'Dave',
                 'link' => 'https://example.test/author/dave',
-                'avatar' => 'https://example.test/dave.jpg',
+                'avatar' => $protocol_payload,
             ],
             [
                 'name' => 'Eve',
@@ -131,8 +154,14 @@ $byline_html = $twig->render('partial/byline.twig', [
 $check(
     'byline.twig (multiple authors)',
     $byline_html,
-    ['<script>', '" onerror="'],
-    ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot; onerror=&quot;', '&quot;&#x20;onerror&#x3D;&quot;']
+    ['<script>', '" onerror="', 'javascript:'],
+    [
+        'Alice &amp; Bob',
+        'Carol &lt;script&gt;',
+        '&quot; onerror=&quot;',
+        '&quot;&#x20;onerror&#x3D;&quot;',
+        'avatar/eve%40example.test?s=64',
+    ]
 );
 $check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave', 'Eve']);
 

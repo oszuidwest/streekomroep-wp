@@ -403,21 +403,15 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     }
 
     $src = wp_get_attachment_image_src($imageId, [$args['size'], $args['size']]);
-    return $src[0];
+    return $src ? $src[0] : $url;
 }
 
 /**
- * Restores the default Timber user class for real accounts.
+ * Keeps regular accounts on Timber\User so zw_get_avatar_url() remains effective.
  *
- * Timber's Co-Authors Plus integration maps every WP_User to CoAuthorsPlusUser,
- * whose avatar() looks up a post thumbnail by user ID. Regular accounts must
- * keep resolving avatars through get_avatar_url() so zw_get_avatar_url() can
- * serve their profile photo; guest authors keep the integration class and its
- * featured-image avatar.
- *
- * @param string   $class Timber user class name.
+ * @param string   $class Timber user class.
  * @param \WP_User $user  User being built.
- * @return string User class name.
+ * @return string User class.
  */
 function zw_timber_user_class($class, $user)
 {
