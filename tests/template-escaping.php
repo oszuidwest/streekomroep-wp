@@ -8,6 +8,8 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// Mirrors WP's protocol allowlist so `javascript:` assertions prove the template calls esc_url;
+// they exercise this stub, not WP itself.
 function esc_url(string $url): string
 {
     $scheme = parse_url($url, PHP_URL_SCHEME);
@@ -21,11 +23,6 @@ function esc_url(string $url): string
 function get_post_type_archive_link(string $post_type): string
 {
     return 'https://example.test/' . $post_type;
-}
-
-function get_avatar_url(string $email, array $args = []): string
-{
-    return sprintf('https://example.test/avatar/%s?s=%d', rawurlencode($email), $args['size'] ?? 96);
 }
 
 // base.twig pulls in the full site chrome; the page under test only needs its content block.
@@ -94,13 +91,6 @@ $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
 $protocol_payload = 'javascript:alert(3)';
 
-$empty_posts = new class extends ArrayObject {
-    public function pagination(array $options = []): array
-    {
-        return ['pages' => []];
-    }
-};
-
 $check(
     'author.twig',
     $twig->render('author.twig', [
@@ -109,7 +99,7 @@ $check(
             'description' => $script_payload,
             'avatar' => 'https://example.test/author.jpg' . $attribute_payload,
         ],
-        'posts' => $empty_posts,
+        'posts' => [],
     ]),
     [$text_payload, $script_payload, '" onerror="'],
     ['&lt;img', '&lt;script&gt;', '&quot; onerror=&quot;']
@@ -144,7 +134,6 @@ $byline_html = $twig->render('partial/byline.twig', [
                 'name' => 'Eve',
                 'link' => 'https://example.test/author/eve',
                 'avatar' => null,
-                'user_email' => 'eve@example.test',
             ],
         ],
     ],
@@ -160,18 +149,9 @@ $check(
         'Carol &lt;script&gt;',
         '&quot; onerror=&quot;',
         '&quot;&#x20;onerror&#x3D;&quot;',
-        'avatar/eve%40example.test?s=64',
     ]
 );
 $check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave', 'Eve']);
-
-$avatar_slots = $xpath_for($byline_html)->query('//span[@aria-hidden="true"]/*');
-if (
-    $avatar_slots->length !== 4
-    || array_map(fn ($index) => $avatar_slots->item($index)->nodeName, range(0, 3)) !== ['img', 'span', 'img', 'img']
-) {
-    $failures[] = 'byline.twig (multiple authors): avatar slots do not preserve author order';
-}
 
 $single_author_byline = $twig->render('partial/byline.twig', [
     'post' => [

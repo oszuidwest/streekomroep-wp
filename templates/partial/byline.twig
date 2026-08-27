@@ -1,21 +1,17 @@
+{# post.authors runs get_coauthors() on every call, so resolve it once. #}
 {% set authors = post.authors|filter(author => author) %}
 
 {% if authors %}
-    {% set avatars = authors
-        |map(author => author.avatar ?: (author.user_email ? function('get_avatar_url', author.user_email, {size: 64}) : null)) %}
+    {% set avatars = authors|map(author => author.avatar)|filter(avatar => avatar) %}
 
-    <div class="flex flex-wrap items-center gap-3 {{ class|default('')|e('html_attr') }}">
-        {% if avatars|filter(avatar => avatar) %}
+    <div class="flex flex-wrap items-center gap-3 {{ class|e('html_attr') }}">
+        {% if avatars %}
             <span class="flex shrink-0 gap-1" aria-hidden="true">
                 {% for avatar in avatars %}
-                    {% if avatar %}
-                        <img src="{{ function('esc_url', avatar|imgproxy(32, 32)) }}"
-                             srcset="{{ function('esc_url', avatar|imgproxy(32 * 2, 32 * 2)) }} 2x"
-                             alt="" width="32" height="32" loading="lazy"
-                             class="h-8 w-8 rounded-sm object-cover object-[50%_16%]">
-                    {% else %}
-                        <span class="h-8 w-8"></span>
-                    {% endif %}
+                    <img src="{{ function('esc_url', avatar|imgproxy(32, 32)) }}"
+                         srcset="{{ function('esc_url', avatar|imgproxy(32 * 2, 32 * 2)) }} 2x"
+                         alt="" width="32" height="32" loading="lazy"
+                         class="h-8 w-8 rounded-sm object-cover object-[50%_16%]">
                 {% endfor %}
             </span>
         {% endif %}

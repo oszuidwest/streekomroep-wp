@@ -4,9 +4,8 @@
     <div class="w-full mx-auto max-w-960 py-4 px-4">
         <div class="flex flex-col items-center mb-6">
             {% set avatar = author.avatar %}
-            {% set avatar_src = avatar ? function('esc_url', avatar|imgproxy(96, 96)) : null %}
-            {% if avatar_src %}
-                <img src="{{ avatar_src }}"
+            {% if avatar %}
+                <img src="{{ function('esc_url', avatar|imgproxy(96, 96)) }}"
                      srcset="{{ function('esc_url', avatar|imgproxy(96 * 2, 96 * 2)) }} 2x"
                      alt="{{ author.name|e('html_attr') }}" class="h-24 w-24 rounded-sm">
             {% endif %}
