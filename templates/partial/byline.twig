@@ -8,25 +8,22 @@
 {% endfor %}
 
 {% if authors %}
-    <div class="flex items-center gap-5 {{ class|default('')|e('html_attr') }}">
+    <div class="flex items-center gap-2.5 md:gap-3 {{ class|default('')|e('html_attr') }}">
         {% if avatars %}
-            <span class="flex shrink-0 -space-x-10 sm:-space-x-12" aria-hidden="true">
+            <span class="flex shrink-0 -space-x-1" aria-hidden="true">
                 {% for avatar in avatars %}
-                    <img src="{{ avatar|imgproxy(96, 96)|e('html_attr') }}"
-                         srcset="{{ avatar|imgproxy(96 * 2, 96 * 2)|e('html_attr') }} 2x"
+                    <img src="{{ avatar|imgproxy(40, 40)|e('html_attr') }}"
+                         srcset="{{ avatar|imgproxy(40 * 2, 40 * 2)|e('html_attr') }} 2x"
                          alt=""
-                         class="relative h-20 w-20 rounded-sm object-cover object-[50%_16%] ring-2 ring-white transition-transform duration-200 first:z-10 hover:z-20 hover:-translate-y-1 sm:h-24 sm:w-24 dark:ring-gray-900">
+                         class="relative h-8 w-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-white/90 transition-transform duration-200 first:z-10 hover:z-20 hover:-translate-y-0.5 md:h-10 md:w-10 dark:ring-gray-900">
                 {% endfor %}
             </span>
         {% endif %}
 
-        <span class="min-w-0 font-round text-xs leading-tight text-gray-500 sm:text-sm dark:text-gray-400">
-            Geschreven door
-            <span class="mt-1 block text-sm font-semibold text-black sm:text-base dark:text-white">
-                {% for author in authors %}
-                    <a href="{{ author.link|e('html_attr') }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>{% if not loop.last %}{% if loop.revindex == 2 %} &amp; {% else %}, {% endif %}{% endif %}
-                {% endfor %}
-            </span>
+        <span class="min-w-0 font-round text-xs font-black tracking-wide text-black uppercase dark:text-white">
+            {% for author in authors %}
+                <a href="{{ author.link|e('html_attr') }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>{% if not loop.last %}{% if loop.revindex == 2 %} en {% else %}, {% endif %}{% endif %}
+            {% endfor %}
         </span>
     </div>
 {% endif %}

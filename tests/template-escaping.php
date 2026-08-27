@@ -73,10 +73,6 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
     $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     $xpath = new DOMXPath($document);
 
-    if (!str_contains($document->textContent, 'Geschreven door')) {
-        $failures[] = sprintf('%s: output is missing the byline label', $label);
-    }
-
     $links = $xpath->query('//a');
     if ($links->length !== count($names)) {
         $failures[] = sprintf('%s: expected %d author links, got %d', $label, count($names), $links->length);
@@ -94,7 +90,7 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
     }
 
     foreach ($avatars as $avatar) {
-        if (!str_contains($avatar->getAttribute('src'), '?w=96&h=96')) {
+        if (!str_contains($avatar->getAttribute('src'), '?w=40&h=40')) {
             $failures[] = sprintf('%s: avatar does not request the expected source dimensions', $label);
         }
 
