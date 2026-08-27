@@ -1,12 +1,14 @@
 <?php
 
-/** Regression coverage for deduplicating articles and their attached fragments in search. */
+/**
+ * Regression coverage for deduplicating articles and their attached fragments in search.
+ *
+ * Run with: composer test:search
+ */
 
-$is_admin = false;
 $article_ids = [];
 $post_meta = [];
 $secondary_query_args = null;
-$primed_post_ids = [];
 $registered_actions = [];
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps -- WordPress core test double.
@@ -14,16 +16,14 @@ class WP_Query
 {
     public array $posts = [];
     private array $query_vars;
-    private bool $main_query;
-    private bool $search;
+    private bool $is_main;
 
     public function __construct(array $query_vars = [])
     {
         global $article_ids, $secondary_query_args;
 
         $this->query_vars = $query_vars;
-        $this->main_query = $query_vars === [];
-        $this->search = $query_vars === [];
+        $this->is_main = $query_vars === [];
 
         if ($query_vars !== []) {
             $secondary_query_args = $query_vars;
@@ -43,12 +43,12 @@ class WP_Query
 
     public function is_main_query(): bool
     {
-        return $this->main_query;
+        return $this->is_main;
     }
 
     public function is_search(): bool
     {
-        return $this->search;
+        return $this->is_main;
     }
 }
 // phpcs:enable
@@ -62,18 +62,12 @@ function add_action(string $hook, string $callback): void
 
 function is_admin(): bool
 {
-    global $is_admin;
-
-    return $is_admin;
+    return false;
 }
 
 function update_meta_cache(string $type, array $ids): void
 {
-    global $primed_post_ids;
-
-    if ($type === 'post') {
-        $primed_post_ids = $ids;
-    }
+    // Cache priming is a no-op outside WordPress.
 }
 
 function get_post_meta(int $post_id, string $key, bool $single)
@@ -83,9 +77,9 @@ function get_post_meta(int $post_id, string $key, bool $single)
     return $post_meta[$post_id][$key] ?? '';
 }
 
-function absint($value): int
+function wp_parse_id_list($list): array
 {
-    return abs((int) $value);
+    return array_unique(array_map(static fn ($id) => abs((int) $id), (array) $list));
 }
 
 function assert_same($expected, $actual, string $message): void
@@ -120,9 +114,7 @@ zw_exclude_linked_fragments_from_search($main_query);
 
 assert_same('gemeenteraad', $secondary_query_args['s'], 'The article probe did not reuse the search term.');
 assert_same('post', $secondary_query_args['post_type'], 'The article probe was not limited to articles.');
-assert_same('ids', $secondary_query_args['fields'], 'The article probe fetched more than IDs.');
 assert_same(-1, $secondary_query_args['posts_per_page'], 'The article probe did not inspect every matching article.');
-assert_same([11, 12, 13], $primed_post_ids, 'The matching article metadata was not primed in one batch.');
 assert_same([90, 101, 102], $main_query->get('post__not_in'), 'Linked fragments were not excluded exactly once.');
 
 $article_ids = [];

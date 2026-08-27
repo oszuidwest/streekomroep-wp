@@ -24,6 +24,7 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
         'posts_per_page' => -1,
         'no_found_rows' => true,
         'ignore_sticky_posts' => true,
+        'orderby' => 'none',
         'meta_query' => [
             [
                 'key' => 'post_gekoppeld_fragment',
@@ -40,21 +41,15 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
 
     $fragment_ids = [];
     foreach ($articles->posts as $article_id) {
-        $linked_fragments = get_post_meta($article_id, 'post_gekoppeld_fragment', true);
-        foreach ((array) $linked_fragments as $fragment_id) {
-            $fragment_id = absint($fragment_id);
-            if ($fragment_id) {
-                $fragment_ids[] = $fragment_id;
-            }
-        }
+        $fragment_ids = array_merge($fragment_ids, (array) get_post_meta($article_id, 'post_gekoppeld_fragment', true));
     }
 
+    $fragment_ids = array_filter(wp_parse_id_list($fragment_ids));
     if (!$fragment_ids) {
         return;
     }
 
-    $excluded_ids = array_map('absint', (array) $query->get('post__not_in'));
-    $query->set('post__not_in', array_values(array_unique(array_merge($excluded_ids, $fragment_ids))));
+    $query->set('post__not_in', wp_parse_id_list(array_merge((array) $query->get('post__not_in'), $fragment_ids)));
 }
 
 add_action('pre_get_posts', 'zw_exclude_linked_fragments_from_search');
