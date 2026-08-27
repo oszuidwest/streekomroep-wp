@@ -37,11 +37,20 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
         return;
     }
 
-    update_meta_cache('post', $articles->posts);
+    global $wpdb;
+    $placeholders = implode(',', array_fill(0, count($articles->posts), '%d'));
+    // Fetch only this key; priming the meta cache would load every meta row of every matched article.
+    // phpcs:disable WordPress.DB.PreparedSQL -- table name comes from $wpdb, values go through placeholders.
+    $meta_values = $wpdb->get_col($wpdb->prepare(
+        'SELECT meta_value FROM ' . $wpdb->postmeta
+            . " WHERE meta_key = 'post_gekoppeld_fragment' AND post_id IN (" . $placeholders . ')',
+        $articles->posts
+    ));
+    // phpcs:enable WordPress.DB.PreparedSQL
 
     $fragment_ids = [];
-    foreach ($articles->posts as $article_id) {
-        $fragment_ids = array_merge($fragment_ids, (array) get_post_meta($article_id, 'post_gekoppeld_fragment', true));
+    foreach ($meta_values as $meta_value) {
+        $fragment_ids = array_merge($fragment_ids, (array) maybe_unserialize($meta_value));
     }
 
     $fragment_ids = array_filter(wp_parse_id_list($fragment_ids));

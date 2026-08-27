@@ -65,16 +65,40 @@ function is_admin(): bool
     return false;
 }
 
-function update_meta_cache(string $type, array $ids): void
-{
-    // Cache priming is a no-op outside WordPress.
-}
+// phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace, WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress core test double.
+// ACF stores the relationship as a serialized array in postmeta; the double serves it like MySQL would.
+$wpdb = new class {
+    public string $postmeta = 'wp_postmeta';
+    private array $requested_ids = [];
 
-function get_post_meta(int $post_id, string $key, bool $single)
-{
-    global $post_meta;
+    public function prepare(string $query, $args): string
+    {
+        $this->requested_ids = (array) $args;
 
-    return $post_meta[$post_id][$key] ?? '';
+        return $query;
+    }
+
+    public function get_col(string $query): array
+    {
+        global $post_meta;
+
+        $values = [];
+        foreach ($this->requested_ids as $post_id) {
+            if (isset($post_meta[$post_id]['post_gekoppeld_fragment'])) {
+                $values[] = serialize($post_meta[$post_id]['post_gekoppeld_fragment']);
+            }
+        }
+
+        return $values;
+    }
+};
+// phpcs:enable
+
+function maybe_unserialize($data)
+{
+    $unserialized = @unserialize((string) $data);
+
+    return $unserialized !== false ? $unserialized : $data;
 }
 
 function wp_parse_id_list($list): array
