@@ -21,11 +21,32 @@ final class ResponsiveImage
             $width,
             $width * 2,
         ];
-        $widths = array_unique($widths);
+
+        return self::srcsetForWidths($src, $widths, $width, $height);
+    }
+
+    /**
+     * Build imgproxy srcset candidates at the given widths, keeping the aspect
+     * ratio implied by $width x $height.
+     *
+     * @param \Timber\ImageInterface|string|null $src Image source accepted by zw_imgproxy().
+     * @param int[] $widths
+     */
+    public static function srcsetForWidths($src, array $widths, int $width, int $height): string
+    {
+        if ($width <= 0 || $height <= 0) {
+            return '';
+        }
+
+        $widths = array_unique(array_map('intval', $widths));
         sort($widths);
 
         $srcset = [];
         foreach ($widths as $srcsetWidth) {
+            if ($srcsetWidth <= 0) {
+                continue;
+            }
+
             $srcsetHeight = (int) round($srcsetWidth / $width * $height);
             $srcset[] = \zw_imgproxy($src, $srcsetWidth, $srcsetHeight) . ' ' . $srcsetWidth . 'w';
         }

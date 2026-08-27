@@ -155,6 +155,7 @@ require 'fragment-thumbnail.php';
  */
 Timber::$dirname = ['templates'];
 
+require_once 'lib/content_images.php';
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/tinymce.php';
