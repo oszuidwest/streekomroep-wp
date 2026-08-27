@@ -72,7 +72,8 @@ $check_hooks = function (string $label, string $html, array $attributes) use ($x
 };
 
 $check_byline = function (string $label, string $html, array $names) use ($xpath_for, &$failures) {
-    $links = $xpath_for($html)->query('//a');
+    $xpath = $xpath_for($html);
+    $links = $xpath->query('//a');
     if ($links->length !== count($names)) {
         $failures[] = sprintf('%s: expected %d author links, got %d', $label, count($names), $links->length);
     }
@@ -83,6 +84,11 @@ $check_byline = function (string $label, string $html, array $names) use ($xpath
         if ($link_text !== $name) {
             $failures[] = sprintf('%s: author %d is missing or out of order', $label, $index + 1);
         }
+    }
+
+    // Commas must attach to the preceding name; the flex gap already provides the space after.
+    if (preg_match('/\s,/', $xpath->document->textContent)) {
+        $failures[] = sprintf('%s: whitespace precedes a comma separator', $label);
     }
 };
 
