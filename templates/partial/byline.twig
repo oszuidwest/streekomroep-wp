@@ -15,7 +15,7 @@
                     <img src="{{ avatar|imgproxy(32, 32)|e('html_attr') }}"
                          srcset="{{ avatar|imgproxy(32 * 2, 32 * 2)|e('html_attr') }} 2x"
                          alt="" width="32" height="32"
-                         class="h-8 w-8 rounded-sm object-cover object-[50%_16%] transition-transform duration-200 hover:-translate-y-0.5">
+                         class="h-8 w-8 rounded-sm object-cover object-[50%_16%]">
                 {% endfor %}
             </span>
         {% endif %}
