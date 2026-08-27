@@ -406,6 +406,30 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     return $src[0];
 }
 
+/**
+ * Restores the default Timber user class for real accounts.
+ *
+ * Timber's Co-Authors Plus integration maps every WP_User to CoAuthorsPlusUser,
+ * whose avatar() looks up a post thumbnail by user ID. Regular accounts must
+ * keep resolving avatars through get_avatar_url() so zw_get_avatar_url() can
+ * serve their profile photo; guest authors keep the integration class and its
+ * featured-image avatar.
+ *
+ * @param string   $class Timber user class name.
+ * @param \WP_User $user  User being built.
+ * @return string User class name.
+ */
+function zw_timber_user_class($class, $user)
+{
+    if ($class !== \Timber\Integration\CoAuthorsPlus\CoAuthorsPlusUser::class) {
+        return $class;
+    }
+
+    return ($user->type ?? null) === 'guest-author' ? $class : \Timber\User::class;
+}
+
+add_filter('timber/user/class', 'zw_timber_user_class', 11, 2);
+
 add_filter('oembed_fetch_url', 'zw_oembed_fetch_url', 10, 3);
 
 function zw_oembed_fetch_url($provider, $url, $args)

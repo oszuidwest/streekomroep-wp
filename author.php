@@ -13,25 +13,20 @@ use Timber\Integration\CoAuthorsPlus\CoAuthorsPlusUser;
 use Timber\Timber;
 
 $context = Timber::context();
-$context['posts'] = Timber::get_posts();
 
+// Timber::context() resolves the author from the `author` query var, which is empty
+// for Co-Authors Plus guest authors (Timber then falls back to the current user).
+// Resolve from the queried object instead and overwrite unconditionally.
 $queried_author = get_queried_object();
-if ($queried_author instanceof WP_User) {
-    $author = Timber::get_user($queried_author);
-} elseif (
-    $queried_author instanceof stdClass
-    && isset($queried_author->type)
-    && $queried_author->type === 'guest-author'
-) {
+if (($queried_author->type ?? null) === 'guest-author') {
     $author = CoAuthorsPlusUser::from_guest_author($queried_author);
 } else {
-    $author_id = get_query_var('author');
-    $author = $author_id ? Timber::get_user((int) $author_id) : null;
+    $author = $queried_author instanceof WP_User ? Timber::get_user($queried_author) : null;
 }
 
+$context['author'] = $author;
 if ($author) {
-    $context['author'] = $author;
     $context['title'] = 'Artikelen geschreven door ' . $author->name();
 }
 
-Timber::render($author ? ['author.twig', 'archive.twig'] : ['archive.twig'], $context);
+Timber::render(['author.twig', 'archive.twig'], $context);

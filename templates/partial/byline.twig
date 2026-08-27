@@ -1,20 +1,17 @@
 {% set authors = post.authors|filter(author => author) %}
-{% set avatars = [] %}
-{% for author in authors %}
-    {% set avatar = author.avatar ?: (author.user_email ? function('get_avatar_url', author.user_email, {size: 128}) : null) %}
-    {% if avatar %}
-        {% set avatars = avatars|merge([avatar]) %}
-    {% endif %}
-{% endfor %}
 
 {% if authors %}
+    {% set avatars = authors
+        |map(author => author.avatar ?: (author.user_email ? function('get_avatar_url', author.user_email, {size: 64}) : null))
+        |filter(avatar => avatar) %}
+
     <div class="flex flex-wrap items-center gap-3 {{ class|default('')|e('html_attr') }}">
         {% if avatars %}
             <span class="flex shrink-0 gap-1" aria-hidden="true">
                 {% for avatar in avatars %}
-                    <img src="{{ avatar|imgproxy(32, 32)|e('html_attr') }}"
+                    <img src="{{ function('esc_url', avatar|imgproxy(32, 32)) }}"
                          srcset="{{ avatar|imgproxy(32 * 2, 32 * 2)|e('html_attr') }} 2x"
-                         alt="" width="32" height="32"
+                         alt="" width="32" height="32" loading="lazy"
                          class="h-8 w-8 rounded-sm object-cover object-[50%_16%]">
                 {% endfor %}
             </span>
@@ -22,10 +19,8 @@
 
         <span class="flex flex-wrap items-center gap-1 font-round text-xs font-black tracking-wide text-black uppercase dark:text-white">
             {% for author in authors %}
-                <a href="{{ author.link|e('html_attr') }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>
-                {% if not loop.last %}
-                    <span>{% if loop.revindex == 2 %}&amp;{% else %},{% endif %}</span>
-                {% endif %}
+                <a href="{{ function('esc_url', author.link) }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>
+                {% if not loop.last %}<span>{{ loop.revindex == 2 ? '&amp;' : ',' }}</span>{% endif %}
             {% endfor %}
         </span>
     </div>

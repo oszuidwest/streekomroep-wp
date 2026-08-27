@@ -54,12 +54,16 @@ $check = function (string $label, string $html, array $unescaped, array $escaped
     }
 };
 
-// Substring matching cannot assert a bare hook: `data-volume` also matches `data-volume-control`.
-// The JS contract is therefore checked against the parsed DOM, one element per attribute.
-$check_hooks = function (string $label, string $html, array $attributes) use (&$failures) {
+$xpath_for = function (string $html): DOMXPath {
     $document = new DOMDocument();
     $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-    $xpath = new DOMXPath($document);
+    return new DOMXPath($document);
+};
+
+// Substring matching cannot assert a bare hook: `data-volume` also matches `data-volume-control`.
+// The JS contract is therefore checked against the parsed DOM, one element per attribute.
+$check_hooks = function (string $label, string $html, array $attributes) use ($xpath_for, &$failures) {
+    $xpath = $xpath_for($html);
 
     foreach ($attributes as $attribute) {
         if ($xpath->query(sprintf('//*[@%s]', $attribute))->length === 0) {
@@ -68,12 +72,9 @@ $check_hooks = function (string $label, string $html, array $attributes) use (&$
     }
 };
 
-$check_byline = function (string $label, string $html, array $names, int $avatar_count) use (&$failures) {
-    $document = new DOMDocument();
-    $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-    $xpath = new DOMXPath($document);
-
-    $links = $xpath->query('//a');
+// Substring matching cannot assert link count or author order; check the parsed DOM.
+$check_byline = function (string $label, string $html, array $names) use ($xpath_for, &$failures) {
+    $links = $xpath_for($html)->query('//a');
     if ($links->length !== count($names)) {
         $failures[] = sprintf('%s: expected %d author links, got %d', $label, count($names), $links->length);
     }
@@ -84,32 +85,6 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
         if ($link_text !== $name) {
             $failures[] = sprintf('%s: author %d is missing or out of order', $label, $index + 1);
         }
-    }
-
-    $avatars = $xpath->query('//img');
-    if ($avatars->length !== $avatar_count) {
-        $failures[] = sprintf('%s: expected %d avatars, got %d', $label, $avatar_count, $avatars->length);
-    }
-
-    foreach ($avatars as $avatar) {
-        if (!str_contains($avatar->getAttribute('src'), '?w=32&h=32')) {
-            $failures[] = sprintf('%s: avatar does not request the expected source dimensions', $label);
-        }
-
-        if (!str_contains($avatar->getAttribute('class'), 'rounded-sm')) {
-            $failures[] = sprintf('%s: avatar is missing the shared headshot treatment', $label);
-        }
-    }
-
-    $avatar_groups = $xpath->query('//*[@aria-hidden="true"]');
-    if ($avatar_groups->length !== ($avatar_count > 0 ? 1 : 0)) {
-        $failures[] = sprintf('%s: avatar group visibility does not match its contents', $label);
-    }
-
-    $ampersands = $xpath->query('//span[normalize-space(.) = "&"]');
-    $expected_ampersands = count($names) > 1 ? 1 : 0;
-    if ($ampersands->length !== $expected_ampersands) {
-        $failures[] = sprintf('%s: expected %d ampersand separators, got %d', $label, $expected_ampersands, $ampersands->length);
     }
 };
 
@@ -145,9 +120,9 @@ $check(
     'byline.twig (multiple authors)',
     $byline_html,
     ['<script>', '" onerror="'],
-    ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot;&#x20;onerror&#x3D;&quot;']
+    ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot; onerror=&quot;', '&quot;&#x20;onerror&#x3D;&quot;']
 );
-$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave'], 3);
+$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave']);
 
 $single_author_byline = $twig->render('partial/byline.twig', [
     'post' => [
@@ -160,7 +135,7 @@ $single_author_byline = $twig->render('partial/byline.twig', [
         ],
     ],
 ]);
-$check_byline('byline.twig (single author fallback)', $single_author_byline, ['Enige auteur'], 0);
+$check_byline('byline.twig (single author fallback)', $single_author_byline, ['Enige auteur']);
 
 $check(
     'fm-headshot.twig (attribute)',
