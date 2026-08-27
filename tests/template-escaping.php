@@ -92,7 +92,7 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
     }
 
     foreach ($avatars as $avatar) {
-        if (!str_contains($avatar->getAttribute('src'), '?w=40&h=40')) {
+        if (!str_contains($avatar->getAttribute('src'), '?w=32&h=32')) {
             $failures[] = sprintf('%s: avatar does not request the expected source dimensions', $label);
         }
 
@@ -101,9 +101,9 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
         }
     }
 
-    $linked_avatars = $xpath->query('//a/img');
-    if ($linked_avatars->length !== $avatar_count) {
-        $failures[] = sprintf('%s: every avatar should be grouped with its author link', $label);
+    $avatar_groups = $xpath->query('//*[@aria-hidden="true"]');
+    if ($avatar_groups->length !== ($avatar_count > 0 ? 1 : 0)) {
+        $failures[] = sprintf('%s: avatar group visibility does not match its contents', $label);
     }
 
     $ampersands = $xpath->query('//span[normalize-space(.) = "&"]');
