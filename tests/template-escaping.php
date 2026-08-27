@@ -92,6 +92,13 @@ $attribute_payload = '" onerror="alert(1)';
 $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
 
+$check(
+    'index.twig (title)',
+    $twig->render('index.twig', ['title' => $text_payload, 'posts' => []]),
+    ['<img src=x'],
+    ['&lt;img src=x']
+);
+
 $byline_html = $twig->render('partial/byline.twig', [
     'post' => [
         'authors' => [
@@ -104,12 +111,17 @@ $byline_html = $twig->render('partial/byline.twig', [
                 'name' => 'Carol <script>',
                 'link' => 'https://example.test/author/carol',
                 'avatar' => null,
-                'user_email' => 'carol@example.test',
             ],
             [
                 'name' => 'Dave',
                 'link' => 'https://example.test/author/dave',
                 'avatar' => 'https://example.test/dave.jpg',
+            ],
+            [
+                'name' => 'Eve',
+                'link' => 'https://example.test/author/eve',
+                'avatar' => null,
+                'user_email' => 'eve@example.test',
             ],
         ],
     ],
@@ -122,7 +134,15 @@ $check(
     ['<script>', '" onerror="'],
     ['Alice &amp; Bob', 'Carol &lt;script&gt;', '&quot; onerror=&quot;', '&quot;&#x20;onerror&#x3D;&quot;']
 );
-$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave']);
+$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave', 'Eve']);
+
+$avatar_slots = $xpath_for($byline_html)->query('//span[@aria-hidden="true"]/*');
+if (
+    $avatar_slots->length !== 4
+    || array_map(fn ($index) => $avatar_slots->item($index)->nodeName, range(0, 3)) !== ['img', 'span', 'img', 'img']
+) {
+    $failures[] = 'byline.twig (multiple authors): avatar slots do not preserve author order';
+}
 
 $single_author_byline = $twig->render('partial/byline.twig', [
     'post' => [
