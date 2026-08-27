@@ -24,7 +24,7 @@
             {% for author in authors %}
                 <a href="{{ author.link|e('html_attr') }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>
                 {% if not loop.last %}
-                    <span class="text-gray-400">{% if loop.revindex == 2 %}&amp;{% else %},{% endif %}</span>
+                    <span>{% if loop.revindex == 2 %}&amp;{% else %},{% endif %}</span>
                 {% endif %}
             {% endfor %}
         </span>
