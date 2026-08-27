@@ -79,7 +79,9 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
     }
 
     foreach ($names as $index => $name) {
-        if (!$links->item($index) || $links->item($index)->textContent !== $name) {
+        $link_text = $links->item($index) ? trim((string) preg_replace('/\s+/', ' ', $links->item($index)->textContent)) : '';
+
+        if ($link_text !== $name) {
             $failures[] = sprintf('%s: author %d is missing or out of order', $label, $index + 1);
         }
     }
@@ -99,9 +101,15 @@ $check_byline = function (string $label, string $html, array $names, int $avatar
         }
     }
 
-    $avatar_groups = $xpath->query('//*[@aria-hidden="true"]');
-    if ($avatar_groups->length !== ($avatar_count > 0 ? 1 : 0)) {
-        $failures[] = sprintf('%s: avatar group visibility does not match its contents', $label);
+    $linked_avatars = $xpath->query('//a/img');
+    if ($linked_avatars->length !== $avatar_count) {
+        $failures[] = sprintf('%s: every avatar should be grouped with its author link', $label);
+    }
+
+    $ampersands = $xpath->query('//span[normalize-space(.) = "&"]');
+    $expected_ampersands = count($names) > 1 ? 1 : 0;
+    if ($ampersands->length !== $expected_ampersands) {
+        $failures[] = sprintf('%s: expected %d ampersand separators, got %d', $label, $expected_ampersands, $ampersands->length);
     }
 };
 

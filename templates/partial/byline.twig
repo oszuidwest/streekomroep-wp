@@ -1,29 +1,22 @@
 {% set authors = post.authors|filter(author => author) %}
-{% set avatars = [] %}
-{% for author in authors %}
-    {% set avatar = author.avatar ?: (author.user_email ? function('get_avatar_url', author.user_email, {size: 192}) : null) %}
-    {% if avatar %}
-        {% set avatars = avatars|merge([avatar]) %}
-    {% endif %}
-{% endfor %}
 
 {% if authors %}
-    <div class="flex items-center gap-2.5 md:gap-3 {{ class|default('')|e('html_attr') }}">
-        {% if avatars %}
-            <span class="flex shrink-0 -space-x-1" aria-hidden="true">
-                {% for avatar in avatars %}
+    <div class="flex flex-wrap items-center gap-2.5 md:gap-3 {{ class|default('')|e('html_attr') }}">
+        {% for author in authors %}
+            {% set avatar = author.avatar ?: (author.user_email ? function('get_avatar_url', author.user_email, {size: 192}) : null) %}
+            <a href="{{ author.link|e('html_attr') }}"
+               class="group flex items-center gap-2 whitespace-nowrap rounded-sm font-round text-xs font-black tracking-wide text-black uppercase transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze dark:text-white">
+                {% if avatar %}
                     <img src="{{ avatar|imgproxy(40, 40)|e('html_attr') }}"
                          srcset="{{ avatar|imgproxy(40 * 2, 40 * 2)|e('html_attr') }} 2x"
-                         alt=""
-                         class="relative h-8 w-8 rounded-sm object-cover object-[50%_16%] ring-2 ring-groen transition-transform duration-200 first:z-10 hover:z-20 hover:-translate-y-0.5 md:h-10 md:w-10">
-                {% endfor %}
-            </span>
-        {% endif %}
-
-        <span class="min-w-0 font-round text-xs font-black tracking-wide text-black uppercase dark:text-white">
-            {% for author in authors %}
-                <a href="{{ author.link|e('html_attr') }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>{% if not loop.last %}{% if loop.revindex == 2 %} en {% else %}, {% endif %}{% endif %}
-            {% endfor %}
-        </span>
+                         alt="" width="40" height="40"
+                         class="h-8 w-8 shrink-0 rounded-sm object-cover object-[50%_16%] transition-transform duration-200 group-hover:-translate-y-0.5 md:h-10 md:w-10">
+                {% endif %}
+                <span>{{ author.name|e }}</span>
+            </a>
+            {% if not loop.last %}
+                <span class="font-round text-xs font-black text-gray-400">{% if loop.revindex == 2 %}&amp;{% else %},{% endif %}</span>
+            {% endif %}
+        {% endfor %}
     </div>
 {% endif %}
