@@ -1,13 +1,23 @@
 <div class="max-w-960 mx-auto my-4 px-4">
     <div class="grid sm:grid-cols-2 gap-4">
-        <a href="{{ block.links.fm.link }}" class="block bg-roze p-4 text-white rounded-sm">
-            <span class="block font-round font-extrabold uppercase text-sm">Nu op Zuidwest FM</span>
-            <span class="block font-black text-2xl">{{ block.fm.name }}</span>
+        <a href="{{ block.links.fm.link }}" class="group flex items-center gap-4 bg-roze p-4 text-white rounded-sm">
+            <span class="min-w-0 flex-1">
+                <span class="block font-round font-extrabold uppercase text-sm">Nu op Zuidwest FM</span>
+                <span class="block font-black text-2xl">{{ block.fm.name }}</span>
+            </span>
+            <span class="grid size-11 flex-none place-items-center rounded-sm bg-white/25 transition group-hover:bg-white/40">
+                <span class="play-button-icon ml-0.5">{{ icon('icon-play_arrow') }}</span>
+            </span>
         </a>
 
-        <a href="{{ block.links.tv.link }}" class="block bg-blauw p-4 text-white rounded-sm">
-            <span class="block font-round font-extrabold uppercase text-sm">Vandaag op Zuidwest TV</span>
-            <span class="block font-black text-2xl">{{ block.tv|join(', ', ' en ') }}</span>
+        <a href="{{ block.links.tv.link }}" class="group flex items-center gap-4 bg-blauw p-4 text-white rounded-sm">
+            <span class="min-w-0 flex-1">
+                <span class="block font-round font-extrabold uppercase text-sm">Vandaag op Zuidwest TV</span>
+                <span class="block font-black text-2xl">{{ block.tv|join(', ', ' en ') }}</span>
+            </span>
+            <span class="grid size-11 flex-none place-items-center rounded-sm bg-white/25 transition group-hover:bg-white/40">
+                <span class="play-button-icon ml-0.5">{{ icon('icon-play_arrow') }}</span>
+            </span>
         </a>
     </div>
 </div>
