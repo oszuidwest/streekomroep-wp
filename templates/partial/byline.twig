@@ -19,7 +19,7 @@
 
         <span class="flex flex-wrap items-center gap-1 font-round text-xs font-black tracking-wide text-black uppercase dark:text-white">
             {% for author in authors %}
-                <a href="{{ function('esc_url', author.link) }}" class="rounded-sm transition-colors duration-200 hover:text-roze focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>
+                <a href="{{ function('esc_url', author.link) }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>
                 {% if not loop.last %}<span>{{ loop.revindex == 2 ? '&amp;' : ',' }}</span>{% endif %}
             {% endfor %}
         </span>
