@@ -34,7 +34,7 @@ body blockquote {
 
 body blockquote p:first-of-type::before,
 body blockquote p:last-of-type::after {
-    content: none !important;
+    content: none;
 }
 
 body blockquote::before,
