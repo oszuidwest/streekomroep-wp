@@ -8,6 +8,11 @@
     @apply block w-6 h-6;
 }
 
+/* Card photo hover: lighten the image; needs a .group ancestor on the card link */
+.zw-thumb-hover {
+    @apply transition-[filter] group-hover:brightness-110;
+}
+
 /* Prose component styles */
 .zw-prose p:first-child {
     @apply font-bold;

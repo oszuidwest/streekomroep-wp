@@ -16,12 +16,12 @@
     {% endif %}
 {% endmacro %}
 
-{# widths: explicit candidate widths, for media-gated sources whose slot never shrinks below the default half-width candidate. #}
-{% macro source(src, width, height, sizes, media, widths = null) %}
+{# A media-gated source has a viewport floor, so the default half-width candidate is never picked; emit 1x and 2x only. #}
+{% macro source(src, width, height, sizes, media) %}
     {% set width = width|round %}
     {% set height = height|round %}
     {% if width > 0 and height > 0 %}
-        {% set srcset = widths ? responsive_image_srcset_widths(src, widths, width, height) : responsive_image_srcset(src, width, height) %}
+        {% set srcset = responsive_image_srcset_widths(src, [width, width * 2], width, height) %}
         <source media="{{ media|e('html_attr') }}"
                 srcset="{{ srcset|e('html_attr') }}"
                 sizes="{{ sizes|e('html_attr') }}">

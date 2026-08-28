@@ -7,15 +7,13 @@
                 {% set thumbnail = post.thumbnail %}
                 <a class="group block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
                     <picture>
-                        {# Desktop: 5/4. The 640px media query must match the sm:aspect-[5/4] breakpoint on the anchor;
-                           464px is the widest slot (2 columns in the 960px container). Its narrowest slot is 304px, so 232w is never picked. #}
+                        {# Desktop: 5/4; the media query mirrors the sm:aspect breakpoint on the anchor. #}
                         {{ responsive.source(
                             src: thumbnail.src,
                             width: 464,
                             height: 464 / 5 * 4,
                             sizes: '(min-width: 960px) 464px, calc((100vw - 2rem) / 2)',
                             media: '(min-width: 640px)',
-                            widths: [464, 928],
                         ) }}
                         {# Mobile: 16/10, full width. #}
                         {{ responsive.render(
@@ -24,7 +22,7 @@
                             height: 640 / 16 * 10,
                             sizes: '100vw',
                             alt: thumbnail.alt|default(post.title),
-                            class: 'object-cover w-full h-full absolute inset-0 transition-[filter] group-hover:brightness-110',
+                            class: 'object-cover w-full h-full absolute inset-0 zw-thumb-hover',
                             loading: 'eager',
                         ) }}
                     </picture>
