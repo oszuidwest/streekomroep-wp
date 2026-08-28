@@ -15,17 +15,6 @@ document.querySelectorAll('[data-theme]').forEach(function (button) {
 });
 initDarkMode();
 
-// Reveal the collapsed items inside an expandable block, then drop the button.
-document.querySelectorAll('[data-expand]').forEach(function (button) {
-    button.onclick = function () {
-        const scope = button.closest('[data-collapsed]');
-        if (scope) {
-            scope.removeAttribute('data-collapsed');
-        }
-        button.remove();
-    };
-});
-
 // Share paging and disabled-state handling across every horizontal carousel.
 const SCROLLER_TOLERANCE = 4;
 document.querySelectorAll('[data-scroller]').forEach(function (scroller) {
