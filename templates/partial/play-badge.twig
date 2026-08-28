@@ -1,0 +1,7 @@
+{# White capsule with play disc and optional duration, shown over video thumbnails. #}
+<div class="absolute left-2 top-2 inline-flex items-center rounded-full bg-white/95 p-1 shadow-md{% if duration %} gap-1.5 pr-2.5{% endif %}">
+    <span class="grid size-6 place-items-center rounded-full bg-groen text-white [&_svg]:size-4">{{ icon('icon-play_arrow') }}</span>
+    {% if duration %}
+        <span class="text-sm font-black leading-none text-gray-900 tabular-nums">{{ duration|format_duration }}</span>
+    {% endif %}
+</div>

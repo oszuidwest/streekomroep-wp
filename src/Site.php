@@ -117,6 +117,17 @@ class Site extends \Timber\Site
             . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur');
     }
 
+    /** Formats a duration in seconds as m:ss or h:mm:ss for video badges. */
+    public function format_duration($seconds)
+    {
+        $seconds = (int) $seconds;
+        if ($seconds >= 3600) {
+            return sprintf('%d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60);
+        }
+
+        return sprintf('%d:%02d', intdiv($seconds, 60), $seconds % 60);
+    }
+
     public function get_icon($name)
     {
         static $cache = [];
@@ -153,6 +164,7 @@ class Site extends \Timber\Site
         });
 
         $twig->addFilter(new \Twig\TwigFilter('format_schedule_compact', [$this, 'format_schedule_compact']));
+        $twig->addFilter(new \Twig\TwigFilter('format_duration', [$this, 'format_duration']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));
