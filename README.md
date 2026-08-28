@@ -50,11 +50,12 @@ Run `npm run build:tailwind` to compile minified CSS from `assets/` into `dist/`
 
 ### Quality checks
 
-There is no dedicated automated test suite. Run the baseline checks before submitting changes:
+Run the baseline checks and lightweight template regression suite before submitting changes:
 
 ```bash
 vendor/bin/phpcs --standard=phpcs.xml .
 composer lint:twig
+composer test:templates
 git diff --check
 ```
 
@@ -79,6 +80,7 @@ WordPress template entrypoints live in the repository root and render views from
 These optional plugins complement the theme:
 
 - [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.x
+- [Co-Authors Plus](https://wordpress.org/plugins/co-authors-plus/) 4.1.x adds multi-author bylines and guest-author profiles.
 - [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) 6.1.x
 - [Disable Comments](https://wordpress.org/plugins/disable-comments/) 2.7.x
 

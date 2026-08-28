@@ -25,6 +25,7 @@ Install these before activating the theme:
 These optional plugins complement the theme:
 
 - Classic Editor 1.7.x: [free download](https://wordpress.org/plugins/classic-editor/)
+- Co-Authors Plus 4.1.x: [free download](https://wordpress.org/plugins/co-authors-plus/) for multi-author bylines and guest-author profiles
 - Contact Form 7 6.1.x: [free download](https://wordpress.org/plugins/contact-form-7/)
 - Disable Comments 2.7.x: [free download](https://wordpress.org/plugins/disable-comments/)
 

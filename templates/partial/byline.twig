@@ -1,0 +1,31 @@
+{# post.authors runs get_coauthors() on every call, so resolve it once. #}
+{% set authors = post.authors|filter(author => author) %}
+
+{% if authors %}
+    {% set avatars = authors|map(author => author.avatar) %}
+
+    <div class="flex flex-wrap items-center gap-3 {{ class|e('html_attr') }}">
+        {% if avatars|filter(avatar => avatar) %}
+            <span class="flex shrink-0 gap-1" aria-hidden="true">
+                {% for avatar in avatars %}
+                    {% if avatar %}
+                        <img src="{{ function('esc_url', avatar|imgproxy(32, 32)) }}"
+                             srcset="{{ function('esc_url', avatar|imgproxy(32 * 2, 32 * 2)) }} 2x"
+                             alt="" width="32" height="32" loading="lazy"
+                             class="h-8 w-8 rounded-sm object-cover object-[50%_16%]">
+                    {% else %}
+                        <span class="h-8 w-8"></span>
+                    {% endif %}
+                {% endfor %}
+            </span>
+        {% endif %}
+
+        <span class="flex flex-wrap items-center gap-1 font-round text-xs font-black tracking-wide text-black uppercase dark:text-white">
+            {% for author in authors %}
+                {# The comma shares a flex item with the name so the gap cannot open up before it. #}
+                <span><a href="{{ function('esc_url', author.link) }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-roze">{{ author.name|e }}</a>{{ not loop.last and loop.revindex > 2 ? ',' }}</span>
+                {% if loop.revindex == 2 %}<span>&amp;</span>{% endif %}
+            {% endfor %}
+        </span>
+    </div>
+{% endif %}

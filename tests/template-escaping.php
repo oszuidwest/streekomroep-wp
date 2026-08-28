@@ -1,17 +1,22 @@
 <?php
 
 /**
- * Regression coverage for explicit escaping in FM live-page templates.
+ * Regression coverage for explicit escaping in frontend templates.
  *
  * Timber autoescaping is disabled, so every covered sink must escape plain text itself.
- * Run with: composer test:templates
  */
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Fixed safe URLs need attribute escaping only; URL validation is outside this test.
+// Mirrors WP's protocol allowlist so `javascript:` assertions prove the template calls esc_url;
+// they exercise this stub, not WP itself.
 function esc_url(string $url): string
 {
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if ($scheme === false || (is_string($scheme) && !in_array(strtolower($scheme), ['http', 'https'], true))) {
+        return '';
+    }
+
     return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
 }
 
@@ -49,12 +54,15 @@ $check = function (string $label, string $html, array $unescaped, array $escaped
     }
 };
 
-// Substring matching cannot assert a bare hook: `data-volume` also matches `data-volume-control`.
-// The JS contract is therefore checked against the parsed DOM, one element per attribute.
-$check_hooks = function (string $label, string $html, array $attributes) use (&$failures) {
+$xpath_for = function (string $html): DOMXPath {
     $document = new DOMDocument();
     $document->loadHTML($html, LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-    $xpath = new DOMXPath($document);
+    return new DOMXPath($document);
+};
+
+// DOM queries distinguish data-volume from data-volume-control.
+$check_hooks = function (string $label, string $html, array $attributes) use ($xpath_for, &$failures) {
+    $xpath = $xpath_for($html);
 
     foreach ($attributes as $attribute) {
         if ($xpath->query(sprintf('//*[@%s]', $attribute))->length === 0) {
@@ -63,9 +71,114 @@ $check_hooks = function (string $label, string $html, array $attributes) use (&$
     }
 };
 
+$check_byline = function (string $label, string $html, array $names) use ($xpath_for, &$failures) {
+    $xpath = $xpath_for($html);
+    $links = $xpath->query('//a');
+    if ($links->length !== count($names)) {
+        $failures[] = sprintf('%s: expected %d author links, got %d', $label, count($names), $links->length);
+    }
+
+    foreach ($names as $index => $name) {
+        $link_text = $links->item($index) ? trim((string) preg_replace('/\s+/', ' ', $links->item($index)->textContent)) : '';
+
+        if ($link_text !== $name) {
+            $failures[] = sprintf('%s: author %d is missing or out of order', $label, $index + 1);
+        }
+    }
+
+    // Commas must attach to the preceding name; the flex gap already provides the space after.
+    if (preg_match('/\s,/', $xpath->document->textContent)) {
+        $failures[] = sprintf('%s: whitespace precedes a comma separator', $label);
+    }
+};
+
 $attribute_payload = '" onerror="alert(1)';
 $text_payload = '<img src=x onerror=alert(1)>';
 $script_payload = '<script>alert(2)</script>';
+$protocol_payload = 'javascript:alert(3)';
+
+$check(
+    'author.twig',
+    $twig->render('author.twig', [
+        'author' => [
+            'name' => $text_payload,
+            'description' => $script_payload,
+            'avatar' => 'https://example.test/author.jpg' . $attribute_payload,
+        ],
+        'posts' => [],
+    ]),
+    [$text_payload, $script_payload, '" onerror="'],
+    ['&lt;img', '&lt;script&gt;', '&quot; onerror=&quot;']
+);
+
+$check(
+    'index.twig (title)',
+    $twig->render('index.twig', ['title' => $text_payload, 'posts' => []]),
+    ['<img src=x'],
+    ['&lt;img src=x']
+);
+
+$byline_html = $twig->render('partial/byline.twig', [
+    'post' => [
+        'authors' => [
+            [
+                'name' => 'Alice & Bob',
+                'link' => 'https://example.test/author/alice' . $attribute_payload,
+                'avatar' => 'https://example.test/alice.jpg' . $attribute_payload,
+            ],
+            [
+                'name' => 'Carol <script>',
+                'link' => 'https://example.test/author/carol',
+                'avatar' => null,
+            ],
+            [
+                'name' => 'Dave',
+                'link' => 'https://example.test/author/dave',
+                'avatar' => $protocol_payload,
+            ],
+            [
+                'name' => 'Eve',
+                'link' => 'https://example.test/author/eve',
+                'avatar' => null,
+            ],
+        ],
+    ],
+    'class' => 'mb-6' . $attribute_payload,
+]);
+
+$check(
+    'byline.twig (multiple authors)',
+    $byline_html,
+    ['<script>', '" onerror="', 'javascript:'],
+    [
+        'Alice &amp; Bob',
+        'Carol &lt;script&gt;',
+        '&quot; onerror=&quot;',
+        '&quot;&#x20;onerror&#x3D;&quot;',
+    ]
+);
+$check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave', 'Eve']);
+
+$avatar_slots = $xpath_for($byline_html)->query('//span[@aria-hidden="true"]/*');
+if (
+    $avatar_slots->length !== 4
+    || array_map(fn ($index) => $avatar_slots->item($index)->nodeName, range(0, 3)) !== ['img', 'span', 'img', 'span']
+) {
+    $failures[] = 'byline.twig (multiple authors): avatar slots do not preserve author order';
+}
+
+$single_author_byline = $twig->render('partial/byline.twig', [
+    'post' => [
+        'authors' => [
+            [
+                'name' => 'Enige auteur',
+                'link' => 'https://example.test/author/enige-auteur',
+                'avatar' => null,
+            ],
+        ],
+    ],
+]);
+$check_byline('byline.twig (single author fallback)', $single_author_byline, ['Enige auteur']);
 
 $check(
     'fm-headshot.twig (attribute)',
@@ -161,4 +274,4 @@ if ($failures) {
     exit(1);
 }
 
-echo 'OK: FM template escaping holds for all payloads' . PHP_EOL;
+echo 'OK: template escaping holds for all payloads' . PHP_EOL;

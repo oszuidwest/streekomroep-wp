@@ -11,8 +11,13 @@
     }
   ],
   "scripts": {
+    "test": [
+      "@test:templates",
+      "@test:search"
+    ],
     "lint:twig": "twig-cs-fixer lint",
     "fix:twig": "twig-cs-fixer lint --fix",
+    "test:search": "php tests/search-deduplication.php",
     "test:templates": "php tests/template-escaping.php"
   },
   "repositories": [
