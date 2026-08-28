@@ -1,0 +1,6 @@
+{% if post.type == 'fragment' or (post.type == 'post' and post.meta('post_gekoppeld_fragment') and post.meta('post_fragment_is_featured')) %}
+    {# Prevent Safari from shifting the icon during filter transitions. #}
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu w-8 h-8 bg-groen rounded-full ring-2 ring-white flex items-center justify-center">
+        <span class="play-button-icon text-white">{{ icon('icon-play_arrow') }}</span>
+    </div>
+{% endif %}

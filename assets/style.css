@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
-/* Load Tailwind config */
 @config "../tailwind.config.js";
 
-/* Play icon sizing inside thumbnail button */
 .play-button-icon > svg {
     @apply block w-6 h-6;
+}
+
+/* Keep the filter active so overlaid controls remain pixel-stable. */
+.zw-thumb-hover {
+    @apply brightness-100 transition-[filter] group-hover:brightness-110;
 }
 
 /* Prose component styles */
@@ -68,17 +71,6 @@
 
 .prose .video-js video {
     margin: 0;
-}
-
-/* Top stories: groene gloed vanuit de rechterhoek met de schuine merkstrepen als echo.
-   Ligt onder de zwarte tekstgradient in blok_top_stories.twig; de mask laat de laag
-   naar boven toe verlopen zodat alleen de onderste helft van de foto meekleurt. */
-.zw-story-glow {
-    background:
-        repeating-linear-gradient(115deg, rgb(255 255 255 / 0.07) 0 30px, transparent 30px 64px),
-        radial-gradient(85% 95% at 88% 102%, rgb(0 222 1 / 0.42), rgb(0 222 1 / 0.14) 45%, transparent 68%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 34%, #000 80%);
-    mask-image: linear-gradient(to bottom, transparent 34%, #000 80%);
 }
 
 /* Contact Form 7 styles */

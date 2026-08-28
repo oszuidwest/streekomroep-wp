@@ -1,42 +1,31 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
-{% set showPlayButton = false %}
-{% if post.type == 'fragment' %}
-    {% set showPlayButton = true %}
-{% elseif post.type == 'post' and post.meta('post_gekoppeld_fragment') and post.meta('post_fragment_is_featured') %}
-    {% set showPlayButton = true %}
-{% endif %}
+{% set thumbnail = post.thumbnail %}
 {% set width = width|default(228) %}
-{# The largest desktop slot in sizes is 456px (2-column grid at 960-1023px), so srcset candidates must span that slot. #}
+{# Cover the 456px desktop grid slot. #}
 {% set desktop_width = max(width, 456) %}
 {% set desktop_sizes = '(min-width: 1024px) ' ~ width ~ 'px, (min-width: 960px) 456px, (min-width: 640px) calc((100vw - 3rem) / 2), 33vw' %}
-<div class="aspect-[4/3] sm:aspect-video relative">
+<div class="aspect-[4/3] sm:aspect-video relative rounded-sm overflow-hidden">
     <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
-        {% if post.thumbnail %}
+        {% if thumbnail %}
             <picture>
-                {# Desktop: 16:9 #}
                 {{ responsive.source(
-                    src: post.thumbnail.src,
+                    src: thumbnail.src,
                     width: desktop_width,
                     height: desktop_width / 16 * 9,
                     sizes: desktop_sizes,
                     media: '(min-width: 640px)',
                 ) }}
-                {# Mobile: 4:3 #}
                 {{ responsive.render(
-                    src: post.thumbnail.src,
+                    src: thumbnail.src,
                     width: width,
                     height: width / 4 * 3,
                     sizes: '33vw',
-                    alt: post.thumbnail.alt|default(post.title),
-                    class: 'w-full h-full object-cover',
+                    alt: thumbnail.alt|default(post.title),
+                    class: 'w-full h-full object-cover zw-thumb-hover',
                 ) }}
             </picture>
         {% endif %}
-        {% if showPlayButton %}
-            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-groen rounded-full ring-2 ring-white flex items-center justify-center">
-                <span class="play-button-icon ml-0.5 text-white">{{ icon('icon-play_arrow') }}</span>
-            </div>
-        {% endif %}
+        {{ include('partial/play-button.twig') }}
     </div>
 </div>

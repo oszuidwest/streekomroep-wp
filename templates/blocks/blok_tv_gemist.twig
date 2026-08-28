@@ -6,36 +6,37 @@
             <h2 class="font-bold text-3xl pb-4">{{ block.tekst_boven_videos }}</h2>
         {% endif %}
 
-        <div class="grid sm:grid-cols-2 gap-4">
+        <div class="grid sm:grid-cols-2 gap-x-4 gap-y-5">
             {% for item in block.videos %}
-                <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
-                    {{ responsive.render(
-                        src: item.video.thumbnail,
-                        width: 330,
-                        height: 168,
-                        sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
-                        alt: item.show.title ~ ' - ' ~ item.video.name,
-                        class: 'w-full',
-                    ) }}
-                    <div class="sm:mt-4 md:m-0">
-                        <h3 class="font-bold">{{ item.show.title }}</h3>
-                        <p>{{ item.video.name }}</p>
+                <a href="{{ item.show.link }}?v={{ item.video.id }}"
+                   class="group grid sm:block md:grid grid-cols-2 gap-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blauw">
+                    <div class="relative overflow-hidden rounded-sm bg-gray-900">
+                        {{ responsive.render(
+                            src: item.video.thumbnail,
+                            width: 330,
+                            height: 168,
+                            sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
+                            alt: item.show.title ~ ' - ' ~ item.video.name,
+                            class: 'w-full transition-transform duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100',
+                        ) }}
+                        {{ include('partial/play-badge.twig', {duration: item.video.duration}) }}
+                    </div>
+                    <div class="self-center sm:mt-2 md:m-0">
+                        <h3 class="font-bold leading-snug transition-colors group-hover:text-blauw">{{ item.show.title }}</h3>
+                        <p class="mt-0.5 text-sm text-gray-300">{{ item.video.name }}</p>
                     </div>
                 </a>
             {% endfor %}
         </div>
 
-        <p class="text-sm tracking-wide uppercase font-bold font-round text-gray-400 mt-4">Of kijk een nieuwe aflevering van:</p>
+        <p class="mt-6 text-xs tracking-wider uppercase font-bold font-round text-gray-400">Meer van ZuidWest TV</p>
         <ul class="flex flex-wrap gap-2 mt-2 items-center">
             {% for item in block.shows %}
                 <li>
                     <a href="{{ item.show.link }}"
-                       class="block py-1 px-2 rounded-sm text-sm bg-gray-700 text-gray-100 hover:bg-gray-600 transition">{{ item.show.title }}</a>
+                       class="block py-1 px-2 rounded-sm text-sm border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white transition">{{ item.show.title }}</a>
                 </li>
             {% endfor %}
-            {% if block.shows is not empty %}
-                <li class="mx-1 h-5 border-l border-gray-600 dark:border-gray-500" aria-hidden="true" role="presentation"></li>
-            {% endif %}
             <li>
                 <a href="{{ function('get_post_type_archive_link', 'tv') }}"
                    class="inline-flex items-center gap-1 py-1 pl-2 pr-1.5 rounded-sm text-sm bg-blauw text-white hover:bg-blauw/80 transition">
