@@ -34,7 +34,7 @@
             </picture>
         {% endif %}
         {% if showPlayButton %}
-            {% set fragment_id = post.type == 'fragment' ? post.id : post.meta('post_gekoppeld_fragment') %}
+            {% set fragment_id = post.type == 'fragment' ? post.id : post.meta('post_gekoppeld_fragment', {format_value: false})|first %}
             {{ include('partial/play-badge.twig', {duration: fragment_id ? function('get_field', 'fragment_duur', fragment_id, false) : null}) }}
         {% endif %}
     </div>
