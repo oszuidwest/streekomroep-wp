@@ -167,6 +167,7 @@ class Site extends \Timber\Site
         $twig->addFilter(new \Twig\TwigFilter('format_duration', [$this, 'format_duration']));
         $twig->addFunction(new \Twig\TwigFunction('icon', [$this, 'get_icon']));
         $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset', [ResponsiveImage::class, 'srcset']));
+        $twig->addFunction(new \Twig\TwigFunction('responsive_image_srcset_widths', [ResponsiveImage::class, 'srcsetForWidths']));
         $twig->addFilter(new \Twig\TwigFilter('imgproxy', [$this, 'imgproxy']));
         $twig->addFilter(new \Twig\TwigFilter('rows', 'zw_acf_rows'));
         $twig->addFilter(new \Twig\TwigFilter('plain', 'zw_plain_text'));

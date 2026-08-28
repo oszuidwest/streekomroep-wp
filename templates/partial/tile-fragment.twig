@@ -1,8 +1,6 @@
 <article data-post-id="{{ post.id }}">
     <a class="group block" href="{{ post.link }}">
-    <div class="transition group-hover:opacity-90">
-        {{ include('partial/post-thumbnail.twig', {post: post, sizes: sizes|default(null)}) }}
-    </div>
+    {{ include('partial/post-thumbnail.twig', {post: post, sizes: sizes|default(null)}) }}
     <div class="pt-2">
         <div class="flex gap-2">
             {% if type_badge ?? true %}

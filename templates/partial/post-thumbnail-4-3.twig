@@ -21,6 +21,7 @@
                     height: desktop_width / 16 * 9,
                     sizes: desktop_sizes,
                     media: '(min-width: 640px)',
+                    widths: [desktop_width, desktop_width * 2],
                 ) }}
                 {# Mobile: 4:3 #}
                 {{ responsive.render(
@@ -29,7 +30,7 @@
                     height: width / 4 * 3,
                     sizes: '33vw',
                     alt: post.thumbnail.alt|default(post.title),
-                    class: 'w-full h-full object-cover',
+                    class: 'w-full h-full object-cover transition-opacity group-hover:opacity-90',
                 ) }}
             </picture>
         {% endif %}
