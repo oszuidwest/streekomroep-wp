@@ -4,7 +4,7 @@
 {% if is_fragment or (post.type == 'post' and post.meta('post_gekoppeld_fragment') and post.meta('post_fragment_is_featured')) %}
     {% set fragment_id = is_fragment ? post.id : post.meta('post_gekoppeld_fragment', {format_value: false})|first %}
     {% set duration = fragment_id ? function('get_field', 'fragment_duur', fragment_id, false) : null %}
-    <div class="absolute right-2 {{ position|default('bottom') == 'top' ? 'top-2' : 'bottom-2' }} inline-flex items-center rounded-md bg-black/75 px-1 py-0.5 text-white{% if duration %} gap-0.5 pr-1.5{% endif %}">
+    <div class="absolute right-2 {{ position|default('bottom') == 'top' ? 'top-2' : 'bottom-2' }} inline-flex items-center rounded-md bg-black/60 px-1 py-0.5 text-white{% if duration %} gap-0.5 pr-1.5{% endif %}">
         <span class="[&_svg]:size-4" aria-hidden="true">{{ icon('icon-play_arrow') }}</span>
         {% if duration %}
             <span class="text-xs font-bold leading-none tabular-nums">{{ duration|format_duration }}</span>
