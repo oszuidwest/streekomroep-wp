@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
         {% for post in block.posts %}
             <article class="flex flex-col" data-post-id="{{ post.id }}">
-                <a class="block relative aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
+                <a class="block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
                     {{ responsive.render(
                         src: post.thumbnail.src,
                         width: 640,
