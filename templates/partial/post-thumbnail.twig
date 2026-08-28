@@ -1,11 +1,5 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
-{% set showPlayButton = false %}
-{% if post.type == 'fragment' %}
-    {% set showPlayButton = true %}
-{% elseif post.type == 'post' and post.meta('post_gekoppeld_fragment') and post.meta('post_fragment_is_featured') %}
-    {% set showPlayButton = true %}
-{% endif %}
 {% set width = width|default(228) %}
 {% set sizes = sizes|default('(min-width: 768px) 220px, 50vw') %}
 <div class="aspect-video relative">
@@ -20,9 +14,6 @@
                 class: 'w-full h-full object-cover',
             ) }}
         {% endif %}
-        {% if showPlayButton %}
-            {% set fragment_id = post.type == 'fragment' ? post.id : post.meta('post_gekoppeld_fragment', {format_value: false})|first %}
-            {{ include('partial/play-badge.twig', {duration: fragment_id ? function('get_field', 'fragment_duur', fragment_id, false) : null}) }}
-        {% endif %}
+        {{ include('partial/play-badge.twig') }}
     </div>
 </div>
