@@ -2,6 +2,6 @@
 
 {% if post.meta('fragment_type') == 'Video' %}
     {{ badge.render('Video', 'blauw') }}
-{% else %}
+{% elseif post.meta('fragment_type') == 'Audio' %}
     {{ badge.render('Audio', 'roze') }}
 {% endif %}
