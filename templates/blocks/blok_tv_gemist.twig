@@ -1,7 +1,7 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
 <div class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
-    <div class="w-full mx-auto max-w-960 py-4 px-4">
+    <div class="w-full mx-auto max-w-960 py-4 px-4 group"{% if block.extra_videos is not empty %} data-collapsed{% endif %}>
         <div class="flex items-baseline justify-between gap-4 pb-4">
             {% if block.tekst_boven_videos %}
                 <h2 class="font-bold text-3xl">{{ block.tekst_boven_videos }}</h2>
@@ -14,8 +14,9 @@
         </div>
 
         <div class="grid sm:grid-cols-2 gap-4">
-            {% for item in block.videos %}
-                <a href="{{ item.show.link }}?v={{ item.video.id }}" class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700">
+            {% for item in block.videos|merge(block.extra_videos ?: []) %}
+                <a href="{{ item.show.link }}?v={{ item.video.id }}"
+                   class="grid sm:block md:grid grid-cols-2 gap-4 hover:bg-gray-700{{ loop.index > block.videos|length ? ' group-data-[collapsed]:hidden' }}">
                     {{ responsive.render(
                         src: item.video.thumbnail,
                         width: 330,
@@ -32,16 +33,12 @@
             {% endfor %}
         </div>
 
-        {% if block.shows is not empty %}
-            <p class="text-sm tracking-wide uppercase font-bold font-round text-gray-400 mt-4">Of kijk een nieuwe aflevering van:</p>
-            <ul class="flex flex-wrap gap-2 mt-2 items-center">
-                {% for item in block.shows %}
-                    <li>
-                        <a href="{{ item.show.link }}"
-                           class="block py-1 px-2 rounded-sm text-sm bg-gray-700 text-gray-100 hover:bg-gray-600 transition">{{ item.show.title }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+        {% if block.extra_videos is not empty %}
+            <button type="button" data-expand
+                    class="mt-4 w-full sm:w-auto sm:mx-auto flex items-center justify-center gap-1 py-2 px-4 rounded-sm text-sm font-bold bg-gray-700 text-gray-100 hover:bg-gray-600 transition">
+                <span>Toon meer uitzendingen</span>
+                <span class="shrink-0 size-4 [&>svg]:size-full" aria-hidden="true">{{ icon('icon-expand_more') }}</span>
+            </button>
         {% endif %}
     </div>
 </div>
