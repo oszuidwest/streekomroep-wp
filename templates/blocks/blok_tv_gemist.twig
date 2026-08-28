@@ -33,7 +33,7 @@
             {% for item in block.shows %}
                 <li>
                     <a href="{{ item.show.link }}"
-                       class="block py-1 px-2 rounded-sm text-sm border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white transition">{{ item.show.title }}</a>
+                       class="inline-flex rounded-md px-2 py-0.5 font-round text-xs font-black tracking-wide uppercase border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white transition">{{ item.show.title }}</a>
                 </li>
             {% endfor %}
             <li>
