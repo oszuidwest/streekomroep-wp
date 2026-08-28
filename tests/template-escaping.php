@@ -159,6 +159,14 @@ $check(
 );
 $check_byline('byline.twig (multiple authors)', $byline_html, ['Alice & Bob', 'Carol <script>', 'Dave', 'Eve']);
 
+$avatar_slots = $xpath_for($byline_html)->query('//span[@aria-hidden="true"]/*');
+if (
+    $avatar_slots->length !== 4
+    || array_map(fn ($index) => $avatar_slots->item($index)->nodeName, range(0, 3)) !== ['img', 'span', 'img', 'span']
+) {
+    $failures[] = 'byline.twig (multiple authors): avatar slots do not preserve author order';
+}
+
 $single_author_byline = $twig->render('partial/byline.twig', [
     'post' => [
         'authors' => [
