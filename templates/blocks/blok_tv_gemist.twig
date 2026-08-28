@@ -28,7 +28,8 @@
             {% endfor %}
         </div>
 
-        <ul class="flex flex-wrap gap-2 mt-6 items-center" aria-label="Meer programma's">
+        <p class="mt-6 text-xs tracking-wider uppercase font-bold font-round text-gray-400">Meer van ZuidWest TV</p>
+        <ul class="flex flex-wrap gap-2 mt-2 items-center">
             {% for item in block.shows %}
                 <li>
                     <a href="{{ item.show.link }}"
