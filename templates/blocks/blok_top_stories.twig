@@ -5,7 +5,7 @@
         {% for post in block.posts %}
             <article class="flex flex-col" data-post-id="{{ post.id }}">
                 {% set thumbnail = post.thumbnail %}
-                <a class="block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
+                <a class="group block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
                     <picture>
                         {{ responsive.source(
                             src: thumbnail.src,
@@ -20,7 +20,7 @@
                             height: 640 / 16 * 10,
                             sizes: '100vw',
                             alt: thumbnail.alt|default(post.title),
-                            class: 'object-cover w-full h-full absolute inset-0',
+                            class: 'object-cover w-full h-full absolute inset-0 transition group-hover:opacity-90',
                             loading: 'eager',
                         ) }}
                     </picture>

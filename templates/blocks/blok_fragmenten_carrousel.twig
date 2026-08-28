@@ -7,8 +7,8 @@
 
         {% set post = block.posts[0] %}
         <article>
-            <a href="{{ post.link }}" class="grid sm:grid-cols-2 gap-4">
-            <div>
+            <a href="{{ post.link }}" class="group grid sm:grid-cols-2 gap-4">
+            <div class="transition group-hover:opacity-90">
                 {{ include('partial/post-thumbnail.twig', {
                     post: post,
                     width: 472,
