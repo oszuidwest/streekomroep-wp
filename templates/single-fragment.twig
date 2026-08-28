@@ -1,7 +1,6 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    {% import 'partial/badge.twig' as badge %}
     {% import 'partial/responsive-image.twig' as responsive %}
 
     <article id="post-{{ post.id }}" class="{{ post.class }}">
@@ -11,11 +10,7 @@
 
         <div class="px-6 md:px-12 max-w-3xl mx-auto mt-6 pb-6">
             <div class="flex gap-2">
-                {% if post.meta('fragment_type') == 'Video' %}
-                    {{ badge.render('Video', 'blauw') }}
-                {% else %}
-                    {{ badge.render('Audio', 'roze') }}
-                {% endif %}
+                {{ include('partial/tag-fragment-type.twig', {post: post}) }}
 
                 {{ include('partial/tag-region.twig', {region: post.region}) }}
             </div>
@@ -63,7 +58,7 @@
                 <h2 class="font-bold text-3xl pb-4">Meer video's en reportages uit {{ local.region }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {% for post in local.posts %}
-                        {{ include('partial/tile-fragment.twig', {post: post, region: false}) }}
+                        {{ include('partial/tile-fragment.twig', {post: post, region: false, dark: true}) }}
                     {% endfor %}
                 </div>
             </div>
