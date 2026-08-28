@@ -1,21 +1,16 @@
 <?php
-/**
- * The template for displaying Author Archive pages
- *
- * Methods for TimberHelper can be found in the /lib sub-directory
- *
- * @package  WordPress
- * @subpackage  Timber
- * @since    Timber 0.1
- */
 
-global $wp_query;
+use Streekomroep\GuestAuthor;
+use Timber\Timber;
 
-$context          = Timber::context();
-$context['posts'] = Timber::get_posts();
-if (isset($wp_query->query_vars['author'])) {
-    $author = Timber::get_user($wp_query->query_vars['author']);
-    $context['author'] = $author;
-    $context['title']  = 'Artikelen geschreven door ' . $author->name();
+$context = Timber::context();
+
+// Guest-author archives lack an author query var, so Timber otherwise resolves the current user.
+$queried_author = get_queried_object();
+if (($queried_author->type ?? null) === 'guest-author') {
+    $context['author'] = GuestAuthor::from_guest_author($queried_author);
+} else {
+    $context['author'] = $queried_author instanceof WP_User ? Timber::get_user($queried_author) : null;
 }
-Timber::render([ 'author.twig', 'archive.twig' ], $context);
+
+Timber::render(['author.twig', 'archive.twig'], $context);

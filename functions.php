@@ -403,8 +403,35 @@ function zw_get_avatar_url($url, $id_or_email, $args)
     }
 
     $src = wp_get_attachment_image_src($imageId, [$args['size'], $args['size']]);
-    return $src[0];
+    return $src ? $src[0] : $url;
 }
+
+/**
+ * Routes guest authors to GuestAuthor and keeps regular accounts on Timber\User
+ * so zw_get_avatar_url() remains effective.
+ *
+ * CoAuthorsPlusUser ships inside vendor/timber, so referencing it is safe even
+ * when the Co-Authors Plus plugin is inactive (this branch then never matches).
+ *
+ * @param string   $class Timber user class.
+ * @param \WP_User $user  User being built; wraps the Co-Authors Plus record for guest authors.
+ * @return string User class.
+ */
+function zw_timber_user_class($class, $user)
+{
+    if ($class !== \Timber\Integration\CoAuthorsPlus\CoAuthorsPlusUser::class) {
+        return $class;
+    }
+
+    // Read data directly: `$user->type` triggers WP_User::__isset() and a user-meta lookup.
+    if (($user->data->type ?? null) === 'guest-author') {
+        return \Streekomroep\GuestAuthor::class;
+    }
+
+    return \Timber\User::class;
+}
+
+add_filter('timber/user/class', 'zw_timber_user_class', 11, 2);
 
 add_filter('oembed_fetch_url', 'zw_oembed_fetch_url', 10, 3);
 
