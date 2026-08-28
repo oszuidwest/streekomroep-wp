@@ -38,15 +38,18 @@
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
-                                        {% set width = 220 %}
-                                        {{ responsive.render(
-                                            src: video.thumbnail,
-                                            width: width,
-                                            height: width / 16 * 9,
-                                            sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
-                                            alt: video.name,
-                                            class: 'w-full object-contain',
-                                        ) }}
+                                        <div class="relative">
+                                            {% set width = 220 %}
+                                            {{ responsive.render(
+                                                src: video.thumbnail,
+                                                width: width,
+                                                height: width / 16 * 9,
+                                                sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
+                                                alt: video.name,
+                                                class: 'w-full object-contain',
+                                            ) }}
+                                            {{ include('partial/play-badge.twig', {duration: video.duration}) }}
+                                        </div>
                                         <h3 class="font-bold mt-2 :text-gray-200">{{ video.name }}</h3>
                                     </a>
                                 </article>

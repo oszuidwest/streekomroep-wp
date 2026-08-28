@@ -1,5 +1,11 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
+{% set showPlayButton = false %}
+{% if post.type == 'fragment' %}
+    {% set showPlayButton = true %}
+{% elseif post.type == 'post' and post.meta('post_gekoppeld_fragment') and post.meta('post_fragment_is_featured') %}
+    {% set showPlayButton = true %}
+{% endif %}
 {% set width = width|default(228) %}
 {# The largest desktop slot in sizes is 456px (2-column grid at 960-1023px), so srcset candidates must span that slot. #}
 {% set desktop_width = max(width, 456) %}
@@ -27,6 +33,10 @@
                 ) }}
             </picture>
         {% endif %}
-        {{ include('partial/play-badge.twig') }}
+        {% if showPlayButton %}
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-groen rounded-full ring-2 ring-white flex items-center justify-center">
+                <span class="play-button-icon text-white">{{ icon('icon-play_arrow') }}</span>
+            </div>
+        {% endif %}
     </div>
 </div>
