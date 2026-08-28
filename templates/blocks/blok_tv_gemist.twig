@@ -9,7 +9,7 @@
         <div class="grid sm:grid-cols-2 gap-x-4 gap-y-5">
             {% for item in block.videos %}
                 <a href="{{ item.show.link }}?v={{ item.video.id }}"
-                   class="group grid sm:block md:grid grid-cols-2 gap-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blauw">
+                   class="group grid sm:block md:grid grid-cols-2 gap-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blauw">
                     <div class="overflow-hidden rounded-sm bg-gray-900">
                         {{ responsive.render(
                             src: item.video.thumbnail,
@@ -17,11 +17,11 @@
                             height: 168,
                             sizes: '(min-width: 960px) 220px, (min-width: 768px) calc((100vw - 5rem) / 4), calc((100vw - 3rem) / 2)',
                             alt: item.show.title ~ ' - ' ~ item.video.name,
-                            class: 'w-full transition duration-300 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+                            class: 'w-full transition-transform duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100',
                         ) }}
                     </div>
                     <div class="self-center sm:mt-2 md:m-0">
-                        <h3 class="font-bold leading-snug transition group-hover:text-blauw">{{ item.show.title }}</h3>
+                        <h3 class="font-bold leading-snug transition-colors group-hover:text-blauw">{{ item.show.title }}</h3>
                         <p class="mt-0.5 text-sm text-gray-300">{{ item.video.name }}</p>
                     </div>
                 </a>

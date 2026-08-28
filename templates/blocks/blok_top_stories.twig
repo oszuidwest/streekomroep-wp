@@ -4,21 +4,22 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
         {% for post in block.posts %}
             <article class="flex flex-col" data-post-id="{{ post.id }}">
+                {% set thumbnail = post.thumbnail %}
                 <a class="block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
                     <picture>
                         {{ responsive.source(
-                            src: post.thumbnail.src,
-                            width: 640,
-                            height: 512,
+                            src: thumbnail.src,
+                            width: 464,
+                            height: 464 / 5 * 4,
                             sizes: '(min-width: 960px) 464px, calc((100vw - 2rem) / 2)',
                             media: '(min-width: 640px)',
                         ) }}
                         {{ responsive.render(
-                            src: post.thumbnail.src,
+                            src: thumbnail.src,
                             width: 640,
-                            height: 400,
+                            height: 640 / 16 * 10,
                             sizes: '100vw',
-                            alt: post.thumbnail.alt|default(post.title),
+                            alt: thumbnail.alt|default(post.title),
                             class: 'object-cover w-full h-full absolute inset-0',
                             loading: 'eager',
                         ) }}
