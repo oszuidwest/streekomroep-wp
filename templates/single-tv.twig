@@ -38,7 +38,7 @@
                             {% for video in videos %}
                                 <article>
                                     <a href="?v={{ video.id }}">
-                                        <div class="relative">
+                                        <div class="relative rounded-sm overflow-hidden">
                                             {% set width = 220 %}
                                             {{ responsive.render(
                                                 src: video.thumbnail,

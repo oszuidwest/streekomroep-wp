@@ -8,7 +8,7 @@
 {% endif %}
 {% set width = width|default(228) %}
 {% set sizes = sizes|default('(min-width: 768px) 220px, 50vw') %}
-<div class="aspect-video relative">
+<div class="aspect-video relative rounded-sm overflow-hidden">
     <div class="{% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             {{ responsive.render(

@@ -10,7 +10,7 @@
 {# The largest desktop slot in sizes is 456px (2-column grid at 960-1023px), so srcset candidates must span that slot. #}
 {% set desktop_width = max(width, 456) %}
 {% set desktop_sizes = '(min-width: 1024px) ' ~ width ~ 'px, (min-width: 960px) 456px, (min-width: 640px) calc((100vw - 3rem) / 2), 33vw' %}
-<div class="aspect-[4/3] sm:aspect-video relative">
+<div class="aspect-[4/3] sm:aspect-video relative rounded-sm overflow-hidden">
     <div class="absolute inset-0 {% if dark ?? false %}bg-gray-900{% else %}bg-gray-200{% endif %}">
         {% if post.thumbnail %}
             <picture>
