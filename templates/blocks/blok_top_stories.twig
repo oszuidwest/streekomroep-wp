@@ -7,7 +7,6 @@
                 {% set thumbnail = post.thumbnail %}
                 <a class="group block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
                     <picture>
-                        {# Desktop: 5/4; the media query mirrors the sm:aspect breakpoint on the anchor. #}
                         {{ responsive.source(
                             src: thumbnail.src,
                             width: 464,
@@ -15,7 +14,6 @@
                             sizes: '(min-width: 960px) 464px, calc((100vw - 2rem) / 2)',
                             media: '(min-width: 640px)',
                         ) }}
-                        {# Mobile: 16/10, full width. #}
                         {{ responsive.render(
                             src: thumbnail.src,
                             width: 640,

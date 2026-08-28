@@ -5,7 +5,6 @@
         <h2 class="h2 text-black dark:text-white"><a href="{{ post.link }}">{{ post.title }}</a></h2>
         <p class='text-black dark:text-gray-200'>{{ post.excerpt }}</p>
         {% if post.get_thumbnail %}
-            {# Sized for the search results grid (search.twig): 3 cols >= lg, 2 cols >= sm, 1 col below #}
             {{ responsive.render(
                 src: post.thumbnail.src,
                 width: 400,

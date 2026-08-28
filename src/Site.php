@@ -117,7 +117,7 @@ class Site extends \Timber\Site
             . ' tot ' . substr($entry['fm_show_eindtijd'], 0, 5) . ' uur');
     }
 
-    /** Formats a duration in seconds as m:ss or h:mm:ss for video badges. */
+    /** Formats a video duration. */
     public function format_duration($seconds)
     {
         $seconds = (int) $seconds;

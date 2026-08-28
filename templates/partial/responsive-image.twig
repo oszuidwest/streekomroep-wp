@@ -1,4 +1,4 @@
-{# Width/height are the largest 1x CSS-pixel slot from sizes; srcset candidates span roughly 0.5x-2x. #}
+{# Width and height represent the largest 1x slot. #}
 {% macro render(src, width, height, sizes, alt, class, loading = 'lazy') %}
     {% set width = width|round %}
     {% set height = height|round %}
@@ -16,7 +16,7 @@
     {% endif %}
 {% endmacro %}
 
-{# A media-gated source has a viewport floor, so the default half-width candidate is never picked; emit 1x and 2x only. #}
+{# The media query excludes viewports that need a 0.5x candidate. #}
 {% macro source(src, width, height, sizes, media) %}
     {% set width = width|round %}
     {% set height = height|round %}

@@ -1,16 +1,12 @@
 @import "tailwindcss";
 
-/* Load Tailwind config */
 @config "../tailwind.config.js";
 
-/* Play icon sizing inside thumbnail button */
 .play-button-icon > svg {
     @apply block w-6 h-6;
 }
 
-/* Card photo hover: lighten the image; needs a .group ancestor on the card link.
-   The resting brightness-100 keeps the filter (and its stacking context) always on,
-   so overlays like the play button don't shift a subpixel when the hover starts. */
+/* Keep the filter active so overlaid controls remain pixel-stable. */
 .zw-thumb-hover {
     @apply brightness-100 transition-[filter] group-hover:brightness-110;
 }

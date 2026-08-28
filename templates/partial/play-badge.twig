@@ -1,4 +1,4 @@
-{# Dark chip with play icon and optional duration (in seconds), shown over video thumbnails. The caller must provide a relative (and usually overflow-clipped) wrapper. #}
+{# Requires a positioned wrapper. #}
 <div class="absolute bottom-2 right-2 transform-gpu inline-flex items-center gap-0.5 rounded-md bg-black/60 px-1 py-0.5 text-white">
     <span class="[&_svg]:size-4" aria-hidden="true">{{ icon('icon-play_arrow') }}</span>
     {% if duration %}
