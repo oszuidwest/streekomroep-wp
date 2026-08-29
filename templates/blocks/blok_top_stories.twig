@@ -1,6 +1,23 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
+    {% if block.regions|length > 1 %}
+        {% set pill = 'inline-flex rounded-md px-2 py-0.5 font-round text-xs font-black tracking-wide uppercase transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blauw' %}
+        <nav class="flex flex-wrap items-center gap-2 px-4 sm:px-0 pt-3 sm:pt-0 pb-3" aria-label="Kies je regio">
+            <span class="font-round text-xs font-black tracking-wide uppercase text-gray-500 dark:text-gray-400">Jouw regio</span>
+            <a href="?regio=alle"
+               rel="nofollow"
+               {% if not block.selected_region %}aria-current="true"{% endif %}
+               class="{{ pill }} {{ not block.selected_region ? 'bg-groen text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700' }}">Alles</a>
+            {% for region in block.regions %}
+                {% set active = block.selected_region and block.selected_region.slug == region.slug %}
+                <a href="?regio={{ region.slug }}"
+                   rel="nofollow"
+                   {% if active %}aria-current="true"{% endif %}
+                   class="{{ pill }} {{ active ? 'bg-groen text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700' }}">{{ region.title }}</a>
+            {% endfor %}
+        </nav>
+    {% endif %}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
         {% for post in block.posts %}
             <article class="flex flex-col" data-post-id="{{ post.id }}">

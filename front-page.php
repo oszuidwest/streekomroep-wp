@@ -15,7 +15,10 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
-            $block['posts'] = Timber::get_posts([
+            $block['regions'] = zw_get_region_choices($block['regio_opties'] ?? []);
+            $block['selected_region'] = zw_get_selected_region($block['regions']);
+
+            $args = [
                 'post_type' => 'post',
                 'post_status' => 'publish',
                 'posts_per_page' => 2,
@@ -28,7 +31,29 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                         'terms'    => 'top-story',
                     ]
                 ]
-            ]);
+            ];
+
+            if ($block['selected_region']) {
+                // Parent term: posts tagged with any child (plaats) count too.
+                $args['tax_query'][] = [
+                    'taxonomy' => 'regio',
+                    'field'    => 'term_id',
+                    'terms'    => $block['selected_region']->term_id,
+                ];
+            }
+
+            $top_posts = iterator_to_array(Timber::get_posts($args), false);
+
+            // Too few regional top stories? Backfill with general ones so the
+            // hero never renders half empty.
+            if ($block['selected_region'] && count($top_posts) < 2) {
+                unset($args['tax_query'][1]);
+                $args['posts_per_page'] = 2 - count($top_posts);
+                $args['post__not_in'] = array_map(static fn ($item) => $item->ID, $top_posts);
+                $top_posts = array_merge($top_posts, iterator_to_array(Timber::get_posts($args), false));
+            }
+
+            $block['posts'] = $top_posts;
             break;
 
         case 'blok_tv_gemist':

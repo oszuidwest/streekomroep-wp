@@ -22,7 +22,32 @@
                     "name": "blok_top_stories",
                     "label": "Top stories",
                     "display": "block",
-                    "sub_fields": [],
+                    "sub_fields": [
+                        {
+                            "key": "field_68b0d4e2a7f10",
+                            "label": "Regio's voor regiokeuze",
+                            "name": "regio_opties",
+                            "aria-label": "",
+                            "type": "taxonomy",
+                            "instructions": "Selecteer de uitzendregio's (hoofdtermen) waaruit bezoekers kunnen kiezen. Artikelen tellen mee als ze de regio zelf of een onderliggende plaats hebben. Laat leeg om de regiokeuze te verbergen.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "taxonomy": "regio",
+                            "field_type": "checkbox",
+                            "allow_null": 1,
+                            "add_term": 0,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "id",
+                            "multiple": 1,
+                            "bidirectional_target": []
+                        }
+                    ],
                     "min": "",
                     "max": ""
                 },
@@ -423,5 +448,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1724186997
+    "modified": 1787944615
 }
