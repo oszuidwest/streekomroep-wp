@@ -3,6 +3,31 @@
 use Streekomroep\TelevisionBroadcast;
 use Streekomroep\TvGemistCache;
 
+$zwProfile = isset($_GET['zw_profile']) && '1' === sanitize_text_field(wp_unslash($_GET['zw_profile']));
+$zwProfileMetrics = [];
+$zwProfileLastTime = microtime(true);
+$zwProfileLastQueries = get_num_queries();
+
+$zwProfileMark = static function (string $name) use (
+    $zwProfile,
+    &$zwProfileMetrics,
+    &$zwProfileLastTime,
+    &$zwProfileLastQueries
+): void {
+    if (!$zwProfile) {
+        return;
+    }
+
+    $now = microtime(true);
+    $queries = get_num_queries();
+    $zwProfileMetrics[$name] = [
+        'duration' => ($now - $zwProfileLastTime) * 1000,
+        'queries' => $queries - $zwProfileLastQueries,
+    ];
+    $zwProfileLastTime = $now;
+    $zwProfileLastQueries = $queries;
+};
+
 /** Primes front-page attachment caches to avoid per-image database queries. */
 function zw_prime_front_page_caches(array $blocks): void
 {
@@ -35,13 +60,18 @@ function zw_prime_front_page_caches(array $blocks): void
 }
 
 $context = Timber::context();
+$zwProfileMark('context');
 
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
+$zwProfileMark('post');
 
 $blocks = zw_acf_rows($context['options']['desking_blokken_voorpagina']);
+$zwProfileMark('acf_blocks');
 
 foreach ($blocks as &$block) {
+    $zwBlockStartTime = microtime(true);
+    $zwBlockStartQueries = get_num_queries();
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
@@ -197,11 +227,42 @@ foreach ($blocks as &$block) {
             break;
     }
     do_action('qm/stop', $block['acf_fc_layout']);
+
+    if ($zwProfile) {
+        $metric = 'block_' . sanitize_key($block['acf_fc_layout']);
+        $duration = (microtime(true) - $zwBlockStartTime) * 1000;
+        $queries = get_num_queries() - $zwBlockStartQueries;
+        $zwProfileMetrics[$metric]['duration'] = ($zwProfileMetrics[$metric]['duration'] ?? 0) + $duration;
+        $zwProfileMetrics[$metric]['queries'] = ($zwProfileMetrics[$metric]['queries'] ?? 0) + $queries;
+    }
 }
 unset($block);
+$zwProfileMark('blocks');
 
 zw_prime_front_page_caches($blocks);
+$zwProfileMark('prime_attachments');
 
 $context['options']['desking_blokken_voorpagina'] = $blocks;
 
-Timber::render('front-page.twig', $context);
+if (!$zwProfile) {
+    Timber::render('front-page.twig', $context);
+    return;
+}
+
+$html = Timber::compile('front-page.twig', $context);
+$zwProfileMark('twig');
+
+$serverTiming = [];
+$queryProfile = [];
+foreach ($zwProfileMetrics as $name => $metric) {
+    $serverTiming[] = sprintf('%s;dur=%.2f', $name, $metric['duration']);
+    $queryProfile[] = $name . '=' . $metric['queries'];
+}
+
+header('Server-Timing: ' . implode(', ', $serverTiming));
+header('X-ZW-Queries: ' . get_num_queries());
+header('X-ZW-Query-Profile: ' . implode(', ', $queryProfile));
+header('Cache-Control: no-store');
+
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Timber rendered the complete response.
+echo $html;
