@@ -12,7 +12,11 @@ class BroadcastSchedule
     /** Retry interval when no current slot supplies a refresh boundary. */
     private const REFRESH_FALLBACK = 30;
 
-    private const TV_SCHEDULE_CACHE = 'zw_tv_schedule';
+    private const TV_SCHEDULE_CACHE_PREFIX = 'zw_tv_schedule_';
+
+    private const TV_SCHEDULE_VERSION = 'zw_tv_schedule_version';
+
+    private static ?string $cacheVersion = null;
 
     /** Prefix for ACF's tv_week option keys. */
     public const OPTION_PREFIX = 'options_tv_week';
@@ -48,7 +52,12 @@ class BroadcastSchedule
         if ($showIds) {
             _prime_post_caches(array_keys($showIds), false, true);
             foreach (array_keys($showIds) as $showId) {
-                $tvShows[$showId] = Timber::get_post($showId);
+                $show = get_post($showId);
+                if (!$show || $show->post_type !== 'tv' || $show->post_status !== 'publish') {
+                    continue;
+                }
+
+                $tvShows[$showId] = Timber::get_post($show);
             }
         }
 
@@ -179,7 +188,8 @@ class BroadcastSchedule
      */
     private static function getTvWeeks(): array
     {
-        $cached = get_transient(self::TV_SCHEDULE_CACHE);
+        $cacheKey = self::TV_SCHEDULE_CACHE_PREFIX . self::cacheVersion();
+        $cached = get_transient($cacheKey);
         if (is_array($cached)) {
             return $cached;
         }
@@ -206,13 +216,24 @@ class BroadcastSchedule
             $weeks[] = ['start' => $start, 'eind' => $eind, 'shows' => $shows];
         }
 
-        set_transient(self::TV_SCHEDULE_CACHE, $weeks, DAY_IN_SECONDS);
+        set_transient($cacheKey, $weeks, HOUR_IN_SECONDS);
         return $weeks;
     }
 
     public static function invalidateCache(): void
     {
-        delete_transient(self::TV_SCHEDULE_CACHE);
+        self::$cacheVersion = (string) microtime(true);
+        set_transient(self::TV_SCHEDULE_VERSION, self::$cacheVersion, 0);
+    }
+
+    private static function cacheVersion(): string
+    {
+        if (self::$cacheVersion !== null) {
+            return self::$cacheVersion;
+        }
+
+        $version = get_transient(self::TV_SCHEDULE_VERSION);
+        return self::$cacheVersion = is_string($version) && $version !== '' ? $version : '0';
     }
 
     private function getBroadcastDay(DateTime $date)

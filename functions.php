@@ -663,7 +663,8 @@ add_action('save_post_tv', function () {
 foreach (['added_option', 'updated_option', 'deleted_option'] as $zw_option_hook) {
     add_action($zw_option_hook, function ($option) {
         if (is_string($option) && str_starts_with($option, \Streekomroep\BroadcastSchedule::OPTION_PREFIX)) {
-            \Streekomroep\BroadcastSchedule::invalidateCache();
+            // ACF writes hundreds of repeater options in one request; invalidate once after the save.
+            add_action('shutdown', [\Streekomroep\BroadcastSchedule::class, 'invalidateCache']);
         }
     });
 }
