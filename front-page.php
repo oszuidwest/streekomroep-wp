@@ -242,6 +242,28 @@ $zwProfileMark('blocks');
 zw_prime_front_page_caches($blocks);
 $zwProfileMark('prime_attachments');
 
+$zwProfileTermImages = [];
+if ($zwProfile) {
+    foreach ($blocks as $profileBlock) {
+        foreach ($profileBlock['terms'] ?? [] as $profileTerm) {
+            $rawImage = get_term_meta($profileTerm->id, 'dossier_afbeelding_hoog', true);
+            $formattedImage = get_field(
+                'dossier_afbeelding_hoog',
+                get_term($profileTerm->id, $profileTerm->taxonomy)
+            );
+            $zwProfileTermImages[] = [
+                'term' => $profileTerm->id,
+                'raw' => $rawImage,
+                'formatted' => is_array($formattedImage) ? ($formattedImage['ID'] ?? null) : $formattedImage,
+            ];
+
+            if (count($zwProfileTermImages) === 5) {
+                break 2;
+            }
+        }
+    }
+}
+
 $context['options']['desking_blokken_voorpagina'] = $blocks;
 
 if (!$zwProfile) {
@@ -262,6 +284,7 @@ foreach ($zwProfileMetrics as $name => $metric) {
 header('Server-Timing: ' . implode(', ', $serverTiming));
 header('X-ZW-Queries: ' . get_num_queries());
 header('X-ZW-Query-Profile: ' . implode(', ', $queryProfile));
+header('X-ZW-Term-Images: ' . wp_json_encode($zwProfileTermImages));
 header('Cache-Control: no-store');
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Timber rendered the complete response.
