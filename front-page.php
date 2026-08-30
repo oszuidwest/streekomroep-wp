@@ -56,6 +56,12 @@ function zw_prime_front_page_caches(array $blocks): void
     $attachments = array_unique(array_filter(array_map('intval', $attachments)));
     if ($attachments) {
         _prime_post_caches($attachments, false, true);
+
+        // ACF image formatting resolves attachment parent permalinks.
+        $parents = array_unique(array_filter(array_map('wp_get_post_parent_id', $attachments)));
+        if ($parents) {
+            _prime_post_caches($parents, true, true);
+        }
     }
 }
 
