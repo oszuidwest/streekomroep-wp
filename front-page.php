@@ -1,17 +1,19 @@
 <?php
 
 use Streekomroep\TelevisionBroadcast;
+use Streekomroep\VideoCollection;
 
 $context = Timber::context();
 
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-if (empty($context['options']['desking_blokken_voorpagina']) || !is_array($context['options']['desking_blokken_voorpagina'])) {
-    $context['options']['desking_blokken_voorpagina'] = [];
+$blocks = $context['options']['desking_blokken_voorpagina'];
+if (!is_array($blocks)) {
+    $blocks = [];
 }
 
-foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
+foreach ($blocks as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
@@ -32,8 +34,72 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_tv_gemist':
+            $deduplicate = (bool) $block['ontdubbel'];
+            $videos_to_show = is_numeric($block['aantal_videos']) ? (int) $block['aantal_videos'] : 4;
+
+            // The candidate lists are derived from bunny_data post meta on every
+            // TV show, which is expensive to load and sort. The scalar result is
+            // cached until the ten-minute Bunny cron refreshes the meta.
+            $cacheKey = ($deduplicate ? '1' : '0') . '_' . $videos_to_show;
+            $cache = get_transient('zw_tv_gemist');
+            $candidates = is_array($cache) ? ($cache[$cacheKey] ?? null) : null;
+
+            if (is_array($candidates) && isset($candidates['videos'], $candidates['shows'])) {
+                $showIds = array_unique(array_merge(
+                    array_column($candidates['videos'], 'show'),
+                    array_column($candidates['shows'], 'show')
+                ));
+
+                $showsById = [];
+                if ($showIds) {
+                    $shows = Timber::get_posts([
+                        'post_type' => 'tv',
+                        'post_status' => 'publish',
+                        'post__in' => $showIds,
+                        'ignore_sticky_posts' => true,
+                        'nopaging' => true,
+                    ]);
+                    foreach ($shows as $show) {
+                        $showsById[$show->ID] = $show;
+                    }
+                }
+
+                $videosByShow = [];
+                $resolve = static function ($ref) use ($showsById, &$videosByShow) {
+                    $show = $showsById[$ref['show']] ?? null;
+                    if (!$show) {
+                        return null;
+                    }
+
+                    $videosByShow[$show->ID] ??= VideoCollection::forTvShow($show->ID);
+                    foreach ($videosByShow[$show->ID] as $video) {
+                        if ($video->getId() === $ref['video']) {
+                            return ['show' => $show, 'video' => $video];
+                        }
+                    }
+
+                    return null;
+                };
+
+                $resolvedVideos = array_values(array_filter(array_map($resolve, $candidates['videos'])));
+                $resolvedShows = array_values(array_filter(array_map($resolve, $candidates['shows'])));
+
+                // A ref that no longer resolves (deleted show, vanished video)
+                // means the cache is stale; rebuild instead of rendering a
+                // shrunken block until the next invalidation.
+                if (
+                    count($resolvedVideos) === count($candidates['videos'])
+                    && count($resolvedShows) === count($candidates['shows'])
+                ) {
+                    $block['videos'] = $resolvedVideos;
+                    $block['shows'] = $resolvedShows;
+                    break;
+                }
+            }
+
             $shows = Timber::get_posts([
                 'post_type' => 'tv',
+                'post_status' => 'publish',
                 'ignore_sticky_posts' => true,
                 'nopaging' => true,
             ]);
@@ -41,11 +107,9 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $episodes_with_duplicate_shows = [];
             $latest_episode_per_show = [];
 
-            $deduplicate = (bool) $block['ontdubbel'];
-            $videos_to_show = $block['aantal_videos'];
             $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
             foreach ($shows as $show) {
-                $videos = \Streekomroep\VideoCollection::forTvShow($show->ID);
+                $videos = VideoCollection::forTvShow($show->ID);
                 if (!$videos) {
                     continue;
                 }
@@ -74,11 +138,20 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
             $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $block['videos']);
             $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
+
+            $toRef = static fn ($item) => ['show' => $item['show']->ID, 'video' => $item['video']->getId()];
+            $cache = is_array($cache) ? $cache : [];
+            $cache[$cacheKey] = [
+                'videos' => array_map($toRef, $block['videos']),
+                'shows' => array_map($toRef, $block['shows']),
+            ];
+            set_transient('zw_tv_gemist', $cache, 10 * MINUTE_IN_SECONDS);
             break;
 
         case 'blok_artikel_lijst':
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'post',
+                'post_status' => 'publish',
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
                 'no_found_rows' => true,
@@ -97,6 +170,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
         case 'blok_fragmenten_carrousel':
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'fragment',
+                'post_status' => 'publish',
                 'posts_per_page' => 5,
                 'no_found_rows' => true,
                 'ignore_sticky_posts' => true,
@@ -119,6 +193,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     'posts_per_page' => $block['aantal_artikelen'],
                     'offset' => $block['offset'],
                     'post_type' => 'post',
+                    'post_status' => 'publish',
                     'no_found_rows' => true,
                     'ignore_sticky_posts' => true,
                     'tax_query' => [
@@ -132,36 +207,42 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossiers_carrousel':
-            $block['terms'] = Timber::get_terms([
+            $terms = Timber::get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => true,
             ]);
 
             // Filter out terms with less than $count items
             $minCount = 2;
-            $block['terms'] = array_filter($block['terms'], function ($term) use ($minCount) {
+            $terms = array_filter($terms, function ($term) use ($minCount) {
                 return $term->count >= $minCount;
             });
 
-            foreach ($block['terms'] as $dossierTerm) {
-                $dossierTerm->posts = Timber::get_posts([
-                    'ignore_sticky_posts' => true,
-                    'posts_per_page' => 1,
-                    'no_found_rows' => true,
+            // The carousel only needs the terms ordered by their most recent
+            // publication; one grouped query replaces a post query per dossier.
+            global $wpdb;
+            $rows = $wpdb->get_results(
+                'SELECT tt.term_id, MAX(p.post_date) AS latest'
+                . ' FROM ' . $wpdb->term_relationships . ' tr'
+                . ' INNER JOIN ' . $wpdb->term_taxonomy . ' tt ON tt.term_taxonomy_id = tr.term_taxonomy_id'
+                . ' INNER JOIN ' . $wpdb->posts . ' p ON p.ID = tr.object_id'
+                . " WHERE tt.taxonomy = 'dossier'"
+                . " AND p.post_type = 'post'"
+                . " AND p.post_status = 'publish'"
+                . ' GROUP BY tt.term_id'
+            );
 
-                    'tax_query' => [
-                        [
-                            'taxonomy' => $dossierTerm->taxonomy,
-                            'terms' => $dossierTerm->id,
-                        ],
-                    ],
-                ]);
+            $latestByTerm = [];
+            foreach ($rows as $row) {
+                $latestByTerm[(int) $row->term_id] = $row->latest;
             }
 
             // Sort on most recent post
-            usort($block['terms'], function ($lhs, $rhs) {
-                return strcmp($rhs->posts[0]->post_date, $lhs->posts[0]->post_date);
+            usort($terms, function ($lhs, $rhs) use ($latestByTerm) {
+                return strcmp($latestByTerm[$rhs->id] ?? '', $latestByTerm[$lhs->id] ?? '');
             });
+
+            $block['terms'] = $terms;
             break;
 
         case 'blok_nu_op_fmtv':
@@ -178,6 +259,10 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     }
     do_action('qm/stop', $block['acf_fc_layout']);
 }
+unset($block);
 
+zw_prime_front_page_caches($blocks);
+
+$context['options']['desking_blokken_voorpagina'] = $blocks;
 
 Timber::render('front-page.twig', $context);

@@ -61,6 +61,44 @@ function zw_acf_rows($value): array
 }
 
 /**
+ * Primes attachment caches for the images the front-page blocks will render.
+ *
+ * Twig hydrates featured images and dossier images one attachment at a time,
+ * costing a post and a meta query each. Collecting the attachment IDs up front
+ * loads them in two queries total.
+ */
+function zw_prime_front_page_caches(array $blocks): void
+{
+    $attachments = [];
+
+    foreach ($blocks as $block) {
+        foreach ($block['posts'] ?? [] as $post) {
+            $attachments[] = get_post_thumbnail_id($post->ID);
+        }
+
+        foreach (array_merge($block['videos'] ?? [], $block['shows'] ?? []) as $item) {
+            $attachments[] = get_post_thumbnail_id($item['show']->ID);
+        }
+
+        // Raw term meta holds the attachment ID; the formatted ACF value would
+        // hydrate the attachment right here, one query at a time.
+        foreach ($block['terms'] ?? [] as $term) {
+            $attachments[] = get_term_meta($term->id, 'dossier_afbeelding_hoog', true);
+        }
+
+        if (!empty($block['term'])) {
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_breed', true);
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_hoog', true);
+        }
+    }
+
+    $attachments = array_unique(array_filter(array_map('intval', $attachments)));
+    if ($attachments) {
+        _prime_post_caches($attachments, false, true);
+    }
+}
+
+/**
  * Decodes HTML entities before context-specific escaping.
  */
 function zw_plain_text(string $text): string
@@ -648,6 +686,30 @@ function zw_deactivate()
     wp_clear_scheduled_hook('zw_10mins');
 }
 
+// Saving any options page may change the TV schedule or the desking
+// configuration, so drop the derived caches immediately.
+add_action('acf/save_post', function ($post_id) {
+    if ($post_id === 'options') {
+        \Streekomroep\BroadcastSchedule::invalidateCache();
+        delete_transient('zw_tv_gemist');
+    }
+});
+
+// Editing a TV show can change its videos or visibility before the next cron run.
+add_action('save_post_tv', function () {
+    delete_transient('zw_tv_gemist');
+});
+
+// Programmatic schedule writes (update_field, WP-CLI, imports) bypass
+// acf/save_post; the repeater rows all live under the options_tv_week prefix.
+foreach (['added_option', 'updated_option', 'deleted_option'] as $zw_option_hook) {
+    add_action($zw_option_hook, function ($option) {
+        if (is_string($option) && str_starts_with($option, 'options_tv_week')) {
+            \Streekomroep\BroadcastSchedule::invalidateCache();
+        }
+    });
+}
+
 add_action('zw_10mins', 'zw_project_cron');
 function zw_project_cron()
 {
@@ -679,6 +741,9 @@ function zw_project_cron()
             error_log($e);
         }
     }
+
+    // The refreshed meta invalidates the derived front-page candidate lists.
+    delete_transient('zw_tv_gemist');
 }
 
 

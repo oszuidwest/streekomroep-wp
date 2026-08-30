@@ -12,6 +12,9 @@ class BroadcastSchedule
     /** Retry interval when no current slot supplies a refresh boundary. */
     private const REFRESH_FALLBACK = 30;
 
+    /** Cache for the normalized tv_week option rows. */
+    private const TV_SCHEDULE_CACHE = 'zw_tv_schedule';
+
     /** @var BroadcastDay[] */
     public $days;
 
@@ -27,10 +30,9 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        $tv_weeks = zw_acf_rows(get_field('tv_week', 'option'));
-        foreach ($tv_weeks as $week) {
-            $start_value = $week['tv_week_start'] ?? null;
-            $end_value = $week['tv_week_eind'] ?? null;
+        foreach (self::getTvWeeks() as $week) {
+            $start_value = $week['start'];
+            $end_value = $week['eind'];
             if (!is_string($start_value) || !is_string($end_value)) {
                 continue;
             }
@@ -57,24 +59,20 @@ class BroadcastSchedule
                 $day = $this->getBroadcastDay($date);
                 $dayname = $day->getName();
 
-                foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
-                    if (($entry['dag'] ?? null) !== $dayname) {
+                foreach ($week['shows'] as $entry) {
+                    if ($entry['dag'] !== $dayname) {
                         continue;
                     }
 
-                    $name = is_string($entry['naam_override'] ?? null) ? trim($entry['naam_override']) : '';
-                    $show = ($entry['show'] ?? null) instanceof \WP_Post ? Timber::get_post($entry['show']->ID) : null;
+                    $name = $entry['naam_override'];
+                    $show = $entry['show'] ? Timber::get_post($entry['show']) : null;
 
                     // Override-only rows are valid for generic schedule entries such as reruns.
                     if (!$show && $name === '') {
                         continue;
                     }
 
-                    $day->addTelevision(new TelevisionBroadcast(
-                        $show,
-                        $name,
-                        is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : ''
-                    ));
+                    $day->addTelevision(new TelevisionBroadcast($show, $name, $entry['starttijden']));
                 }
 
                 $date->add(new \DateInterval('P1D'));
@@ -156,6 +154,50 @@ class BroadcastSchedule
         }
 
         $this->days = array_slice($this->days, 0, 7);
+    }
+
+    /**
+     * Returns the tv_week option rows normalized to scalars.
+     *
+     * The nested ACF repeater stores every subfield as a separate option, so
+     * reading it cold costs one query per subfield. The normalized form is
+     * cached; saving any options page invalidates it through invalidateCache().
+     *
+     * @return array{start: ?string, eind: ?string, shows: array{dag: string, show: ?int, naam_override: string, starttijden: string}[]}[]
+     */
+    private static function getTvWeeks(): array
+    {
+        $cached = get_transient(self::TV_SCHEDULE_CACHE);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $weeks = [];
+        foreach (zw_acf_rows(get_field('tv_week', 'option')) as $week) {
+            $shows = [];
+            foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
+                $shows[] = [
+                    'dag' => is_string($entry['dag'] ?? null) ? $entry['dag'] : '',
+                    'show' => ($entry['show'] ?? null) instanceof \WP_Post ? $entry['show']->ID : null,
+                    'naam_override' => is_string($entry['naam_override'] ?? null) ? trim($entry['naam_override']) : '',
+                    'starttijden' => is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : '',
+                ];
+            }
+
+            $weeks[] = [
+                'start' => is_string($week['tv_week_start'] ?? null) ? $week['tv_week_start'] : null,
+                'eind' => is_string($week['tv_week_eind'] ?? null) ? $week['tv_week_eind'] : null,
+                'shows' => $shows,
+            ];
+        }
+
+        set_transient(self::TV_SCHEDULE_CACHE, $weeks, HOUR_IN_SECONDS);
+        return $weeks;
+    }
+
+    public static function invalidateCache(): void
+    {
+        delete_transient(self::TV_SCHEDULE_CACHE);
     }
 
     private function getBroadcastDay(DateTime $date)
