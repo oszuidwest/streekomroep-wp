@@ -7,6 +7,17 @@ $zwProfile = isset($_GET['zw_profile']) && '1' === sanitize_text_field(wp_unslas
 $zwProfileMetrics = [];
 $zwProfileLastTime = microtime(true);
 $zwProfileLastQueries = get_num_queries();
+$zwProfileRequestTime = $zwProfileLastTime;
+if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+    $zwProfileRequestTime = (float) $_SERVER['REQUEST_TIME_FLOAT'];
+}
+
+if ($zwProfile) {
+    $zwProfileMetrics['bootstrap'] = [
+        'duration' => ($zwProfileLastTime - $zwProfileRequestTime) * 1000,
+        'queries' => $zwProfileLastQueries,
+    ];
+}
 
 $zwProfileMark = static function (string $name) use (
     $zwProfile,
