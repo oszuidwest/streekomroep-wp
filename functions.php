@@ -1164,6 +1164,16 @@ function zw_imgproxy($src, $width, $height)
 \Streekomroep\Gallery::register();
 $zwProfileThemeMarks['remaining'] = [microtime(true), get_num_queries()];
 
+add_action('init', function () use (&$zwProfileThemeMarks) {
+    $zwProfileThemeMarks['init_start'] = [microtime(true), get_num_queries()];
+}, -PHP_INT_MAX);
+add_action('acf/init', function () use (&$zwProfileThemeMarks) {
+    $zwProfileThemeMarks['acf_init_start'] = [microtime(true), get_num_queries()];
+}, -PHP_INT_MAX);
+add_action('acf/init', function () use (&$zwProfileThemeMarks) {
+    $zwProfileThemeMarks['acf_init_end'] = [microtime(true), get_num_queries()];
+}, PHP_INT_MAX);
+
 foreach (['after_setup_theme', 'init', 'wp_loaded', 'parse_query', 'template_redirect'] as $zwProfileHook) {
     add_action($zwProfileHook, function () use (&$zwProfileThemeMarks, $zwProfileHook) {
         $zwProfileThemeMarks[$zwProfileHook] = [microtime(true), get_num_queries()];
