@@ -13,10 +13,17 @@ if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 }
 
 if ($zwProfile) {
-    $zwProfileMetrics['bootstrap'] = [
-        'duration' => ($zwProfileLastTime - $zwProfileRequestTime) * 1000,
-        'queries' => $zwProfileLastQueries,
-    ];
+    global $zwProfileThemeStart, $zwProfileThemeQueries;
+    if (isset($zwProfileThemeStart, $zwProfileThemeQueries)) {
+        $zwProfileMetrics['wp_bootstrap'] = [
+            'duration' => ($zwProfileThemeStart - $zwProfileRequestTime) * 1000,
+            'queries' => $zwProfileThemeQueries,
+        ];
+        $zwProfileMetrics['theme_bootstrap'] = [
+            'duration' => ($zwProfileLastTime - $zwProfileThemeStart) * 1000,
+            'queries' => $zwProfileLastQueries - $zwProfileThemeQueries,
+        ];
+    }
 }
 
 $zwProfileMark = static function (string $name) use (

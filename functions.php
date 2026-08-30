@@ -6,6 +6,9 @@ use Timber\Timber;
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 
+$zwProfileThemeStart = microtime(true);
+$zwProfileThemeQueries = get_num_queries();
+
 require __DIR__ . '/vendor/autoload.php';
 
 Timber::init();
