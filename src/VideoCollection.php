@@ -94,13 +94,7 @@ class VideoCollection
         $nowTimestamp = time();
 
         $filtered = array_filter($rawVideos, function ($video) use ($nowTimestamp) {
-            if ($video->status !== Video::STATUS_FINISHED) {
-                return false;
-            }
-            if (!property_exists($video, '_broadcastTimestamp') || $video->_broadcastTimestamp === null) {
-                return false;
-            }
-            return $video->_broadcastTimestamp <= $nowTimestamp;
+            return self::isAvailable($video, $nowTimestamp);
         });
 
         usort($filtered, function ($left, $right) {
@@ -112,6 +106,47 @@ class VideoCollection
         }, $filtered);
     }
 
+    /** Checks whether a finished episode has reached its broadcast date. */
+    private static function isAvailable(object $rawVideo, int $nowTimestamp): bool
+    {
+        return $rawVideo->status === Video::STATUS_FINISHED
+        && ($rawVideo->_broadcastTimestamp ?? null) !== null
+        && $rawVideo->_broadcastTimestamp <= $nowTimestamp;
+    }
+
+    /** @var array<int, array> */
+    private static array $rawVideos = [];
+
+    /** Returns raw video metadata cached for the current request. */
+    private static function rawForTvShow(int $postId): array
+    {
+        if (!array_key_exists($postId, self::$rawVideos)) {
+            $videos = get_post_meta($postId, ZW_TV_META_VIDEOS, true);
+            self::$rawVideos[$postId] = is_array($videos) ? $videos : [];
+        }
+
+        return self::$rawVideos[$postId];
+    }
+
+    /** Loads one available episode by GUID. */
+    public static function findVideo(int $postId, string $guid): ?Video
+    {
+        $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
+        if (!$credentials) {
+            return null;
+        }
+
+        foreach (self::rawForTvShow($postId) as $raw) {
+            if (!is_object($raw) || ($raw->guid ?? null) !== $guid) {
+                continue;
+            }
+
+            return self::isAvailable($raw, time()) ? new Video($credentials, $raw) : null;
+        }
+
+        return null;
+    }
+
     /**
      * Load and sort episodes for a TV show from post meta.
      *
@@ -119,16 +154,11 @@ class VideoCollection
      */
     public static function forTvShow(int $postId): array
     {
-        $videos = get_post_meta($postId, ZW_TV_META_VIDEOS, true);
-        if (!is_array($videos)) {
-            return [];
-        }
-
         $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
         if (!$credentials) {
             return [];
         }
 
-        return self::sortAndFilter($credentials, $videos);
+        return self::sortAndFilter($credentials, self::rawForTvShow($postId));
     }
 }

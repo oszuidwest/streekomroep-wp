@@ -12,6 +12,15 @@ class BroadcastSchedule
     /** Retry interval when no current slot supplies a refresh boundary. */
     private const REFRESH_FALLBACK = 30;
 
+    private const TV_SCHEDULE_CACHE_PREFIX = 'zw_tv_schedule_';
+
+    private const TV_SCHEDULE_VERSION = 'zw_tv_schedule_version';
+
+    private static ?string $cacheVersion = null;
+
+    /** Prefix for ACF's tv_week option keys. */
+    public const OPTION_PREFIX = 'options_tv_week';
+
     /** @var BroadcastDay[] */
     public $days;
 
@@ -27,15 +36,33 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        $tv_weeks = zw_acf_rows(get_field('tv_week', 'option'));
-        foreach ($tv_weeks as $week) {
-            $start_value = $week['tv_week_start'] ?? null;
-            $end_value = $week['tv_week_eind'] ?? null;
-            if (!is_string($start_value) || !is_string($end_value)) {
-                continue;
-            }
+        $tvWeeks = self::getTvWeeks();
 
-            $start = DateTime::createFromFormat('Y-m-d', $start_value, wp_timezone());
+        // Prime all referenced shows before Timber hydration.
+        $showIds = [];
+        foreach ($tvWeeks as $week) {
+            foreach ($week['shows'] as $entry) {
+                if ($entry['show']) {
+                    $showIds[$entry['show']] = true;
+                }
+            }
+        }
+
+        $tvShows = [];
+        if ($showIds) {
+            _prime_post_caches(array_keys($showIds), false, true);
+            foreach (array_keys($showIds) as $showId) {
+                $show = get_post($showId);
+                if (!$show || $show->post_type !== 'tv' || $show->post_status !== 'publish') {
+                    continue;
+                }
+
+                $tvShows[$showId] = Timber::get_post($show);
+            }
+        }
+
+        foreach ($tvWeeks as $week) {
+            $start = DateTime::createFromFormat('Y-m-d', $week['start'], wp_timezone());
             if ($start === false) {
                 continue;
             }
@@ -43,7 +70,7 @@ class BroadcastSchedule
             if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
-            $end = DateTime::createFromFormat('Y-m-d', $end_value, wp_timezone());
+            $end = DateTime::createFromFormat('Y-m-d', $week['eind'], wp_timezone());
             if ($end === false) {
                 continue;
             }
@@ -57,24 +84,20 @@ class BroadcastSchedule
                 $day = $this->getBroadcastDay($date);
                 $dayname = $day->getName();
 
-                foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
-                    if (($entry['dag'] ?? null) !== $dayname) {
+                foreach ($week['shows'] as $entry) {
+                    if ($entry['dag'] !== $dayname) {
                         continue;
                     }
 
-                    $name = is_string($entry['naam_override'] ?? null) ? trim($entry['naam_override']) : '';
-                    $show = ($entry['show'] ?? null) instanceof \WP_Post ? Timber::get_post($entry['show']->ID) : null;
+                    $name = $entry['naam_override'];
+                    $show = $entry['show'] ? ($tvShows[$entry['show']] ?? null) : null;
 
                     // Override-only rows are valid for generic schedule entries such as reruns.
                     if (!$show && $name === '') {
                         continue;
                     }
 
-                    $day->addTelevision(new TelevisionBroadcast(
-                        $show,
-                        $name,
-                        is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : ''
-                    ));
+                    $day->addTelevision(new TelevisionBroadcast($show, $name, $entry['starttijden']));
                 }
 
                 $date->add(new \DateInterval('P1D'));
@@ -156,6 +179,61 @@ class BroadcastSchedule
         }
 
         $this->days = array_slice($this->days, 0, 7);
+    }
+
+    /**
+     * Returns cached tv_week rows as scalars.
+     *
+     * @return array{start: string, eind: string, shows: array{dag: string, show: ?int, naam_override: string, starttijden: string}[]}[]
+     */
+    private static function getTvWeeks(): array
+    {
+        $cacheKey = self::TV_SCHEDULE_CACHE_PREFIX . self::cacheVersion();
+        $cached = get_transient($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $weeks = [];
+        foreach (zw_acf_rows(get_field('tv_week', 'option')) as $week) {
+            $start = $week['tv_week_start'] ?? null;
+            $eind = $week['tv_week_eind'] ?? null;
+
+            if (!is_string($start) || !is_string($eind)) {
+                continue;
+            }
+
+            $shows = [];
+            foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
+                $shows[] = [
+                    'dag' => is_string($entry['dag'] ?? null) ? $entry['dag'] : '',
+                    'show' => ($entry['show'] ?? null) instanceof \WP_Post ? $entry['show']->ID : null,
+                    'naam_override' => is_string($entry['naam_override'] ?? null) ? trim($entry['naam_override']) : '',
+                    'starttijden' => is_string($entry['starttijden'] ?? null) ? $entry['starttijden'] : '',
+                ];
+            }
+
+            $weeks[] = ['start' => $start, 'eind' => $eind, 'shows' => $shows];
+        }
+
+        set_transient($cacheKey, $weeks, HOUR_IN_SECONDS);
+        return $weeks;
+    }
+
+    public static function invalidateCache(): void
+    {
+        self::$cacheVersion = (string) microtime(true);
+        set_transient(self::TV_SCHEDULE_VERSION, self::$cacheVersion, 0);
+    }
+
+    private static function cacheVersion(): string
+    {
+        if (self::$cacheVersion !== null) {
+            return self::$cacheVersion;
+        }
+
+        $version = get_transient(self::TV_SCHEDULE_VERSION);
+        return self::$cacheVersion = is_string($version) && $version !== '' ? $version : '0';
     }
 
     private function getBroadcastDay(DateTime $date)

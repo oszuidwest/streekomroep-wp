@@ -643,9 +643,30 @@ add_action('switch_theme', 'zw_deactivate');
 
 function zw_deactivate()
 {
-    // Clear the retired hourly schedule as well.
     wp_clear_scheduled_hook('zw_hourly');
     wp_clear_scheduled_hook('zw_10mins');
+}
+
+// Invalidate catch-up data after an ACF options save.
+add_action('acf/save_post', function ($post_id) {
+    if ($post_id === 'options') {
+        \Streekomroep\TvGemistCache::invalidate();
+    }
+});
+
+// Invalidate catch-up data when a TV show changes.
+add_action('save_post_tv', function () {
+    \Streekomroep\TvGemistCache::invalidate();
+});
+
+// ACF stores tv_week subfields as separate options.
+foreach (['added_option', 'updated_option', 'deleted_option'] as $zw_option_hook) {
+    add_action($zw_option_hook, function ($option) {
+        if (is_string($option) && str_starts_with($option, \Streekomroep\BroadcastSchedule::OPTION_PREFIX)) {
+            // ACF writes hundreds of repeater options in one request; invalidate once after the save.
+            add_action('shutdown', [\Streekomroep\BroadcastSchedule::class, 'invalidateCache']);
+        }
+    });
 }
 
 add_action('zw_10mins', 'zw_project_cron');
@@ -664,20 +685,26 @@ function zw_project_cron()
 
     $client = new \Streekomroep\BunnyClient($credentials);
 
+    $changed = false;
     foreach ($shows as $show) {
         $collectionId = $show->meta('tv_show_gemist_locatie');
         if (empty($collectionId)) {
-            update_post_meta($show->ID, ZW_TV_META_VIDEOS, []);
+            $changed = update_post_meta($show->ID, ZW_TV_META_VIDEOS, []) !== false || $changed;
             continue;
         }
 
         try {
             $videos = $client->fetchCollection($collectionId);
             \Streekomroep\VideoCollection::preprocess($videos);
-            update_post_meta($show->ID, ZW_TV_META_VIDEOS, $videos);
+            $changed = update_post_meta($show->ID, ZW_TV_META_VIDEOS, $videos) !== false || $changed;
         } catch (Exception $e) {
             error_log($e);
         }
+    }
+
+    // Invalidate only when the sync changes stored video data.
+    if ($changed) {
+        \Streekomroep\TvGemistCache::invalidate();
     }
 }
 

@@ -1,17 +1,53 @@
 <?php
 
 use Streekomroep\TelevisionBroadcast;
+use Streekomroep\TvGemistCache;
+
+/** Primes front-page attachment caches to avoid per-image database queries. */
+function zw_prime_front_page_caches(array $blocks): void
+{
+    $attachments = [];
+
+    foreach ($blocks as $block) {
+        foreach ($block['posts'] ?? [] as $post) {
+            $attachments[] = get_post_thumbnail_id($post->ID);
+        }
+
+        foreach (array_merge($block['videos'] ?? [], $block['shows'] ?? []) as $item) {
+            $attachments[] = get_post_thumbnail_id($item['show']->ID);
+        }
+
+        // Use raw term meta to avoid eager ACF image hydration.
+        foreach ($block['terms'] ?? [] as $term) {
+            $attachments[] = get_term_meta($term->id, 'dossier_afbeelding_hoog', true);
+        }
+
+        if (!empty($block['term'])) {
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_breed', true);
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_hoog', true);
+        }
+    }
+
+    $attachments = array_unique(array_filter(array_map('intval', $attachments)));
+    if ($attachments) {
+        _prime_post_caches($attachments, false, true);
+
+        // ACF image formatting resolves attachment parent permalinks.
+        $parents = array_unique(array_filter(array_map('wp_get_post_parent_id', $attachments)));
+        if ($parents) {
+            _prime_post_caches($parents, true, true);
+        }
+    }
+}
 
 $context = Timber::context();
 
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-if (empty($context['options']['desking_blokken_voorpagina']) || !is_array($context['options']['desking_blokken_voorpagina'])) {
-    $context['options']['desking_blokken_voorpagina'] = [];
-}
+$blocks = zw_acf_rows($context['options']['desking_blokken_voorpagina']);
 
-foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
+foreach ($blocks as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
@@ -32,53 +68,18 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_tv_gemist':
-            $shows = Timber::get_posts([
-                'post_type' => 'tv',
-                'ignore_sticky_posts' => true,
-                'nopaging' => true,
-            ]);
-
-            $episodes_with_duplicate_shows = [];
-            $latest_episode_per_show = [];
-
-            $deduplicate = (bool) $block['ontdubbel'];
-            $videos_to_show = $block['aantal_videos'];
-            $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
-            foreach ($shows as $show) {
-                $videos = \Streekomroep\VideoCollection::forTvShow($show->ID);
-                if (!$videos) {
-                    continue;
-                }
-
-                // Keep one latest episode per show for deduplicated videos and the secondary show list.
-                $latest_episode_per_show[] = $candidate($show, $videos[0]);
-
-                // Without deduplication, every recent episode may become a featured video.
-                if (false === $deduplicate) {
-                    $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
-                    foreach ($videos as $video) {
-                        $episodes_with_duplicate_shows[] = $candidate($show, $video);
-                    }
-                }
-            }
-
-            // Rank shows by the broadcast date of their latest episode.
-            $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-            usort($latest_episode_per_show, $newestFirst);
-
-            if (!empty($episodes_with_duplicate_shows)) {
-                // Rank the expanded episode pool independently when duplicate shows are allowed.
-                usort($episodes_with_duplicate_shows, $newestFirst);
-            }
-
-            $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
-            $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $block['videos']);
-            $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
+            $resolved = TvGemistCache::getBlock(
+                (bool) $block['ontdubbel'],
+                is_numeric($block['aantal_videos']) ? (int) $block['aantal_videos'] : 4
+            );
+            $block['videos'] = $resolved['videos'];
+            $block['shows'] = $resolved['shows'];
             break;
 
         case 'blok_artikel_lijst':
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'post',
+                'post_status' => 'publish',
                 'posts_per_page' => $block['aantal_artikelen'],
                 'offset' => $block['offset'],
                 'no_found_rows' => true,
@@ -97,6 +98,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
         case 'blok_fragmenten_carrousel':
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'fragment',
+                'post_status' => 'publish',
                 'posts_per_page' => 5,
                 'no_found_rows' => true,
                 'ignore_sticky_posts' => true,
@@ -106,7 +108,6 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
         case 'blok_dossier':
             $dossierTerm = get_term($block['selecteer_dossier'], 'dossier');
             if (!$dossierTerm || is_wp_error($dossierTerm)) {
-                // Term does not exist
                 $block['acf_fc_layout'] = 'error';
                 $block['error'] = 'Er is geen dossier geselecteerd';
                 break;
@@ -119,6 +120,7 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
                     'posts_per_page' => $block['aantal_artikelen'],
                     'offset' => $block['offset'],
                     'post_type' => 'post',
+                    'post_status' => 'publish',
                     'no_found_rows' => true,
                     'ignore_sticky_posts' => true,
                     'tax_query' => [
@@ -132,36 +134,60 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
             break;
 
         case 'blok_dossiers_carrousel':
-            $block['terms'] = Timber::get_terms([
+            $terms = Timber::get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => true,
             ]);
 
-            // Filter out terms with less than $count items
             $minCount = 2;
-            $block['terms'] = array_filter($block['terms'], function ($term) use ($minCount) {
+            $terms = array_filter($terms, function ($term) use ($minCount) {
                 return $term->count >= $minCount;
             });
 
-            foreach ($block['terms'] as $dossierTerm) {
-                $dossierTerm->posts = Timber::get_posts([
-                    'ignore_sticky_posts' => true,
-                    'posts_per_page' => 1,
-                    'no_found_rows' => true,
+            // Order dossiers without loading their individual posts.
+            global $wpdb;
+            $rows = $wpdb->get_results(
+                'SELECT tt.term_id, MAX(p.post_date) AS latest'
+                . ' FROM ' . $wpdb->term_relationships . ' tr'
+                . ' INNER JOIN ' . $wpdb->term_taxonomy . ' tt ON tt.term_taxonomy_id = tr.term_taxonomy_id'
+                . ' INNER JOIN ' . $wpdb->posts . ' p ON p.ID = tr.object_id'
+                . " WHERE tt.taxonomy = 'dossier'"
+                . " AND p.post_type = 'post'"
+                . " AND p.post_status = 'publish'"
+                . ' GROUP BY tt.term_id'
+            );
 
-                    'tax_query' => [
-                        [
-                            'taxonomy' => $dossierTerm->taxonomy,
-                            'terms' => $dossierTerm->id,
-                        ],
-                    ],
-                ]);
+            $latestByTerm = [];
+            foreach ($rows as $row) {
+                $latestByTerm[(int) $row->term_id] = $row->latest;
             }
 
-            // Sort on most recent post
-            usort($block['terms'], function ($lhs, $rhs) {
-                return strcmp($rhs->posts[0]->post_date, $lhs->posts[0]->post_date);
+            // Include child-term publications when ordering parent dossiers.
+            $parents = get_terms([
+                'taxonomy' => 'dossier',
+                'hide_empty' => false,
+                'fields' => 'id=>parent',
+            ]);
+            $parents = is_wp_error($parents) ? [] : $parents;
+
+            foreach (array_keys($latestByTerm) as $termId) {
+                $latest = $latestByTerm[$termId];
+                $parent = (int) ($parents[$termId] ?? 0);
+                $depth = 0;
+                // Cap traversal to protect against corrupt parent cycles.
+                while ($parent && $depth++ < 10) {
+                    if (strcmp($latest, $latestByTerm[$parent] ?? '') > 0) {
+                        $latestByTerm[$parent] = $latest;
+                    }
+                    $parent = (int) ($parents[$parent] ?? 0);
+                }
+            }
+
+            usort($terms, function ($lhs, $rhs) use ($latestByTerm) {
+                return strcmp($latestByTerm[$rhs->id] ?? '', $latestByTerm[$lhs->id] ?? '');
             });
+
+            $block['terms'] = $terms;
             break;
 
         case 'blok_nu_op_fmtv':
@@ -178,6 +204,10 @@ foreach ($context['options']['desking_blokken_voorpagina'] as &$block) {
     }
     do_action('qm/stop', $block['acf_fc_layout']);
 }
+unset($block);
 
+zw_prime_front_page_caches($blocks);
+
+$context['options']['desking_blokken_voorpagina'] = $blocks;
 
 Timber::render('front-page.twig', $context);

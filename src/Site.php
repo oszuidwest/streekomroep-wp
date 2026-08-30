@@ -50,7 +50,7 @@ class Site extends \Timber\Site
         $context['footer'] = Timber::get_menu('footer');
         $context['socials'] = zw_get_socials();
         $context['site'] = $this;
-        $context['options'] = get_fields('option') ?: [];
+        $context['options'] = new Options();
         $context['breadcrumb_separator'] = class_exists('WPSEO_Options') ? \WPSEO_Options::get('breadcrumbs-sep', '/') : '/';
         $context['layout'] = [
             'content_width' => Layout::CONTENT_WIDTH,
