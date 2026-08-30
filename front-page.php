@@ -22,7 +22,9 @@ if ($zwProfile) {
 
         $previousTime = $zwProfileThemeStart;
         $previousQueries = $zwProfileThemeQueries;
-        foreach ($zwProfileThemeMarks as $name => [$time, $queries]) {
+        $orderedThemeMarks = $zwProfileThemeMarks;
+        uasort($orderedThemeMarks, static fn ($left, $right) => $left[0] <=> $right[0]);
+        foreach ($orderedThemeMarks as $name => [$time, $queries]) {
             $zwProfileMetrics['theme_' . $name] = [
                 'duration' => ($time - $previousTime) * 1000,
                 'queries' => $queries - $previousQueries,
