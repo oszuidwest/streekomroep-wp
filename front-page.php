@@ -41,12 +41,13 @@ foreach ($blocks as &$block) {
             // TV show, which is expensive to load and sort. The scalar result is
             // cached until the ten-minute Bunny cron refreshes the meta.
             $cacheKey = ($deduplicate ? '1' : '0') . '_' . $videos_to_show;
-            $candidates = \Streekomroep\TvGemistCache::get($cacheKey);
 
-            if ($candidates !== null) {
+            // Turns ['show' => id, 'video' => guid] refs back into post and
+            // Video objects; the warm and the cold path share this one step.
+            $hydrate = static function (array $refs): array {
                 $showIds = array_unique(array_merge(
-                    array_column($candidates['videos'], 'show'),
-                    array_column($candidates['shows'], 'show')
+                    array_column($refs['videos'], 'show'),
+                    array_column($refs['shows'], 'show')
                 ));
 
                 $showsById = [];
@@ -73,69 +74,80 @@ foreach ($blocks as &$block) {
                     return $video ? ['show' => $show, 'video' => $video] : null;
                 };
 
-                $resolvedVideos = array_values(array_filter(array_map($resolve, $candidates['videos'])));
-                $resolvedShows = array_values(array_filter(array_map($resolve, $candidates['shows'])));
+                return [
+                    'videos' => array_values(array_filter(array_map($resolve, $refs['videos']))),
+                    'shows' => array_values(array_filter(array_map($resolve, $refs['shows']))),
+                ];
+            };
 
-                // A ref that no longer resolves (deleted show, vanished video)
-                // means the cache is stale; rebuild instead of rendering a
-                // shrunken block until the next invalidation.
-                if (
-                    count($resolvedVideos) === count($candidates['videos'])
-                    && count($resolvedShows) === count($candidates['shows'])
-                ) {
-                    $block['videos'] = $resolvedVideos;
-                    $block['shows'] = $resolvedShows;
-                    break;
-                }
-            }
+            $computeRefs = static function () use ($deduplicate, $videos_to_show): array {
+                $shows = Timber::get_posts([
+                    'post_type' => 'tv',
+                    'post_status' => 'publish',
+                    'ignore_sticky_posts' => true,
+                    'nopaging' => true,
+                ]);
 
-            $shows = Timber::get_posts([
-                'post_type' => 'tv',
-                'post_status' => 'publish',
-                'ignore_sticky_posts' => true,
-                'nopaging' => true,
-            ]);
+                $episodes_with_duplicate_shows = [];
+                $latest_episode_per_show = [];
 
-            $episodes_with_duplicate_shows = [];
-            $latest_episode_per_show = [];
+                $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
+                foreach ($shows as $show) {
+                    $videos = VideoCollection::forTvShow($show->ID);
+                    if (!$videos) {
+                        continue;
+                    }
 
-            $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
-            foreach ($shows as $show) {
-                $videos = VideoCollection::forTvShow($show->ID);
-                if (!$videos) {
-                    continue;
-                }
+                    // Keep one latest episode per show for deduplicated videos and the secondary show list.
+                    $latest_episode_per_show[] = $candidate($show, $videos[0]);
 
-                // Keep one latest episode per show for deduplicated videos and the secondary show list.
-                $latest_episode_per_show[] = $candidate($show, $videos[0]);
-
-                // Without deduplication, every recent episode may become a featured video.
-                if (false === $deduplicate) {
-                    $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
-                    foreach ($videos as $video) {
-                        $episodes_with_duplicate_shows[] = $candidate($show, $video);
+                    // Without deduplication, every recent episode may become a featured video.
+                    if (false === $deduplicate) {
+                        $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
+                        foreach ($videos as $video) {
+                            $episodes_with_duplicate_shows[] = $candidate($show, $video);
+                        }
                     }
                 }
+
+                // Rank shows by the broadcast date of their latest episode.
+                $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
+                usort($latest_episode_per_show, $newestFirst);
+
+                if (!empty($episodes_with_duplicate_shows)) {
+                    // Rank the expanded episode pool independently when duplicate shows are allowed.
+                    usort($episodes_with_duplicate_shows, $newestFirst);
+                }
+
+                $featured = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
+                $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $featured);
+                $secondary = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
+
+                $toRef = static fn ($item) => ['show' => $item['show']->ID, 'video' => $item['video']->getId()];
+                return [
+                    'videos' => array_map($toRef, $featured),
+                    'shows' => array_map($toRef, $secondary),
+                ];
+            };
+
+            $refs = \Streekomroep\TvGemistCache::get($cacheKey);
+            $resolved = $refs === null ? null : $hydrate($refs);
+
+            // A cached ref that no longer resolves (deleted show, vanished
+            // video) means the cache is stale; rebuild instead of rendering a
+            // shrunken block until the next invalidation.
+            if (
+                $resolved === null
+                || count($resolved['videos']) !== count($refs['videos'])
+                || count($resolved['shows']) !== count($refs['shows'])
+            ) {
+                $refs = $computeRefs();
+                \Streekomroep\TvGemistCache::set($cacheKey, $refs);
+                $resolved = $hydrate($refs);
             }
 
-            // Rank shows by the broadcast date of their latest episode.
-            $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-            usort($latest_episode_per_show, $newestFirst);
-
-            if (!empty($episodes_with_duplicate_shows)) {
-                // Rank the expanded episode pool independently when duplicate shows are allowed.
-                usort($episodes_with_duplicate_shows, $newestFirst);
-            }
-
-            $block['videos'] = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
-            $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $block['videos']);
-            $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
-
-            $toRef = static fn ($item) => ['show' => $item['show']->ID, 'video' => $item['video']->getId()];
-            \Streekomroep\TvGemistCache::set($cacheKey, [
-                'videos' => array_map($toRef, $block['videos']),
-                'shows' => array_map($toRef, $block['shows']),
-            ]);
+            $block['videos'] = $resolved['videos'];
+            $block['shows'] = $resolved['shows'];
             break;
 
         case 'blok_artikel_lijst':
