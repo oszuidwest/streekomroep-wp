@@ -691,13 +691,13 @@ function zw_deactivate()
 add_action('acf/save_post', function ($post_id) {
     if ($post_id === 'options') {
         \Streekomroep\BroadcastSchedule::invalidateCache();
-        delete_transient('zw_tv_gemist');
+        \Streekomroep\TvGemistCache::invalidate();
     }
 });
 
 // Editing a TV show can change its videos or visibility before the next cron run.
 add_action('save_post_tv', function () {
-    delete_transient('zw_tv_gemist');
+    \Streekomroep\TvGemistCache::invalidate();
 });
 
 // Programmatic schedule writes (update_field, WP-CLI, imports) bypass
@@ -743,7 +743,7 @@ function zw_project_cron()
     }
 
     // The refreshed meta invalidates the derived front-page candidate lists.
-    delete_transient('zw_tv_gemist');
+    \Streekomroep\TvGemistCache::invalidate();
 }
 
 

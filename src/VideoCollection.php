@@ -113,6 +113,30 @@ class VideoCollection
     }
 
     /**
+     * Load a single episode by guid without materializing the whole collection.
+     */
+    public static function findVideo(int $postId, string $guid): ?Video
+    {
+        $videos = get_post_meta($postId, ZW_TV_META_VIDEOS, true);
+        if (!is_array($videos)) {
+            return null;
+        }
+
+        $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
+        if (!$credentials) {
+            return null;
+        }
+
+        foreach ($videos as $raw) {
+            if (is_object($raw) && ($raw->guid ?? null) === $guid) {
+                return new Video($credentials, $raw);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Load and sort episodes for a TV show from post meta.
      *
      * @return Video[]

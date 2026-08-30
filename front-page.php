@@ -41,10 +41,9 @@ foreach ($blocks as &$block) {
             // TV show, which is expensive to load and sort. The scalar result is
             // cached until the ten-minute Bunny cron refreshes the meta.
             $cacheKey = ($deduplicate ? '1' : '0') . '_' . $videos_to_show;
-            $cache = get_transient('zw_tv_gemist');
-            $candidates = is_array($cache) ? ($cache[$cacheKey] ?? null) : null;
+            $candidates = \Streekomroep\TvGemistCache::get($cacheKey);
 
-            if (is_array($candidates) && isset($candidates['videos'], $candidates['shows'])) {
+            if ($candidates !== null) {
                 $showIds = array_unique(array_merge(
                     array_column($candidates['videos'], 'show'),
                     array_column($candidates['shows'], 'show')
@@ -64,21 +63,14 @@ foreach ($blocks as &$block) {
                     }
                 }
 
-                $videosByShow = [];
-                $resolve = static function ($ref) use ($showsById, &$videosByShow) {
+                $resolve = static function ($ref) use ($showsById) {
                     $show = $showsById[$ref['show']] ?? null;
                     if (!$show) {
                         return null;
                     }
 
-                    $videosByShow[$show->ID] ??= VideoCollection::forTvShow($show->ID);
-                    foreach ($videosByShow[$show->ID] as $video) {
-                        if ($video->getId() === $ref['video']) {
-                            return ['show' => $show, 'video' => $video];
-                        }
-                    }
-
-                    return null;
+                    $video = VideoCollection::findVideo($show->ID, $ref['video']);
+                    return $video ? ['show' => $show, 'video' => $video] : null;
                 };
 
                 $resolvedVideos = array_values(array_filter(array_map($resolve, $candidates['videos'])));
@@ -140,12 +132,10 @@ foreach ($blocks as &$block) {
             $block['shows'] = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
 
             $toRef = static fn ($item) => ['show' => $item['show']->ID, 'video' => $item['video']->getId()];
-            $cache = is_array($cache) ? $cache : [];
-            $cache[$cacheKey] = [
+            \Streekomroep\TvGemistCache::set($cacheKey, [
                 'videos' => array_map($toRef, $block['videos']),
                 'shows' => array_map($toRef, $block['shows']),
-            ];
-            set_transient('zw_tv_gemist', $cache, 10 * MINUTE_IN_SECONDS);
+            ]);
             break;
 
         case 'blok_artikel_lijst':
@@ -235,6 +225,27 @@ foreach ($blocks as &$block) {
             $latestByTerm = [];
             foreach ($rows as $row) {
                 $latestByTerm[(int) $row->term_id] = $row->latest;
+            }
+
+            // The taxonomy is hierarchical and the replaced per-term query
+            // matched child terms too, so roll each date up to its ancestors.
+            $parents = get_terms([
+                'taxonomy' => 'dossier',
+                'hide_empty' => false,
+                'fields' => 'id=>parent',
+            ]);
+            $parents = is_wp_error($parents) ? [] : $parents;
+
+            foreach (array_keys($latestByTerm) as $termId) {
+                $latest = $latestByTerm[$termId];
+                $parent = (int) ($parents[$termId] ?? 0);
+                $depth = 0;
+                while ($parent && $depth++ < 10) {
+                    if (strcmp($latest, $latestByTerm[$parent] ?? '') > 0) {
+                        $latestByTerm[$parent] = $latest;
+                    }
+                    $parent = (int) ($parents[$parent] ?? 0);
+                }
             }
 
             // Sort on most recent post
