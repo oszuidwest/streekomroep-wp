@@ -266,3 +266,20 @@ header('Cache-Control: no-store');
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Timber rendered the complete response.
 echo $html;
+
+global $wpdb;
+if (!empty($wpdb->queries)) {
+    $queryDump = [];
+    foreach ($wpdb->queries as $index => $query) {
+        $queryDump[] = [
+            'number' => $index + 1,
+            'duration' => $query[1],
+            'sql' => $query[0],
+            'caller' => $query[2] ?? '',
+        ];
+    }
+
+    echo '<pre id="zw-query-dump" style="white-space:pre-wrap;background:#fff;color:#000;padding:1rem">';
+    echo esc_html(wp_json_encode($queryDump, JSON_PRETTY_PRINT));
+    echo '</pre>';
+}
