@@ -240,6 +240,7 @@ foreach ($blocks as &$block) {
                 $latest = $latestByTerm[$termId];
                 $parent = (int) ($parents[$termId] ?? 0);
                 $depth = 0;
+                // The depth cap only guards against a corrupted parent cycle.
                 while ($parent && $depth++ < 10) {
                     if (strcmp($latest, $latestByTerm[$parent] ?? '') > 0) {
                         $latestByTerm[$parent] = $latest;
