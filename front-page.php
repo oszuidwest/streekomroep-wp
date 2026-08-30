@@ -3,63 +3,6 @@
 use Streekomroep\TelevisionBroadcast;
 use Streekomroep\TvGemistCache;
 
-$zwProfile = isset($_GET['zw_profile']) && '1' === sanitize_text_field(wp_unslash($_GET['zw_profile']));
-$zwProfileMetrics = [];
-$zwProfileLastTime = microtime(true);
-$zwProfileLastQueries = get_num_queries();
-$zwProfileRequestTime = $zwProfileLastTime;
-if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
-    $zwProfileRequestTime = (float) $_SERVER['REQUEST_TIME_FLOAT'];
-}
-
-if ($zwProfile) {
-    global $zwProfileThemeStart, $zwProfileThemeQueries, $zwProfileThemeMarks;
-    if (isset($zwProfileThemeStart, $zwProfileThemeQueries, $zwProfileThemeMarks)) {
-        $zwProfileMetrics['wp_bootstrap'] = [
-            'duration' => ($zwProfileThemeStart - $zwProfileRequestTime) * 1000,
-            'queries' => $zwProfileThemeQueries,
-        ];
-
-        $previousTime = $zwProfileThemeStart;
-        $previousQueries = $zwProfileThemeQueries;
-        $orderedThemeMarks = $zwProfileThemeMarks;
-        uasort($orderedThemeMarks, static fn ($left, $right) => $left[0] <=> $right[0]);
-        foreach ($orderedThemeMarks as $name => [$time, $queries]) {
-            $zwProfileMetrics['theme_' . $name] = [
-                'duration' => ($time - $previousTime) * 1000,
-                'queries' => $queries - $previousQueries,
-            ];
-            $previousTime = $time;
-            $previousQueries = $queries;
-        }
-
-        $zwProfileMetrics['template_dispatch'] = [
-            'duration' => ($zwProfileLastTime - $previousTime) * 1000,
-            'queries' => $zwProfileLastQueries - $previousQueries,
-        ];
-    }
-}
-
-$zwProfileMark = static function (string $name) use (
-    $zwProfile,
-    &$zwProfileMetrics,
-    &$zwProfileLastTime,
-    &$zwProfileLastQueries
-): void {
-    if (!$zwProfile) {
-        return;
-    }
-
-    $now = microtime(true);
-    $queries = get_num_queries();
-    $zwProfileMetrics[$name] = [
-        'duration' => ($now - $zwProfileLastTime) * 1000,
-        'queries' => $queries - $zwProfileLastQueries,
-    ];
-    $zwProfileLastTime = $now;
-    $zwProfileLastQueries = $queries;
-};
-
 /** Primes front-page attachment caches to avoid per-image database queries. */
 function zw_prime_front_page_caches(array $blocks): void
 {
@@ -98,18 +41,13 @@ function zw_prime_front_page_caches(array $blocks): void
 }
 
 $context = Timber::context();
-$zwProfileMark('context');
 
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
-$zwProfileMark('post');
 
 $blocks = zw_acf_rows($context['options']['desking_blokken_voorpagina']);
-$zwProfileMark('acf_blocks');
 
 foreach ($blocks as &$block) {
-    $zwBlockStartTime = microtime(true);
-    $zwBlockStartQueries = get_num_queries();
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
@@ -265,82 +203,11 @@ foreach ($blocks as &$block) {
             break;
     }
     do_action('qm/stop', $block['acf_fc_layout']);
-
-    if ($zwProfile) {
-        $metric = 'block_' . sanitize_key($block['acf_fc_layout']);
-        $duration = (microtime(true) - $zwBlockStartTime) * 1000;
-        $queries = get_num_queries() - $zwBlockStartQueries;
-        $zwProfileMetrics[$metric]['duration'] = ($zwProfileMetrics[$metric]['duration'] ?? 0) + $duration;
-        $zwProfileMetrics[$metric]['queries'] = ($zwProfileMetrics[$metric]['queries'] ?? 0) + $queries;
-    }
 }
 unset($block);
-$zwProfileMark('blocks');
 
 zw_prime_front_page_caches($blocks);
-$zwProfileMark('prime_attachments');
-
-$zwProfileTermImages = [];
-if ($zwProfile) {
-    foreach ($blocks as $profileBlock) {
-        foreach ($profileBlock['terms'] ?? [] as $profileTerm) {
-            $rawImage = get_term_meta($profileTerm->id, 'dossier_afbeelding_hoog', true);
-            $formattedImage = get_field(
-                'dossier_afbeelding_hoog',
-                get_term($profileTerm->id, $profileTerm->taxonomy)
-            );
-            $zwProfileTermImages[] = [
-                'term' => $profileTerm->id,
-                'raw' => $rawImage,
-                'formatted' => is_array($formattedImage) ? ($formattedImage['ID'] ?? null) : $formattedImage,
-            ];
-
-            if (count($zwProfileTermImages) === 5) {
-                break 2;
-            }
-        }
-    }
-}
 
 $context['options']['desking_blokken_voorpagina'] = $blocks;
 
-if (!$zwProfile) {
-    Timber::render('front-page.twig', $context);
-    return;
-}
-
-$html = Timber::compile('front-page.twig', $context);
-$zwProfileMark('twig');
-
-$serverTiming = [];
-$queryProfile = [];
-foreach ($zwProfileMetrics as $name => $metric) {
-    $serverTiming[] = sprintf('%s;dur=%.2f', $name, $metric['duration']);
-    $queryProfile[] = $name . '=' . $metric['queries'];
-}
-
-header('Server-Timing: ' . implode(', ', $serverTiming));
-header('X-ZW-Queries: ' . get_num_queries());
-header('X-ZW-Query-Profile: ' . implode(', ', $queryProfile));
-header('X-ZW-Term-Images: ' . wp_json_encode($zwProfileTermImages));
-header('Cache-Control: no-store');
-
-// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Timber rendered the complete response.
-echo $html;
-
-global $wpdb;
-if (!empty($wpdb->queries)) {
-    $queryDump = [];
-    foreach ($wpdb->queries as $index => $query) {
-        $queryDump[] = [
-            'number' => $index + 1,
-            'duration' => $query[1],
-            'sql' => $query[0],
-            'caller' => $query[2] ?? '',
-        ];
-    }
-
-    echo '<pre id="zw-query-dump" style="white-space:pre-wrap;background:#fff;color:#000;padding:1rem">';
-    echo esc_html(wp_json_encode($queryDump, JSON_PRETTY_PRINT));
-    echo '</pre>';
-}
+Timber::render('front-page.twig', $context);

@@ -6,15 +6,9 @@ use Timber\Timber;
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 
-$zwProfileThemeStart = microtime(true);
-$zwProfileThemeQueries = get_num_queries();
-$zwProfileThemeMarks = [];
-
 require __DIR__ . '/vendor/autoload.php';
-$zwProfileThemeMarks['autoload'] = [microtime(true), get_num_queries()];
 
 Timber::init();
-$zwProfileThemeMarks['timber'] = [microtime(true), get_num_queries()];
 
 if (!class_exists('ACF')) {
     add_action(
@@ -164,7 +158,6 @@ add_filter('timber/post/classmap', function ($base) {
 });
 
 new \Streekomroep\Site();
-$zwProfileThemeMarks['site'] = [microtime(true), get_num_queries()];
 
 add_filter('acf/settings/save_json', 'streekomroep_acf_json_save_point');
 
@@ -719,7 +712,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
     add_filter('yoast_seo_development_mode', '__return_true');
 }
 \Streekomroep\VideoSeo::register();
-$zwProfileThemeMarks['video_seo'] = [microtime(true), get_num_queries()];
 add_filter('wpseo_schema_article', 'zw_seo_article_add_region', 10, 2);
 
 function fragment_get_posts($fragmentID)
@@ -1162,20 +1154,3 @@ function zw_imgproxy($src, $width, $height)
 
 
 \Streekomroep\Gallery::register();
-$zwProfileThemeMarks['remaining'] = [microtime(true), get_num_queries()];
-
-add_action('init', function () use (&$zwProfileThemeMarks) {
-    $zwProfileThemeMarks['init_start'] = [microtime(true), get_num_queries()];
-}, -PHP_INT_MAX);
-add_action('acf/init', function () use (&$zwProfileThemeMarks) {
-    $zwProfileThemeMarks['acf_init_start'] = [microtime(true), get_num_queries()];
-}, -PHP_INT_MAX);
-add_action('acf/init', function () use (&$zwProfileThemeMarks) {
-    $zwProfileThemeMarks['acf_init_end'] = [microtime(true), get_num_queries()];
-}, PHP_INT_MAX);
-
-foreach (['after_setup_theme', 'init', 'wp_loaded', 'parse_query', 'template_redirect'] as $zwProfileHook) {
-    add_action($zwProfileHook, function () use (&$zwProfileThemeMarks, $zwProfileHook) {
-        $zwProfileThemeMarks[$zwProfileHook] = [microtime(true), get_num_queries()];
-    }, PHP_INT_MAX);
-}
