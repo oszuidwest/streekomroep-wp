@@ -10,18 +10,9 @@ namespace Streekomroep;
  * configuration. Fetching per field keeps pages that use two or three options
  * from paying for all of them.
  */
-class Options implements \ArrayAccess, \IteratorAggregate
+class Options implements \ArrayAccess
 {
     private array $cache = [];
-
-    /**
-     * Iteration falls back to the old load-everything behavior so consumers
-     * that walk all options keep working; values set on this object win.
-     */
-    public function getIterator(): \Traversable
-    {
-        return new \ArrayIterator(array_merge(get_fields('option') ?: [], $this->cache));
-    }
 
     public function offsetExists(mixed $offset): bool
     {

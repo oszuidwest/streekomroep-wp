@@ -94,13 +94,7 @@ class VideoCollection
         $nowTimestamp = time();
 
         $filtered = array_filter($rawVideos, function ($video) use ($nowTimestamp) {
-            if ($video->status !== Video::STATUS_FINISHED) {
-                return false;
-            }
-            if (!property_exists($video, '_broadcastTimestamp') || $video->_broadcastTimestamp === null) {
-                return false;
-            }
-            return $video->_broadcastTimestamp <= $nowTimestamp;
+            return self::isAvailable($video, $nowTimestamp);
         });
 
         usort($filtered, function ($left, $right) {
@@ -110,6 +104,17 @@ class VideoCollection
         return array_map(function ($raw) use ($credentials) {
             return new Video($credentials, $raw);
         }, $filtered);
+    }
+
+    /**
+     * The one availability rule for rendering an episode: finished on Bunny's
+     * side and a broadcast date in the past.
+     */
+    private static function isAvailable(object $rawVideo, int $nowTimestamp): bool
+    {
+        return $rawVideo->status === Video::STATUS_FINISHED
+        && ($rawVideo->_broadcastTimestamp ?? null) !== null
+        && $rawVideo->_broadcastTimestamp <= $nowTimestamp;
     }
 
     /** @var array<int, array> */
@@ -145,16 +150,7 @@ class VideoCollection
                 continue;
             }
 
-            // Keep parity with sortAndFilter(): a ref that no longer passes
-            // the availability filter must not render via the warm path.
-            if ($raw->status !== Video::STATUS_FINISHED) {
-                return null;
-            }
-            if (($raw->_broadcastTimestamp ?? null) === null || $raw->_broadcastTimestamp > time()) {
-                return null;
-            }
-
-            return new Video($credentials, $raw);
+            return self::isAvailable($raw, time()) ? new Video($credentials, $raw) : null;
         }
 
         return null;

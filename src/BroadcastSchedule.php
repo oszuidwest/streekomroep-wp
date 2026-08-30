@@ -15,6 +15,9 @@ class BroadcastSchedule
     /** Cache for the normalized tv_week option rows. */
     private const TV_SCHEDULE_CACHE = 'zw_tv_schedule';
 
+    /** ACF stores every tv_week repeater subfield as an option under this prefix. */
+    public const OPTION_PREFIX = 'options_tv_week';
+
     /** @var BroadcastDay[] */
     public $days;
 
@@ -30,14 +33,29 @@ class BroadcastSchedule
         $scheduleEnd = clone $scheduleStart;
         $scheduleEnd->add(new \DateInterval('P6D'));
 
-        foreach (self::getTvWeeks() as $week) {
-            $start_value = $week['start'];
-            $end_value = $week['eind'];
-            if (!is_string($start_value) || !is_string($end_value)) {
-                continue;
-            }
+        $tvWeeks = self::getTvWeeks();
 
-            $start = DateTime::createFromFormat('Y-m-d', $start_value, wp_timezone());
+        // One primed lookup per show instead of an uncached get_post() per
+        // schedule entry per day.
+        $showIds = [];
+        foreach ($tvWeeks as $week) {
+            foreach ($week['shows'] as $entry) {
+                if ($entry['show']) {
+                    $showIds[$entry['show']] = true;
+                }
+            }
+        }
+
+        $tvShows = [];
+        if ($showIds) {
+            _prime_post_caches(array_keys($showIds), false, true);
+            foreach (array_keys($showIds) as $showId) {
+                $tvShows[$showId] = Timber::get_post($showId);
+            }
+        }
+
+        foreach ($tvWeeks as $week) {
+            $start = DateTime::createFromFormat('Y-m-d', $week['start'], wp_timezone());
             if ($start === false) {
                 continue;
             }
@@ -45,7 +63,7 @@ class BroadcastSchedule
             if ($start < $scheduleStart) {
                 $start = $scheduleStart;
             }
-            $end = DateTime::createFromFormat('Y-m-d', $end_value, wp_timezone());
+            $end = DateTime::createFromFormat('Y-m-d', $week['eind'], wp_timezone());
             if ($end === false) {
                 continue;
             }
@@ -65,7 +83,7 @@ class BroadcastSchedule
                     }
 
                     $name = $entry['naam_override'];
-                    $show = $entry['show'] ? Timber::get_post($entry['show']) : null;
+                    $show = $entry['show'] ? ($tvShows[$entry['show']] ?? null) : null;
 
                     // Override-only rows are valid for generic schedule entries such as reruns.
                     if (!$show && $name === '') {
@@ -161,9 +179,10 @@ class BroadcastSchedule
      *
      * The nested ACF repeater stores every subfield as a separate option, so
      * reading it cold costs one query per subfield. The normalized form is
-     * cached; saving any options page invalidates it through invalidateCache().
+     * cached; the option hooks in functions.php invalidate it on every
+     * tv_week write through invalidateCache(), the TTL is only a safety net.
      *
-     * @return array{start: ?string, eind: ?string, shows: array{dag: string, show: ?int, naam_override: string, starttijden: string}[]}[]
+     * @return array{start: string, eind: string, shows: array{dag: string, show: ?int, naam_override: string, starttijden: string}[]}[]
      */
     private static function getTvWeeks(): array
     {
@@ -174,6 +193,14 @@ class BroadcastSchedule
 
         $weeks = [];
         foreach (zw_acf_rows(get_field('tv_week', 'option')) as $week) {
+            $start = $week['tv_week_start'] ?? null;
+            $eind = $week['tv_week_eind'] ?? null;
+
+            // A row without a date range can never contribute broadcasts.
+            if (!is_string($start) || !is_string($eind)) {
+                continue;
+            }
+
             $shows = [];
             foreach (zw_acf_rows($week['tv_week_shows'] ?? null) as $entry) {
                 $shows[] = [
@@ -184,14 +211,10 @@ class BroadcastSchedule
                 ];
             }
 
-            $weeks[] = [
-                'start' => is_string($week['tv_week_start'] ?? null) ? $week['tv_week_start'] : null,
-                'eind' => is_string($week['tv_week_eind'] ?? null) ? $week['tv_week_eind'] : null,
-                'shows' => $shows,
-            ];
+            $weeks[] = ['start' => $start, 'eind' => $eind, 'shows' => $shows];
         }
 
-        set_transient(self::TV_SCHEDULE_CACHE, $weeks, HOUR_IN_SECONDS);
+        set_transient(self::TV_SCHEDULE_CACHE, $weeks, DAY_IN_SECONDS);
         return $weeks;
     }
 

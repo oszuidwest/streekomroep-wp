@@ -1,17 +1,52 @@
 <?php
 
 use Streekomroep\TelevisionBroadcast;
-use Streekomroep\VideoCollection;
+use Streekomroep\TvGemistCache;
+
+/**
+ * Primes attachment caches for the images the front-page blocks will render.
+ *
+ * Twig hydrates featured images and dossier images one attachment at a time,
+ * costing a post and a meta query each. Collecting the attachment IDs up front
+ * loads them in two queries total.
+ */
+function zw_prime_front_page_caches(array $blocks): void
+{
+    $attachments = [];
+
+    foreach ($blocks as $block) {
+        foreach ($block['posts'] ?? [] as $post) {
+            $attachments[] = get_post_thumbnail_id($post->ID);
+        }
+
+        foreach (array_merge($block['videos'] ?? [], $block['shows'] ?? []) as $item) {
+            $attachments[] = get_post_thumbnail_id($item['show']->ID);
+        }
+
+        // Raw term meta holds the attachment ID; the formatted ACF value would
+        // hydrate the attachment right here, one query at a time.
+        foreach ($block['terms'] ?? [] as $term) {
+            $attachments[] = get_term_meta($term->id, 'dossier_afbeelding_hoog', true);
+        }
+
+        if (!empty($block['term'])) {
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_breed', true);
+            $attachments[] = get_term_meta($block['term']->id, 'dossier_afbeelding_hoog', true);
+        }
+    }
+
+    $attachments = array_unique(array_filter(array_map('intval', $attachments)));
+    if ($attachments) {
+        _prime_post_caches($attachments, false, true);
+    }
+}
 
 $context = Timber::context();
 
 $timber_post = Timber::get_post();
 $context['post'] = $timber_post;
 
-$blocks = $context['options']['desking_blokken_voorpagina'];
-if (!is_array($blocks)) {
-    $blocks = [];
-}
+$blocks = zw_acf_rows($context['options']['desking_blokken_voorpagina']);
 
 foreach ($blocks as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
@@ -34,118 +69,10 @@ foreach ($blocks as &$block) {
             break;
 
         case 'blok_tv_gemist':
-            $deduplicate = (bool) $block['ontdubbel'];
-            $videos_to_show = is_numeric($block['aantal_videos']) ? (int) $block['aantal_videos'] : 4;
-
-            // The candidate lists are derived from bunny_data post meta on every
-            // TV show, which is expensive to load and sort. The scalar result is
-            // cached until the ten-minute Bunny cron refreshes the meta.
-            $cacheKey = ($deduplicate ? '1' : '0') . '_' . $videos_to_show;
-
-            // Turns ['show' => id, 'video' => guid] refs back into post and
-            // Video objects; the warm and the cold path share this one step.
-            $hydrate = static function (array $refs): array {
-                $showIds = array_unique(array_merge(
-                    array_column($refs['videos'], 'show'),
-                    array_column($refs['shows'], 'show')
-                ));
-
-                $showsById = [];
-                if ($showIds) {
-                    $shows = Timber::get_posts([
-                        'post_type' => 'tv',
-                        'post_status' => 'publish',
-                        'post__in' => $showIds,
-                        'ignore_sticky_posts' => true,
-                        'nopaging' => true,
-                    ]);
-                    foreach ($shows as $show) {
-                        $showsById[$show->ID] = $show;
-                    }
-                }
-
-                $resolve = static function ($ref) use ($showsById) {
-                    $show = $showsById[$ref['show']] ?? null;
-                    if (!$show) {
-                        return null;
-                    }
-
-                    $video = VideoCollection::findVideo($show->ID, $ref['video']);
-                    return $video ? ['show' => $show, 'video' => $video] : null;
-                };
-
-                return [
-                    'videos' => array_values(array_filter(array_map($resolve, $refs['videos']))),
-                    'shows' => array_values(array_filter(array_map($resolve, $refs['shows']))),
-                ];
-            };
-
-            $computeRefs = static function () use ($deduplicate, $videos_to_show): array {
-                $shows = Timber::get_posts([
-                    'post_type' => 'tv',
-                    'post_status' => 'publish',
-                    'ignore_sticky_posts' => true,
-                    'nopaging' => true,
-                ]);
-
-                $episodes_with_duplicate_shows = [];
-                $latest_episode_per_show = [];
-
-                $candidate = static fn ($show, $video) => ['show' => $show, 'video' => $video];
-                foreach ($shows as $show) {
-                    $videos = VideoCollection::forTvShow($show->ID);
-                    if (!$videos) {
-                        continue;
-                    }
-
-                    // Keep one latest episode per show for deduplicated videos and the secondary show list.
-                    $latest_episode_per_show[] = $candidate($show, $videos[0]);
-
-                    // Without deduplication, every recent episode may become a featured video.
-                    if (false === $deduplicate) {
-                        $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
-                        foreach ($videos as $video) {
-                            $episodes_with_duplicate_shows[] = $candidate($show, $video);
-                        }
-                    }
-                }
-
-                // Rank shows by the broadcast date of their latest episode.
-                $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
-                usort($latest_episode_per_show, $newestFirst);
-
-                if (!empty($episodes_with_duplicate_shows)) {
-                    // Rank the expanded episode pool independently when duplicate shows are allowed.
-                    usort($episodes_with_duplicate_shows, $newestFirst);
-                }
-
-                $featured = array_slice($episodes_with_duplicate_shows ?: $latest_episode_per_show, 0, $videos_to_show);
-                $featured_show_ids = array_map(static fn ($item) => $item['show']->ID, $featured);
-                $secondary = array_slice(array_values(array_filter($latest_episode_per_show, static fn ($item) => !in_array($item['show']->ID, $featured_show_ids, true))), 0, 4);
-
-                $toRef = static fn ($item) => ['show' => $item['show']->ID, 'video' => $item['video']->getId()];
-                return [
-                    'videos' => array_map($toRef, $featured),
-                    'shows' => array_map($toRef, $secondary),
-                ];
-            };
-
-            $refs = \Streekomroep\TvGemistCache::get($cacheKey);
-            $resolved = $refs === null ? null : $hydrate($refs);
-
-            // A cached ref that no longer resolves (deleted show, vanished
-            // video) means the cache is stale; rebuild instead of rendering a
-            // shrunken block until the next invalidation.
-            if (
-                $resolved === null
-                || count($resolved['videos']) !== count($refs['videos'])
-                || count($resolved['shows']) !== count($refs['shows'])
-            ) {
-                $refs = $computeRefs();
-                \Streekomroep\TvGemistCache::set($cacheKey, $refs);
-                $resolved = $hydrate($refs);
-            }
-
+            $resolved = TvGemistCache::getBlock(
+                (bool) $block['ontdubbel'],
+                is_numeric($block['aantal_videos']) ? (int) $block['aantal_videos'] : 4
+            );
             $block['videos'] = $resolved['videos'];
             $block['shows'] = $resolved['shows'];
             break;
