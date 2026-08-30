@@ -13,16 +13,23 @@ if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 }
 
 if ($zwProfile) {
-    global $zwProfileThemeStart, $zwProfileThemeQueries;
-    if (isset($zwProfileThemeStart, $zwProfileThemeQueries)) {
+    global $zwProfileThemeStart, $zwProfileThemeQueries, $zwProfileThemeMarks;
+    if (isset($zwProfileThemeStart, $zwProfileThemeQueries, $zwProfileThemeMarks)) {
         $zwProfileMetrics['wp_bootstrap'] = [
             'duration' => ($zwProfileThemeStart - $zwProfileRequestTime) * 1000,
             'queries' => $zwProfileThemeQueries,
         ];
-        $zwProfileMetrics['theme_bootstrap'] = [
-            'duration' => ($zwProfileLastTime - $zwProfileThemeStart) * 1000,
-            'queries' => $zwProfileLastQueries - $zwProfileThemeQueries,
-        ];
+
+        $previousTime = $zwProfileThemeStart;
+        $previousQueries = $zwProfileThemeQueries;
+        foreach ($zwProfileThemeMarks as $name => [$time, $queries]) {
+            $zwProfileMetrics['theme_' . $name] = [
+                'duration' => ($time - $previousTime) * 1000,
+                'queries' => $queries - $previousQueries,
+            ];
+            $previousTime = $time;
+            $previousQueries = $queries;
+        }
     }
 }
 
