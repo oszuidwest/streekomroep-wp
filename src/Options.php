@@ -2,14 +2,7 @@
 
 namespace Streekomroep;
 
-/**
- * Lazy ACF options access for the Timber context.
- *
- * Loading all options with get_fields('option') formats every field on every
- * request, including the complete television schedule and the front-page block
- * configuration. Fetching per field keeps pages that use two or three options
- * from paying for all of them.
- */
+/** Provides lazy, per-field ACF options access for Timber. */
 class Options implements \ArrayAccess
 {
     private array $cache = [];

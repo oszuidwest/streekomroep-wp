@@ -643,28 +643,23 @@ add_action('switch_theme', 'zw_deactivate');
 
 function zw_deactivate()
 {
-    // Clear the retired hourly schedule as well.
     wp_clear_scheduled_hook('zw_hourly');
     wp_clear_scheduled_hook('zw_10mins');
 }
 
-// Saving any options page may change the desking configuration, so drop the
-// derived tv-gemist cache immediately. The TV schedule cache is covered by
-// the option hooks below, which also fire for ACF UI saves.
+// Invalidate catch-up data after an ACF options save.
 add_action('acf/save_post', function ($post_id) {
     if ($post_id === 'options') {
         \Streekomroep\TvGemistCache::invalidate();
     }
 });
 
-// Editing a TV show can change its videos or visibility before the next cron run.
+// Invalidate catch-up data when a TV show changes.
 add_action('save_post_tv', function () {
     \Streekomroep\TvGemistCache::invalidate();
 });
 
-// ACF writes every tv_week repeater subfield as its own option, so these
-// hooks catch both UI saves and programmatic writes (update_field, WP-CLI,
-// imports), and only when a value actually changes.
+// ACF stores tv_week subfields as separate options.
 foreach (['added_option', 'updated_option', 'deleted_option'] as $zw_option_hook) {
     add_action($zw_option_hook, function ($option) {
         if (is_string($option) && str_starts_with($option, \Streekomroep\BroadcastSchedule::OPTION_PREFIX)) {
@@ -706,9 +701,7 @@ function zw_project_cron()
         }
     }
 
-    // update_post_meta() returns false when the stored value is unchanged, so
-    // the derived front-page candidate lists only drop when the sync actually
-    // wrote new data.
+    // Invalidate only when the sync changes stored video data.
     if ($changed) {
         \Streekomroep\TvGemistCache::invalidate();
     }

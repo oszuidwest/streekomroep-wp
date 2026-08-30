@@ -106,10 +106,7 @@ class VideoCollection
         }, $filtered);
     }
 
-    /**
-     * The one availability rule for rendering an episode: finished on Bunny's
-     * side and a broadcast date in the past.
-     */
+    /** Checks whether a finished episode has reached its broadcast date. */
     private static function isAvailable(object $rawVideo, int $nowTimestamp): bool
     {
         return $rawVideo->status === Video::STATUS_FINISHED
@@ -120,11 +117,7 @@ class VideoCollection
     /** @var array<int, array> */
     private static array $rawVideos = [];
 
-    /**
-     * Per-request memo of the raw bunny_data meta; get_metadata() unserializes
-     * the stored blob on every call, which adds up when several cached refs
-     * point at the same show.
-     */
+    /** Returns raw video metadata cached for the current request. */
     private static function rawForTvShow(int $postId): array
     {
         if (!array_key_exists($postId, self::$rawVideos)) {
@@ -135,9 +128,7 @@ class VideoCollection
         return self::$rawVideos[$postId];
     }
 
-    /**
-     * Load a single episode by guid without materializing the whole collection.
-     */
+    /** Loads one available episode by GUID. */
     public static function findVideo(int $postId, string $guid): ?Video
     {
         $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);

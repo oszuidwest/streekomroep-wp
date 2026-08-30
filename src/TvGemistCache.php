@@ -4,29 +4,17 @@ namespace Streekomroep;
 
 use Timber\Timber;
 
-/**
- * Front-page TV catch-up block: candidate selection plus its transient cache.
- *
- * The candidate lists are derived from bunny_data post meta on every TV show,
- * which is expensive to load and sort. Entries hold scalar refs (show ID plus
- * video guid) in one transient per block configuration, so concurrent
- * requests never rewrite each other's entries and every entry keeps its own
- * expiry. Invalidation bumps a version that is part of every entry's
- * transient name; entries stored under an old version are never read again
- * and expire through their own TTL.
- */
+/** Caches front-page catch-up candidates by block configuration. */
 class TvGemistCache
 {
     private const PREFIX = 'zw_tv_gemist_';
     private const VERSION_KEY = 'zw_tv_gemist_version';
     private const TTL = 10 * MINUTE_IN_SECONDS;
 
-    /** Per-request memo of the version transient. */
     private static ?string $version = null;
 
     /**
-     * Returns the featured episodes and the secondary show list for one block
-     * configuration, as ['show' => post, 'video' => Video] pairs.
+     * Returns hydrated episodes and secondary shows for a block configuration.
      *
      * @return array{videos: array, shows: array}
      */
@@ -37,9 +25,7 @@ class TvGemistCache
         $refs = self::get($key);
         $resolved = $refs === null ? null : self::hydrate($refs);
 
-        // A cached ref that no longer resolves (deleted show, vanished
-        // video) means the cache is stale; rebuild instead of rendering a
-        // shrunken block until the next invalidation.
+        // Rebuild entries that reference deleted shows or videos.
         if (
             $resolved === null
             || count($resolved['videos']) !== count($refs['videos'])
@@ -55,16 +41,12 @@ class TvGemistCache
 
     public static function invalidate(): void
     {
-        // A plain overwrite instead of a read-modify-write, so concurrent
-        // invalidations cannot resurrect stale data.
+        // A unique version avoids read-modify-write races.
         self::$version = (string) microtime(true);
         set_transient(self::VERSION_KEY, self::$version, 0);
     }
 
-    /**
-     * Turns ['show' => id, 'video' => guid] refs back into post and Video
-     * objects; the warm and the cold path share this one step.
-     */
+    /** Hydrates cached show and video references. */
     private static function hydrate(array $refs): array
     {
         $showIds = array_unique(array_merge(
@@ -121,24 +103,20 @@ class TvGemistCache
                 continue;
             }
 
-            // Keep one latest episode per show for deduplicated videos and the secondary show list.
             $latestEpisodePerShow[] = $candidate($show, $videos[0]);
 
-            // Without deduplication, every recent episode may become a featured video.
             if (false === $deduplicate) {
-                $videos = array_slice($videos, 0, 10); // limit the buildup of the array.
+                $videos = array_slice($videos, 0, 10);
                 foreach ($videos as $video) {
                     $episodesWithDuplicateShows[] = $candidate($show, $video);
                 }
             }
         }
 
-        // Rank shows by the broadcast date of their latest episode.
         $newestFirst = static fn ($left, $right) => $right['video']->getBroadcastDate() <=> $left['video']->getBroadcastDate();
         usort($latestEpisodePerShow, $newestFirst);
 
         if (!empty($episodesWithDuplicateShows)) {
-            // Rank the expanded episode pool independently when duplicate shows are allowed.
             usort($episodesWithDuplicateShows, $newestFirst);
         }
 

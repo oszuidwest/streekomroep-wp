@@ -12,10 +12,9 @@ class BroadcastSchedule
     /** Retry interval when no current slot supplies a refresh boundary. */
     private const REFRESH_FALLBACK = 30;
 
-    /** Cache for the normalized tv_week option rows. */
     private const TV_SCHEDULE_CACHE = 'zw_tv_schedule';
 
-    /** ACF stores every tv_week repeater subfield as an option under this prefix. */
+    /** Prefix for ACF's tv_week option keys. */
     public const OPTION_PREFIX = 'options_tv_week';
 
     /** @var BroadcastDay[] */
@@ -35,8 +34,7 @@ class BroadcastSchedule
 
         $tvWeeks = self::getTvWeeks();
 
-        // One primed lookup per show instead of an uncached get_post() per
-        // schedule entry per day.
+        // Prime all referenced shows before Timber hydration.
         $showIds = [];
         foreach ($tvWeeks as $week) {
             foreach ($week['shows'] as $entry) {
@@ -175,12 +173,7 @@ class BroadcastSchedule
     }
 
     /**
-     * Returns the tv_week option rows normalized to scalars.
-     *
-     * The nested ACF repeater stores every subfield as a separate option, so
-     * reading it cold costs one query per subfield. The normalized form is
-     * cached; the option hooks in functions.php invalidate it on every
-     * tv_week write through invalidateCache(), the TTL is only a safety net.
+     * Returns cached tv_week rows as scalars.
      *
      * @return array{start: string, eind: string, shows: array{dag: string, show: ?int, naam_override: string, starttijden: string}[]}[]
      */
@@ -196,7 +189,6 @@ class BroadcastSchedule
             $start = $week['tv_week_start'] ?? null;
             $eind = $week['tv_week_eind'] ?? null;
 
-            // A row without a date range can never contribute broadcasts.
             if (!is_string($start) || !is_string($eind)) {
                 continue;
             }

@@ -3,13 +3,7 @@
 use Streekomroep\TelevisionBroadcast;
 use Streekomroep\TvGemistCache;
 
-/**
- * Primes attachment caches for the images the front-page blocks will render.
- *
- * Twig hydrates featured images and dossier images one attachment at a time,
- * costing a post and a meta query each. Collecting the attachment IDs up front
- * loads them in two queries total.
- */
+/** Primes front-page attachment caches to avoid per-image database queries. */
 function zw_prime_front_page_caches(array $blocks): void
 {
     $attachments = [];
@@ -23,8 +17,7 @@ function zw_prime_front_page_caches(array $blocks): void
             $attachments[] = get_post_thumbnail_id($item['show']->ID);
         }
 
-        // Raw term meta holds the attachment ID; the formatted ACF value would
-        // hydrate the attachment right here, one query at a time.
+        // Use raw term meta to avoid eager ACF image hydration.
         foreach ($block['terms'] ?? [] as $term) {
             $attachments[] = get_term_meta($term->id, 'dossier_afbeelding_hoog', true);
         }
@@ -109,7 +102,6 @@ foreach ($blocks as &$block) {
         case 'blok_dossier':
             $dossierTerm = get_term($block['selecteer_dossier'], 'dossier');
             if (!$dossierTerm || is_wp_error($dossierTerm)) {
-                // Term does not exist
                 $block['acf_fc_layout'] = 'error';
                 $block['error'] = 'Er is geen dossier geselecteerd';
                 break;
@@ -141,14 +133,12 @@ foreach ($blocks as &$block) {
                 'hide_empty' => true,
             ]);
 
-            // Filter out terms with less than $count items
             $minCount = 2;
             $terms = array_filter($terms, function ($term) use ($minCount) {
                 return $term->count >= $minCount;
             });
 
-            // The carousel only needs the terms ordered by their most recent
-            // publication; one grouped query replaces a post query per dossier.
+            // Order dossiers without loading their individual posts.
             global $wpdb;
             $rows = $wpdb->get_results(
                 'SELECT tt.term_id, MAX(p.post_date) AS latest'
@@ -166,8 +156,7 @@ foreach ($blocks as &$block) {
                 $latestByTerm[(int) $row->term_id] = $row->latest;
             }
 
-            // The taxonomy is hierarchical and the replaced per-term query
-            // matched child terms too, so roll each date up to its ancestors.
+            // Include child-term publications when ordering parent dossiers.
             $parents = get_terms([
                 'taxonomy' => 'dossier',
                 'hide_empty' => false,
@@ -179,7 +168,7 @@ foreach ($blocks as &$block) {
                 $latest = $latestByTerm[$termId];
                 $parent = (int) ($parents[$termId] ?? 0);
                 $depth = 0;
-                // The depth cap only guards against a corrupted parent cycle.
+                // Cap traversal to protect against corrupt parent cycles.
                 while ($parent && $depth++ < 10) {
                     if (strcmp($latest, $latestByTerm[$parent] ?? '') > 0) {
                         $latestByTerm[$parent] = $latest;
@@ -188,7 +177,6 @@ foreach ($blocks as &$block) {
                 }
             }
 
-            // Sort on most recent post
             usort($terms, function ($lhs, $rhs) use ($latestByTerm) {
                 return strcmp($latestByTerm[$rhs->id] ?? '', $latestByTerm[$lhs->id] ?? '');
             });
