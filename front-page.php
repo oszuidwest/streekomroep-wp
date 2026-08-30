@@ -30,6 +30,11 @@ if ($zwProfile) {
             $previousTime = $time;
             $previousQueries = $queries;
         }
+
+        $zwProfileMetrics['template_dispatch'] = [
+            'duration' => ($zwProfileLastTime - $previousTime) * 1000,
+            'queries' => $zwProfileLastQueries - $previousQueries,
+        ];
     }
 }
 
