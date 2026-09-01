@@ -63,6 +63,11 @@
             updateMediaSession();
         }
 
+        // The now-playing line only exists when a stream is configured.
+        if (!titleNode || !artistNode) {
+            return;
+        }
+
         const title = track ? track.title : fallbackTitle;
         const artist = track ? track.artist : fallbackArtist;
 
@@ -356,7 +361,7 @@
         renderProgress(current);
         renderUpcoming(Array.isArray(schedule.upcoming) ? schedule.upcoming : []);
 
-        if (!streamElement) {
+        if (!streamElement && titleNode) {
             // Preserve active track metadata while updating its fallback.
             const showingFallback = titleNode.textContent === fallbackTitle;
             fallbackTitle = current.name;
