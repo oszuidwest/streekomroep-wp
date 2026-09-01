@@ -72,22 +72,16 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
         continue;
     }
 
-    // The group label already names the medium, so strip a unit or "Kanaal" prefix from the value.
-    $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
-    if ($medium === 'Ether') {
-        $value = trim(preg_replace('/\s*FM$/i', '', $value));
-    } elseif ($medium === 'Kabel') {
-        $value = trim(preg_replace('/^Kanaal\s+/i', '', $value));
-    }
-
+    // Editors sometimes type "Kanaal 914" or "105.8 FM" despite the field asking for the number
+    // only; the group heading already names the medium, so drop that decoration.
+    $value = trim(preg_replace('/^\s*kanaal\s+|\s*fm\s*$/i', '', (string)($row['radio_frequenties_frequentie'] ?? '')));
     if ($value === '') {
         continue;
     }
 
     $groups[$medium]['channels'][] = [
         'value' => $value,
-        // Only non-ether media use the medium name as a missing place label.
-        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')) ?: ($medium === 'Ether' ? '' : $medium),
+        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')),
     ];
 }
 

@@ -151,15 +151,13 @@
         </template>
 
         {% if frequency_groups is not empty %}
-            {% set channel_label = 'mb-2 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
             <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="frequencies-title">
                 <h2 id="frequencies-title" class="mb-5 text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
-                {# The ether list is the longest, so it gets its own column; the rest stack beside it. #}
-                <div class="grid gap-4 md:grid-cols-2">
+                {# The FM list is the longest, so it spans the left column; the rest stack on the right. #}
+                <div class="grid gap-4 md:grid-cols-2 md:grid-rows-[auto_1fr] md:items-start">
                     {% for group in frequency_groups %}
-                        {% if loop.index == 2 %}<div class="grid content-start gap-4">{% endif %}
-                        <div class="{{ card }} p-4">
-                            <h3 class="{{ channel_label }}">{{ group.title }}</h3>
+                        <div class="{{ loop.first ? 'md:row-span-2 ' }}{{ card }} p-4">
+                            <h3 class="mb-2 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">{{ group.title }}</h3>
                             <ul>
                                 {% for channel in group.channels %}
                                     <li class="flex items-baseline gap-4 border-t border-gray-800/10 py-2 dark:border-gray-200/10">
@@ -171,7 +169,6 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                        {% if loop.last and loop.index > 1 %}</div>{% endif %}
                     {% endfor %}
                 </div>
             </section>
