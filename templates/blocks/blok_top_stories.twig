@@ -1,33 +1,38 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
+    <div class="grid grid-cols-2 gap-0.5 sm:grid-cols-[1.8fr_1fr_1fr]">
         {% for post in block.posts %}
-            <article class="flex flex-col" data-post-id="{{ post.id }}">
+            <article class="flex flex-col {{ loop.first ? 'col-span-2 sm:col-span-1' }}" data-post-id="{{ post.id }}">
                 {% set thumbnail = post.thumbnail %}
-                <a class="group block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
+                {% set desktop_width = loop.first ? 440 : 244 %}
+                {% set desktop_sizes = loop.first
+                    ? '(min-width: 960px) 438px, calc((100vw - 2.25rem) * 0.473684)'
+                    : '(min-width: 960px) 243px, calc((100vw - 2.25rem) * 0.263158)'
+                %}
+                <a class="group block relative overflow-hidden bg-gray-200 dark:bg-gray-800 {{ loop.first ? 'aspect-[16/10] sm:aspect-[6/5]' : 'aspect-[4/5] sm:aspect-auto sm:grow' }}" href="{{ post.link }}">
                     <picture>
                         {{ responsive.source(
                             src: thumbnail.src,
-                            width: 464,
-                            height: 464 / 5 * 4,
-                            sizes: '(min-width: 960px) 464px, calc((100vw - 2rem) / 2)',
+                            width: desktop_width,
+                            height: 367,
+                            sizes: desktop_sizes,
                             media: '(min-width: 640px)',
                         ) }}
                         {{ responsive.render(
                             src: thumbnail.src,
-                            width: 640,
-                            height: 640 / 16 * 10,
-                            sizes: '100vw',
+                            width: loop.first ? 640 : 320,
+                            height: 400,
+                            sizes: loop.first ? '100vw' : 'calc((100vw - 0.125rem) / 2)',
                             alt: thumbnail.alt|default(post.title),
                             class: 'object-cover w-full h-full absolute inset-0 zw-thumb-hover',
-                            loading: 'eager',
+                            loading: loop.first ? 'eager' : 'lazy',
                         ) }}
                     </picture>
                     <div class="absolute inset-0 flex flex-col justify-end">
                         <span class="block p-4 pt-14 bg-gradient-to-b from-transparent to-black/60">
                             {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
-                            <h2 class="block font-black text-lg sm:text-xl text-white">{{ post.title }}</h2>
+                            <h2 class="block font-black text-white {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
                         </span>
                     </div>
                 </a>
