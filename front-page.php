@@ -51,6 +51,7 @@ foreach ($blocks as &$block) {
     do_action('qm/start', $block['acf_fc_layout']);
     switch ($block['acf_fc_layout']) {
         case 'blok_top_stories':
+            // The template renders a fixed three-slot grid; keep in sync with blok_top_stories.twig.
             $block['posts'] = Timber::get_posts([
                 'post_type' => 'post',
                 'post_status' => 'publish',
