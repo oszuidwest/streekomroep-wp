@@ -72,10 +72,12 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
         continue;
     }
 
-    // Normalize legacy ether values that include the unit.
+    // The group label already names the medium, so strip a unit or "Kanaal" prefix from the value.
     $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
     if ($medium === 'Ether') {
         $value = trim(preg_replace('/\s*FM$/i', '', $value));
+    } elseif ($medium === 'Kabel') {
+        $value = trim(preg_replace('/^Kanaal\s+/i', '', $value));
     }
 
     if ($value === '') {

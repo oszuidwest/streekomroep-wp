@@ -151,25 +151,29 @@
         </template>
 
         {% if frequency_groups is not empty %}
+            {% set channel_label = 'mb-2 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
             <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="frequencies-title">
                 <h2 id="frequencies-title" class="mb-5 text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
-                <dl class="{{ card }} divide-y divide-gray-800/10 dark:divide-gray-200/10">
+                {# The ether list is the longest, so it gets its own column; the rest stack beside it. #}
+                <div class="grid gap-4 md:grid-cols-2">
                     {% for group in frequency_groups %}
-                        <div class="flex flex-col gap-1.5 px-4 py-3.5 sm:flex-row sm:gap-5">
-                            <dt class="flex-none pt-0.5 font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:w-12">{{ group.title }}</dt>
-                            <dd class="flex flex-wrap gap-x-5 gap-y-1.5">
+                        {% if loop.index == 2 %}<div class="grid content-start gap-4">{% endif %}
+                        <div class="{{ card }} p-4">
+                            <h3 class="{{ channel_label }}">{{ group.title }}</h3>
+                            <ul>
                                 {% for channel in group.channels %}
-                                    <span class="whitespace-nowrap">
-                                        <b class="font-bold tabular-nums">{{ channel.value|e }}</b>
+                                    <li class="flex items-baseline gap-4 border-t border-gray-800/10 py-2 dark:border-gray-200/10">
                                         {% if channel.place %}
-                                            <span class="text-sm {{ muted }}">{{ channel.place|e }}</span>
+                                            <span class="min-w-0 text-gray-600 dark:text-gray-300">{{ channel.place|e }}</span>
                                         {% endif %}
-                                    </span>
+                                        <span class="ml-auto flex-none font-bold tabular-nums">{{ channel.value|e }}</span>
+                                    </li>
                                 {% endfor %}
-                            </dd>
+                            </ul>
                         </div>
+                        {% if loop.last and loop.index > 1 %}</div>{% endif %}
                     {% endfor %}
-                </dl>
+                </div>
             </section>
         {% endif %}
     </article>
