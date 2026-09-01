@@ -54,7 +54,6 @@
         return title && artist ? {title: title, artist: artist} : null;
     }
 
-    let expiryTimer = null;
     function renderNow(track) {
         const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
         currentTrack = track;
@@ -76,25 +75,7 @@
     }
 
     function renderFallback() {
-        clearTimeout(expiryTimer);
-        expiryTimer = null;
         renderNow(null);
-    }
-
-    function trackIsCurrent(expiresAt) {
-        clearTimeout(expiryTimer);
-        const remaining = Date.parse(expiresAt) - Date.now();
-        if (!Number.isFinite(remaining)) {
-            return true;
-        }
-
-        if (remaining <= 0) {
-            renderFallback();
-            return false;
-        }
-
-        expiryTimer = setTimeout(renderFallback, remaining);
-        return true;
     }
 
     let reconnectDelay = RECONNECT_START;
@@ -142,16 +123,15 @@
                 return;
             }
 
+            // The server owns track timing: it delays updates to match the stream and
+            // only sends a fallback when no next track arrived within that window.
+            // A local expiry timer would run ahead of the stream and flap between songs.
             const track = readTrack(payload);
             if (!track) {
-                // An empty metadata update ends the current track.
+                // A track-less update (programme name or station text) ends the current track.
                 if (!payload.type || payload.type === 'metadata_update') {
                     renderFallback();
                 }
-                return;
-            }
-
-            if (!trackIsCurrent(payload.expires_at)) {
                 return;
             }
 
