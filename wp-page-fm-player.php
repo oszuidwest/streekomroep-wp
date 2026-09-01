@@ -61,9 +61,9 @@ if ($artworkUrl && $context['stream_sources']) {
 }
 
 $groups = [
-    'Ether' => ['badge' => 'FM', 'title' => 'Via de ether', 'unit' => 'FM', 'channels' => []],
-    'DAB+' => ['badge' => 'DAB+', 'title' => 'Digitale radio', 'unit' => '', 'channels' => []],
-    'Kabel' => ['badge' => 'Kabel', 'title' => 'Via je aanbieder', 'unit' => '', 'channels' => []],
+    'Ether' => ['title' => 'FM', 'channels' => []],
+    'DAB+' => ['title' => 'DAB+', 'channels' => []],
+    'Kabel' => ['title' => 'Kabel', 'channels' => []],
 ];
 
 foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) {
@@ -72,20 +72,17 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
         continue;
     }
 
-    // Normalize legacy ether values that include the unit.
+    // Editors sometimes type "Kanaal 914" or "105.8 FM" despite the field asking for the number
+    // only; the group heading already names the medium, so drop that decoration.
     $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
-    if ($medium === 'Ether') {
-        $value = trim(preg_replace('/\s*FM$/i', '', $value));
-    }
-
+    $value = trim(preg_replace('/^\s*kanaal\s+|\s*fm\s*$/i', '', $value) ?? $value);
     if ($value === '') {
         continue;
     }
 
     $groups[$medium]['channels'][] = [
         'value' => $value,
-        // Only non-ether media use the medium name as a missing place label.
-        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')) ?: ($medium === 'Ether' ? '' : $medium),
+        'place' => trim((string)($row['radio_frequenties_plaats'] ?? '')),
     ];
 }
 

@@ -86,7 +86,7 @@
             <div class="{{ card }} flex min-h-29 items-center gap-4 p-4 sm:gap-5 sm:p-5">
                 {% if has_stream %}
                     <button type="button" aria-label="Luister live" data-play
-                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white shadow-[0_5px_14px_rgba(143,0,78,0.22)] transition hover:bg-[#8f004e] hover:shadow-[0_7px_18px_rgba(143,0,78,0.28)] active:translate-y-px {{ focus_ring }} sm:size-22 motion-reduce:transition-none">
+                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] {{ focus_ring }} sm:size-22 motion-reduce:transition-none">
                         <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
                         <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
                     </button>
@@ -151,38 +151,26 @@
         </template>
 
         {% if frequency_groups is not empty %}
-            <section class="mx-auto max-w-960 px-4 pt-7">
-                <h2 class="text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
-                <p class="mt-1 mb-5 text-sm {{ muted }}">Kies hoe je luistert en bekijk de juiste frequentie.</p>
-
-                {% for group in frequency_groups %}
-                    <details class="group {{ card }} {{ not loop.first ? 'mt-3 ' }}overflow-hidden">
-                        <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-4 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gray-800 dark:focus-visible:outline-gray-200 [&::-webkit-details-marker]:hidden">
-                            <span class="min-w-14 rounded-sm bg-gray-800 px-2 py-1 text-center font-round text-xs font-extrabold tracking-wide text-white uppercase">{{ group.badge }}</span>
-                            <span class="font-bold">{{ group.title }}</span>
-                            <span class="ml-auto size-5 flex-none text-gray-400 transition-transform group-open:rotate-90 [&>svg]:size-full" aria-hidden="true">
-                                {{ icon('icon-chevron_right') }}
-                            </span>
-                        </summary>
-                        <div class="border-t border-gray-800/10 px-4 pt-3 pb-4 dark:border-gray-200/10">
-                            <ul class="grid gap-3 sm:grid-cols-2">
+            <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="frequencies-title">
+                <h2 id="frequencies-title" class="mb-5 text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
+                {# The FM list is the longest, so it spans the left column; the rest stack on the right. #}
+                <div class="grid gap-4 md:grid-cols-2 md:grid-rows-[auto_1fr] md:items-start">
+                    {% for group in frequency_groups %}
+                        <div class="{{ loop.first ? 'md:row-span-2 ' }}{{ card }} p-4">
+                            <h3 class="mb-2 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">{{ group.title }}</h3>
+                            <ul>
                                 {% for channel in group.channels %}
-                                    <li class="rounded-sm bg-gray-100 px-3.5 py-3 dark:bg-gray-800">
+                                    <li class="flex items-baseline gap-4 border-t border-gray-800/10 py-2 dark:border-gray-200/10">
                                         {% if channel.place %}
-                                            <p class="text-sm leading-snug {{ muted }}">{{ channel.place|e }}</p>
+                                            <span class="min-w-0 text-gray-600 dark:text-gray-300">{{ channel.place|e }}</span>
                                         {% endif %}
-                                        <p class="mt-0.5 text-3xl leading-none font-black tabular-nums">
-                                            {{- channel.value|e -}}
-                                            {%- if group.unit -%}
-                                                <span class="ml-1 text-xs font-bold tracking-wider text-gray-400">{{ group.unit }}</span>
-                                            {%- endif -%}
-                                        </p>
+                                        <span class="ml-auto flex-none font-bold tabular-nums">{{ channel.value|e }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </div>
-                    </details>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </section>
         {% endif %}
     </article>
