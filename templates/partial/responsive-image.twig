@@ -1,5 +1,5 @@
 {# Width and height represent the largest 1x slot. #}
-{% macro render(src, width, height, sizes, alt, class, loading = 'lazy') %}
+{% macro render(src, width, height, sizes, alt, class, loading = 'lazy', fetchpriority = null) %}
     {% set width = width|round %}
     {% set height = height|round %}
     {% if width > 0 and height > 0 %}
@@ -12,6 +12,7 @@
              width="{{ width|e('html_attr') }}"
              height="{{ height|e('html_attr') }}"
              loading="{{ loading|e('html_attr') }}"
+             {% if fetchpriority %}fetchpriority="{{ fetchpriority|e('html_attr') }}"{% endif %}
              decoding="async">
     {% endif %}
 {% endmacro %}

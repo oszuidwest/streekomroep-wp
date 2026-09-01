@@ -1,33 +1,44 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
 <div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
+    {# Fixed three-slot layout (one lead, two secondaries); keep posts_per_page in front-page.php in sync. #}
+    <div class="grid grid-cols-2 gap-0.5 sm:grid-cols-[1.8fr_1fr_1fr]">
         {% for post in block.posts %}
-            <article class="flex flex-col" data-post-id="{{ post.id }}">
+            <article class="flex flex-col {{ loop.first ? 'col-span-2 sm:col-span-1' }}" data-post-id="{{ post.id }}">
                 {% set thumbnail = post.thumbnail %}
-                <a class="group block relative aspect-[16/10] sm:aspect-[5/4] overflow-hidden bg-gray-200 dark:bg-gray-800" href="{{ post.link }}">
+                {# 2.25rem = sm:px-4 plus two gap-0.5 gaps; 438px/243px are the column widths at the 960px container max. #}
+                {% set desktop_width = loop.first ? 440 : 244 %}
+                {% set desktop_sizes = loop.first
+                    ? '(min-width: 960px) 438px, calc((100vw - 2.25rem) * 1.8 / 3.8)'
+                    : '(min-width: 960px) 243px, calc((100vw - 2.25rem) / 3.8)'
+                %}
+                {% set mobile_width = loop.first ? 640 : 320 %}
+                {% set mobile_sizes = loop.first ? '100vw' : 'calc((100vw - 0.125rem) / 2)' %}
+                <a class="group block relative overflow-hidden bg-gray-200 dark:bg-gray-800 {{ loop.first ? 'aspect-[16/10] sm:aspect-[6/5]' : 'aspect-[4/5] sm:aspect-auto sm:grow' }}" href="{{ post.link }}">
                     <picture>
+                        {# Secondaries grow to the lead's 6/5 row height, so all desktop crops share it. #}
                         {{ responsive.source(
                             src: thumbnail.src,
-                            width: 464,
-                            height: 464 / 5 * 4,
-                            sizes: '(min-width: 960px) 464px, calc((100vw - 2rem) / 2)',
+                            width: desktop_width,
+                            height: 440 / 6 * 5,
+                            sizes: desktop_sizes,
                             media: '(min-width: 640px)',
                         ) }}
                         {{ responsive.render(
                             src: thumbnail.src,
-                            width: 640,
-                            height: 640 / 16 * 10,
-                            sizes: '100vw',
+                            width: mobile_width,
+                            height: loop.first ? 640 / 16 * 10 : 320 / 4 * 5,
+                            sizes: mobile_sizes,
                             alt: thumbnail.alt|default(post.title),
                             class: 'object-cover w-full h-full absolute inset-0 zw-thumb-hover',
                             loading: 'eager',
+                            fetchpriority: loop.first ? 'high' : null,
                         ) }}
                     </picture>
                     <div class="absolute inset-0 flex flex-col justify-end">
                         <span class="block p-4 pt-14 bg-gradient-to-b from-transparent to-black/60">
                             {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
-                            <h2 class="block font-black text-lg sm:text-xl text-white">{{ post.title }}</h2>
+                            <h2 class="block font-black text-white {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
                         </span>
                     </div>
                 </a>
