@@ -61,9 +61,9 @@ if ($artworkUrl && $context['stream_sources']) {
 }
 
 $groups = [
-    'Ether' => ['title' => 'FM', 'unit' => 'FM', 'channels' => []],
-    'DAB+' => ['title' => 'DAB+', 'unit' => '', 'channels' => []],
-    'Kabel' => ['title' => 'Kabel', 'unit' => '', 'channels' => []],
+    'Ether' => ['title' => 'FM', 'channels' => []],
+    'DAB+' => ['title' => 'DAB+', 'channels' => []],
+    'Kabel' => ['title' => 'Kabel', 'channels' => []],
 ];
 
 foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) {

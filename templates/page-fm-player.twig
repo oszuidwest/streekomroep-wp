@@ -153,25 +153,23 @@
         {% if frequency_groups is not empty %}
             <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="frequencies-title">
                 <h2 id="frequencies-title" class="mb-5 text-2xl font-bold md:text-3xl">Waar je ons vindt</h2>
-                <div class="grid gap-x-8 gap-y-6 sm:grid-cols-3">
+                <dl class="{{ card }} divide-y divide-gray-800/10 dark:divide-gray-200/10">
                     {% for group in frequency_groups %}
-                        <div>
-                            <h3 class="mb-1 font-round text-sm font-bold tracking-wide text-gray-400 uppercase">{{ group.title }}</h3>
-                            <ul class="divide-y divide-gray-800/10 border-t border-gray-800/10 dark:divide-gray-200/10 dark:border-gray-200/10">
+                        <div class="flex flex-col gap-1.5 px-4 py-3.5 sm:flex-row sm:gap-5">
+                            <dt class="flex-none pt-0.5 font-round text-xs font-bold tracking-wide text-gray-400 uppercase sm:w-12">{{ group.title }}</dt>
+                            <dd class="flex flex-wrap gap-x-5 gap-y-1.5">
                                 {% for channel in group.channels %}
-                                    <li class="py-2">
+                                    <span class="whitespace-nowrap">
+                                        <b class="font-bold tabular-nums">{{ channel.value|e }}</b>
                                         {% if channel.place %}
-                                            <span class="block text-sm leading-snug {{ muted }}">{{ channel.place|e }}</span>
+                                            <span class="text-sm {{ muted }}">{{ channel.place|e }}</span>
                                         {% endif %}
-                                        <span class="block font-bold tabular-nums">
-                                            {{- channel.value|e }}{{ group.unit ? ' ' ~ group.unit -}}
-                                        </span>
-                                    </li>
+                                    </span>
                                 {% endfor %}
-                            </ul>
+                            </dd>
                         </div>
                     {% endfor %}
-                </div>
+                </dl>
             </section>
         {% endif %}
     </article>
