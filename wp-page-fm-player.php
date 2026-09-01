@@ -74,7 +74,8 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
 
     // Editors sometimes type "Kanaal 914" or "105.8 FM" despite the field asking for the number
     // only; the group heading already names the medium, so drop that decoration.
-    $value = trim(preg_replace('/^\s*kanaal\s+|\s*fm\s*$/i', '', (string)($row['radio_frequenties_frequentie'] ?? '')));
+    $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
+    $value = trim(preg_replace('/^\s*kanaal\s+|\s*fm\s*$/i', '', $value) ?? $value);
     if ($value === '') {
         continue;
     }
