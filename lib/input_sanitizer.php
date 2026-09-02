@@ -24,6 +24,8 @@ function zw_sanitize_post_content(array $data, array $postarr): array
             'title'  => true,
         ],
         'blockquote' => ['cite' => true],
+        // Collapsible sections inserted by the editor plugin (lib/uitklap.php).
+        'details'    => ['class' => true, 'open' => true],
         'em'         => [],
         'h2'         => ['id' => true],
         'h3'         => ['id' => true],
@@ -48,6 +50,7 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'li'         => [],
         'ol'         => ['start' => true],
         'strong'     => [],
+        'summary'    => [],
         'table'      => [],
         'tbody'      => [],
         'td'         => [],
