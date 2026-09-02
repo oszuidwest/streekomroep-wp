@@ -35,7 +35,7 @@ function zw_collapsible_editor_button(array $buttons, string $editor_id = ''): a
     }
 
     $position = array_search('wp_more', $buttons, true);
-    array_splice($buttons, $position === false ? count($buttons) : $position + 1, 0, 'zw_collapsible');
+    array_splice($buttons, is_int($position) ? $position + 1 : count($buttons), 0, 'zw_collapsible');
 
     return $buttons;
 }

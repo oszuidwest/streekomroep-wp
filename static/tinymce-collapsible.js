@@ -217,7 +217,8 @@
                         firstItem = createItem();
                         group.appendChild(firstItem);
                     }
-                    caretAtStartOf(firstItem.querySelector('summary'));
+                    var firstSummary = firstItem.querySelector('summary');
+                    caretAtStartOf(firstSummary || firstItem);
                 } else {
                     var next = summary.nextSibling;
                     if (!next || !dom.isBlock(next)) {
@@ -233,7 +234,8 @@
                 // Leave the section without emptying its final item.
                 handled(e);
                 var lastItem = block.previousElementSibling;
-                if (lastItem && dom.is(lastItem, ITEM) && !lastItem.querySelector('summary').nextSibling) {
+                var lastSummary = lastItem && dom.is(lastItem, ITEM) ? lastItem.querySelector('summary') : null;
+                if (lastSummary && !lastSummary.nextSibling) {
                     lastItem.appendChild(emptyParagraph());
                 }
                 dom.insertAfter(block, group);
