@@ -1,12 +1,12 @@
-// Classic Editor plugin for collapsible sections: a <div class="uitklap-groep"> with a
-// heading and one or more editable <details class="uitklap"> items. TinyMCE 4.9 keeps
+// Classic Editor plugin for collapsible sections: a <div class="collapsible"> with a
+// heading and one or more editable <details class="collapsible-item"> items. TinyMCE 4.9 keeps
 // every <details> expanded while editing and parks the stored open attribute in
 // data-mce-open, which it writes back on save; that attribute therefore doubles as
 // the "expanded by default" flag.
 (function () {
-    var GROUP = 'div.uitklap-groep';
-    var TITLE = 'h3.uitklap-titel';
-    var ITEM = 'details.uitklap';
+    var GROUP = 'div.collapsible';
+    var TITLE = 'h3.collapsible-title';
+    var ITEM = 'details.collapsible-item';
     var OPEN_FLAG = 'data-mce-open';
     var BLOCK_PATTERN = /<(p|h[1-6]|ul|ol|blockquote|figure|div|table|pre)\b/i;
     var EMPTY_PARAGRAPH = '<p><br data-mce-bogus="1"></p>';
@@ -14,7 +14,7 @@
     var BACKSPACE = 8;
     var DELETE = 46;
 
-    tinymce.PluginManager.add('zw_uitklap', function (editor) {
+    tinymce.PluginManager.add('zw_collapsible', function (editor) {
         function closest(element, selector) {
             return editor.dom.getParent(element, selector);
         }
@@ -62,7 +62,7 @@
         }
 
         function createItem(body) {
-            return editor.dom.create('details', {'class': 'uitklap', open: 'open'}, '<summary>Kop</summary>' + body);
+            return editor.dom.create('details', {'class': 'collapsible-item', open: 'open'}, '<summary>Kop</summary>' + body);
         }
 
         // Clicking a heading must place the caret, not collapse the item.
@@ -213,10 +213,10 @@
 
             editor.undoManager.transact(function () {
                 editor.insertContent(
-                    '<div class="uitklap-groep" id="zw-uitklap-new"><h3 class="uitklap-titel">Titel</h3>'
-                    + '<details class="uitklap"><summary>Kop</summary>' + body + '</details></div>'
+                    '<div class="collapsible" id="zw-collapsible-new"><h3 class="collapsible-title">Titel</h3>'
+                    + '<details class="collapsible-item"><summary>Kop</summary>' + body + '</details></div>'
                 );
-                var group = dom.get('zw-uitklap-new');
+                var group = dom.get('zw-collapsible-new');
                 if (!group) {
                     return;
                 }
@@ -294,19 +294,19 @@
             editor.nodeChanged();
         }
 
-        editor.addButton('zw_uitklap', {
+        editor.addButton('zw_collapsible', {
             icon: 'dashicon dashicons-plus-alt',
             tooltip: 'Uitklapbaar blok',
             onclick: insertSection,
         });
 
-        editor.addButton('zw_uitklap_add', {
+        editor.addButton('zw_collapsible_add', {
             text: 'Onderdeel toevoegen',
             tooltip: 'Voeg een uitklapbaar onderdeel toe',
             onclick: addItem,
         });
 
-        editor.addButton('zw_uitklap_open', {
+        editor.addButton('zw_collapsible_open', {
             text: 'Standaard uitgeklapt',
             tooltip: 'Toon dit onderdeel op de site meteen uitgeklapt',
             onclick: toggleOpenByDefault,
@@ -320,12 +320,12 @@
             },
         });
 
-        editor.addButton('zw_uitklap_remove', {
+        editor.addButton('zw_collapsible_remove', {
             text: 'Blok opheffen',
             tooltip: 'Haal het blok weg; titel, koppen en tekst blijven staan',
             onclick: unwrapSection,
         });
 
-        editor.addContextToolbar(GROUP, 'zw_uitklap_add zw_uitklap_open zw_uitklap_remove');
+        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_open zw_collapsible_remove');
     });
 })();

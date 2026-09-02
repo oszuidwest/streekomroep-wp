@@ -107,9 +107,9 @@ Articles (`post`) can hold a collapsible background section, for example to reca
 Sections are stored as plain HTML and rendered with native `<details>` elements, so their contents stay indexable and need no JavaScript:
 
 ```html
-<div class="uitklap-groep">
-<h3 class="uitklap-titel">Tien jaar kwestie Poolse super: hoe zat het ook alweer?</h3>
-<details class="uitklap" open>
+<div class="collapsible">
+<h3 class="collapsible-title">Tien jaar kwestie Poolse super: hoe zat het ook alweer?</h3>
+<details class="collapsible-item" open>
 <summary>Blijvende overlast</summary>
 <p>Paragraphs, links, images and embeds.</p>
 </details>

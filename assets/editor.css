@@ -77,52 +77,52 @@ body .video-js video {
     margin: 0;
 }
 
-/* Collapsible sections, always expanded while editing (see static/tinymce-uitklap.js) */
-body .uitklap-groep {
+/* Collapsible sections, always expanded while editing (see static/tinymce-collapsible.js) */
+body .collapsible {
     @apply my-6 rounded-sm overflow-hidden border border-dashed border-gray-300;
 }
 
-body .uitklap-groep > .uitklap-titel {
+body .collapsible > .collapsible-title {
     @apply m-0 px-4 py-3 bg-gray-800 font-bold text-xl leading-snug text-white;
 }
 
-body details.uitklap {
+body details.collapsible-item {
     @apply m-0 border-t-2 border-white;
 }
 
-body details.uitklap > summary {
+body details.collapsible-item > summary {
     @apply flex items-center gap-3 px-4 py-3 bg-gray-100 font-bold text-lg leading-snug text-black;
     list-style: none;
 }
 
-body details.uitklap > summary::-webkit-details-marker {
+body details.collapsible-item > summary::-webkit-details-marker {
     display: none;
 }
 
-body details.uitklap > summary::before {
+body details.collapsible-item > summary::before {
     content: '';
     @apply shrink-0 w-6 h-6 bg-blauw;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 /* The icon mirrors how the item opens on the site. */
-body details.uitklap[data-mce-open] > summary::before {
+body details.collapsible-item[data-mce-open] > summary::before {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
 }
 
 /* Placeholders for empty headings. */
-body .uitklap-groep > .uitklap-titel:empty::after,
-body .uitklap-groep > .uitklap-titel:has(> br:only-child)::after {
+body .collapsible > .collapsible-title:empty::after,
+body .collapsible > .collapsible-title:has(> br:only-child)::after {
     content: 'Titel';
     @apply font-normal text-gray-400;
 }
 
-body details.uitklap > summary:empty::after,
-body details.uitklap > summary:has(> br:only-child)::after {
+body details.collapsible-item > summary:empty::after,
+body details.collapsible-item > summary:has(> br:only-child)::after {
     content: 'Kop';
     @apply font-normal text-gray-400;
 }
 
-body details.uitklap > summary ~ * {
+body details.collapsible-item > summary ~ * {
     margin-inline: 1rem;
 }

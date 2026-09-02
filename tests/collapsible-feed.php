@@ -3,7 +3,7 @@
 /**
  * Regression coverage for flattening collapsible sections in feeds.
  *
- * Run with: composer test:uitklap
+ * Run with: composer test:collapsible
  */
 
 function add_filter(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): bool
@@ -11,17 +11,17 @@ function add_filter(string $hook, callable $callback, int $priority = 10, int $a
     return true;
 }
 
-require __DIR__ . '/../lib/uitklap.php';
+require __DIR__ . '/../lib/collapsible.php';
 
 $failures = [];
 
 $cases = [
     'section with title and items' => [
-        '<p>Intro</p>' . PHP_EOL . '<div class="uitklap-groep">' . PHP_EOL . '<h3 class="uitklap-titel">Hoe zat het?</h3>' . PHP_EOL . '<details class="uitklap">' . PHP_EOL . '<summary>Een</summary>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . '</details>' . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
-        '<p>Intro</p>' . PHP_EOL . '<div class="uitklap-groep">' . PHP_EOL . '<h3 class="uitklap-titel">Hoe zat het?</h3>' . PHP_EOL . '<h4>Een</h4>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
+        '<p>Intro</p>' . PHP_EOL . '<div class="collapsible">' . PHP_EOL . '<h3 class="collapsible-title">Hoe zat het?</h3>' . PHP_EOL . '<details class="collapsible-item">' . PHP_EOL . '<summary>Een</summary>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . '</details>' . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
+        '<p>Intro</p>' . PHP_EOL . '<div class="collapsible">' . PHP_EOL . '<h3 class="collapsible-title">Hoe zat het?</h3>' . PHP_EOL . '<h4>Een</h4>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
     ],
     'open item with inline markup in the heading' => [
-        '<details class="uitklap" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="uitklap"><summary>Twee</summary><p>B</p></details>',
+        '<details class="collapsible-item" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="collapsible-item"><summary>Twee</summary><p>B</p></details>',
         '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
     ],
     'unrelated details element' => [
@@ -32,7 +32,7 @@ $cases = [
 ];
 
 foreach ($cases as $label => [$input, $expected]) {
-    $actual = zw_uitklap_flatten($input);
+    $actual = zw_collapsible_flatten($input);
     if ($actual !== $expected) {
         $failures[] = sprintf('%s: expected %s, got %s', $label, $expected, $actual);
     }

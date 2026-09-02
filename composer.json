@@ -14,13 +14,13 @@
     "test": [
       "@test:templates",
       "@test:search",
-      "@test:uitklap"
+      "@test:collapsible"
     ],
     "lint:twig": "twig-cs-fixer lint",
     "fix:twig": "twig-cs-fixer lint --fix",
     "test:search": "php tests/search-deduplication.php",
     "test:templates": "php tests/template-escaping.php",
-    "test:uitklap": "php tests/uitklap-feed.php"
+    "test:collapsible": "php tests/collapsible-feed.php"
   },
   "repositories": [
     {

@@ -73,44 +73,44 @@
     margin: 0;
 }
 
-/* Collapsible sections: div.uitklap-groep with details.uitklap items, inserted by the editor plugin */
-.prose .uitklap-groep {
+/* Collapsible sections: div.collapsible with details.collapsible-item items, inserted by the editor plugin */
+.prose .collapsible {
     @apply my-8 rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700;
 }
 
-.prose .uitklap-groep > .uitklap-titel {
+.prose .collapsible > .collapsible-title {
     @apply m-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
 }
 
-.prose .uitklap-groep > .uitklap-titel:empty {
+.prose .collapsible > .collapsible-title:empty {
     display: none;
 }
 
-.prose details.uitklap {
+.prose details.collapsible-item {
     @apply m-0 border-t-2 border-white dark:border-gray-800;
 }
 
-.prose details.uitklap > summary {
+.prose details.collapsible-item > summary {
     @apply flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer select-none font-bold text-lg leading-snug text-black dark:text-white;
     list-style: none;
 }
 
-.prose details.uitklap > summary::-webkit-details-marker {
+.prose details.collapsible-item > summary::-webkit-details-marker {
     display: none;
 }
 
-.prose details.uitklap > summary::before {
+.prose details.collapsible-item > summary::before {
     content: '';
     @apply shrink-0 w-6 h-6 bg-blauw;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.prose details.uitklap[open] > summary::before {
+.prose details.collapsible-item[open] > summary::before {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
 }
 
 /* Item text lines up with the heading bar's padding. */
-.prose details.uitklap > summary ~ * {
+.prose details.collapsible-item > summary ~ * {
     margin-inline: 1rem;
 }
 
