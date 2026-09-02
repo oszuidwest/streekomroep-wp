@@ -83,7 +83,7 @@ body .collapsible {
 }
 
 body .collapsible > .collapsible-title {
-    @apply m-0 px-4 py-3 bg-gray-800 font-bold text-xl leading-snug text-white;
+    @apply relative m-0 px-4 py-3 bg-gray-800 font-bold text-xl leading-snug text-white;
 }
 
 body details.collapsible-item {
@@ -110,9 +110,10 @@ body details.collapsible-item[data-mce-open] > summary {
 }
 
 /* Placeholders for empty headings; the plugin maintains the flag. */
+/* An emptied title still holds a line break, so the placeholder overlays the first line. */
 body .collapsible > .collapsible-title[data-zw-empty]::after {
     content: 'Titel';
-    @apply font-normal text-gray-400;
+    @apply absolute left-4 top-3 font-normal text-gray-400 pointer-events-none;
 }
 
 body details.collapsible-item > summary[data-zw-empty]::before {
