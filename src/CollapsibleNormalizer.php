@@ -106,7 +106,7 @@ final class CollapsibleNormalizer
                 continue;
             }
 
-            $stray .= self::isTag($token) ? self::bodyTag($token) : $token;
+            $stray .= self::isTag($token) ? self::bodyTag($token) : self::text($token);
             $i++;
         }
 
@@ -146,7 +146,7 @@ final class CollapsibleNormalizer
             $token = $tokens[$i];
 
             if (!self::isTag($token)) {
-                $body .= $token;
+                $body .= self::text($token);
                 $i++;
                 continue;
             }
@@ -220,6 +220,12 @@ final class CollapsibleNormalizer
         }
 
         return in_array($name, self::BLOCK_TAGS, true) ? "\n\n" : '';
+    }
+
+    /** Browsers post textarea content with CRLF line endings; a section is rebuilt with LF only. */
+    private static function text(string $token): string
+    {
+        return str_replace("\r", '', $token);
     }
 
     private static function tidy(string $html): string

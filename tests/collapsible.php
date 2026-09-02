@@ -67,6 +67,10 @@ $normalizeCases = [
         '<p>A</p>' . $nl . $nl . '&nbsp;' . $nl . $nl . '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>Regel' . $nl . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . 'Nog een regel met 10&nbsp;km</details></div>' . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . '<p>B</p>',
         '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . 'Nog een regel met 10&nbsp;km')) . $nl . '<p>B</p>',
     ],
+    'CRLF line endings from the browser are handled' => [
+        "<p>A</p>\r\n\r\n<div class=\"collapsible\">\r\n<h3 class=\"collapsible-title\">T</h3>\r\n<details class=\"collapsible-item\"><summary>K</summary>Regel\r\n\r\n&nbsp;\r\n\r\nTwee</details>\r\n<details class=\"collapsible-item\"><summary>Leeg</summary>&nbsp;\r\n\r\n</details></div>\r\n&nbsp;\r\n\r\n<p>B</p>",
+        "<p>A</p>\r\n\r\n" . $section('T', $item('K', 'Regel' . $nl . $nl . 'Twee'), $item('Leeg', '')) . "\r\n\r\n<p>B</p>",
+    ],
     'trailing empty paragraph after the last section goes' => [
         $section('T', $item('K', 'A')) . $nl . '&nbsp;',
         $section('T', $item('K', 'A')),
