@@ -124,7 +124,7 @@ body details.collapsible-item > summary[data-zw-empty]::before {
 /* Spell out how the item opens on the site; the plugin toggles it on click. */
 body details.collapsible-item > summary::after {
     content: 'Standaard ingeklapt';
-    @apply ml-auto shrink-0 px-2 py-1 rounded-sm border border-gray-300 bg-white font-round font-bold text-xs uppercase tracking-wide text-gray-500 cursor-pointer;
+    @apply ml-auto shrink-0 px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;
 }
 
 body details.collapsible-item[data-mce-open] > summary::after {
