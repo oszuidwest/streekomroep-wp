@@ -75,7 +75,7 @@
 
 /* Collapsible sections: div.collapsible with details.collapsible-item items, inserted by the editor plugin */
 .prose .collapsible {
-    @apply my-8 rounded-sm overflow-hidden;
+    @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
 }
 
 .prose .collapsible > .collapsible-title {
@@ -87,7 +87,12 @@
 }
 
 .prose details.collapsible-item {
-    @apply m-0 border-t-2 border-white dark:border-gray-800;
+    @apply m-0 border-t border-gray-300 dark:border-gray-600;
+}
+
+/* The title bar already closes the top of the frame. */
+.prose .collapsible > .collapsible-title + details.collapsible-item {
+    @apply border-t-0;
 }
 
 .prose details.collapsible-item > summary {
