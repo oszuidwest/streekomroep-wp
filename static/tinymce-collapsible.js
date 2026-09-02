@@ -1,8 +1,5 @@
-// Classic Editor plugin for collapsible sections: a <div class="collapsible"> with a
-// heading and one or more editable <details class="collapsible-item"> items. TinyMCE 4.9 keeps
-// every <details> expanded while editing and parks the stored open attribute in
-// data-mce-open, which it writes back on save; that attribute therefore doubles as
-// the "expanded by default" flag.
+// Classic Editor support for collapsible sections. TinyMCE keeps each item open
+// while editing and stores its front-end state in data-mce-open.
 (function () {
     var GROUP = 'div.collapsible';
     var TITLE = 'h3.collapsible-title';
@@ -31,7 +28,6 @@
             return editor.dom.create('p', {}, BOGUS_BR);
         }
 
-        // Nothing is selected between the range start and the edge of the block.
         function caretAtEdge(block, range, edge) {
             var probe = range.cloneRange();
             if (edge === 'start') {
@@ -53,12 +49,11 @@
             editor.selection.collapse(false);
         }
 
-        function createItem(body) {
-            return editor.dom.create('details', {'class': 'collapsible-item', open: 'open'}, '<summary>Kop</summary>' + body);
+        function createItem() {
+            return editor.dom.create('details', {'class': 'collapsible-item', open: 'open'}, '<summary>Kop</summary>' + EMPTY_PARAGRAPH);
         }
 
-        // The editor stylesheet shows a placeholder in flagged headings; CSS alone
-        // cannot tell an emptied heading (bogus <br>) from one with text and a <br>.
+        // TinyMCE's bogus line breaks make empty headings ambiguous to CSS.
         function flagEmptyHeadings() {
             tinymce.each(editor.dom.select(TITLE + ', ' + ITEM + ' > summary'), function (heading) {
                 if (editor.dom.isEmpty(heading)) {
@@ -69,14 +64,11 @@
             });
         }
 
-        // The editor stylesheet outlines the item at the caret so it is clear which
-        // item the floating toolbar acts on; the title gets no mark of its own.
+        // Mark the item targeted by the floating toolbar.
         function markActiveItem(element) {
             var active = element && itemOf(element);
             tinymce.each(editor.dom.select(ITEM + '[' + ACTIVE_FLAG + ']'), function (item) {
-                if (item !== active) {
-                    item.removeAttribute(ACTIVE_FLAG);
-                }
+                item.removeAttribute(ACTIVE_FLAG);
             });
             if (active) {
                 active.setAttribute(ACTIVE_FLAG, '');
@@ -99,8 +91,7 @@
             });
         });
 
-        // The title must stay an h3 and every item must start with a summary; the
-        // format dropdown or a stray paste can break that, so put it back.
+        // Preserve the section structure after formatting or pasting.
         function repairStructure() {
             var dom = editor.dom;
             tinymce.each(dom.select(GROUP), function (group) {
@@ -117,14 +108,12 @@
             });
         }
 
-        // Typing fires input; TinyMCE's own delete handling fires NodeChange instead.
         editor.on('SetContent NodeChange input', function () {
             repairStructure();
             flagEmptyHeadings();
         });
 
-        // Title and item headings are plain text; item bodies allow paragraph-level
-        // formatting only. Saving enforces the same rules (CollapsibleNormalizer).
+        // Restrict editing commands to markup the normalizer accepts.
         var HEADING_COMMANDS = /^(FormatBlock|mceToggleFormat|mceBlockQuote|InsertUnorderedList|InsertOrderedList|Bold|Italic|Underline|Strikethrough|WP_Link|mceInsertLink|mceLink|mceInsertRawHTML)$/;
         var BODY_COMMANDS = /^(mceBlockQuote|mceInsertRawHTML)$/;
         var BLOCK_FORMATS = /^(h[1-6]|pre|blockquote|div|address|aside)$/i;
@@ -149,13 +138,13 @@
                 return;
             }
             e.preventDefault();
-            // The format dropdown already shows the chosen level; a node change resets it.
+            // Reset the format dropdown after blocking its command.
             window.setTimeout(function () {
                 editor.nodeChanged();
             }, 0);
         });
 
-        // The state label is the heading's ::after box, absolutely positioned within the bar.
+        // Detect clicks on the generated state control.
         function clickedStateLabel(summary, e) {
             var style = editor.getWin().getComputedStyle(summary, '::after');
             var rect = summary.getBoundingClientRect();
@@ -168,8 +157,6 @@
                 && e.clientY >= top && e.clientY <= top + height;
         }
 
-        // TinyMCE already keeps a click on a heading from collapsing the item;
-        // clicking its state label flips how the item opens on the site.
         editor.on('click', function (e) {
             var summary = closest(e.target, 'summary');
             var item = summary && itemOf(summary);
@@ -179,36 +166,33 @@
         });
 
         editor.on('init', function () {
-            // A collapsed item could not be reopened by clicking, so undo any other way of closing it.
+            // Keep items open while editing.
             editor.getBody().addEventListener('toggle', function (e) {
                 if (editor.dom.is(e.target, ITEM) && !e.target.open) {
                     e.target.open = true;
                 }
             }, true);
 
-            // TinyMCE prepends its own delete handlers during init, so register after
-            // init and prepend again to get in front of them.
+            // Run before TinyMCE's delete handlers.
             editor.on('keydown', onKeyDown, true);
         });
 
-        // Later handlers (TinyMCE's own delete logic) would still act on the new caret position.
         function handled(e) {
             e.preventDefault();
             e.stopImmediatePropagation();
         }
 
         function onKeyDown(e) {
+            if (e.isDefaultPrevented() || (e.keyCode !== VK.ENTER && e.keyCode !== VK.BACKSPACE && e.keyCode !== VK.DELETE)) {
+                return;
+            }
+
             var dom = editor.dom;
             var start = editor.selection.getStart();
             var range = editor.selection.getRng();
             var block = dom.getParent(start, dom.isBlock);
             var group = groupOf(start);
 
-            if (e.isDefaultPrevented()) {
-                return;
-            }
-
-            // Delete just before a section would pull its title into the paragraph.
             if (!group) {
                 if (e.keyCode === VK.DELETE && range.collapsed && block && block.nextSibling && dom.is(block.nextSibling, GROUP) && caretAtEdge(block, range, 'end')) {
                     handled(e);
@@ -219,9 +203,10 @@
             var title = closest(start, TITLE);
             var item = itemOf(start);
             var summary = closest(start, 'summary');
+            var heading = title || summary;
 
-            if (e.keyCode === VK.ENTER && !e.shiftKey && (title || summary)) {
-                // Enter in a heading moves on instead of breaking the heading.
+            if (e.keyCode === VK.ENTER && !e.shiftKey && heading) {
+                // Keep headings intact when Enter is pressed.
                 handled(e);
                 if (!range.collapsed) {
                     editor.selection.setContent('');
@@ -229,7 +214,7 @@
                 if (title) {
                     var firstItem = group.querySelector(ITEM);
                     if (!firstItem) {
-                        firstItem = createItem(EMPTY_PARAGRAPH);
+                        firstItem = createItem();
                         group.appendChild(firstItem);
                     }
                     caretAtStartOf(firstItem.querySelector('summary'));
@@ -245,8 +230,7 @@
             }
 
             if (e.keyCode === VK.ENTER && !e.shiftKey && block && block.parentNode === group && !title && dom.isEmpty(block)) {
-                // Enter on an empty line at the end of the section leaves it. The split
-                // may have taken the last item's only paragraph along; give it a new one.
+                // Leave the section without emptying its final item.
                 handled(e);
                 var lastItem = block.previousElementSibling;
                 if (lastItem && dom.is(lastItem, ITEM) && !lastItem.querySelector('summary').nextSibling) {
@@ -262,50 +246,37 @@
             }
 
             if (e.keyCode === VK.BACKSPACE) {
-                if (summary && dom.isEmpty(summary)) {
-                    // An empty heading stays; an entirely empty item goes away.
+                if (heading && caretAtEdge(heading, range, 'start')) {
+                    // Keep headings separate and remove empty items.
                     handled(e);
                     if (item && dom.isEmpty(item)) {
-                        removeItem(item);
+                        editor.undoManager.transact(function () {
+                            removeItem(item);
+                        });
                     }
                     return;
                 }
-                if (title && (dom.isEmpty(title) || caretAtEdge(title, range, 'start'))) {
-                    handled(e);
-                    return;
-                }
-                if (summary && caretAtEdge(summary, range, 'start')) {
-                    // Would merge the heading into the title or the previous item.
-                    handled(e);
-                    return;
-                }
                 if (item && block && block.parentNode === item && block.previousSibling === item.querySelector('summary') && caretAtEdge(block, range, 'start')) {
-                    // Would merge the text into the heading.
                     handled(e);
                 }
                 return;
             }
 
             if (e.keyCode === VK.DELETE) {
-                var heading = title || summary;
                 if (heading && caretAtEdge(heading, range, 'end')) {
-                    // Would pull the following text into the heading.
                     handled(e);
                     return;
                 }
                 if (item && block && block.parentNode === item && !block.nextSibling && caretAtEdge(block, range, 'end')) {
-                    // Would pull the next heading into this item's text.
                     handled(e);
                 }
             }
         }
 
         function removeItem(item) {
-            editor.undoManager.transact(function () {
-                var previous = item.previousElementSibling;
-                editor.dom.remove(item);
-                caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
-            });
+            var previous = item.previousElementSibling;
+            editor.dom.remove(item);
+            caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
         }
 
         function insertSection() {
@@ -328,7 +299,6 @@
                     return;
                 }
                 dom.setAttrib(group, 'id', null);
-                // Leave the placeholder title selected so typing replaces it.
                 editor.selection.select(group.querySelector(TITLE), true);
             });
         }
@@ -341,11 +311,10 @@
             }
             var current = itemOf(start);
             editor.undoManager.transact(function () {
-                var item = createItem(EMPTY_PARAGRAPH);
+                var item = createItem();
                 if (current) {
                     editor.dom.insertAfter(item, current);
                 } else {
-                    // From the title, the new item goes right below it.
                     group.insertBefore(item, group.querySelector(ITEM));
                 }
                 editor.selection.select(item.querySelector('summary'), true);
@@ -355,24 +324,15 @@
 
         function toggleOpenByDefault(item) {
             editor.undoManager.transact(function () {
-                // Native setAttribute: TinyMCE's setAttrib drops empty values.
-                if (item.hasAttribute(OPEN_FLAG)) {
-                    item.removeAttribute(OPEN_FLAG);
-                } else {
-                    item.setAttribute(OPEN_FLAG, '');
-                }
+                editor.dom.setAttrib(item, OPEN_FLAG, item.hasAttribute(OPEN_FLAG) ? null : 'open');
             });
             editor.nodeChanged();
         }
 
-        // The floating toolbar follows the caret on click and keyup only, so a toolbar
-        // action that moves the caret has to announce it.
         function caretMoved() {
             editor.nodeChanged();
-            editor.fire('keyup', {keyCode: 0});
         }
 
-        // Replaces the section with an empty paragraph so the caret has somewhere to go.
         function deleteGroup(group) {
             var paragraph = emptyParagraph();
             editor.dom.replace(paragraph, group);
@@ -390,8 +350,6 @@
             caretMoved();
         }
 
-        // Drops the item with its heading and text; undo brings it back. Without
-        // items left the section itself goes.
         function deleteItem() {
             var item = itemOf(editor.selection.getStart());
             var group = item && groupOf(item);
@@ -399,13 +357,11 @@
                 return;
             }
             editor.undoManager.transact(function () {
-                var previous = item.previousElementSibling;
-                editor.dom.remove(item);
-                if (!group.querySelector(ITEM)) {
+                if (editor.dom.select(ITEM, group).length === 1) {
                     deleteGroup(group);
-                    return;
+                } else {
+                    removeItem(item);
                 }
-                caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
             });
             caretMoved();
         }
@@ -434,20 +390,22 @@
             onclick: deleteSection,
         });
 
-        // TinyMCE places the toolbar right below the matched element, so match the
-        // item or title at the caret rather than the section, which can be tall.
-        editor.addContextToolbar(ITEM, 'zw_collapsible_add zw_collapsible_remove_item zw_collapsible_remove');
-        editor.addContextToolbar(TITLE, 'zw_collapsible_add zw_collapsible_remove');
+        // Anchor WordPress's toolbar to the active title or item.
+        editor.on('init', function () {
+            var itemToolbar = editor.wp._createToolbar(['zw_collapsible_add', 'zw_collapsible_remove_item', 'zw_collapsible_remove'], true);
+            var titleToolbar = editor.wp._createToolbar(['zw_collapsible_add', 'zw_collapsible_remove'], true);
 
-        // TinyMCE measures from the edit area, but WordPress pads that area to make
-        // room for its pinned toolbar, which puts every floating toolbar that far too high.
-        editor.settings.inline_toolbar_position_handler = function (rects) {
-            var area = editor.getContentAreaContainer().getBoundingClientRect();
-            var frame = editor.iframeElement.getBoundingClientRect();
-            return {
-                left: rects.panelRect.left + frame.left - area.left,
-                top: rects.panelRect.top + frame.top - area.top,
-            };
-        };
+            editor.on('wptoolbar', function (e) {
+                if (e.toolbar) {
+                    return;
+                }
+                var item = itemOf(e.element);
+                var title = !item && closest(e.element, TITLE);
+                if (item || title) {
+                    e.selection = item || title;
+                    e.toolbar = item ? itemToolbar : titleToolbar;
+                }
+            });
+        });
     });
 })();

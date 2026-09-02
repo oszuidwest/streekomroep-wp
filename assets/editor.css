@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./collapsible-icons.css";
 
 /* Load Tailwind config */
 @config "../tailwind.config.js";
@@ -77,7 +78,7 @@ body .video-js video {
     margin: 0;
 }
 
-/* Collapsible sections, always expanded while editing (see static/tinymce-collapsible.js) */
+/* Collapsible editor styles. */
 body .collapsible {
     @apply my-6 outline-1 outline-dashed outline-gray-300;
 }
@@ -90,18 +91,18 @@ body details.collapsible-item {
     @apply m-0 border-t-2 border-white;
 }
 
-/* The item at the caret, which the floating toolbar acts on; the plugin sets the flag. */
+/* Highlight the item targeted by the floating toolbar. */
 body details.collapsible-item[data-zw-active] {
     @apply outline-2 -outline-offset-2 outline-blauw;
 }
 
 body details.collapsible-item > summary {
     @apply relative flex items-center gap-3 py-3 bg-gray-100 font-bold text-lg leading-snug text-black;
-    /* Keep long headings clear of the state label in the top-right corner. */
+    /* Reserve space for the state control. */
     padding-right: 11rem;
-    /* The icon is a background so both pseudo-elements stay free for the placeholder and the state label. */
+    /* Keep pseudo-elements available for labels. */
     padding-left: 3.25rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300de01'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E");
+    background-image: var(--collapsible-icon-expand);
     background-repeat: no-repeat;
     background-position: 1rem center;
     background-size: 1.5rem;
@@ -113,11 +114,10 @@ body details.collapsible-item > summary::-webkit-details-marker {
 }
 
 body details.collapsible-item[data-mce-open] > summary {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300de01'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
+    background-image: var(--collapsible-icon-collapse);
 }
 
-/* Placeholders for empty headings; the plugin maintains the flag. */
-/* An emptied title still holds a line break, so the placeholder overlays the first line. */
+/* TinyMCE leaves a line break in empty titles. */
 body .collapsible > .collapsible-title[data-zw-empty]::after {
     content: 'Titel';
     @apply absolute left-4 top-3 font-normal text-gray-400 pointer-events-none;
@@ -128,7 +128,6 @@ body details.collapsible-item > summary[data-zw-empty]::before {
     @apply font-normal text-gray-400;
 }
 
-/* Spell out how the item opens on the site; the plugin toggles it on click. */
 body details.collapsible-item > summary::after {
     content: 'Standaard ingeklapt';
     @apply absolute top-4 right-2 px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;

@@ -3,31 +3,24 @@
 namespace Streekomroep;
 
 /**
- * Rewrites collapsible sections in post content into their canonical form.
+ * Normalizes collapsible sections without changing unrelated post content.
  *
- * A section is a div.collapsible holding one h3.collapsible-title followed by
- * details.collapsible-item elements that each start with a summary. Everything
- * else is repaired or moved out: the title and item headings become plain text,
- * item bodies keep only paragraph-level formatting (lists, links, emphasis,
- * images and embeds), nested sections and other block structure dissolve into
- * paragraphs, and stray content inside a section is placed after it.
- *
- * Works on the tag level and leaves every byte outside a section untouched.
- * WordPress's HTML API cannot rename or move nodes and DOMDocument re-encodes
- * the whole document, so neither fits this rewrite.
+ * Canonical sections contain an h3 title and details items with plain-text
+ * summaries. Unsupported block markup becomes paragraphs or moves after the
+ * section.
  */
 final class CollapsibleNormalizer
 {
-    /** Tags an item body may keep; attributes are left to the kses allowlist. */
+    /** Tags allowed in item content. */
     private const BODY_TAGS = ['p', 'br', 'ul', 'ol', 'li', 'a', 'strong', 'b', 'em', 'i', 'img', 'iframe'];
 
-    /** Disallowed tags that mark a block boundary; their text continues as a paragraph. */
+    /** Block-level tags converted to paragraph breaks. */
     private const BLOCK_TAGS = [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
         'div', 'details', 'summary', 'section', 'article', 'aside', 'figure', 'figcaption', 'hr', 'dl', 'dt', 'dd',
     ];
 
-    /** A paragraph holding nothing but non-breaking spaces, which is how the editor stores an empty line. */
+    /** Matches empty paragraphs produced by the editor. */
     private const EMPTY_PARAGRAPH = '(?:<p>\s*)?(?:&nbsp;|\x{00A0})+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
@@ -48,14 +41,13 @@ final class CollapsibleNormalizer
             $i++;
         }
 
-        // Leaving a section with Enter creates an empty line after it; saved without
-        // typing there, it would stay as an empty paragraph on the site.
-        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')+#u', '$1', $output);
+        // Remove editor-generated empty paragraphs next to sections in linear time.
+        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output);
 
-        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)+(<div class="collapsible">\n<h3)#u', '$1', $output);
+        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output);
     }
 
-    /** Feed readers rarely render disclosure widgets, so a canonical item becomes a heading with its text. */
+    /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
         return preg_replace(
@@ -65,7 +57,7 @@ final class CollapsibleNormalizer
         );
     }
 
-    /** @return array{0: string, 1: int} The rebuilt section and the index after its closing tag. */
+    /** @return array{0: string, 1: int} Section HTML and the next token index. */
     private static function section(array $tokens, int $i): array
     {
         $title = '';
@@ -78,7 +70,7 @@ final class CollapsibleNormalizer
             $token = $tokens[$i];
 
             if (self::isOpening($token, 'div')) {
-                // A nested section or other div dissolves; its closing tag is skipped below.
+                // Flatten nested block content.
                 $divDepth++;
                 $i++;
                 continue;
@@ -98,7 +90,7 @@ final class CollapsibleNormalizer
             if (self::isOpening($token, 'details')) {
                 [$item, $i] = self::item($tokens, $i + 1, (bool) preg_match('#\sopen\b#i', $token));
                 if ($item['heading'] === '') {
-                    // Nothing to promote to a heading: the text cannot collapse, so it leaves the section.
+                    // Move content without a heading outside the section.
                     $stray .= "\n\n" . $item['body'];
                 } else {
                     $items[] = $item;
@@ -113,7 +105,6 @@ final class CollapsibleNormalizer
         $stray = self::tidy($stray);
 
         if ($items === []) {
-            // A section without items is just its title, if any.
             $html = $title === '' ? '' : '<strong>' . $title . '</strong>';
         } else {
             $html = '<div class="collapsible">' . "\n" . '<h3 class="collapsible-title">' . $title . '</h3>' . "\n";
@@ -138,6 +129,7 @@ final class CollapsibleNormalizer
     {
         $heading = '';
         $body = '';
+        // Track each tag type independently to tolerate malformed nesting.
         $detailsDepth = 0;
         $divDepth = 0;
         $count = count($tokens);
@@ -162,7 +154,7 @@ final class CollapsibleNormalizer
             }
             if (self::isClosing($token, 'div')) {
                 if ($divDepth === 0) {
-                    // The enclosing section ends before this item was closed.
+                    // The section closes the unclosed item.
                     break;
                 }
                 $divDepth--;
@@ -176,7 +168,7 @@ final class CollapsibleNormalizer
                 $divDepth++;
             }
             if ($heading === '' && trim($body) === '' && $detailsDepth === 0) {
-                // The first block is the heading: the summary itself, or a block that replaced it.
+                // Accept a text block when the summary tag is missing.
                 if (self::isOpening($token, 'summary') || self::isTextBlock($token)) {
                     [$heading, $i] = self::textUntil($tokens, $i + 1, $token);
                     $body = '';
@@ -191,7 +183,7 @@ final class CollapsibleNormalizer
         return [['heading' => $heading, 'body' => self::tidy($body), 'open' => $open], $i];
     }
 
-    /** Collects the plain text up to the tag closing $opening, dropping any markup inside. */
+    /** Collects plain text up to the matching closing tag. */
     private static function textUntil(array $tokens, int $i, string $opening): array
     {
         $tag = self::tagName($opening);
@@ -222,7 +214,7 @@ final class CollapsibleNormalizer
         return in_array($name, self::BLOCK_TAGS, true) ? "\n\n" : '';
     }
 
-    /** Browsers post textarea content with CRLF line endings; a section is rebuilt with LF only. */
+    /** Normalizes line endings in section text. */
     private static function text(string $token): string
     {
         return str_replace("\r", '', $token);
@@ -245,7 +237,7 @@ final class CollapsibleNormalizer
         return preg_match('#^</?([a-zA-Z][a-zA-Z0-9]*)#', $token, $match) ? strtolower($match[1]) : '';
     }
 
-    /** A heading or paragraph: the blocks a title or item heading may have been turned into. */
+    /** Checks for text blocks accepted as section headings. */
     private static function isTextBlock(string $token): bool
     {
         return (bool) preg_match('#^<(h[1-6]|p)[\s/>]#i', $token);

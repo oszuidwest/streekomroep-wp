@@ -1,5 +1,7 @@
 <?php
 
+use Streekomroep\CollapsibleNormalizer;
+
 /**
  * Sanitizes post content to remove unwanted HTML elements.
  *
@@ -24,12 +26,11 @@ function zw_sanitize_post_content(array $data, array $postarr): array
             'title'  => true,
         ],
         'blockquote' => ['cite' => true],
-        // Collapsible sections inserted by the editor plugin (lib/collapsible.php).
-        'details'    => ['class' => true, 'open' => true],
-        'div'        => ['class' => true],
+        'details'    => ['class' => ['values' => ['collapsible-item']], 'open' => true],
+        'div'        => ['class' => ['values' => ['collapsible']]],
         'em'         => [],
         'h2'         => ['id' => true],
-        'h3'         => ['id' => true, 'class' => true],
+        'h3'         => ['id' => true, 'class' => ['values' => ['collapsible-title']]],
         'iframe'     => [
             'src'             => true,
             'width'           => true,
@@ -62,35 +63,16 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'ul'         => [],
     ];
 
-    // Validate and sanitize post content.
+    // Normalize collapsible markup before applying the allowlist.
     if (isset($data['post_content'])) {
-        $data['post_content'] = zw_restrict_classes(wp_kses($data['post_content'], $allowed_elements), [
-            'DIV'     => 'collapsible',
-            'H3'      => 'collapsible-title',
-            'DETAILS' => 'collapsible-item',
-        ]);
+        $content = wp_unslash($data['post_content']);
+        if (str_contains($content, 'collapsible')) {
+            $content = CollapsibleNormalizer::normalize($content);
+        }
+        $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
 
     return $data;
-}
-
-/**
- * Keeps the class attribute on the given tags only for the one value each needs.
- *
- * kses allows an attribute wholesale or not at all, which would let any theme
- * utility class reach the front end on these elements.
- */
-function zw_restrict_classes(string $content, array $classes): string
-{
-    $html = new WP_HTML_Tag_Processor($content);
-    while ($html->next_tag()) {
-        $tag = $html->get_tag();
-        if (isset($classes[$tag]) && $html->get_attribute('class') !== $classes[$tag]) {
-            $html->remove_attribute('class');
-        }
-    }
-
-    return $html->get_updated_html();
 }
 
 add_filter('wp_insert_post_data', 'zw_sanitize_post_content', 10, 2);

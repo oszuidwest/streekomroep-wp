@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./collapsible-icons.css";
 
 @config "../tailwind.config.js";
 
@@ -73,12 +74,12 @@
     margin: 0;
 }
 
-/* Collapsible sections: div.collapsible with details.collapsible-item items, inserted by the editor plugin */
+/* Collapsible sections. */
 .prose .collapsible {
     @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
 }
 
-/* The dark title bar covers the section border, which would otherwise show as a light rim around it. */
+/* Overlap the frame border with the title bar. */
 .prose .collapsible > .collapsible-title {
     @apply -mx-px -mt-px mb-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
 }
@@ -91,7 +92,7 @@
     @apply m-0 border-t border-gray-300 dark:border-gray-600;
 }
 
-/* The title bar already closes the top of the frame. */
+/* Avoid a divider directly below the title. */
 .prose .collapsible > .collapsible-title + details.collapsible-item {
     @apply border-t-0;
 }
@@ -110,14 +111,13 @@
     content: '';
     @apply shrink-0 w-6 h-6 bg-groen;
 
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: var(--collapsible-icon-expand) center / contain no-repeat;
 }
 
 .prose details.collapsible-item[open] > summary::before {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
+    mask-image: var(--collapsible-icon-collapse);
 }
 
-/* Item text lines up with the heading bar's padding. */
 .prose details.collapsible-item > summary ~ * {
     margin-inline: 1rem;
 }

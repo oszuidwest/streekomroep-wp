@@ -1,17 +1,14 @@
 <?php
 
 /**
- * Regression coverage for rewriting collapsible sections into their canonical
- * form on save and flattening them in feeds.
- *
- * Run with: composer test:collapsible
+ * Tests collapsible section normalization and feed rendering.
  */
 
 require __DIR__ . '/../vendor/autoload.php';
 
 use Streekomroep\CollapsibleNormalizer;
 
-$nl = PHP_EOL;
+$nl = "\n";
 $section = fn (string $title, string ...$items) => '<div class="collapsible">' . $nl . '<h3 class="collapsible-title">' . $title . '</h3>' . $nl . implode('', $items) . '</div>';
 $item = fn (string $heading, string $body, bool $open = false) => '<details class="collapsible-item"' . ($open ? ' open' : '') . '>' . $nl . '<summary>' . $heading . '</summary>' . $nl . $body . ($body === '' ? '' : $nl) . '</details>' . $nl;
 
@@ -58,6 +55,10 @@ $normalizeCases = [
     'section without title gets an empty one' => [
         '<div class="collapsible"><details class="collapsible-item"><summary>K</summary>A</details></div>',
         $section('', $item('K', 'A')),
+    ],
+    'closing details ends the item even inside unclosed divs' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A<div><div>B</details><p>Na</p></div>',
+        $section('T', $item('K', 'A' . $nl . $nl . 'B')) . $nl . $nl . '<p>Na</p>',
     ],
     'unclosed item ends with the section' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A</div><p>Na</p>',
