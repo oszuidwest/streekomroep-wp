@@ -73,6 +73,24 @@
     margin: 0;
 }
 
+/* Collapsible sections ([uitklap] shortcode) */
+.zw-uitklap summary {
+    list-style: none;
+}
+
+.zw-uitklap summary::-webkit-details-marker {
+    display: none;
+}
+
+.zw-uitklap summary svg {
+    display: block;
+}
+
+/* The bold intro-paragraph rule must not reach into a section. */
+.zw-prose .zw-uitklap-body p:first-child {
+    @apply font-normal;
+}
+
 /* Contact Form 7 styles */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-300 rounded-sm;

@@ -98,6 +98,20 @@ These optional plugins complement the theme:
 
 Existing installations should follow the [Tekst TV migration steps](INSTALL.md#migrating-an-existing-tekst-tv-installation), including the dry-run cleanup, before removing the old theme-owned data.
 
+## Editorial features
+
+### Collapsible sections
+
+Articles (`post`) can hold collapsible background sections, for example to recap a long-running story without interrupting the article itself. The Classic Editor toolbar has a button (next to the "Read more" tag) that asks for a heading and wraps the selected paragraphs in the shortcode:
+
+```
+[uitklap kop="Hoe zat het ook alweer?"]
+Paragraphs, links, images and embeds.
+[/uitklap]
+```
+
+Add `open` to the opening tag to show a section expanded by default. Sections render as native `<details>` elements, so their contents stay indexable and need no JavaScript. On other post types and in feeds the shortcode renders a plain heading and text.
+
 ## Integrations
 
 ### imgproxy

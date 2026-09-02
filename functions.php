@@ -139,6 +139,7 @@ require_once 'lib/content_images.php';
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/search.php';
+require_once 'lib/shortcode_uitklap.php';
 require_once 'lib/tinymce.php';
 
 // TODO: Remove this loader and migration_fm_makers.php after the FM-maker migration.

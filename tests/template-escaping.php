@@ -269,6 +269,28 @@ $check_hooks(
     ['data-volume-control', 'data-volume-toggle', 'data-volume-panel', 'data-volume', 'data-volume-value']
 );
 
+$uitklap_context = [
+    'kop' => 'Kop ' . $text_payload,
+    'content' => '<p>Inhoud</p>',
+    'open' => true,
+];
+
+$uitklap_html = $twig->render('partial/uitklap.twig', $uitklap_context + ['collapsible' => true]);
+$check(
+    'partial/uitklap.twig (collapsible)',
+    $uitklap_html,
+    ['<img src=x'],
+    ['Kop &lt;img src=x', '<details class="zw-uitklap', ' open>', '<p>Inhoud</p>']
+);
+
+// Feeds and other post types get the same text without the disclosure widget.
+$check(
+    'partial/uitklap.twig (plain)',
+    $twig->render('partial/uitklap.twig', $uitklap_context + ['collapsible' => false]),
+    ['<img src=x', '<details'],
+    ['<h3>Kop &lt;img src=x', '<p>Inhoud</p>']
+);
+
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);
