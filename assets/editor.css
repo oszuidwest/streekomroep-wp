@@ -90,6 +90,11 @@ body details.collapsible-item {
     @apply m-0 border-t-2 border-white;
 }
 
+/* The item at the caret, which the floating toolbar acts on; the plugin sets the flag. */
+body details.collapsible-item[data-zw-active] {
+    @apply outline-2 -outline-offset-2 outline-blauw;
+}
+
 body details.collapsible-item > summary {
     @apply relative flex items-center gap-3 py-3 bg-gray-100 font-bold text-lg leading-snug text-black;
     /* Keep long headings clear of the state label in the top-right corner. */

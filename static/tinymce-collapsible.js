@@ -9,6 +9,7 @@
     var ITEM = 'details.collapsible-item';
     var OPEN_FLAG = 'data-mce-open';
     var EMPTY_FLAG = 'data-zw-empty';
+    var ACTIVE_FLAG = 'data-zw-active';
     var BOGUS_BR = '<br data-mce-bogus="1">';
     var EMPTY_PARAGRAPH = '<p>' + BOGUS_BR + '</p>';
     var VK = tinymce.util.VK;
@@ -68,10 +69,32 @@
             });
         }
 
+        // The editor stylesheet outlines the item at the caret so it is clear which
+        // item the floating toolbar acts on; the title gets no mark of its own.
+        function markActiveItem(element) {
+            var active = element && itemOf(element);
+            tinymce.each(editor.dom.select(ITEM + '[' + ACTIVE_FLAG + ']'), function (item) {
+                if (item !== active) {
+                    item.removeAttribute(ACTIVE_FLAG);
+                }
+            });
+            if (active) {
+                active.setAttribute(ACTIVE_FLAG, '');
+            }
+        }
+
+        editor.on('NodeChange', function (e) {
+            markActiveItem(e.element);
+        });
+
+        editor.on('blur', function () {
+            markActiveItem(null);
+        });
+
         editor.on('PreInit', function () {
-            editor.serializer.addAttributeFilter(EMPTY_FLAG, function (nodes) {
+            editor.serializer.addAttributeFilter(EMPTY_FLAG + ',' + ACTIVE_FLAG, function (nodes, name) {
                 tinymce.each(nodes, function (node) {
-                    node.attr(EMPTY_FLAG, null);
+                    node.attr(name, null);
                 });
             });
         });
@@ -322,11 +345,12 @@
                 if (current) {
                     editor.dom.insertAfter(item, current);
                 } else {
-                    group.appendChild(item);
+                    // From the title, the new item goes right below it.
+                    group.insertBefore(item, group.querySelector(ITEM));
                 }
                 editor.selection.select(item.querySelector('summary'), true);
             });
-            editor.nodeChanged();
+            caretMoved();
         }
 
         function toggleOpenByDefault(item) {
@@ -339,6 +363,13 @@
                 }
             });
             editor.nodeChanged();
+        }
+
+        // The floating toolbar follows the caret on click and keyup only, so a toolbar
+        // action that moves the caret has to announce it.
+        function caretMoved() {
+            editor.nodeChanged();
+            editor.fire('keyup', {keyCode: 0});
         }
 
         // Replaces the section with an empty paragraph so the caret has somewhere to go.
@@ -356,7 +387,7 @@
             editor.undoManager.transact(function () {
                 deleteGroup(group);
             });
-            editor.nodeChanged();
+            caretMoved();
         }
 
         // Drops the item with its heading and text; undo brings it back. Without
@@ -376,7 +407,7 @@
                 }
                 caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
             });
-            editor.nodeChanged();
+            caretMoved();
         }
 
         editor.addButton('zw_collapsible', {
@@ -395,12 +426,6 @@
             text: 'Onderdeel verwijderen',
             tooltip: 'Verwijder dit onderdeel met kop en tekst',
             onclick: deleteItem,
-            onPostRender: function () {
-                var button = this;
-                editor.on('NodeChange', function (e) {
-                    button.disabled(!itemOf(e.element));
-                });
-            },
         });
 
         editor.addButton('zw_collapsible_remove', {
@@ -409,6 +434,20 @@
             onclick: deleteSection,
         });
 
-        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_remove_item zw_collapsible_remove');
+        // TinyMCE places the toolbar right below the matched element, so match the
+        // item or title at the caret rather than the section, which can be tall.
+        editor.addContextToolbar(ITEM, 'zw_collapsible_add zw_collapsible_remove_item zw_collapsible_remove');
+        editor.addContextToolbar(TITLE, 'zw_collapsible_add zw_collapsible_remove');
+
+        // TinyMCE measures from the edit area, but WordPress pads that area to make
+        // room for its pinned toolbar, which puts every floating toolbar that far too high.
+        editor.settings.inline_toolbar_position_handler = function (rects) {
+            var area = editor.getContentAreaContainer().getBoundingClientRect();
+            var frame = editor.iframeElement.getBoundingClientRect();
+            return {
+                left: rects.panelRect.left + frame.left - area.left,
+                top: rects.panelRect.top + frame.top - area.top,
+            };
+        };
     });
 })();

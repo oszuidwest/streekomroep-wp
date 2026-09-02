@@ -102,7 +102,7 @@ Existing installations should follow the [Tekst TV migration steps](INSTALL.md#m
 
 ### Collapsible sections
 
-Articles (`post`) can hold a collapsible background section, for example to recap a long-running story without interrupting the article itself. The Classic Editor toolbar has a button (next to the "Read more" tag) that turns the selected paragraphs into a section with a title bar and one collapsible item. Title, headings and text are edited in place; a floating toolbar on the section adds items, deletes the current item, or deletes the whole section (undo brings it back); the label at the right of each heading toggles whether that item starts expanded on the site.
+Articles (`post`) can hold a collapsible background section, for example to recap a long-running story without interrupting the article itself. The Classic Editor toolbar has a button (next to the "Read more" tag) that turns the selected paragraphs into a section with a title bar and one collapsible item. Title, headings and text are edited in place; a floating toolbar below the item at the cursor (outlined in the editor) adds an item after it, deletes it, or deletes the whole section (undo brings it back); from the title bar it adds a first item; the label at the right of each heading toggles whether that item starts expanded on the site.
 
 Sections are stored as plain HTML and rendered with native `<details>` elements, so their contents stay indexable and need no JavaScript:
 
