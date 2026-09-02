@@ -86,7 +86,43 @@
             });
         });
 
-        editor.on('SetContent NodeChange keyup input', flagEmptyHeadings);
+        // The title must stay an h3 and every item must start with a summary; the
+        // format dropdown or a stray paste can break that, so put it back.
+        function repairStructure() {
+            var dom = editor.dom;
+            tinymce.each(dom.select(GROUP), function (group) {
+                var title = group.querySelector('.collapsible-title');
+                if (title && title.nodeName !== 'H3') {
+                    dom.rename(title, 'h3');
+                }
+                tinymce.each(dom.select(ITEM, group), function (item) {
+                    var first = item.firstElementChild;
+                    if (first && /^(H[1-6]|P|DIV)$/.test(first.nodeName)) {
+                        dom.rename(first, 'summary');
+                    }
+                });
+            });
+        }
+
+        editor.on('SetContent NodeChange keyup input', function () {
+            repairStructure();
+            flagEmptyHeadings();
+        });
+
+        // Block-level formatting has no place inside the title or an item heading.
+        var BLOCK_COMMANDS = /^(FormatBlock|mceBlockQuote|InsertUnorderedList|InsertOrderedList|mceInsertRawHTML)$/;
+        var BLOCK_FORMATS = /^(p|h[1-6]|pre|blockquote|div|address|aside)$/i;
+
+        editor.on('BeforeExecCommand', function (e) {
+            var selection = editor.selection;
+            var heading = closest(selection.getStart(), TITLE + ', summary') || closest(selection.getEnd(), TITLE + ', summary');
+            if (!heading || !groupOf(heading)) {
+                return;
+            }
+            if (BLOCK_COMMANDS.test(e.command) || (e.command === 'mceToggleFormat' && BLOCK_FORMATS.test(e.value))) {
+                e.preventDefault();
+            }
+        });
 
         // The state label is the heading's ::after box, which sits at the right end of the bar.
         function clickedStateLabel(summary, e) {

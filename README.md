@@ -116,7 +116,7 @@ Sections are stored as plain HTML and rendered with native `<details>` elements,
 </div>
 ```
 
-Feeds receive headings and text instead of the disclosure widgets.
+The editor blocks block-level formatting inside the title and item headings, and saving normalizes the markup (the title is always an `h3`, every item starts with a `summary`) before the theme's content allowlist runs. Feeds receive headings and text instead of the disclosure widgets.
 
 ## Integrations
 

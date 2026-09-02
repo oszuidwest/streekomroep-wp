@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Regression coverage for flattening collapsible sections in feeds.
+ * Regression coverage for collapsible sections: feed flattening and save-time normalization.
  *
  * Run with: composer test:collapsible
  */
@@ -38,9 +38,40 @@ foreach ($cases as $label => [$input, $expected]) {
     }
 }
 
+$normalize_cases = [
+    'title demoted to h1' => [
+        '<div class="collapsible"><h1 class="collapsible-title">Titel</h1><details class="collapsible-item"><summary>Kop</summary>Tekst</details></div>',
+        '<div class="collapsible"><h3 class="collapsible-title">Titel</h3><details class="collapsible-item"><summary>Kop</summary>Tekst</details></div>',
+    ],
+    'title turned into a paragraph with extra attributes' => [
+        '<div class="collapsible"><p class="foo collapsible-title" id="x">Titel <em>a</em></p></div>',
+        '<div class="collapsible"><h3 class="collapsible-title">Titel <em>a</em></h3></div>',
+    ],
+    'heading turned into h2 is promoted back to summary' => [
+        '<details class="collapsible-item" open><h2>Kop</h2>Tekst</details>',
+        '<details class="collapsible-item" open><summary>Kop</summary>Tekst</details>',
+    ],
+    'item without any heading becomes plain text' => [
+        '<p>A</p><details class="collapsible-item">Tekst zonder kop</details><p>B</p>',
+        '<p>A</p>Tekst zonder kop<p>B</p>',
+    ],
+    'intact section is untouched' => [
+        '<div class="collapsible">' . PHP_EOL . '<h3 class="collapsible-title">T</h3>' . PHP_EOL . '<details class="collapsible-item">' . PHP_EOL . '<summary>K</summary>' . PHP_EOL . 'Tekst' . PHP_EOL . '</details>' . PHP_EOL . '</div>',
+        '<div class="collapsible">' . PHP_EOL . '<h3 class="collapsible-title">T</h3>' . PHP_EOL . '<details class="collapsible-item">' . PHP_EOL . '<summary>K</summary>' . PHP_EOL . 'Tekst' . PHP_EOL . '</details>' . PHP_EOL . '</div>',
+    ],
+    'content without sections' => ['<h1>Gewoon</h1>', '<h1>Gewoon</h1>'],
+];
+
+foreach ($normalize_cases as $label => [$input, $expected]) {
+    $actual = zw_collapsible_normalize($input);
+    if ($actual !== $expected) {
+        $failures[] = sprintf('normalize %s: expected %s, got %s', $label, $expected, $actual);
+    }
+}
+
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);
 }
 
-echo 'OK: collapsible sections flatten to headings in feeds' . PHP_EOL;
+echo 'OK: collapsible sections flatten in feeds and normalize on save' . PHP_EOL;
