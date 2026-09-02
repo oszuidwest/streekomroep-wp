@@ -2,7 +2,7 @@
 
 {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 dark:border-gray-200/10 dark:bg-gray-700/40' %}
 {% set muted = 'text-gray-500 dark:text-gray-400' %}
-{% set focus_ring = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roze' %}
+{% set focus_ring_hero = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white' %}
 {% set radio_fallback_title = 'ZuidWest FM' %}
 {% set radio_fallback_artist = 'In heel West-Brabant' %}
 
@@ -40,7 +40,7 @@
                 <p class="mt-3 flex items-center gap-2.5 md:mt-3.5 md:gap-3" data-current-makers
                    {% if live_show.makers_label is empty %}hidden{% endif %}>
                     {% set portraits = (live_show.makers ?? [])|slice(0, 2) %}
-                    <span class="flex flex-none -space-x-1" data-current-portraits
+                    <span class="flex flex-none gap-1.5" data-current-portraits
                           {% if portraits is empty %}hidden{% endif %}>
                         {% for maker in portraits %}
                             {{ include('partial/fm-headshot.twig', {photo: maker.photo}) }}
@@ -51,7 +51,7 @@
                     </span>
                 </p>
 
-                <div class="mt-5 max-w-[26rem] md:max-w-[34rem]" data-progress
+                <div class="mt-6 md:mt-7" data-progress
                      data-start="{{ live_show ? broadcast.start : 0 }}"
                      data-end="{{ live_show ? broadcast.end : 0 }}"
                      {% if not live_show %}hidden{% endif %}>
@@ -65,6 +65,44 @@
                         <span data-progress-end>{{ live_show ? broadcast.end_time : '' }}</span>
                     </div>
                 </div>
+
+                {% if has_stream %}
+                    {# The player lives in the hero: what is on and the button to hear it are one thing. #}
+                    <div class="mt-5 flex items-center gap-4 md:mt-6 md:gap-5">
+                        <button type="button" aria-label="Luister live" data-play
+                                class="grid size-16 flex-none touch-manipulation place-items-center rounded-sm bg-white text-roze transition hover:bg-white/90 {{ focus_ring_hero }} md:size-20 motion-reduce:transition-none">
+                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
+                            <span class="[&>svg]:size-8 md:[&>svg]:size-10" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
+                        </button>
+                        <div class="min-w-0 flex-1" data-now-details aria-live="polite">
+                            <p class="truncate text-lg leading-tight font-bold text-white md:text-xl" data-now-title>
+                                {{- radio_fallback_title -}}
+                            </p>
+                            <p class="mt-0.5 truncate text-sm text-white/80" data-now-artist>
+                                {{- radio_fallback_artist -}}
+                            </p>
+                        </div>
+                        <div class="relative hidden flex-none md:block" data-volume-control>
+                            <button type="button" aria-label="Volume aanpassen" aria-expanded="false"
+                                    aria-controls="zw-fm-volume-panel" data-volume-toggle
+                                    class="grid size-10 place-items-center rounded-sm text-white/80 transition hover:bg-white/15 hover:text-white {{ focus_ring_hero }} motion-reduce:transition-none">
+                                <span class="[&>svg]:size-6" aria-hidden="true">{{ icon('icon-volume_up') }}</span>
+                            </button>
+                            <div id="zw-fm-volume-panel" class="absolute top-1/2 right-full z-10 mr-2 -translate-y-1/2 rounded-sm border border-gray-800/10 bg-white p-3 text-gray-900 shadow-lg"
+                                 data-volume-panel hidden>
+                                <div class="flex items-center gap-3">
+                                    <label for="zw-fm-volume" class="sr-only">Volume</label>
+                                    {# aria-valuetext carries the unit; the readout beside it is a visual mirror only. #}
+                                    <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
+                                           class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
+                                           aria-valuetext="100%">
+                                    <span class="w-10 text-right text-sm text-gray-500 tabular-nums"
+                                          aria-hidden="true" data-volume-value>100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </header>
 
@@ -80,48 +118,6 @@
                 {% endfor %}
             </audio>
         {% endif %}
-
-        <section class="mx-auto max-w-960 px-4 pt-7" aria-labelledby="live-player-title">
-            <h2 id="live-player-title" class="mb-5 text-2xl font-bold md:text-3xl">{{ has_stream ? 'Luister live' : 'Nu op de radio' }}</h2>
-            <div class="{{ card }} flex min-h-29 items-center gap-4 p-4 sm:gap-5 sm:p-5">
-                {% if has_stream %}
-                    <button type="button" aria-label="Luister live" data-play
-                            class="grid size-18 flex-none touch-manipulation place-items-center rounded-sm bg-roze text-white transition hover:bg-[#8f004e] {{ focus_ring }} sm:size-22 motion-reduce:transition-none">
-                        <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="play">{{ icon('icon-play_arrow') }}</span>
-                        <span class="[&>svg]:size-9 sm:[&>svg]:size-11" data-play-icon="pause" hidden>{{ icon('icon-pause') }}</span>
-                    </button>
-                {% endif %}
-                <div class="min-w-0 flex-1" data-now-details aria-live="polite">
-                    <p class="line-clamp-2 text-2xl leading-tight font-black sm:line-clamp-1 sm:text-3xl" data-now-title>
-                        {{- (has_stream ? radio_fallback_title : on_air)|e -}}
-                    </p>
-                    <p class="mt-1 truncate text-sm sm:text-base {{ muted }}" data-now-artist>
-                        {{- (has_stream ? radio_fallback_artist : live_show.makers_label)|e -}}
-                    </p>
-                </div>
-                {% if has_stream %}
-                    <div class="relative hidden flex-none md:block" data-volume-control>
-                        <button type="button" aria-label="Volume aanpassen" aria-expanded="false"
-                                aria-controls="zw-fm-volume-panel" data-volume-toggle
-                                class="grid size-10 place-items-center rounded-sm text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 {{ focus_ring }} dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200 motion-reduce:transition-none">
-                            <span class="[&>svg]:size-6" aria-hidden="true">{{ icon('icon-volume_up') }}</span>
-                        </button>
-                        <div id="zw-fm-volume-panel" class="absolute top-1/2 right-full z-10 mr-2 -translate-y-1/2 rounded-sm border border-gray-800/10 bg-gray-50 p-3 shadow-lg dark:border-gray-200/10 dark:bg-gray-700"
-                             data-volume-panel hidden>
-                            <div class="flex items-center gap-3">
-                                <label for="zw-fm-volume" class="sr-only">Volume</label>
-                                {# aria-valuetext carries the unit; the readout beside it is a visual mirror only. #}
-                                <input id="zw-fm-volume" type="range" min="0" max="100" step="1" value="100"
-                                       class="h-2 w-28 cursor-pointer accent-roze lg:w-36" data-volume
-                                       aria-valuetext="100%">
-                                <span class="w-10 text-right text-sm tabular-nums {{ muted }}"
-                                      aria-hidden="true" data-volume-value>100%</span>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </section>
 
         <section class="mx-auto max-w-960 px-4 pt-7" data-upcoming
                  {% if upcoming is empty %}hidden{% endif %}>
