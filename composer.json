@@ -20,7 +20,10 @@
     "fix:twig": "twig-cs-fixer lint --fix",
     "test:search": "php tests/search-deduplication.php",
     "test:templates": "php tests/template-escaping.php",
-    "test:collapsible": "php tests/collapsible-feed.php"
+    "test:collapsible": [
+      "php tests/collapsible-feed.php",
+      "php tests/collapsible-normalize.php"
+    ]
   },
   "repositories": [
     {

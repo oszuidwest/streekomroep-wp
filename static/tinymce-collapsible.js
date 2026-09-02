@@ -109,23 +109,36 @@
             flagEmptyHeadings();
         });
 
-        // Block-level formatting has no place inside the title or an item heading.
-        var BLOCK_COMMANDS = /^(FormatBlock|mceBlockQuote|InsertUnorderedList|InsertOrderedList|mceInsertRawHTML)$/;
-        var BLOCK_FORMATS = /^(p|h[1-6]|pre|blockquote|div|address|aside)$/i;
+        // Title and item headings are plain text; item bodies allow paragraph-level
+        // formatting only. Saving enforces the same rules (CollapsibleNormalizer).
+        var HEADING_COMMANDS = /^(FormatBlock|mceToggleFormat|mceBlockQuote|InsertUnorderedList|InsertOrderedList|Bold|Italic|Underline|Strikethrough|WP_Link|mceInsertLink|mceLink|mceInsertRawHTML)$/;
+        var BODY_COMMANDS = /^(mceBlockQuote|mceInsertRawHTML)$/;
+        var BLOCK_FORMATS = /^(h[1-6]|pre|blockquote|div|address|aside)$/i;
+
+        function blocked(e) {
+            var selection = editor.selection;
+            var start = selection.getStart();
+            var end = selection.getEnd();
+            var heading = closest(start, TITLE + ', summary') || closest(end, TITLE + ', summary');
+            if (heading && groupOf(heading)) {
+                return HEADING_COMMANDS.test(e.command);
+            }
+            if (itemOf(start) || itemOf(end)) {
+                return BODY_COMMANDS.test(e.command)
+                    || ((e.command === 'FormatBlock' || e.command === 'mceToggleFormat') && BLOCK_FORMATS.test(e.value));
+            }
+            return false;
+        }
 
         editor.on('BeforeExecCommand', function (e) {
-            var selection = editor.selection;
-            var heading = closest(selection.getStart(), TITLE + ', summary') || closest(selection.getEnd(), TITLE + ', summary');
-            if (!heading || !groupOf(heading)) {
+            if (!blocked(e)) {
                 return;
             }
-            if (BLOCK_COMMANDS.test(e.command) || (e.command === 'mceToggleFormat' && BLOCK_FORMATS.test(e.value))) {
-                e.preventDefault();
-                // The format dropdown already shows the chosen level; a node change resets it.
-                window.setTimeout(function () {
-                    editor.nodeChanged();
-                }, 0);
-            }
+            e.preventDefault();
+            // The format dropdown already shows the chosen level; a node change resets it.
+            window.setTimeout(function () {
+                editor.nodeChanged();
+            }, 0);
         });
 
         // The state label is the heading's ::after box, absolutely positioned within the bar.

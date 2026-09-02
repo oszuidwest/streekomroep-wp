@@ -63,37 +63,14 @@ function zw_collapsible_editor_css_version(string $stylesheets): string
 add_filter('mce_css', 'zw_collapsible_editor_css_version');
 
 /**
- * Repairs section markup before it is stored: the title is always an h3 and
- * every item starts with a summary (its first block becomes the heading; an
- * item with no block to promote turns into plain text). This runs before the
- * theme's kses allowlist, which would otherwise drop a stray h1 together with
- * the title class.
+ * Rewrites sections into their canonical form before they are stored (see
+ * Streekomroep\CollapsibleNormalizer). This runs before the theme's kses
+ * allowlist, which would otherwise drop a stray h1 together with the title
+ * class.
  */
 function zw_collapsible_normalize(string $content): string
 {
-    if (!str_contains($content, 'collapsible')) {
-        return $content;
-    }
-
-    $content = preg_replace(
-        '#<(h[1-6]|p|div)\b[^>]*\bclass="[^"]*\bcollapsible-title\b[^"]*"[^>]*>(.*?)</\1>#is',
-        '<h3 class="collapsible-title">$2</h3>',
-        $content
-    );
-
-    return preg_replace_callback(
-        '#(<details\b[^>]*\bcollapsible-item\b[^>]*>)(.*?)</details>#is',
-        function (array $match): string {
-            [$whole, $opening, $inner] = $match;
-            if (preg_match('#^\s*<summary\b#i', $inner)) {
-                return $whole;
-            }
-            $promoted = preg_replace('#^\s*<(h[1-6]|p)\b[^>]*>(.*?)</\1>#is', '<summary>$2</summary>', $inner, 1, $count);
-
-            return $count > 0 ? $opening . $promoted . '</details>' : $inner;
-        },
-        $content
-    );
+    return \Streekomroep\CollapsibleNormalizer::normalize($content);
 }
 
 function zw_collapsible_sanitize_post_data(array $data): array

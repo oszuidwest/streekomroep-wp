@@ -116,7 +116,7 @@ Sections are stored as plain HTML and rendered with native `<details>` elements,
 </div>
 ```
 
-The editor blocks block-level formatting inside the title and item headings, and saving normalizes the markup (the title is always an `h3`, every item starts with a `summary`) before the theme's content allowlist runs. Feeds receive headings and text instead of the disclosure widgets.
+The title and item headings are plain text and item bodies allow paragraph-level formatting only (paragraphs, lists, links, emphasis, images, embeds). The editor blocks other formatting there, and saving rewrites each section into that canonical form before the theme's content allowlist runs: stray content inside a section moves after it, headings and quotes inside an item become paragraphs, nested sections dissolve. Feeds receive headings and text instead of the disclosure widgets.
 
 ## Integrations
 
