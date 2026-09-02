@@ -91,7 +91,13 @@ body details.collapsible-item {
 }
 
 body details.collapsible-item > summary {
-    @apply flex items-center gap-3 px-4 py-3 bg-gray-100 font-bold text-lg leading-snug text-black;
+    @apply flex items-center gap-3 py-3 pr-4 bg-gray-100 font-bold text-lg leading-snug text-black;
+    /* The icon is a background so both pseudo-elements stay free for the placeholder and the state label. */
+    padding-left: 3.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23009fe3'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 1rem center;
+    background-size: 1.5rem;
     list-style: none;
 }
 
@@ -99,15 +105,8 @@ body details.collapsible-item > summary::-webkit-details-marker {
     display: none;
 }
 
-body details.collapsible-item > summary::before {
-    content: '';
-    @apply shrink-0 w-6 h-6 bg-blauw;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-/* The icon mirrors how the item opens on the site. */
-body details.collapsible-item[data-mce-open] > summary::before {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
+body details.collapsible-item[data-mce-open] > summary {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23009fe3'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
 }
 
 /* Placeholders for empty headings; the plugin maintains the flag. */
@@ -116,9 +115,20 @@ body .collapsible > .collapsible-title[data-zw-empty]::after {
     @apply font-normal text-gray-400;
 }
 
-body details.collapsible-item > summary[data-zw-empty]::after {
+body details.collapsible-item > summary[data-zw-empty]::before {
     content: 'Kop';
     @apply font-normal text-gray-400;
+}
+
+/* Spell out how the item opens on the site. */
+body details.collapsible-item > summary::after {
+    content: 'Standaard ingeklapt';
+    @apply ml-auto shrink-0 font-round font-bold text-xs uppercase tracking-wide text-gray-500;
+}
+
+body details.collapsible-item[data-mce-open] > summary::after {
+    content: 'Standaard uitgeklapt';
+    @apply text-blauw;
 }
 
 body details.collapsible-item > summary ~ * {
