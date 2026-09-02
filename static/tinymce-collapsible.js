@@ -299,6 +299,9 @@
                     return;
                 }
                 dom.setAttrib(group, 'id', null);
+                if (!group.previousElementSibling) {
+                    group.parentNode.insertBefore(emptyParagraph(), group);
+                }
                 editor.selection.select(group.querySelector(TITLE), true);
             });
         }
