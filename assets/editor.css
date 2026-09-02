@@ -79,7 +79,7 @@ body .video-js video {
 
 /* Collapsible sections, always expanded while editing (see static/tinymce-collapsible.js) */
 body .collapsible {
-    @apply my-6 rounded-sm overflow-hidden outline-1 outline-dashed outline-gray-300;
+    @apply my-6 outline-1 outline-dashed outline-gray-300;
 }
 
 body .collapsible > .collapsible-title {
