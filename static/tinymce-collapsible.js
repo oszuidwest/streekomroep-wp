@@ -285,12 +285,6 @@
         }
 
         function toggleOpenByDefault(item) {
-            if (!item || !item.nodeType) {
-                item = itemOf(editor.selection.getStart());
-            }
-            if (!item) {
-                return;
-            }
             editor.undoManager.transact(function () {
                 // Native setAttribute: TinyMCE's setAttrib drops empty values.
                 if (item.hasAttribute(OPEN_FLAG)) {
@@ -347,28 +341,12 @@
             onclick: addItem,
         });
 
-        editor.addButton('zw_collapsible_open', {
-            text: 'Standaard uitgeklapt',
-            tooltip: 'Toon dit onderdeel op de site meteen uitgeklapt',
-            onclick: function () {
-                toggleOpenByDefault();
-            },
-            onPostRender: function () {
-                var button = this;
-                editor.on('NodeChange', function (e) {
-                    var item = itemOf(e.element);
-                    button.disabled(!item);
-                    button.active(!!item && item.hasAttribute(OPEN_FLAG));
-                });
-            },
-        });
-
         editor.addButton('zw_collapsible_remove', {
             text: 'Blok opheffen',
             tooltip: 'Haal het blok weg; titel, koppen en tekst blijven staan',
             onclick: unwrapSection,
         });
 
-        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_open zw_collapsible_remove');
+        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_remove');
     });
 })();
