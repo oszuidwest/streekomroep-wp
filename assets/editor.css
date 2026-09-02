@@ -92,7 +92,7 @@ body details.collapsible-item {
 
 body details.collapsible-item > summary {
     @apply relative flex items-center gap-3 pr-4 pb-3 bg-gray-100 font-bold text-lg leading-snug text-black;
-    /* Room above the heading for the state label, which sits in the top-left corner. */
+    /* Room above the heading for the state label, which sits in the top-right corner. */
     padding-top: 2rem;
     /* The icon is a background so both pseudo-elements stay free for the placeholder and the state label. */
     padding-left: 3.25rem;
@@ -126,7 +126,7 @@ body details.collapsible-item > summary[data-zw-empty]::before {
 /* Spell out how the item opens on the site; the plugin toggles it on click. */
 body details.collapsible-item > summary::after {
     content: 'Standaard ingeklapt';
-    @apply absolute top-2 left-[3.25rem] px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;
+    @apply absolute top-2 right-2 px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;
 }
 
 body details.collapsible-item[data-mce-open] > summary::after {
