@@ -121,6 +121,10 @@
             }
             if (BLOCK_COMMANDS.test(e.command) || (e.command === 'mceToggleFormat' && BLOCK_FORMATS.test(e.value))) {
                 e.preventDefault();
+                // The format dropdown already shows the chosen level; a node change resets it.
+                window.setTimeout(function () {
+                    editor.nodeChanged();
+                }, 0);
             }
         });
 

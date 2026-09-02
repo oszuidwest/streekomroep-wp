@@ -47,6 +47,21 @@ function zw_collapsible_editor_button(array $buttons, string $editor_id = ''): a
 
 add_filter('mce_buttons', 'zw_collapsible_editor_button', 10, 2);
 
+/** WordPress versions the editor stylesheet by TinyMCE release only, so a theme update would leave it cached. */
+function zw_collapsible_editor_css_version(string $stylesheets): string
+{
+    $urls = array_filter(explode(',', $stylesheets));
+    foreach ($urls as &$url) {
+        if (str_contains($url, '/dist/editor.css')) {
+            $url = add_query_arg('ver', wp_get_theme()->get('Version'), $url);
+        }
+    }
+
+    return implode(',', $urls);
+}
+
+add_filter('mce_css', 'zw_collapsible_editor_css_version');
+
 /**
  * Repairs section markup before it is stored: the title is always an h3 and
  * every item starts with a summary (its first block becomes the heading; an
