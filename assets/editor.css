@@ -91,12 +91,14 @@ body details.collapsible-item {
 }
 
 body details.collapsible-item > summary {
-    @apply flex items-center gap-3 py-3 pr-4 bg-gray-100 font-bold text-lg leading-snug text-black;
+    @apply relative flex items-center gap-3 pr-4 pb-3 bg-gray-100 font-bold text-lg leading-snug text-black;
+    /* Room above the heading for the state label, which sits in the top-left corner. */
+    padding-top: 2rem;
     /* The icon is a background so both pseudo-elements stay free for the placeholder and the state label. */
     padding-left: 3.25rem;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300de01'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: 1rem center;
+    background-position: 1rem 2rem;
     background-size: 1.5rem;
     list-style: none;
 }
@@ -124,7 +126,7 @@ body details.collapsible-item > summary[data-zw-empty]::before {
 /* Spell out how the item opens on the site; the plugin toggles it on click. */
 body details.collapsible-item > summary::after {
     content: 'Standaard ingeklapt';
-    @apply ml-auto shrink-0 px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;
+    @apply absolute top-2 left-[3.25rem] px-1.5 py-0.5 rounded-sm border border-gray-300 bg-white font-round font-bold text-[0.6875rem] leading-none uppercase tracking-wide text-gray-500 cursor-pointer;
 }
 
 body details.collapsible-item[data-mce-open] > summary::after {

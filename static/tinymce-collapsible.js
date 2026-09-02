@@ -128,13 +128,17 @@
             }
         });
 
-        // The state label is the heading's ::after box, which sits at the right end of the bar.
+        // The state label is the heading's ::after box, absolutely positioned within the bar.
         function clickedStateLabel(summary, e) {
-            var win = editor.getWin();
-            var width = parseFloat(win.getComputedStyle(summary, '::after').width) || 0;
-            var paddingRight = parseFloat(win.getComputedStyle(summary).paddingRight) || 0;
-            var right = summary.getBoundingClientRect().right - paddingRight;
-            return width > 0 && e.clientX >= right - width && e.clientX <= right;
+            var style = editor.getWin().getComputedStyle(summary, '::after');
+            var rect = summary.getBoundingClientRect();
+            var left = rect.left + (parseFloat(style.left) || 0);
+            var top = rect.top + (parseFloat(style.top) || 0);
+            var width = parseFloat(style.width) || 0;
+            var height = parseFloat(style.height) || 0;
+            return width > 0
+                && e.clientX >= left && e.clientX <= left + width
+                && e.clientY >= top && e.clientY <= top + height;
         }
 
         // Clicking a heading must place the caret, not collapse the item; clicking
