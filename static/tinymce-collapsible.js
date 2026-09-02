@@ -250,9 +250,7 @@
                     // Keep headings separate and remove empty items.
                     handled(e);
                     if (item && dom.isEmpty(item)) {
-                        editor.undoManager.transact(function () {
-                            removeItem(item);
-                        });
+                        deleteItem();
                     }
                     return;
                 }
