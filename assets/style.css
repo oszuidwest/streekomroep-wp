@@ -75,7 +75,7 @@
 
 /* Collapsible sections: div.collapsible with details.collapsible-item items, inserted by the editor plugin */
 .prose .collapsible {
-    @apply my-8 rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700;
+    @apply my-8 rounded-sm overflow-hidden;
 }
 
 .prose .collapsible > .collapsible-title {
