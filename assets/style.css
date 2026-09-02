@@ -78,8 +78,9 @@
     @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
 }
 
+/* The dark title bar covers the section border, which would otherwise show as a light rim around it. */
 .prose .collapsible > .collapsible-title {
-    @apply m-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
+    @apply -mx-px -mt-px mb-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
 }
 
 .prose .collapsible > .collapsible-title:empty {
