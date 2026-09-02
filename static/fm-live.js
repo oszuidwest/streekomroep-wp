@@ -54,7 +54,6 @@
         return title && artist ? {title: title, artist: artist} : null;
     }
 
-    let expiryTimer = null;
     function renderNow(track) {
         const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
         currentTrack = track;
@@ -76,25 +75,7 @@
     }
 
     function renderFallback() {
-        clearTimeout(expiryTimer);
-        expiryTimer = null;
         renderNow(null);
-    }
-
-    function trackIsCurrent(expiresAt) {
-        clearTimeout(expiryTimer);
-        const remaining = Date.parse(expiresAt) - Date.now();
-        if (!Number.isFinite(remaining)) {
-            return true;
-        }
-
-        if (remaining <= 0) {
-            renderFallback();
-            return false;
-        }
-
-        expiryTimer = setTimeout(renderFallback, remaining);
-        return true;
     }
 
     let reconnectDelay = RECONNECT_START;
@@ -142,16 +123,13 @@
                 return;
             }
 
+            // Metadata events are already synchronized with the live stream.
             const track = readTrack(payload);
             if (!track) {
-                // An empty metadata update ends the current track.
+                // Programme and station updates clear the current track.
                 if (!payload.type || payload.type === 'metadata_update') {
                     renderFallback();
                 }
-                return;
-            }
-
-            if (!trackIsCurrent(payload.expires_at)) {
                 return;
             }
 
@@ -176,7 +154,6 @@
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             if (!isPlaying) {
-                // Suspend the idle metadata socket while the page is hidden.
                 clearTimeout(reconnectTimer);
                 socket?.close();
             }
@@ -412,7 +389,6 @@
         const volumePanel = volumeGroup.querySelector('[data-volume-panel]');
         const volumeControl = volumeGroup.querySelector('[data-volume]');
         const volumeValue = volumeGroup.querySelector('[data-volume-value]');
-        // A template edit that drops one hook must not take the player down with it.
         if (!volumeToggle || !volumePanel || !volumeControl || !volumeValue) {
             return;
         }
@@ -447,9 +423,7 @@
                 volumeToggle.focus();
             }
         });
-        // Escape only reaches this group while focus is inside it, so tabbing away must dismiss too.
-        // Native range controls can report no related target during pointer interaction; the
-        // document click handler below still closes the panel for an actual outside click.
+        // Close on keyboard focus changes; pointer clicks are handled below.
         volumeGroup.addEventListener('focusout', function (event) {
             if (event.relatedTarget && !volumeGroup.contains(event.relatedTarget)) {
                 setVolumeOpen(false);
@@ -494,9 +468,7 @@
         };
 
         const startPlayback = function () {
-            // Reload before playing: this is a live stream, so resuming must jump to the edge.
-            // load() also restarts source selection, so a codec that failed last time is retried
-            // from the top rather than staying demoted for the rest of the page view.
+            // Reload to reach the live edge and retry every source candidate.
             streamElement.load();
             streamElement.play()?.catch(() => setPlaying(false));
             setPlaying(true);
@@ -508,14 +480,10 @@
 
         streamElement.addEventListener('playing', () => setPlaying(true));
         streamElement.addEventListener('pause', () => setPlaying(false));
-        // Fires for a source that dies after it was already selected, such as a mid-stream decode
-        // failure. Running out of candidates does not reach this handler.
+        // Handle failures after a source has already been selected.
         streamElement.addEventListener('error', () => setPlaying(false));
 
-        // Exhausting every <source> leaves the element in NETWORK_NO_SOURCE and fires no error on
-        // the element itself, so the button would sit on "Pauzeer" forever after a failed start.
-        // Each rejected candidate fires its own error, which capture picks up on the way down, and
-        // the network state settles one task later.
+        // Capture rejected sources and check the network state after it settles.
         streamElement.addEventListener('error', function () {
             setTimeout(function () {
                 if (streamElement.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
@@ -543,7 +511,6 @@
             }
         }
 
-        // Last: playback is the primary control, so it gets wired before the secondary one.
         if (volumeGroup) {
             setupVolume(streamElement, volumeGroup);
         }
