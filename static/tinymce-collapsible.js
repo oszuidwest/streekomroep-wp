@@ -8,6 +8,7 @@
     var TITLE = 'h3.collapsible-title';
     var ITEM = 'details.collapsible-item';
     var OPEN_FLAG = 'data-mce-open';
+    var EMPTY_FLAG = 'data-zw-empty';
     var BLOCK_PATTERN = /<(p|h[1-6]|ul|ol|blockquote|figure|div|table|pre)\b/i;
     var EMPTY_PARAGRAPH = '<p><br data-mce-bogus="1"></p>';
     var ENTER = 13;
@@ -64,6 +65,28 @@
         function createItem(body) {
             return editor.dom.create('details', {'class': 'collapsible-item', open: 'open'}, '<summary>Kop</summary>' + body);
         }
+
+        // The editor stylesheet shows a placeholder in flagged headings; CSS alone
+        // cannot tell an emptied heading (bogus <br>) from one with text and a <br>.
+        function flagEmptyHeadings() {
+            tinymce.each(editor.dom.select(TITLE + ', ' + ITEM + ' > summary'), function (heading) {
+                if (isEmpty(heading)) {
+                    heading.setAttribute(EMPTY_FLAG, '');
+                } else {
+                    heading.removeAttribute(EMPTY_FLAG);
+                }
+            });
+        }
+
+        editor.on('PreInit', function () {
+            editor.serializer.addAttributeFilter(EMPTY_FLAG, function (nodes) {
+                tinymce.each(nodes, function (node) {
+                    node.attr(EMPTY_FLAG, null);
+                });
+            });
+        });
+
+        editor.on('SetContent NodeChange keyup input', flagEmptyHeadings);
 
         // Clicking a heading must place the caret, not collapse the item.
         editor.on('click', function (e) {

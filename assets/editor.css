@@ -110,15 +110,13 @@ body details.collapsible-item[data-mce-open] > summary::before {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
 }
 
-/* Placeholders for empty headings. */
-body .collapsible > .collapsible-title:empty::after,
-body .collapsible > .collapsible-title:has(> br:only-child)::after {
+/* Placeholders for empty headings; the plugin maintains the flag. */
+body .collapsible > .collapsible-title[data-zw-empty]::after {
     content: 'Titel';
     @apply font-normal text-gray-400;
 }
 
-body details.collapsible-item > summary:empty::after,
-body details.collapsible-item > summary:has(> br:only-child)::after {
+body details.collapsible-item > summary[data-zw-empty]::after {
     content: 'Kop';
     @apply font-normal text-gray-400;
 }
