@@ -379,13 +379,13 @@
         });
 
         editor.addButton('zw_collapsible_remove_item', {
-            text: 'Onderdeel verwijderen',
+            icon: 'dashicon dashicons-trash',
             tooltip: 'Verwijder dit onderdeel met kop en tekst',
             onclick: deleteItem,
         });
 
         editor.addButton('zw_collapsible_remove', {
-            text: 'Blok verwijderen',
+            text: 'Hele blok verwijderen',
             tooltip: 'Verwijder het hele blok met titel, koppen en tekst',
             onclick: deleteSection,
         });
