@@ -341,35 +341,40 @@
             editor.nodeChanged();
         }
 
-        // Turns a heading into a bold paragraph, or drops it when empty.
-        function headingToParagraph(heading) {
-            var dom = editor.dom;
-            if (dom.isEmpty(heading)) {
-                dom.remove(heading);
-                return;
-            }
-            var strong = dom.create('strong');
-            while (heading.firstChild) {
-                strong.appendChild(heading.firstChild);
-            }
-            var paragraph = dom.create('p');
-            paragraph.appendChild(strong);
-            dom.replace(paragraph, heading);
+        // Replaces the section with an empty paragraph so the caret has somewhere to go.
+        function deleteGroup(group) {
+            var paragraph = emptyParagraph();
+            editor.dom.replace(paragraph, group);
+            caretAtStartOf(paragraph);
         }
 
-        // Turns the section back into ordinary paragraphs.
-        function unwrapSection() {
-            var dom = editor.dom;
+        function deleteSection() {
             var group = groupOf(editor.selection.getStart());
             if (!group) {
                 return;
             }
             editor.undoManager.transact(function () {
-                tinymce.each(dom.select(TITLE + ', ' + ITEM + ' > summary', group), headingToParagraph);
-                tinymce.each(dom.select(ITEM, group), function (item) {
-                    dom.remove(item, true);
-                });
-                dom.remove(group, true);
+                deleteGroup(group);
+            });
+            editor.nodeChanged();
+        }
+
+        // Drops the item with its heading and text; undo brings it back. Without
+        // items left the section itself goes.
+        function deleteItem() {
+            var item = itemOf(editor.selection.getStart());
+            var group = item && groupOf(item);
+            if (!group) {
+                return;
+            }
+            editor.undoManager.transact(function () {
+                var previous = item.previousElementSibling;
+                editor.dom.remove(item);
+                if (!group.querySelector(ITEM)) {
+                    deleteGroup(group);
+                    return;
+                }
+                caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
             });
             editor.nodeChanged();
         }
@@ -386,12 +391,24 @@
             onclick: addItem,
         });
 
-        editor.addButton('zw_collapsible_remove', {
-            text: 'Blok opheffen',
-            tooltip: 'Haal het blok weg; titel, koppen en tekst blijven staan',
-            onclick: unwrapSection,
+        editor.addButton('zw_collapsible_remove_item', {
+            text: 'Onderdeel verwijderen',
+            tooltip: 'Verwijder dit onderdeel met kop en tekst',
+            onclick: deleteItem,
+            onPostRender: function () {
+                var button = this;
+                editor.on('NodeChange', function (e) {
+                    button.disabled(!itemOf(e.element));
+                });
+            },
         });
 
-        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_remove');
+        editor.addButton('zw_collapsible_remove', {
+            text: 'Blok verwijderen',
+            tooltip: 'Verwijder het hele blok met titel, koppen en tekst',
+            onclick: deleteSection,
+        });
+
+        editor.addContextToolbar(GROUP, 'zw_collapsible_add zw_collapsible_remove_item zw_collapsible_remove');
     });
 })();
