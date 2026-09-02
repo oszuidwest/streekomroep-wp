@@ -12,8 +12,9 @@ namespace Streekomroep;
  * images and embeds), nested sections and other block structure dissolve into
  * paragraphs, and stray content inside a section is placed after it.
  *
- * Works on the tag level so it copes with the paragraph-less HTML the Classic
- * Editor stores as well as with full HTML from other sources.
+ * Works on the tag level and leaves every byte outside a section untouched.
+ * WordPress's HTML API cannot rename or move nodes and DOMDocument re-encodes
+ * the whole document, so neither fits this rewrite.
  */
 final class CollapsibleNormalizer
 {
@@ -26,12 +27,11 @@ final class CollapsibleNormalizer
         'div', 'details', 'summary', 'section', 'article', 'aside', 'figure', 'figcaption', 'hr', 'dl', 'dt', 'dd',
     ];
 
+    /** A paragraph holding nothing but non-breaking spaces, which is how the editor stores an empty line. */
+    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?(?:&nbsp;|\x{00A0})+(?:\s*</p>)?(?=\s|$)';
+
     public static function normalize(string $content): string
     {
-        if (!str_contains($content, 'collapsible')) {
-            return $content;
-        }
-
         $tokens = preg_split('#(<[^>]+>)#', $content, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         $output = '';
         $count = count($tokens);
@@ -48,13 +48,27 @@ final class CollapsibleNormalizer
             $i++;
         }
 
-        return $output;
+        // Leaving a section with Enter creates an empty line after it; saved without
+        // typing there, it would stay as an empty paragraph on the site.
+        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')+#u', '$1', $output);
+
+        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)+(<div class="collapsible">\n<h3)#u', '$1', $output);
+    }
+
+    /** Feed readers rarely render disclosure widgets, so a canonical item becomes a heading with its text. */
+    public static function flatten(string $content): string
+    {
+        return preg_replace(
+            '#<details\b[^>]*\bcollapsible-item\b[^>]*>\s*<summary>(.*?)</summary>(.*?)</details>#is',
+            '<h4>$1</h4>$2',
+            $content
+        );
     }
 
     /** @return array{0: string, 1: int} The rebuilt section and the index after its closing tag. */
     private static function section(array $tokens, int $i): array
     {
-        $title = null;
+        $title = '';
         $items = [];
         $stray = '';
         $divDepth = 0;
@@ -77,21 +91,18 @@ final class CollapsibleNormalizer
                 $divDepth--;
                 continue;
             }
-            if ($title === null && self::hasClass($token, 'collapsible-title') && preg_match('#^<(h[1-6]|p)\b#i', $token, $match)) {
-                [$title, $i] = self::textUntil($tokens, $i + 1, strtolower($match[1]));
+            if ($title === '' && self::hasClass($token, 'collapsible-title') && self::isTextBlock($token)) {
+                [$title, $i] = self::textUntil($tokens, $i + 1, $token);
                 continue;
             }
             if (self::isOpening($token, 'details')) {
                 [$item, $i] = self::item($tokens, $i + 1, (bool) preg_match('#\sopen\b#i', $token));
-                if ($item['heading'] === '' && $item['body'] === '') {
-                    continue;
-                }
                 if ($item['heading'] === '') {
                     // Nothing to promote to a heading: the text cannot collapse, so it leaves the section.
                     $stray .= "\n\n" . $item['body'];
-                    continue;
+                } else {
+                    $items[] = $item;
                 }
-                $items[] = $item;
                 continue;
             }
 
@@ -99,9 +110,7 @@ final class CollapsibleNormalizer
             $i++;
         }
 
-        $title = $title ?? '';
         $stray = self::tidy($stray);
-        $html = '';
 
         if ($items === []) {
             // A section without items is just its title, if any.
@@ -168,12 +177,8 @@ final class CollapsibleNormalizer
             }
             if ($heading === '' && trim($body) === '' && $detailsDepth === 0) {
                 // The first block is the heading: the summary itself, or a block that replaced it.
-                if (self::isOpening($token, 'summary')) {
-                    [$heading, $i] = self::textUntil($tokens, $i + 1, 'summary');
-                    continue;
-                }
-                if (preg_match('#^<(h[1-6]|p)\b#i', $token, $match)) {
-                    [$heading, $i] = self::textUntil($tokens, $i + 1, strtolower($match[1]));
+                if (self::isOpening($token, 'summary') || self::isTextBlock($token)) {
+                    [$heading, $i] = self::textUntil($tokens, $i + 1, $token);
                     $body = '';
                     continue;
                 }
@@ -186,9 +191,10 @@ final class CollapsibleNormalizer
         return [['heading' => $heading, 'body' => self::tidy($body), 'open' => $open], $i];
     }
 
-    /** Collects the plain text up to the closing tag, dropping any markup inside. */
-    private static function textUntil(array $tokens, int $i, string $tag): array
+    /** Collects the plain text up to the tag closing $opening, dropping any markup inside. */
+    private static function textUntil(array $tokens, int $i, string $opening): array
     {
+        $tag = self::tagName($opening);
         $text = '';
         $count = count($tokens);
 
@@ -218,12 +224,14 @@ final class CollapsibleNormalizer
 
     private static function tidy(string $html): string
     {
+        $html = preg_replace('#^[ \t]*' . self::EMPTY_PARAGRAPH . '[ \t]*$#mu', '', $html);
+
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html));
     }
 
     private static function isTag(string $token): bool
     {
-        return $token !== '' && $token[0] === '<';
+        return $token[0] === '<';
     }
 
     private static function tagName(string $token): string
@@ -231,18 +239,24 @@ final class CollapsibleNormalizer
         return preg_match('#^</?([a-zA-Z][a-zA-Z0-9]*)#', $token, $match) ? strtolower($match[1]) : '';
     }
 
+    /** A heading or paragraph: the blocks a title or item heading may have been turned into. */
+    private static function isTextBlock(string $token): bool
+    {
+        return (bool) preg_match('#^<(h[1-6]|p)[\s/>]#i', $token);
+    }
+
     private static function isOpening(string $token, string $tag): bool
     {
-        return self::isTag($token) && $token[1] !== '/' && self::tagName($token) === $tag;
+        return (bool) preg_match('#^<' . $tag . '[\s/>]#i', $token);
     }
 
     private static function isClosing(string $token, string $tag): bool
     {
-        return self::isTag($token) && str_starts_with($token, '</') && self::tagName($token) === $tag;
+        return (bool) preg_match('#^</' . $tag . '\s*>#i', $token);
     }
 
     private static function hasClass(string $token, string $class): bool
     {
-        return self::isTag($token) && (bool) preg_match('#\sclass=(["\'])[^"\']*(?<![\w-])' . preg_quote($class, '#') . '(?![\w-])[^"\']*\1#i', $token);
+        return (bool) preg_match('#^<[^>]*\sclass=(["\'])[^"\']*(?<![\w-])' . preg_quote($class, '#') . '(?![\w-])[^"\']*\1#i', $token);
     }
 }

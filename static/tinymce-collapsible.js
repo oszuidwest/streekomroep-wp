@@ -9,11 +9,9 @@
     var ITEM = 'details.collapsible-item';
     var OPEN_FLAG = 'data-mce-open';
     var EMPTY_FLAG = 'data-zw-empty';
-    var BLOCK_PATTERN = /<(p|h[1-6]|ul|ol|blockquote|figure|div|table|pre)\b/i;
-    var EMPTY_PARAGRAPH = '<p><br data-mce-bogus="1"></p>';
-    var ENTER = 13;
-    var BACKSPACE = 8;
-    var DELETE = 46;
+    var BOGUS_BR = '<br data-mce-bogus="1">';
+    var EMPTY_PARAGRAPH = '<p>' + BOGUS_BR + '</p>';
+    var VK = tinymce.util.VK;
 
     tinymce.PluginManager.add('zw_collapsible', function (editor) {
         function closest(element, selector) {
@@ -28,12 +26,8 @@
             return closest(element, ITEM);
         }
 
-        function summaryOf(item) {
-            return item.querySelector('summary');
-        }
-
-        function isEmpty(element) {
-            return editor.dom.isEmpty(element);
+        function emptyParagraph() {
+            return editor.dom.create('p', {}, BOGUS_BR);
         }
 
         // Nothing is selected between the range start and the edge of the block.
@@ -58,10 +52,6 @@
             editor.selection.collapse(false);
         }
 
-        function selectContents(element) {
-            editor.selection.select(element, true);
-        }
-
         function createItem(body) {
             return editor.dom.create('details', {'class': 'collapsible-item', open: 'open'}, '<summary>Kop</summary>' + body);
         }
@@ -70,7 +60,7 @@
         // cannot tell an emptied heading (bogus <br>) from one with text and a <br>.
         function flagEmptyHeadings() {
             tinymce.each(editor.dom.select(TITLE + ', ' + ITEM + ' > summary'), function (heading) {
-                if (isEmpty(heading)) {
+                if (editor.dom.isEmpty(heading)) {
                     heading.setAttribute(EMPTY_FLAG, '');
                 } else {
                     heading.removeAttribute(EMPTY_FLAG);
@@ -104,7 +94,8 @@
             });
         }
 
-        editor.on('SetContent NodeChange keyup input', function () {
+        // Typing fires input; TinyMCE's own delete handling fires NodeChange instead.
+        editor.on('SetContent NodeChange input', function () {
             repairStructure();
             flagEmptyHeadings();
         });
@@ -154,21 +145,18 @@
                 && e.clientY >= top && e.clientY <= top + height;
         }
 
-        // Clicking a heading must place the caret, not collapse the item; clicking
-        // its state label flips how the item opens on the site.
+        // TinyMCE already keeps a click on a heading from collapsing the item;
+        // clicking its state label flips how the item opens on the site.
         editor.on('click', function (e) {
             var summary = closest(e.target, 'summary');
             var item = summary && itemOf(summary);
-            if (!item) {
-                return;
-            }
-            e.preventDefault();
-            if (clickedStateLabel(summary, e)) {
+            if (item && clickedStateLabel(summary, e)) {
                 toggleOpenByDefault(item);
             }
         });
 
         editor.on('init', function () {
+            // A collapsed item could not be reopened by clicking, so undo any other way of closing it.
             editor.getBody().addEventListener('toggle', function (e) {
                 if (editor.dom.is(e.target, ITEM) && !e.target.open) {
                     e.target.open = true;
@@ -199,7 +187,7 @@
 
             // Delete just before a section would pull its title into the paragraph.
             if (!group) {
-                if (e.keyCode === DELETE && range.collapsed && block && block.nextSibling && dom.is(block.nextSibling, GROUP) && caretAtEdge(block, range, 'end')) {
+                if (e.keyCode === VK.DELETE && range.collapsed && block && block.nextSibling && dom.is(block.nextSibling, GROUP) && caretAtEdge(block, range, 'end')) {
                     handled(e);
                 }
                 return;
@@ -209,7 +197,7 @@
             var item = itemOf(start);
             var summary = closest(start, 'summary');
 
-            if (e.keyCode === ENTER && !e.shiftKey && (title || summary)) {
+            if (e.keyCode === VK.ENTER && !e.shiftKey && (title || summary)) {
                 // Enter in a heading moves on instead of breaking the heading.
                 handled(e);
                 if (!range.collapsed) {
@@ -221,11 +209,11 @@
                         firstItem = createItem(EMPTY_PARAGRAPH);
                         group.appendChild(firstItem);
                     }
-                    caretAtStartOf(summaryOf(firstItem));
+                    caretAtStartOf(firstItem.querySelector('summary'));
                 } else {
                     var next = summary.nextSibling;
                     if (!next || !dom.isBlock(next)) {
-                        next = dom.create('p', {}, '<br data-mce-bogus="1">');
+                        next = emptyParagraph();
                         dom.insertAfter(next, summary);
                     }
                     caretAtStartOf(next);
@@ -233,13 +221,13 @@
                 return;
             }
 
-            if (e.keyCode === ENTER && !e.shiftKey && block && block.parentNode === group && !title && isEmpty(block)) {
+            if (e.keyCode === VK.ENTER && !e.shiftKey && block && block.parentNode === group && !title && dom.isEmpty(block)) {
                 // Enter on an empty line at the end of the section leaves it. The split
                 // may have taken the last item's only paragraph along; give it a new one.
                 handled(e);
                 var lastItem = block.previousElementSibling;
-                if (lastItem && dom.is(lastItem, ITEM) && !summaryOf(lastItem).nextSibling) {
-                    lastItem.appendChild(dom.create('p', {}, '<br data-mce-bogus="1">'));
+                if (lastItem && dom.is(lastItem, ITEM) && !lastItem.querySelector('summary').nextSibling) {
+                    lastItem.appendChild(emptyParagraph());
                 }
                 dom.insertAfter(block, group);
                 caretAtStartOf(block);
@@ -250,16 +238,16 @@
                 return;
             }
 
-            if (e.keyCode === BACKSPACE) {
-                if (summary && isEmpty(summary)) {
+            if (e.keyCode === VK.BACKSPACE) {
+                if (summary && dom.isEmpty(summary)) {
                     // An empty heading stays; an entirely empty item goes away.
                     handled(e);
-                    if (item && isEmpty(item)) {
+                    if (item && dom.isEmpty(item)) {
                         removeItem(item);
                     }
                     return;
                 }
-                if (title && (isEmpty(title) || caretAtEdge(title, range, 'start'))) {
+                if (title && (dom.isEmpty(title) || caretAtEdge(title, range, 'start'))) {
                     handled(e);
                     return;
                 }
@@ -268,14 +256,14 @@
                     handled(e);
                     return;
                 }
-                if (item && block && block.parentNode === item && block.previousSibling === summaryOf(item) && caretAtEdge(block, range, 'start')) {
+                if (item && block && block.parentNode === item && block.previousSibling === item.querySelector('summary') && caretAtEdge(block, range, 'start')) {
                     // Would merge the text into the heading.
                     handled(e);
                 }
                 return;
             }
 
-            if (e.keyCode === DELETE) {
+            if (e.keyCode === VK.DELETE) {
                 var heading = title || summary;
                 if (heading && caretAtEdge(heading, range, 'end')) {
                     // Would pull the following text into the heading.
@@ -305,7 +293,7 @@
             }
 
             var selection = editor.selection.getContent({format: 'html'});
-            var body = BLOCK_PATTERN.test(selection) ? selection : '<p>' + selection + '</p>';
+            var body = /<(p|h[1-6]|ul|ol|blockquote|figure|div|table|pre)\b/i.test(selection) ? selection : '<p>' + selection + '</p>';
 
             editor.undoManager.transact(function () {
                 editor.insertContent(
@@ -318,7 +306,7 @@
                 }
                 dom.setAttrib(group, 'id', null);
                 // Leave the placeholder title selected so typing replaces it.
-                selectContents(group.querySelector(TITLE));
+                editor.selection.select(group.querySelector(TITLE), true);
             });
         }
 
@@ -336,7 +324,7 @@
                 } else {
                     group.appendChild(item);
                 }
-                selectContents(summaryOf(item));
+                editor.selection.select(item.querySelector('summary'), true);
             });
             editor.nodeChanged();
         }
@@ -356,7 +344,7 @@
         // Turns a heading into a bold paragraph, or drops it when empty.
         function headingToParagraph(heading) {
             var dom = editor.dom;
-            if (isEmpty(heading)) {
+            if (dom.isEmpty(heading)) {
                 dom.remove(heading);
                 return;
             }
