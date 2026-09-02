@@ -73,13 +73,25 @@
     margin: 0;
 }
 
-/* Collapsible sections: <details class="uitklap"> inserted by the editor plugin */
+/* Collapsible sections: div.uitklap-groep with details.uitklap items, inserted by the editor plugin */
+.prose .uitklap-groep {
+    @apply my-8 rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700;
+}
+
+.prose .uitklap-groep > .uitklap-titel {
+    @apply m-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
+}
+
+.prose .uitklap-groep > .uitklap-titel:empty {
+    display: none;
+}
+
 .prose details.uitklap {
-    @apply my-6;
+    @apply m-0 border-t-2 border-white dark:border-gray-800;
 }
 
 .prose details.uitklap > summary {
-    @apply flex items-center gap-3 px-4 py-3 rounded-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer select-none font-bold text-lg leading-snug text-black dark:text-white;
+    @apply flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer select-none font-bold text-lg leading-snug text-black dark:text-white;
     list-style: none;
 }
 
@@ -97,7 +109,7 @@
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
 }
 
-/* Body text lines up with the heading bar's padding. */
+/* Item text lines up with the heading bar's padding. */
 .prose details.uitklap > summary ~ * {
     margin-inline: 1rem;
 }

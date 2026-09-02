@@ -16,13 +16,13 @@ require __DIR__ . '/../lib/uitklap.php';
 $failures = [];
 
 $cases = [
-    'closed section' => [
-        '<p>Intro</p>' . PHP_EOL . '<details class="uitklap">' . PHP_EOL . '<summary>Hoe zat het?</summary>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . '</details>' . PHP_EOL . '<p>Slot</p>',
-        '<p>Intro</p>' . PHP_EOL . '<h3>Hoe zat het?</h3>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . PHP_EOL . '<p>Slot</p>',
+    'section with title and items' => [
+        '<p>Intro</p>' . PHP_EOL . '<div class="uitklap-groep">' . PHP_EOL . '<h3 class="uitklap-titel">Hoe zat het?</h3>' . PHP_EOL . '<details class="uitklap">' . PHP_EOL . '<summary>Een</summary>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . '</details>' . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
+        '<p>Intro</p>' . PHP_EOL . '<div class="uitklap-groep">' . PHP_EOL . '<h3 class="uitklap-titel">Hoe zat het?</h3>' . PHP_EOL . '<h4>Een</h4>' . PHP_EOL . '<p>Tekst</p>' . PHP_EOL . PHP_EOL . '</div>' . PHP_EOL . '<p>Slot</p>',
     ],
-    'open section with inline markup in the heading' => [
+    'open item with inline markup in the heading' => [
         '<details class="uitklap" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="uitklap"><summary>Twee</summary><p>B</p></details>',
-        '<h3>Kop <em>x</em></h3><p>A</p><h3>Twee</h3><p>B</p>',
+        '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
     ],
     'unrelated details element' => [
         '<details><summary>Ander</summary><p>Blijft</p></details>',

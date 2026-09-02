@@ -1,22 +1,38 @@
-// Classic Editor plugin for collapsible sections: an editable <details class="uitklap">
-// block with its heading in <summary>. TinyMCE 4.9 keeps every <details> expanded
-// while editing and parks the stored open attribute in data-mce-open, which it writes
-// back on save; that attribute therefore doubles as the "expanded by default" flag.
+// Classic Editor plugin for collapsible sections: a <div class="uitklap-groep"> with a
+// heading and one or more editable <details class="uitklap"> items. TinyMCE 4.9 keeps
+// every <details> expanded while editing and parks the stored open attribute in
+// data-mce-open, which it writes back on save; that attribute therefore doubles as
+// the "expanded by default" flag.
 (function () {
-    var SELECTOR = 'details.uitklap';
+    var GROUP = 'div.uitklap-groep';
+    var TITLE = 'h3.uitklap-titel';
+    var ITEM = 'details.uitklap';
     var OPEN_FLAG = 'data-mce-open';
     var BLOCK_PATTERN = /<(p|h[1-6]|ul|ol|blockquote|figure|div|table|pre)\b/i;
+    var EMPTY_PARAGRAPH = '<p><br data-mce-bogus="1"></p>';
     var ENTER = 13;
     var BACKSPACE = 8;
     var DELETE = 46;
 
     tinymce.PluginManager.add('zw_uitklap', function (editor) {
-        function sectionOf(element) {
-            return editor.dom.getParent(element, SELECTOR);
+        function closest(element, selector) {
+            return editor.dom.getParent(element, selector);
         }
 
-        function summaryOf(details) {
-            return details.querySelector('summary');
+        function groupOf(element) {
+            return closest(element, GROUP);
+        }
+
+        function itemOf(element) {
+            return closest(element, ITEM);
+        }
+
+        function summaryOf(item) {
+            return item.querySelector('summary');
+        }
+
+        function isEmpty(element) {
+            return editor.dom.isEmpty(element);
         }
 
         // Nothing is selected between the range start and the edge of the block.
@@ -32,19 +48,40 @@
             return probe.toString() === '';
         }
 
-        // Clicking a heading must place the caret, not collapse the section.
+        function caretAtStartOf(element) {
+            editor.selection.setCursorLocation(element, 0);
+        }
+
+        function caretAtEndOf(element) {
+            editor.selection.select(element, true);
+            editor.selection.collapse(false);
+        }
+
+        function selectContents(element) {
+            editor.selection.select(element, true);
+        }
+
+        function createItem(body) {
+            return editor.dom.create('details', {'class': 'uitklap', open: 'open'}, '<summary>Kop</summary>' + body);
+        }
+
+        // Clicking a heading must place the caret, not collapse the item.
         editor.on('click', function (e) {
-            if (editor.dom.getParent(e.target, 'summary') && sectionOf(e.target)) {
+            if (closest(e.target, 'summary') && itemOf(e.target)) {
                 e.preventDefault();
             }
         });
 
         editor.on('init', function () {
             editor.getBody().addEventListener('toggle', function (e) {
-                if (editor.dom.is(e.target, SELECTOR) && !e.target.open) {
+                if (editor.dom.is(e.target, ITEM) && !e.target.open) {
                     e.target.open = true;
                 }
             }, true);
+
+            // TinyMCE prepends its own delete handlers during init, so register after
+            // init and prepend again to get in front of them.
+            editor.on('keydown', onKeyDown, true);
         });
 
         // Later handlers (TinyMCE's own delete logic) would still act on the new caret position.
@@ -53,32 +90,63 @@
             e.stopImmediatePropagation();
         }
 
-        // TinyMCE prepends its own delete handlers during init, so register after init
-        // and prepend again to get in front of them.
-        editor.on('init', function () {
-            editor.on('keydown', onKeyDown, true);
-        });
-
         function onKeyDown(e) {
             var dom = editor.dom;
             var start = editor.selection.getStart();
-            var details = sectionOf(start);
-            if (!details || e.isDefaultPrevented()) {
+            var range = editor.selection.getRng();
+            var block = dom.getParent(start, dom.isBlock);
+            var group = groupOf(start);
+
+            if (e.isDefaultPrevented()) {
                 return;
             }
 
-            var range = editor.selection.getRng();
-            var summary = dom.getParent(start, 'summary');
-
-            if (e.keyCode === ENTER && summary && !e.shiftKey) {
-                // Enter in the heading moves on to the text instead of breaking the heading.
-                handled(e);
-                var next = summary.nextSibling;
-                if (!next || !dom.isBlock(next)) {
-                    next = dom.create('p', {}, '<br data-mce-bogus="1">');
-                    dom.insertAfter(next, summary);
+            // Delete just before a section would pull its title into the paragraph.
+            if (!group) {
+                if (e.keyCode === DELETE && range.collapsed && block && block.nextSibling && dom.is(block.nextSibling, GROUP) && caretAtEdge(block, range, 'end')) {
+                    handled(e);
                 }
-                editor.selection.setCursorLocation(next, 0);
+                return;
+            }
+
+            var title = closest(start, TITLE);
+            var item = itemOf(start);
+            var summary = closest(start, 'summary');
+
+            if (e.keyCode === ENTER && !e.shiftKey && (title || summary)) {
+                // Enter in a heading moves on instead of breaking the heading.
+                handled(e);
+                if (!range.collapsed) {
+                    editor.selection.setContent('');
+                }
+                if (title) {
+                    var firstItem = group.querySelector(ITEM);
+                    if (!firstItem) {
+                        firstItem = createItem(EMPTY_PARAGRAPH);
+                        group.appendChild(firstItem);
+                    }
+                    caretAtStartOf(summaryOf(firstItem));
+                } else {
+                    var next = summary.nextSibling;
+                    if (!next || !dom.isBlock(next)) {
+                        next = dom.create('p', {}, '<br data-mce-bogus="1">');
+                        dom.insertAfter(next, summary);
+                    }
+                    caretAtStartOf(next);
+                }
+                return;
+            }
+
+            if (e.keyCode === ENTER && !e.shiftKey && block && block.parentNode === group && !title && isEmpty(block)) {
+                // Enter on an empty line at the end of the section leaves it. The split
+                // may have taken the last item's only paragraph along; give it a new one.
+                handled(e);
+                var lastItem = block.previousElementSibling;
+                if (lastItem && dom.is(lastItem, ITEM) && !summaryOf(lastItem).nextSibling) {
+                    lastItem.appendChild(dom.create('p', {}, '<br data-mce-bogus="1">'));
+                }
+                dom.insertAfter(block, group);
+                caretAtStartOf(block);
                 return;
             }
 
@@ -86,87 +154,142 @@
                 return;
             }
 
-            if (e.keyCode === BACKSPACE && summary && dom.isEmpty(summary)) {
-                // An empty heading stays; an entirely empty section goes away.
-                handled(e);
-                if (dom.isEmpty(details)) {
-                    editor.undoManager.transact(function () {
-                        var paragraph = dom.create('p', {}, '<br data-mce-bogus="1">');
-                        dom.replace(paragraph, details);
-                        editor.selection.setCursorLocation(paragraph, 0);
-                    });
+            if (e.keyCode === BACKSPACE) {
+                if (summary && isEmpty(summary)) {
+                    // An empty heading stays; an entirely empty item goes away.
+                    handled(e);
+                    if (item && isEmpty(item)) {
+                        removeItem(item);
+                    }
+                    return;
+                }
+                if (title && (isEmpty(title) || caretAtEdge(title, range, 'start'))) {
+                    handled(e);
+                    return;
+                }
+                if (summary && caretAtEdge(summary, range, 'start')) {
+                    // Would merge the heading into the title or the previous item.
+                    handled(e);
+                    return;
+                }
+                if (item && block && block.parentNode === item && block.previousSibling === summaryOf(item) && caretAtEdge(block, range, 'start')) {
+                    // Would merge the text into the heading.
+                    handled(e);
                 }
                 return;
             }
 
-            if (e.keyCode === DELETE && summary && caretAtEdge(summary, range, 'end')) {
-                // Delete at the end of the heading would pull the first paragraph into it.
-                handled(e);
-                return;
+            if (e.keyCode === DELETE) {
+                var heading = title || summary;
+                if (heading && caretAtEdge(heading, range, 'end')) {
+                    // Would pull the following text into the heading.
+                    handled(e);
+                    return;
+                }
+                if (item && block && block.parentNode === item && !block.nextSibling && caretAtEdge(block, range, 'end')) {
+                    // Would pull the next heading into this item's text.
+                    handled(e);
+                }
             }
+        }
 
-            var block = dom.getParent(start, dom.isBlock);
-            var firstBlock = block && block.parentNode === details && block.previousSibling === summaryOf(details);
-            if (e.keyCode === BACKSPACE && firstBlock && caretAtEdge(block, range, 'start')) {
-                // Backspace at the start of the text would merge it into the heading.
-                handled(e);
-            }
+        function removeItem(item) {
+            editor.undoManager.transact(function () {
+                var previous = item.previousElementSibling;
+                editor.dom.remove(item);
+                caretAtEndOf(editor.dom.is(previous, ITEM) ? previous.lastElementChild : previous);
+            });
         }
 
         function insertSection() {
             var dom = editor.dom;
+            if (groupOf(editor.selection.getStart())) {
+                addItem();
+                return;
+            }
+
             var selection = editor.selection.getContent({format: 'html'});
             var body = BLOCK_PATTERN.test(selection) ? selection : '<p>' + selection + '</p>';
 
             editor.undoManager.transact(function () {
-                editor.insertContent('<details class="uitklap" id="zw-uitklap-new"><summary>Kop</summary>' + body + '</details>');
-                var details = dom.get('zw-uitklap-new');
-                if (!details) {
+                editor.insertContent(
+                    '<div class="uitklap-groep" id="zw-uitklap-new"><h3 class="uitklap-titel">Titel</h3>'
+                    + '<details class="uitklap"><summary>Kop</summary>' + body + '</details></div>'
+                );
+                var group = dom.get('zw-uitklap-new');
+                if (!group) {
                     return;
                 }
-                dom.setAttrib(details, 'id', null);
-                // Leave the placeholder heading selected so typing replaces it.
-                editor.selection.select(summaryOf(details), true);
+                dom.setAttrib(group, 'id', null);
+                // Leave the placeholder title selected so typing replaces it.
+                selectContents(group.querySelector(TITLE));
             });
         }
 
+        function addItem() {
+            var start = editor.selection.getStart();
+            var group = groupOf(start);
+            if (!group) {
+                return;
+            }
+            var current = itemOf(start);
+            editor.undoManager.transact(function () {
+                var item = createItem(EMPTY_PARAGRAPH);
+                if (current) {
+                    editor.dom.insertAfter(item, current);
+                } else {
+                    group.appendChild(item);
+                }
+                selectContents(summaryOf(item));
+            });
+            editor.nodeChanged();
+        }
+
         function toggleOpenByDefault() {
-            var details = sectionOf(editor.selection.getStart());
-            if (!details) {
+            var item = itemOf(editor.selection.getStart());
+            if (!item) {
                 return;
             }
             editor.undoManager.transact(function () {
                 // Native setAttribute: TinyMCE's setAttrib drops empty values.
-                if (details.hasAttribute(OPEN_FLAG)) {
-                    details.removeAttribute(OPEN_FLAG);
+                if (item.hasAttribute(OPEN_FLAG)) {
+                    item.removeAttribute(OPEN_FLAG);
                 } else {
-                    details.setAttribute(OPEN_FLAG, '');
+                    item.setAttribute(OPEN_FLAG, '');
                 }
             });
             editor.nodeChanged();
         }
 
-        // Turns the section back into ordinary paragraphs, keeping the heading as bold text.
+        // Turns a heading into a bold paragraph, or drops it when empty.
+        function headingToParagraph(heading) {
+            var dom = editor.dom;
+            if (isEmpty(heading)) {
+                dom.remove(heading);
+                return;
+            }
+            var strong = dom.create('strong');
+            while (heading.firstChild) {
+                strong.appendChild(heading.firstChild);
+            }
+            var paragraph = dom.create('p');
+            paragraph.appendChild(strong);
+            dom.replace(paragraph, heading);
+        }
+
+        // Turns the section back into ordinary paragraphs.
         function unwrapSection() {
             var dom = editor.dom;
-            var details = sectionOf(editor.selection.getStart());
-            if (!details) {
+            var group = groupOf(editor.selection.getStart());
+            if (!group) {
                 return;
             }
             editor.undoManager.transact(function () {
-                var summary = summaryOf(details);
-                if (summary && dom.isEmpty(summary)) {
-                    dom.remove(summary);
-                } else if (summary) {
-                    var strong = dom.create('strong');
-                    while (summary.firstChild) {
-                        strong.appendChild(summary.firstChild);
-                    }
-                    var paragraph = dom.create('p');
-                    paragraph.appendChild(strong);
-                    dom.replace(paragraph, summary);
-                }
-                dom.remove(details, true);
+                tinymce.each(dom.select(TITLE + ', ' + ITEM + ' > summary', group), headingToParagraph);
+                tinymce.each(dom.select(ITEM, group), function (item) {
+                    dom.remove(item, true);
+                });
+                dom.remove(group, true);
             });
             editor.nodeChanged();
         }
@@ -177,25 +300,32 @@
             onclick: insertSection,
         });
 
+        editor.addButton('zw_uitklap_add', {
+            text: 'Onderdeel toevoegen',
+            tooltip: 'Voeg een uitklapbaar onderdeel toe',
+            onclick: addItem,
+        });
+
         editor.addButton('zw_uitklap_open', {
             text: 'Standaard uitgeklapt',
-            tooltip: 'Toon dit blok op de site meteen uitgeklapt',
+            tooltip: 'Toon dit onderdeel op de site meteen uitgeklapt',
             onclick: toggleOpenByDefault,
             onPostRender: function () {
                 var button = this;
                 editor.on('NodeChange', function (e) {
-                    var details = sectionOf(e.element);
-                    button.active(!!details && details.hasAttribute(OPEN_FLAG));
+                    var item = itemOf(e.element);
+                    button.disabled(!item);
+                    button.active(!!item && item.hasAttribute(OPEN_FLAG));
                 });
             },
         });
 
         editor.addButton('zw_uitklap_remove', {
             text: 'Blok opheffen',
-            tooltip: 'Haal het blok weg; kop en tekst blijven staan',
+            tooltip: 'Haal het blok weg; titel, koppen en tekst blijven staan',
             onclick: unwrapSection,
         });
 
-        editor.addContextToolbar(SELECTOR, 'zw_uitklap_open zw_uitklap_remove');
+        editor.addContextToolbar(GROUP, 'zw_uitklap_add zw_uitklap_open zw_uitklap_remove');
     });
 })();

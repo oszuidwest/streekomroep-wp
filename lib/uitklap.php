@@ -4,9 +4,9 @@
  * Collapsible sections in articles.
  *
  * The Classic Editor plugin in static/tinymce-uitklap.js inserts an editable
- * <details class="uitklap"> block with its heading in <summary>. The block is
- * stored as plain HTML and styled by assets/style.css; nothing here runs on
- * regular page views.
+ * <div class="uitklap-groep"> holding a title and <details class="uitklap">
+ * items with their headings in <summary>. The block is stored as plain HTML and
+ * styled by assets/style.css; nothing here runs on regular page views.
  */
 
 /** The button belongs to the main content editor of articles only. */
@@ -47,7 +47,7 @@ function zw_uitklap_editor_button(array $buttons, string $editor_id = ''): array
 
 add_filter('mce_buttons', 'zw_uitklap_editor_button', 10, 2);
 
-/** Feed readers rarely render disclosure widgets, so a section becomes a heading with its text. */
+/** Feed readers rarely render disclosure widgets, so an item becomes a heading with its text. */
 function zw_uitklap_flatten(string $content): string
 {
     if (!str_contains($content, 'uitklap')) {
@@ -56,7 +56,7 @@ function zw_uitklap_flatten(string $content): string
 
     $content = preg_replace(
         '#<details\b[^>]*\bclass="[^"]*\buitklap\b[^"]*"[^>]*>\s*<summary>(.*?)</summary>#is',
-        '<h3>$1</h3>',
+        '<h4>$1</h4>',
         $content,
         -1,
         $count

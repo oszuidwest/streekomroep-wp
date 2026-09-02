@@ -26,9 +26,10 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'blockquote' => ['cite' => true],
         // Collapsible sections inserted by the editor plugin (lib/uitklap.php).
         'details'    => ['class' => true, 'open' => true],
+        'div'        => ['class' => true],
         'em'         => [],
         'h2'         => ['id' => true],
-        'h3'         => ['id' => true],
+        'h3'         => ['id' => true, 'class' => true],
         'iframe'     => [
             'src'             => true,
             'width'           => true,
