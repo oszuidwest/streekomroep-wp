@@ -1,5 +1,7 @@
 <?php
 
+use Streekomroep\CollapsibleNormalizer;
+
 /**
  * Sanitizes post content to remove unwanted HTML elements.
  *
@@ -24,9 +26,11 @@ function zw_sanitize_post_content(array $data, array $postarr): array
             'title'  => true,
         ],
         'blockquote' => ['cite' => true],
+        'details'    => ['class' => ['values' => ['collapsible-item']], 'open' => true],
+        'div'        => ['class' => ['values' => ['collapsible']]],
         'em'         => [],
         'h2'         => ['id' => true],
-        'h3'         => ['id' => true],
+        'h3'         => ['id' => true, 'class' => ['values' => ['collapsible-title']]],
         'iframe'     => [
             'src'             => true,
             'width'           => true,
@@ -48,6 +52,7 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'li'         => [],
         'ol'         => ['start' => true],
         'strong'     => [],
+        'summary'    => [],
         'table'      => [],
         'tbody'      => [],
         'td'         => [],
@@ -58,9 +63,13 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'ul'         => [],
     ];
 
-    // Validate and sanitize post content.
+    // Normalize collapsible markup before applying the allowlist.
     if (isset($data['post_content'])) {
-        $data['post_content'] = wp_kses($data['post_content'], $allowed_elements);
+        $content = wp_unslash($data['post_content']);
+        if (str_contains($content, 'collapsible')) {
+            $content = CollapsibleNormalizer::normalize($content);
+        }
+        $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
 
     return $data;

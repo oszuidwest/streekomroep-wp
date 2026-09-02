@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./collapsible-icons.css";
 
 @config "../tailwind.config.js";
 
@@ -71,6 +72,54 @@
 
 .prose .video-js video {
     margin: 0;
+}
+
+/* Collapsible sections. */
+.prose .collapsible {
+    @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
+}
+
+/* Overlap the frame border with the title bar. */
+.prose .collapsible > .collapsible-title {
+    @apply -mx-px -mt-px mb-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
+}
+
+.prose .collapsible > .collapsible-title:empty {
+    display: none;
+}
+
+.prose details.collapsible-item {
+    @apply m-0 border-t border-gray-300 dark:border-gray-600;
+}
+
+/* Avoid a divider directly below the title. */
+.prose .collapsible > .collapsible-title + details.collapsible-item {
+    @apply border-t-0;
+}
+
+.prose details.collapsible-item > summary {
+    @apply flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer select-none font-bold text-lg leading-snug text-black dark:text-white;
+
+    list-style: none;
+}
+
+.prose details.collapsible-item > summary::-webkit-details-marker {
+    display: none;
+}
+
+.prose details.collapsible-item > summary::before {
+    content: '';
+    @apply shrink-0 w-6 h-6 bg-groen;
+
+    mask: var(--collapsible-icon-expand) center / contain no-repeat;
+}
+
+.prose details.collapsible-item[open] > summary::before {
+    mask-image: var(--collapsible-icon-collapse);
+}
+
+.prose details.collapsible-item > summary ~ * {
+    margin-inline: 1rem;
 }
 
 /* Contact Form 7 styles */

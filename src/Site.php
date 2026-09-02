@@ -70,7 +70,8 @@ class Site extends \Timber\Site
         add_theme_support('responsive-embeds');
 
         add_theme_support('editor-styles');
-        add_editor_style('dist/editor.css');
+        // Include the theme version because WordPress uses the TinyMCE version.
+        add_editor_style(add_query_arg('ver', wp_get_theme()->get('Version'), get_theme_file_uri('dist/editor.css')));
 
         add_theme_support(
             'html5',

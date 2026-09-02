@@ -13,12 +13,16 @@
   "scripts": {
     "test": [
       "@test:templates",
-      "@test:search"
+      "@test:search",
+      "@test:collapsible",
+      "@test:wordpress-toolbar"
     ],
     "lint:twig": "twig-cs-fixer lint",
     "fix:twig": "twig-cs-fixer lint --fix",
     "test:search": "php tests/search-deduplication.php",
-    "test:templates": "php tests/template-escaping.php"
+    "test:templates": "php tests/template-escaping.php",
+    "test:collapsible": "php tests/collapsible.php",
+    "test:wordpress-toolbar": "sh tests/wordpress-toolbar-contract.sh"
   },
   "repositories": [
     {

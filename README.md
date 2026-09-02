@@ -50,12 +50,12 @@ Run `npm run build:tailwind` to compile minified CSS from `assets/` into `dist/`
 
 ### Quality checks
 
-Run the baseline checks and lightweight template regression suite before submitting changes:
+Run the baseline checks and lightweight regression suite before submitting changes:
 
 ```bash
 vendor/bin/phpcs --standard=phpcs.xml .
 composer lint:twig
-composer test:templates
+composer test
 git diff --check
 ```
 
@@ -97,6 +97,26 @@ These optional plugins complement the theme:
 - [ZuidWest Webapp](https://github.com/oszuidwest/zw-webapp) adds push notifications and PWA support.
 
 Existing installations should follow the [Tekst TV migration steps](INSTALL.md#migrating-an-existing-tekst-tv-installation), including the dry-run cleanup, before removing the old theme-owned data.
+
+## Editorial features
+
+### Collapsible sections
+
+Articles (`post`) can hold a collapsible background section, for example to recap a long-running story without interrupting the article itself. The Classic Editor toolbar has a button (next to the "Read more" tag) that turns the selected paragraphs into a section with a title bar and one collapsible item. Title, headings and text are edited in place; a floating toolbar at the item under the cursor adds or deletes items and the whole section, and the label on each heading toggles whether that item starts expanded on the site.
+
+Sections are stored as plain HTML and rendered with native `<details>` elements, so their contents stay indexable and need no JavaScript:
+
+```html
+<div class="collapsible">
+<h3 class="collapsible-title">Tien jaar kwestie Poolse super: hoe zat het ook alweer?</h3>
+<details class="collapsible-item" open>
+<summary>Blijvende overlast</summary>
+<p>Paragraphs, links, images and embeds.</p>
+</details>
+</div>
+```
+
+The title and item headings are plain text and item bodies allow paragraph-level formatting only (paragraphs, lists, links, emphasis, images, embeds). The editor blocks other formatting there, and saving rewrites each section into that canonical form before the theme's content allowlist runs: stray content inside a section moves after it, headings and quotes inside an item become paragraphs, nested sections dissolve. Feeds receive headings and text instead of the disclosure widgets.
 
 ## Integrations
 
