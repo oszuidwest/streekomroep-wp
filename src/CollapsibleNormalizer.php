@@ -26,6 +26,10 @@ final class CollapsibleNormalizer
     public static function normalize(string $content): string
     {
         $tokens = preg_split('#(<[^>]+>)#', $content, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        if ($tokens === false) {
+            return $content;
+        }
+
         $output = '';
         $count = count($tokens);
         $i = 0;
@@ -42,9 +46,9 @@ final class CollapsibleNormalizer
         }
 
         // Remove editor-generated empty paragraphs next to sections in linear time.
-        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output);
+        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
 
-        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output);
+        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output) ?? $output;
     }
 
     /** Replaces disclosure items with headings for feed readers. */
@@ -54,7 +58,7 @@ final class CollapsibleNormalizer
             '#<details\b[^>]*\bcollapsible-item\b[^>]*>\s*<summary>(.*?)</summary>(.*?)</details>#is',
             '<h4>$1</h4>$2',
             $content
-        );
+        ) ?? $content;
     }
 
     /** @return array{0: string, 1: int} Section HTML and the next token index. */
@@ -201,7 +205,7 @@ final class CollapsibleNormalizer
             }
         }
 
-        return [trim(preg_replace('#\s+#', ' ', $text)), $i];
+        return [trim(preg_replace('#\s+#', ' ', $text) ?? $text), $i];
     }
 
     private static function bodyTag(string $token): string
@@ -222,9 +226,9 @@ final class CollapsibleNormalizer
 
     private static function tidy(string $html): string
     {
-        $html = preg_replace('#^[ \t]*' . self::EMPTY_PARAGRAPH . '[ \t]*$#mu', '', $html);
+        $html = preg_replace('#^[ \t]*' . self::EMPTY_PARAGRAPH . '[ \t]*$#mu', '', $html) ?? $html;
 
-        return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html));
+        return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
     private static function isTag(string $token): bool

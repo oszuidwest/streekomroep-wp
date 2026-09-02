@@ -76,6 +76,10 @@ $normalizeCases = [
         $section('T', $item('K', 'A')) . $nl . '&nbsp;',
         $section('T', $item('K', 'A')),
     ],
+    'invalid UTF-8 is not discarded when Unicode cleanup fails' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A' . "\xFF" . '</details></div>',
+        $section('T', $item('K', 'A' . "\xFF")),
+    ],
     'content without sections is untouched' => ['<h1>Gewoon</h1><details><summary>x</summary>y</details>', '<h1>Gewoon</h1><details><summary>x</summary>y</details>'],
 ];
 
