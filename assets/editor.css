@@ -120,15 +120,15 @@ body details.collapsible-item > summary[data-zw-empty]::before {
     @apply font-normal text-gray-400;
 }
 
-/* Spell out how the item opens on the site. */
+/* Spell out how the item opens on the site; the plugin toggles it on click. */
 body details.collapsible-item > summary::after {
     content: 'Standaard ingeklapt';
-    @apply ml-auto shrink-0 font-round font-bold text-xs uppercase tracking-wide text-gray-500;
+    @apply ml-auto shrink-0 px-2 py-1 rounded-sm border border-gray-300 bg-white font-round font-bold text-xs uppercase tracking-wide text-gray-500 cursor-pointer;
 }
 
 body details.collapsible-item[data-mce-open] > summary::after {
     content: 'Standaard uitgeklapt';
-    @apply text-blauw;
+    @apply border-blauw text-blauw;
 }
 
 body details.collapsible-item > summary ~ * {

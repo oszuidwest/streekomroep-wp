@@ -88,10 +88,26 @@
 
         editor.on('SetContent NodeChange keyup input', flagEmptyHeadings);
 
-        // Clicking a heading must place the caret, not collapse the item.
+        // The state label is the heading's ::after box, which sits at the right end of the bar.
+        function clickedStateLabel(summary, e) {
+            var win = editor.getWin();
+            var width = parseFloat(win.getComputedStyle(summary, '::after').width) || 0;
+            var paddingRight = parseFloat(win.getComputedStyle(summary).paddingRight) || 0;
+            var right = summary.getBoundingClientRect().right - paddingRight;
+            return width > 0 && e.clientX >= right - width && e.clientX <= right;
+        }
+
+        // Clicking a heading must place the caret, not collapse the item; clicking
+        // its state label flips how the item opens on the site.
         editor.on('click', function (e) {
-            if (closest(e.target, 'summary') && itemOf(e.target)) {
-                e.preventDefault();
+            var summary = closest(e.target, 'summary');
+            var item = summary && itemOf(summary);
+            if (!item) {
+                return;
+            }
+            e.preventDefault();
+            if (clickedStateLabel(summary, e)) {
+                toggleOpenByDefault(item);
             }
         });
 
@@ -268,8 +284,10 @@
             editor.nodeChanged();
         }
 
-        function toggleOpenByDefault() {
-            var item = itemOf(editor.selection.getStart());
+        function toggleOpenByDefault(item) {
+            if (!item || !item.nodeType) {
+                item = itemOf(editor.selection.getStart());
+            }
             if (!item) {
                 return;
             }
@@ -332,7 +350,9 @@
         editor.addButton('zw_collapsible_open', {
             text: 'Standaard uitgeklapt',
             tooltip: 'Toon dit onderdeel op de site meteen uitgeklapt',
-            onclick: toggleOpenByDefault,
+            onclick: function () {
+                toggleOpenByDefault();
+            },
             onPostRender: function () {
                 var button = this;
                 editor.on('NodeChange', function (e) {
