@@ -29,6 +29,10 @@ final class CollapsibleNormalizer
 
     public static function normalize(string $content): string
     {
+        if (!str_contains($content, 'collapsible')) {
+            return $content;
+        }
+
         $output = self::replaceElements($content, 'div', 'collapsible', [self::class, 'section']);
 
         // Remove editor-generated empty paragraphs next to sections in linear time.
@@ -40,33 +44,41 @@ final class CollapsibleNormalizer
     /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
-        return self::replaceElements($content, 'details', 'collapsible-item', function (HtmlProcessor $processor) use ($content): ?array {
-            $item = self::flattenItem($processor);
-            if ($item === null) {
+        if (!str_contains($content, 'collapsible-item')) {
+            return $content;
+        }
+
+        return self::replaceElements($content, 'details', 'collapsible-item', function (HtmlProcessor $processor) use ($content): ?string {
+            // The summary must be the first child; whitespace before it is dropped.
+            do {
+                if (!$processor->next_token()) {
+                    return null;
+                }
+            } while (self::isText($processor) && trim((string) $processor->sourceText()) === '');
+
+            if (!self::isOpening($processor, 'SUMMARY')) {
+                return null;
+            }
+            [, $summaryStart] = $processor->sourceSpan();
+            $summaryCloser = self::closerSpan($processor);
+            $closer = $summaryCloser === null ? null : self::closerSpan($processor);
+            if ($closer === null) {
                 return null;
             }
 
-            return [
-                '<h4>' . substr($content, $item['summary'][0], $item['summary'][1] - $item['summary'][0]) . '</h4>'
-                . substr($content, $item['body'][0], $item['body'][1] - $item['body'][0]),
-                $item['end'],
-            ];
+            return '<h4>' . substr($content, $summaryStart, $summaryCloser[0] - $summaryStart) . '</h4>'
+                . substr($content, $summaryCloser[1], $closer[0] - $summaryCloser[1]);
         });
     }
 
     /**
      * Replaces every element with the given tag and class, copying the bytes around it untouched.
      *
-     * @param callable(HtmlProcessor): (array{0: string, 1: int}|null) $replace Consumes the element at the
-     *        processor's position and returns its replacement and the source offset just past it, or null
-     *        to leave the element alone.
+     * @param callable(HtmlProcessor): ?string $replace Consumes the element at the processor's position and
+     *        returns its replacement, or null to leave the element alone.
      */
     private static function replaceElements(string $content, string $tag, string $class, callable $replace): string
     {
-        if (!str_contains($content, $class)) {
-            return $content;
-        }
-
         $processor = HtmlProcessor::create_fragment($content);
         if ($processor === null) {
             return $content;
@@ -76,15 +88,15 @@ final class CollapsibleNormalizer
         $cursor = 0;
 
         while ($processor->next_tag(['tag_name' => $tag, 'class_name' => $class])) {
-            $start = $processor->sourceSpan();
-            $replacement = $replace($processor);
-            if ($start === null || $replacement === null) {
+            [$start] = $processor->sourceSpan();
+            $html = $replace($processor);
+            if ($html === null) {
                 continue;
             }
 
-            [$html, $end] = $replacement;
-            $output .= substr($content, $cursor, $start[0] - $cursor) . $html;
-            $cursor = $end;
+            // A section closed by its own tag ends there; one closed implicitly ends at its last token.
+            $output .= substr($content, $cursor, $start - $cursor) . $html;
+            $cursor = $processor->sourceEnd();
         }
 
         // The parser stops at markup it does not support; leave the content alone rather than truncating it.
@@ -95,69 +107,36 @@ final class CollapsibleNormalizer
         return $output . substr($content, $cursor);
     }
 
-    /**
-     * Locates the summary and body of a canonical item in the source text.
-     *
-     * @return array{summary: array{0: int, 1: int}, body: array{0: int, 1: int}, end: int}|null
-     */
-    private static function flattenItem(HtmlProcessor $processor): ?array
+    /** Advances to the next token, unless that token closes the element that was current at the given depth. */
+    private static function nextInside(HtmlProcessor $processor, int $depth): bool
     {
-        // The summary must be the first child; whitespace before it is dropped.
-        do {
-            if (!$processor->next_token()) {
-                return null;
-            }
-        } while (self::isText($processor) && trim((string) $processor->sourceText()) === '');
-
-        $summary = self::isOpening($processor, 'SUMMARY') ? $processor->sourceSpan() : null;
-        $summaryCloser = $summary === null ? null : self::closerSpan($processor, 'SUMMARY');
-        $closer = $summaryCloser === null ? null : self::closerSpan($processor, 'DETAILS');
-        if ($closer === null) {
-            return null;
-        }
-
-        return ['summary' => [$summary[1], $summaryCloser[0]], 'body' => [$summaryCloser[1], $closer[0]], 'end' => $closer[1]];
+        return $processor->next_token() && $processor->get_current_depth() >= $depth;
     }
 
     /**
-     * Advances to the closing tag of the innermost open element with the given tag.
+     * Advances past the current element.
      *
-     * @return array{0: int, 1: int}|null Its source span, or null when the tag is implied or missing.
+     * @return array{0: int, 1: int}|null The source span of its closing tag, or null when that is implied or missing.
      */
-    private static function closerSpan(HtmlProcessor $processor, string $tag): ?array
+    private static function closerSpan(HtmlProcessor $processor): ?array
     {
         $depth = $processor->get_current_depth();
-
-        while ($processor->next_token()) {
-            if (self::isClosing($processor, $tag) && $processor->get_current_depth() < $depth) {
-                return $processor->sourceSpan();
-            }
+        while (self::nextInside($processor, $depth)) {
+            continue;
         }
 
-        return null;
+        return $processor->get_current_depth() < $depth ? $processor->sourceSpan() : null;
     }
 
-    /** @return array{0: string, 1: int} Section HTML and the offset just past the section in the source. */
-    private static function section(HtmlProcessor $processor): array
+    /** Returns the section's canonical HTML; the processor ends on the token that closed the section. */
+    private static function section(HtmlProcessor $processor): string
     {
         $title = '';
         $items = [];
         $stray = '';
-        $divDepth = 0;
+        $depth = $processor->get_current_depth();
 
-        while ($processor->next_token()) {
-            if (self::isOpening($processor, 'DIV')) {
-                // Flatten nested block content.
-                $divDepth++;
-                continue;
-            }
-            if (self::isClosing($processor, 'DIV')) {
-                if ($divDepth === 0) {
-                    break;
-                }
-                $divDepth--;
-                continue;
-            }
+        while (self::nextInside($processor, $depth)) {
             if ($title === '' && self::isTextBlock($processor) && $processor->has_class('collapsible-title')) {
                 $title = self::textUntil($processor);
                 continue;
@@ -173,7 +152,7 @@ final class CollapsibleNormalizer
                 continue;
             }
 
-            $stray .= self::isTag($processor) ? self::bodyTag($processor) : self::text($processor);
+            $stray .= self::token($processor);
         }
 
         $stray = self::tidy($stray);
@@ -195,8 +174,7 @@ final class CollapsibleNormalizer
             $html .= ($html === '' ? '' : "\n\n") . $stray;
         }
 
-        // A section closed by its own tag ends there; one closed implicitly ends at its last token.
-        return [$html, $processor->sourceEnd()];
+        return $html;
     }
 
     /** @return array{heading: string, body: string, open: bool} */
@@ -204,47 +182,33 @@ final class CollapsibleNormalizer
     {
         $heading = '';
         $body = '';
-        $depth = 0;
+        $depth = $processor->get_current_depth();
 
-        while ($processor->next_token()) {
-            if (!self::isTag($processor)) {
-                $body .= self::text($processor);
+        while (self::nextInside($processor, $depth)) {
+            // Accept a text block when the summary tag is missing, but not one inside a nested item.
+            if (
+                $heading === '' && trim($body) === ''
+                && (self::isOpening($processor, 'SUMMARY') || self::isTextBlock($processor))
+                && !in_array('DETAILS', array_slice($processor->get_breadcrumbs(), $depth), true)
+            ) {
+                $heading = self::textUntil($processor);
+                $body = '';
                 continue;
             }
-            // The parser closes an unclosed item when its section ends.
-            if ($depth === 0 && self::isClosing($processor, 'DETAILS')) {
-                break;
-            }
-            if (self::isOpening($processor, 'DETAILS')) {
-                $depth++;
-            } elseif (self::isClosing($processor, 'DETAILS')) {
-                $depth--;
-            }
-            if ($heading === '' && trim($body) === '' && $depth === 0) {
-                // Accept a text block when the summary tag is missing.
-                if (self::isOpening($processor, 'SUMMARY') || self::isTextBlock($processor)) {
-                    $heading = self::textUntil($processor);
-                    $body = '';
-                    continue;
-                }
-            }
 
-            $body .= self::bodyTag($processor);
+            $body .= self::token($processor);
         }
 
         return ['heading' => $heading, 'body' => self::tidy($body), 'open' => $open];
     }
 
-    /** Collects plain text up to the closing tag of the current element. */
+    /** Collects plain text up to the end of the current element. */
     private static function textUntil(HtmlProcessor $processor): string
     {
-        $tag = $processor->get_tag();
+        $depth = $processor->get_current_depth();
         $text = '';
 
-        while ($processor->next_token()) {
-            if (self::isClosing($processor, $tag)) {
-                break;
-            }
+        while (self::nextInside($processor, $depth)) {
             if (self::isText($processor)) {
                 $text .= $processor->sourceText();
             }
@@ -253,21 +217,26 @@ final class CollapsibleNormalizer
         return trim(preg_replace('#\s+#', ' ', $text) ?? $text);
     }
 
-    /** Serializes allowed tags from their parsed attributes so odd source quoting cannot leak through. */
-    private static function bodyTag(HtmlProcessor $processor): string
+    /**
+     * Serializes one token of section content: text, an allowed tag, a paragraph break for other blocks, or nothing.
+     *
+     * Allowed tags are rebuilt from their parsed attributes so odd source quoting cannot leak through.
+     */
+    private static function token(HtmlProcessor $processor): string
     {
+        if (self::isText($processor)) {
+            return str_replace("\r", '', (string) $processor->sourceText());
+        }
+        if (!self::isTag($processor)) {
+            return '';
+        }
+
         $tag = $processor->get_tag();
         if (in_array($tag, self::BODY_TAGS, true)) {
             return $processor->serialize_token();
         }
 
         return in_array($tag, self::BLOCK_TAGS, true) ? "\n\n" : '';
-    }
-
-    /** Returns section text with normalized line endings; comments and other non-text carry nothing. */
-    private static function text(HtmlProcessor $processor): string
-    {
-        return self::isText($processor) ? str_replace("\r", '', (string) $processor->sourceText()) : '';
     }
 
     private static function tidy(string $html): string
@@ -296,10 +265,5 @@ final class CollapsibleNormalizer
     private static function isOpening(HtmlProcessor $processor, string $tag): bool
     {
         return self::isTag($processor) && !$processor->is_tag_closer() && $processor->get_tag() === $tag;
-    }
-
-    private static function isClosing(HtmlProcessor $processor, string $tag): bool
-    {
-        return self::isTag($processor) && $processor->is_tag_closer() && $processor->get_tag() === $tag;
     }
 }

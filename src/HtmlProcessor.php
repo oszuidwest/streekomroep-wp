@@ -54,10 +54,11 @@ final class HtmlProcessor extends WP_HTML_Processor
     }
 
     /**
-     * Reads the current token's byte range through a throwaway bookmark.
+     * Reads the current token's byte range through a bookmark.
      *
      * The tag processor's offsets are private and WP_HTML_Processor::set_bookmark()
-     * refuses virtual tokens with a notice, so the check happens here first.
+     * refuses virtual tokens with a notice, so the check happens here first. Setting
+     * the same name again just overwrites it, so the bookmark is never released.
      *
      * @return array{0: int, 1: int}|null
      */
@@ -68,7 +69,6 @@ final class HtmlProcessor extends WP_HTML_Processor
         }
 
         $span = $this->bookmarks[self::BOOKMARK];
-        WP_HTML_Tag_Processor::release_bookmark(self::BOOKMARK);
 
         return [$span->start, $span->start + $span->length];
     }
@@ -77,18 +77,14 @@ final class HtmlProcessor extends WP_HTML_Processor
      * Checks whether the visited token is the one the tag processor last read.
      *
      * Mirrors the provenance rule in the push and pop handlers of
-     * WP_HTML_Processor::__construct(), since is_virtual() is private: a virtual
-     * token is visited while the tag processor still rests on the source token
-     * that implied it, which differs in type, tag name or closer flag.
+     * WP_HTML_Processor::__construct(), since is_virtual() is private: only
+     * elements are ever implied, and a virtual one is visited while the tag
+     * processor still rests on the source token that implied it, which differs
+     * in tag name or closer flag.
      */
     private function isSourceToken(): bool
     {
-        $type = $this->get_token_type();
-        if ($type === null || $type !== WP_HTML_Tag_Processor::get_token_type()) {
-            return false;
-        }
-
-        return $type !== '#tag' || (
+        return $this->get_token_type() !== '#tag' || (
             $this->get_tag() === WP_HTML_Tag_Processor::get_tag()
             && $this->is_tag_closer() === WP_HTML_Tag_Processor::is_tag_closer()
         );

@@ -35,6 +35,12 @@
       "Streekomroep\\": "src/"
     }
   },
+  "autoload-dev": {
+    "classmap": [
+      "vendor/roots/wordpress-no-content/wp-includes/html-api/",
+      "vendor/roots/wordpress-no-content/wp-includes/class-wp-token-map.php"
+    ]
+  },
   "require": {
     "ext-dom": "*",
     "ext-fileinfo": "*",
