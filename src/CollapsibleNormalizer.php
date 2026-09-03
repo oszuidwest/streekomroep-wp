@@ -21,8 +21,8 @@ final class CollapsibleNormalizer
     /** Text blocks accepted as section titles and item headings. */
     private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
 
-    /** Matches empty paragraphs produced by the editor. */
-    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?(?:&nbsp;|\x{00A0})+(?:\s*</p>)?(?=\s|$)';
+    /** Matches empty paragraphs produced by the editor; the serializer emits non-breaking spaces raw. */
+    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?\x{00A0}+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
     {
@@ -31,14 +31,10 @@ final class CollapsibleNormalizer
         }
 
         $processor = WP_HTML_Processor::create_fragment($content);
-        if ($processor === null) {
-            return $content;
-        }
-
         $output = '';
         $changed = false;
         while ($processor->next_token()) {
-            if (self::isOpening($processor, 'DIV') && $processor->has_class('collapsible')) {
+            if (self::opens($processor, 'DIV') && $processor->has_class('collapsible')) {
                 $output .= self::section($processor);
                 $changed = true;
                 continue;
@@ -82,12 +78,12 @@ final class CollapsibleNormalizer
         $depth = $processor->get_current_depth();
 
         while (self::nextInside($processor, $depth)) {
-            if ($title === '' && self::isTextBlock($processor) && $processor->has_class('collapsible-title')) {
+            if ($title === '' && self::opens($processor, ...self::TEXT_BLOCK_TAGS) && $processor->has_class('collapsible-title')) {
                 $title = self::textUntil($processor);
                 continue;
             }
-            if (self::isOpening($processor, 'DETAILS')) {
-                $item = self::item($processor, $processor->get_attribute('open') !== null);
+            if (self::opens($processor, 'DETAILS')) {
+                $item = self::item($processor);
                 if ($item['heading'] === '') {
                     // Headingless content does not belong in a disclosure item.
                     $stray .= "\n\n" . $item['body'];
@@ -123,18 +119,19 @@ final class CollapsibleNormalizer
     }
 
     /** @return array{heading: string, body: string, open: bool} */
-    private static function item(WP_HTML_Processor $processor, bool $open): array
+    private static function item(WP_HTML_Processor $processor): array
     {
+        $open = $processor->get_attribute('open') !== null;
         $heading = '';
         $body = '';
         $depth = $processor->get_current_depth();
 
         while (self::nextInside($processor, $depth)) {
-            // A top-level text block may replace a missing summary.
+            // A direct child text block may replace a missing summary.
             if (
                 $heading === '' && trim($body) === ''
-                && (self::isOpening($processor, 'SUMMARY') || self::isTextBlock($processor))
-                && !in_array('DETAILS', array_slice($processor->get_breadcrumbs(), $depth), true)
+                && $processor->get_current_depth() === $depth + 1
+                && self::opens($processor, 'SUMMARY', ...self::TEXT_BLOCK_TAGS)
             ) {
                 $heading = self::textUntil($processor);
                 $body = '';
@@ -154,7 +151,7 @@ final class CollapsibleNormalizer
         $text = '';
 
         while (self::nextInside($processor, $depth)) {
-            if (self::isText($processor)) {
+            if ($processor->get_token_type() === '#text') {
                 $text .= $processor->serialize_token();
             }
         }
@@ -165,19 +162,12 @@ final class CollapsibleNormalizer
     /** Serializes supported section content from the current token. */
     private static function token(WP_HTML_Processor $processor): string
     {
-        if (self::isText($processor)) {
-            return $processor->serialize_token();
-        }
-        if (!self::isTag($processor)) {
-            return '';
-        }
-
-        $tag = $processor->get_tag();
-        if (in_array($tag, self::BODY_TAGS, true)) {
+        $name = $processor->get_token_name();
+        if ($name === '#text' || in_array($name, self::BODY_TAGS, true)) {
             return $processor->serialize_token();
         }
 
-        return in_array($tag, self::BLOCK_TAGS, true) ? "\n\n" : '';
+        return in_array($name, self::BLOCK_TAGS, true) ? "\n\n" : '';
     }
 
     private static function tidy(string $html): string
@@ -187,24 +177,9 @@ final class CollapsibleNormalizer
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
-    private static function isTag(WP_HTML_Processor $processor): bool
+    /** Checks whether the current token opens one of the given tags. */
+    private static function opens(WP_HTML_Processor $processor, string ...$tags): bool
     {
-        return $processor->get_token_type() === '#tag';
-    }
-
-    private static function isText(WP_HTML_Processor $processor): bool
-    {
-        return $processor->get_token_type() === '#text';
-    }
-
-    private static function isTextBlock(WP_HTML_Processor $processor): bool
-    {
-        return self::isTag($processor) && !$processor->is_tag_closer()
-        && in_array($processor->get_tag(), self::TEXT_BLOCK_TAGS, true);
-    }
-
-    private static function isOpening(WP_HTML_Processor $processor, string $tag): bool
-    {
-        return self::isTag($processor) && !$processor->is_tag_closer() && $processor->get_tag() === $tag;
+        return !$processor->is_tag_closer() && in_array($processor->get_token_name(), $tags, true);
     }
 }
