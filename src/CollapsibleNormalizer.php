@@ -3,12 +3,7 @@
 namespace Streekomroep;
 
 /**
- * Normalizes collapsible sections without changing unrelated post content.
- *
- * Canonical sections contain an h3 title and details items with plain-text
- * summaries. Unsupported block markup becomes paragraphs or moves after the
- * section. Sections are located with the WordPress HTML API and replaced in
- * place, so bytes outside a section are copied untouched.
+ * Normalizes collapsible sections without changing surrounding content.
  */
 final class CollapsibleNormalizer
 {
@@ -35,7 +30,7 @@ final class CollapsibleNormalizer
 
         $output = self::replaceElements($content, 'div', 'collapsible', [self::class, 'section']);
 
-        // Remove editor-generated empty paragraphs next to sections in linear time.
+        // Remove editor-generated empty paragraphs next to sections.
         $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
 
         return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output) ?? $output;
@@ -49,7 +44,7 @@ final class CollapsibleNormalizer
         }
 
         return self::replaceElements($content, 'details', 'collapsible-item', function (HtmlProcessor $processor) use ($content): ?string {
-            // The summary must be the first child; whitespace before it is dropped.
+            // Only a first-child summary defines the feed heading.
             do {
                 if (!$processor->next_token()) {
                     return null;
@@ -72,7 +67,7 @@ final class CollapsibleNormalizer
     }
 
     /**
-     * Replaces every element with the given tag and class, copying the bytes around it untouched.
+     * Replaces matching elements without reserializing surrounding content.
      *
      * @param callable(HtmlProcessor): ?string $replace Consumes the element at the processor's position and
      *        returns its replacement, or null to leave the element alone.
@@ -94,12 +89,12 @@ final class CollapsibleNormalizer
                 continue;
             }
 
-            // A section closed by its own tag ends there; one closed implicitly ends at its last token.
+            // Implicit closing tags have no source span, so use the last source token.
             $output .= substr($content, $cursor, $start - $cursor) . $html;
             $cursor = $processor->sourceEnd();
         }
 
-        // The parser stops at markup it does not support; leave the content alone rather than truncating it.
+        // Avoid partial output when parsing fails.
         if ($processor->get_last_error() !== null) {
             return $content;
         }
@@ -128,7 +123,7 @@ final class CollapsibleNormalizer
         return $processor->get_current_depth() < $depth ? $processor->sourceSpan() : null;
     }
 
-    /** Returns the section's canonical HTML; the processor ends on the token that closed the section. */
+    /** Consumes the current section and returns its canonical HTML. */
     private static function section(HtmlProcessor $processor): string
     {
         $title = '';
@@ -144,7 +139,7 @@ final class CollapsibleNormalizer
             if (self::isOpening($processor, 'DETAILS')) {
                 $item = self::item($processor, $processor->get_attribute('open') !== null);
                 if ($item['heading'] === '') {
-                    // Move content without a heading outside the section.
+                    // Headingless content does not belong in a disclosure item.
                     $stray .= "\n\n" . $item['body'];
                 } else {
                     $items[] = $item;
@@ -185,7 +180,7 @@ final class CollapsibleNormalizer
         $depth = $processor->get_current_depth();
 
         while (self::nextInside($processor, $depth)) {
-            // Accept a text block when the summary tag is missing, but not one inside a nested item.
+            // A top-level text block may replace a missing summary.
             if (
                 $heading === '' && trim($body) === ''
                 && (self::isOpening($processor, 'SUMMARY') || self::isTextBlock($processor))
@@ -217,11 +212,7 @@ final class CollapsibleNormalizer
         return trim(preg_replace('#\s+#', ' ', $text) ?? $text);
     }
 
-    /**
-     * Serializes one token of section content: text, an allowed tag, a paragraph break for other blocks, or nothing.
-     *
-     * Allowed tags are rebuilt from their parsed attributes so odd source quoting cannot leak through.
-     */
+    /** Serializes supported section content from the current token. */
     private static function token(HtmlProcessor $processor): string
     {
         if (self::isText($processor)) {

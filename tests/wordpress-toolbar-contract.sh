@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Checks the private TinyMCE toolbar contract against the WordPress version the theme requires.
+# Checks the bundled WordPress TinyMCE toolbar contract.
 set -eu
 
 plugin="$(dirname "$0")/../vendor/roots/wordpress-no-content/wp-includes/js/tinymce/plugins/wordpress/plugin.js"

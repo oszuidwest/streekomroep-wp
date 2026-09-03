@@ -6,11 +6,7 @@ use WP_HTML_Processor;
 use WP_HTML_Tag_Processor;
 
 /**
- * HTML processor that reports where each token sits in the source text.
- *
- * WP_HTML_Processor also visits virtual tokens that only exist in the parsed
- * tree, such as the implied closing tag of an unclosed element. Those own no
- * bytes, so callers replacing part of a document need to know which tokens do.
+ * Exposes source byte offsets for WordPress HTML processor tokens.
  */
 final class HtmlProcessor extends WP_HTML_Processor
 {
@@ -36,29 +32,30 @@ final class HtmlProcessor extends WP_HTML_Processor
         return true;
     }
 
-    /** @return array{0: int, 1: int}|null Start and end offset of the current token in the original HTML, or null for a virtual token. */
+    /**
+     * Returns the current token's source span.
+     *
+     * @return array{0: int, 1: int}|null Source offsets, or null for a virtual token.
+     */
     public function sourceSpan(): ?array
     {
         return $this->span;
     }
 
-    /** Returns the original bytes of the current token, or null for a virtual token. */
+    /** Returns the current token's source text, or null for a virtual token. */
     public function sourceText(): ?string
     {
         return $this->span === null ? null : substr($this->html, $this->span[0], $this->span[1] - $this->span[0]);
     }
 
+    /** Returns the offset after the last visited source token. */
     public function sourceEnd(): int
     {
         return $this->sourceEnd;
     }
 
     /**
-     * Reads the current token's byte range through a bookmark.
-     *
-     * The tag processor's offsets are private and WP_HTML_Processor::set_bookmark()
-     * refuses virtual tokens with a notice, so the check happens here first. Setting
-     * the same name again just overwrites it, so the bookmark is never released.
+     * Reads the current token's source span through the bookmark API.
      *
      * @return array{0: int, 1: int}|null
      */
@@ -74,13 +71,9 @@ final class HtmlProcessor extends WP_HTML_Processor
     }
 
     /**
-     * Checks whether the visited token is the one the tag processor last read.
+     * Checks whether the current token maps to source bytes.
      *
-     * Mirrors the provenance rule in the push and pop handlers of
-     * WP_HTML_Processor::__construct(), since is_virtual() is private: only
-     * elements are ever implied, and a virtual one is visited while the tag
-     * processor still rests on the source token that implied it, which differs
-     * in tag name or closer flag.
+     * Virtual elements differ from the tag processor token that implied them.
      */
     private function isSourceToken(): bool
     {

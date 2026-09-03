@@ -1,11 +1,7 @@
 <?php
 
 /**
- * Loads the WordPress HTML API outside WordPress for the standalone tests.
- *
- * The core files come from the roots/wordpress-no-content dev dependency, pinned
- * to the version the theme requires; its classes are in the dev classmap. Core
- * notices become exceptions so misuse fails loudly.
+ * Loads the bundled WordPress HTML API for standalone tests.
  */
 
 $core = __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes';
