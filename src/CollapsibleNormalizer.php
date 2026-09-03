@@ -21,9 +21,6 @@ final class CollapsibleNormalizer
         'DIV', 'DETAILS', 'SUMMARY', 'SECTION', 'ARTICLE', 'ASIDE', 'FIGURE', 'FIGCAPTION', 'HR', 'DL', 'DT', 'DD',
     ];
 
-    /** Tags without content or closing tag. */
-    private const VOID_TAGS = ['BR', 'IMG'];
-
     /** Text blocks accepted as section titles and item headings. */
     private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
 
@@ -32,34 +29,7 @@ final class CollapsibleNormalizer
 
     public static function normalize(string $content): string
     {
-        $processor = HtmlProcessor::create_fragment($content);
-        if ($processor === null) {
-            return $content;
-        }
-
-        $output = '';
-        $cursor = 0;
-
-        while ($processor->next_token()) {
-            if (!self::isOpening($processor, 'DIV') || !$processor->has_class('collapsible')) {
-                continue;
-            }
-            $span = $processor->sourceSpan();
-            if ($span === null) {
-                continue;
-            }
-
-            [$html, $end] = self::section($processor);
-            $output .= substr($content, $cursor, $span[0] - $cursor) . $html;
-            $cursor = $end;
-        }
-
-        // The parser stops at markup it does not support; leave the content alone rather than truncating it.
-        if ($processor->get_last_error() !== null) {
-            return $content;
-        }
-
-        $output .= substr($content, $cursor);
+        $output = self::replaceElements($content, 'div', 'collapsible', [self::class, 'section']);
 
         // Remove editor-generated empty paragraphs next to sections in linear time.
         $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
@@ -70,6 +40,33 @@ final class CollapsibleNormalizer
     /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
+        return self::replaceElements($content, 'details', 'collapsible-item', function (HtmlProcessor $processor) use ($content): ?array {
+            $item = self::flattenItem($processor);
+            if ($item === null) {
+                return null;
+            }
+
+            return [
+                '<h4>' . substr($content, $item['summary'][0], $item['summary'][1] - $item['summary'][0]) . '</h4>'
+                . substr($content, $item['body'][0], $item['body'][1] - $item['body'][0]),
+                $item['end'],
+            ];
+        });
+    }
+
+    /**
+     * Replaces every element with the given tag and class, copying the bytes around it untouched.
+     *
+     * @param callable(HtmlProcessor): (array{0: string, 1: int}|null) $replace Consumes the element at the
+     *        processor's position and returns its replacement and the source offset just past it, or null
+     *        to leave the element alone.
+     */
+    private static function replaceElements(string $content, string $tag, string $class, callable $replace): string
+    {
+        if (!str_contains($content, $class)) {
+            return $content;
+        }
+
         $processor = HtmlProcessor::create_fragment($content);
         if ($processor === null) {
             return $content;
@@ -78,22 +75,19 @@ final class CollapsibleNormalizer
         $output = '';
         $cursor = 0;
 
-        while ($processor->next_token()) {
-            if (!self::isOpening($processor, 'DETAILS') || !$processor->has_class('collapsible-item')) {
-                continue;
-            }
+        while ($processor->next_tag(['tag_name' => $tag, 'class_name' => $class])) {
             $start = $processor->sourceSpan();
-            $item = self::flattenItem($processor);
-            if ($start === null || $item === null) {
+            $replacement = $replace($processor);
+            if ($start === null || $replacement === null) {
                 continue;
             }
 
-            $output .= substr($content, $cursor, $start[0] - $cursor)
-            . '<h4>' . substr($content, $item['summary'][0], $item['summary'][1] - $item['summary'][0]) . '</h4>'
-            . substr($content, $item['body'][0], $item['body'][1] - $item['body'][0]);
-            $cursor = $item['end'];
+            [$html, $end] = $replacement;
+            $output .= substr($content, $cursor, $start[0] - $cursor) . $html;
+            $cursor = $end;
         }
 
+        // The parser stops at markup it does not support; leave the content alone rather than truncating it.
         if ($processor->get_last_error() !== null) {
             return $content;
         }
@@ -108,41 +102,35 @@ final class CollapsibleNormalizer
      */
     private static function flattenItem(HtmlProcessor $processor): ?array
     {
-        $summary = null;
-        $body = null;
-        $depth = 0;
+        // The summary must be the first child; whitespace before it is dropped.
+        do {
+            if (!$processor->next_token()) {
+                return null;
+            }
+        } while (self::isText($processor) && trim((string) $processor->sourceText()) === '');
+
+        $summary = self::isOpening($processor, 'SUMMARY') ? $processor->sourceSpan() : null;
+        $summaryCloser = $summary === null ? null : self::closerSpan($processor, 'SUMMARY');
+        $closer = $summaryCloser === null ? null : self::closerSpan($processor, 'DETAILS');
+        if ($closer === null) {
+            return null;
+        }
+
+        return ['summary' => [$summary[1], $summaryCloser[0]], 'body' => [$summaryCloser[1], $closer[0]], 'end' => $closer[1]];
+    }
+
+    /**
+     * Advances to the closing tag of the innermost open element with the given tag.
+     *
+     * @return array{0: int, 1: int}|null Its source span, or null when the tag is implied or missing.
+     */
+    private static function closerSpan(HtmlProcessor $processor, string $tag): ?array
+    {
+        $depth = $processor->get_current_depth();
 
         while ($processor->next_token()) {
-            if (self::isOpening($processor, 'DETAILS')) {
-                $depth++;
-            } elseif (self::isClosing($processor, 'DETAILS')) {
-                if ($depth > 0) {
-                    $depth--;
-                    continue;
-                }
-                $span = $processor->sourceSpan();
-                if ($span === null || $body === null) {
-                    return null;
-                }
-
-                return ['summary' => $summary, 'body' => [$body, $span[0]], 'end' => $span[1]];
-            } elseif ($depth === 0 && $summary === null) {
-                // The summary must be the first child; whitespace before it is dropped.
-                if (self::isText($processor) && trim((string) $processor->sourceText()) === '') {
-                    continue;
-                }
-                $span = self::isOpening($processor, 'SUMMARY') ? $processor->sourceSpan() : null;
-                if ($span === null) {
-                    return null;
-                }
-                $summary = [$span[1], $span[1]];
-            } elseif ($depth === 0 && $body === null && self::isClosing($processor, 'SUMMARY')) {
-                $span = $processor->sourceSpan();
-                if ($span === null) {
-                    return null;
-                }
-                $summary[1] = $span[0];
-                $body = $span[1];
+            if (self::isClosing($processor, $tag) && $processor->get_current_depth() < $depth) {
+                return $processor->sourceSpan();
             }
         }
 
@@ -223,17 +211,14 @@ final class CollapsibleNormalizer
                 $body .= self::text($processor);
                 continue;
             }
-            if (self::isClosing($processor, 'DETAILS')) {
-                // The parser closes an unclosed item when its section ends.
-                if ($depth === 0) {
-                    break;
-                }
-                $depth--;
-                $body .= "\n\n";
-                continue;
+            // The parser closes an unclosed item when its section ends.
+            if ($depth === 0 && self::isClosing($processor, 'DETAILS')) {
+                break;
             }
             if (self::isOpening($processor, 'DETAILS')) {
                 $depth++;
+            } elseif (self::isClosing($processor, 'DETAILS')) {
+                $depth--;
             }
             if ($heading === '' && trim($body) === '' && $depth === 0) {
                 // Accept a text block when the summary tag is missing.
@@ -272,31 +257,11 @@ final class CollapsibleNormalizer
     private static function bodyTag(HtmlProcessor $processor): string
     {
         $tag = $processor->get_tag();
-        if (!in_array($tag, self::BODY_TAGS, true)) {
-            return in_array($tag, self::BLOCK_TAGS, true) ? "\n\n" : '';
+        if (in_array($tag, self::BODY_TAGS, true)) {
+            return $processor->serialize_token();
         }
 
-        $name = strtolower($tag);
-        if ($processor->is_tag_closer()) {
-            return '</' . $name . '>';
-        }
-
-        $html = '<' . $name;
-        foreach ($processor->get_attribute_names_with_prefix('') ?? [] as $attribute) {
-            $value = $processor->get_attribute($attribute);
-            $html .= ' ' . $attribute;
-            if ($value !== true) {
-                $html .= '="' . htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8') . '"';
-            }
-        }
-
-        $html .= '>';
-        // Raw text elements such as iframe swallow their closing tag; their content is not article text.
-        if (!in_array($tag, self::VOID_TAGS, true) && !$processor->expects_closer()) {
-            $html .= '</' . $name . '>';
-        }
-
-        return $html;
+        return in_array($tag, self::BLOCK_TAGS, true) ? "\n\n" : '';
     }
 
     /** Returns section text with normalized line endings; comments and other non-text carry nothing. */

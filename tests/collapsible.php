@@ -89,6 +89,10 @@ $normalizeCases = [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>1 < 2 is waar</p><p>Na</p></details></div>',
         $section('T', $item('K', '<p>1 < 2 is waar</p><p>Na</p>')),
     ],
+    'iframe fallback text is kept' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><iframe src="https://player.mediadelivery.net/play/1/abc">Video</iframe></details></div>',
+        $section('T', $item('K', '<iframe src="https://player.mediadelivery.net/play/1/abc">Video</iframe>')),
+    ],
     'comments inside an item are dropped' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><!-- <b>noot</b> --><p>A</p></details></div>',
         $section('T', $item('K', '<p>A</p>')),
@@ -128,6 +132,10 @@ $flattenCases = [
     'nested details inside an item stays in the body' => [
         '<details class="collapsible-item"><summary>A</summary><details><summary>B</summary>x</details>y</details><p>Z</p>',
         '<h4>A</h4><details><summary>B</summary>x</details>y<p>Z</p>',
+    ],
+    'item whose summary is not the first child is left alone' => [
+        '<details class="collapsible-item"><details>x</details><summary>S</summary>b</details>',
+        '<details class="collapsible-item"><details>x</details><summary>S</summary>b</details>',
     ],
     'item without a summary is left alone' => [
         '<details class="collapsible-item"><p>A</p></details>',

@@ -65,10 +65,7 @@ function zw_sanitize_post_content(array $data, array $postarr): array
 
     // Normalize collapsible markup before applying the allowlist.
     if (isset($data['post_content'])) {
-        $content = wp_unslash($data['post_content']);
-        if (str_contains($content, 'collapsible')) {
-            $content = CollapsibleNormalizer::normalize($content);
-        }
+        $content = CollapsibleNormalizer::normalize(wp_unslash($data['post_content']));
         $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
 

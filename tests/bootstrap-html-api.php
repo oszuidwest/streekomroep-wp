@@ -16,13 +16,6 @@ if (!function_exists('__')) {
     }
 }
 
-if (!function_exists('_wp_can_use_pcre_u')) {
-    function _wp_can_use_pcre_u(): bool
-    {
-        return true;
-    }
-}
-
 if (!function_exists('_doing_it_wrong')) {
     function _doing_it_wrong(string $function, string $message, string $version): void
     {
@@ -30,33 +23,17 @@ if (!function_exists('_doing_it_wrong')) {
     }
 }
 
-if (!function_exists('wp_trigger_error')) {
-    function wp_trigger_error(string $function, string $message): void
-    {
-        throw new RuntimeException($function . ': ' . $message);
+// Core class files follow the class-<name>.php naming convention, so they can load on demand.
+spl_autoload_register(static function (string $class) use ($core): void {
+    $file = 'class-' . str_replace('_', '-', strtolower($class)) . '.php';
+    foreach ([$core . '/html-api/' . $file, $core . '/' . $file] as $path) {
+        if (is_file($path)) {
+            require $path;
+            return;
+        }
     }
-}
+});
 
+require $core . '/compat-utf8.php';
 require $core . '/utf8.php';
-require $core . '/class-wp-token-map.php';
-
-foreach (
-    [
-        'html5-named-character-references',
-        'class-wp-html-attribute-token',
-        'class-wp-html-span',
-        'class-wp-html-text-replacement',
-        'class-wp-html-decoder',
-        'class-wp-html-tag-processor',
-        'class-wp-html-unsupported-exception',
-        'class-wp-html-token',
-        'class-wp-html-stack-event',
-        'class-wp-html-doctype-info',
-        'class-wp-html-active-formatting-elements',
-        'class-wp-html-open-elements',
-        'class-wp-html-processor-state',
-        'class-wp-html-processor',
-    ] as $file
-) {
-    require $core . '/html-api/' . $file . '.php';
-}
+require $core . '/html-api/html5-named-character-references.php';

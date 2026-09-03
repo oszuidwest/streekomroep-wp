@@ -16,6 +16,9 @@ final class HtmlProcessor extends WP_HTML_Processor
 {
     private const BOOKMARK = 'zw-source-span';
 
+    /** @var array{0: int, 1: int}|null Byte range of the current token, or null for a virtual token. */
+    private ?array $span = null;
+
     /** Byte offset just past the last source token visited so far. */
     private int $sourceEnd = 0;
 
@@ -25,20 +28,40 @@ final class HtmlProcessor extends WP_HTML_Processor
             return false;
         }
 
-        $span = $this->sourceSpan();
-        if ($span !== null) {
-            $this->sourceEnd = max($this->sourceEnd, $span[1]);
+        $this->span = $this->readSpan();
+        if ($this->span !== null) {
+            $this->sourceEnd = $this->span[1];
         }
 
         return true;
     }
 
-    /**
-     * Returns the byte range of the current token in the original HTML.
-     *
-     * @return array{0: int, 1: int}|null Start and end offset, or null for a virtual token.
-     */
+    /** @return array{0: int, 1: int}|null Start and end offset of the current token in the original HTML, or null for a virtual token. */
     public function sourceSpan(): ?array
+    {
+        return $this->span;
+    }
+
+    /** Returns the original bytes of the current token, or null for a virtual token. */
+    public function sourceText(): ?string
+    {
+        return $this->span === null ? null : substr($this->html, $this->span[0], $this->span[1] - $this->span[0]);
+    }
+
+    public function sourceEnd(): int
+    {
+        return $this->sourceEnd;
+    }
+
+    /**
+     * Reads the current token's byte range through a throwaway bookmark.
+     *
+     * The tag processor's offsets are private and WP_HTML_Processor::set_bookmark()
+     * refuses virtual tokens with a notice, so the check happens here first.
+     *
+     * @return array{0: int, 1: int}|null
+     */
+    private function readSpan(): ?array
     {
         if (!$this->isSourceToken() || !WP_HTML_Tag_Processor::set_bookmark(self::BOOKMARK)) {
             return null;
@@ -50,24 +73,13 @@ final class HtmlProcessor extends WP_HTML_Processor
         return [$span->start, $span->start + $span->length];
     }
 
-    /** Returns the original bytes of the current token, or null for a virtual token. */
-    public function sourceText(): ?string
-    {
-        $span = $this->sourceSpan();
-
-        return $span === null ? null : substr($this->html, $span[0], $span[1] - $span[0]);
-    }
-
-    public function sourceEnd(): int
-    {
-        return $this->sourceEnd;
-    }
-
     /**
      * Checks whether the visited token is the one the tag processor last read.
      *
-     * Virtual tokens are visited while the underlying tag processor still rests on
-     * the source token that implied them, which is a different type or tag.
+     * Mirrors the provenance rule in the push and pop handlers of
+     * WP_HTML_Processor::__construct(), since is_virtual() is private: a virtual
+     * token is visited while the tag processor still rests on the source token
+     * that implied it, which differs in type, tag name or closer flag.
      */
     private function isSourceToken(): bool
     {
