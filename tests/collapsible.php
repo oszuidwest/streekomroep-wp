@@ -6,16 +6,23 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// The HTML API relies on core's UTF-8 helpers; the html-api classes are classmapped in composer.json.
+$core = __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes';
+require $core . '/compat-utf8.php';
+require $core . '/utf8.php';
+require $core . '/html-api/html5-named-character-references.php';
+
 use Streekomroep\CollapsibleNormalizer;
 
 $nl = "\n";
 $section = fn (string $title, string ...$items) => '<div class="collapsible">' . $nl . '<h3 class="collapsible-title">' . $title . '</h3>' . $nl . implode('', $items) . '</div>';
+$same = fn (string $html) => [$html, $html];
 $item = fn (string $heading, string $body, bool $open = false) => '<details class="collapsible-item"' . ($open ? ' open' : '') . '>' . $nl . '<summary>' . $heading . '</summary>' . $nl . $body . ($body === '' ? '' : $nl) . '</details>' . $nl;
 
 $canonical = '<p>Intro</p>' . $nl . $nl . $section('Titel', $item('Kop', 'Alinea een.' . $nl . $nl . 'Alinea <strong>twee</strong> met <a href="https://example.com">link</a>.'), $item('Twee', '<ul>' . $nl . '<li>a</li>' . $nl . '</ul>', true)) . $nl . $nl . '<p>Slot</p>';
 
 $normalizeCases = [
-    'canonical editor output is unchanged' => [$canonical, $canonical],
+    'canonical editor output is unchanged' => $same($canonical),
     'title demoted to h1 with inline markup' => [
         '<div class="collapsible"><h1 class="collapsible-title">Titel <em>met</em> <a href="#">link</a></h1><details class="collapsible-item"><summary>Kop</summary>Tekst</details></div>',
         $section('Titel met link', $item('Kop', 'Tekst')),
@@ -66,21 +73,63 @@ $normalizeCases = [
     ],
     'empty paragraphs around and inside a section are dropped' => [
         '<p>A</p>' . $nl . $nl . '&nbsp;' . $nl . $nl . '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>Regel' . $nl . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . 'Nog een regel met 10&nbsp;km</details></div>' . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . '<p>B</p>',
-        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . 'Nog een regel met 10&nbsp;km')) . $nl . '<p>B</p>',
+        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . "Nog een regel met 10\u{00A0}km")) . $nl . '<p>B</p>',
     ],
     'CRLF line endings from the browser are handled' => [
         "<p>A</p>\r\n\r\n<div class=\"collapsible\">\r\n<h3 class=\"collapsible-title\">T</h3>\r\n<details class=\"collapsible-item\"><summary>K</summary>Regel\r\n\r\n&nbsp;\r\n\r\nTwee</details>\r\n<details class=\"collapsible-item\"><summary>Leeg</summary>&nbsp;\r\n\r\n</details></div>\r\n&nbsp;\r\n\r\n<p>B</p>",
-        "<p>A</p>\r\n\r\n" . $section('T', $item('K', 'Regel' . $nl . $nl . 'Twee'), $item('Leeg', '')) . "\r\n\r\n<p>B</p>",
+        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . 'Twee'), $item('Leeg', '')) . $nl . $nl . '<p>B</p>',
     ],
     'trailing empty paragraph after the last section goes' => [
         $section('T', $item('K', 'A')) . $nl . '&nbsp;',
         $section('T', $item('K', 'A')),
     ],
-    'invalid UTF-8 is not discarded when Unicode cleanup fails' => [
+    'invalid UTF-8 is replaced' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A' . "\xFF" . '</details></div>',
-        $section('T', $item('K', 'A' . "\xFF")),
+        $section('T', $item('K', "A\u{FFFD}")),
     ],
-    'content without sections is untouched' => ['<h1>Gewoon</h1><details><summary>x</summary>y</details>', '<h1>Gewoon</h1><details><summary>x</summary>y</details>'],
+    'greater-than inside an attribute value is re-escaped' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>Zie <a href="https://example.com/?q=a>b" target="_blank">link</a></p></details></div>',
+        $section('T', $item('K', '<p>Zie <a href="https://example.com/?q=a&gt;b" target="_blank">link</a></p>')),
+    ],
+    'stray less-than in text is kept' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>1 < 2 is waar</p><p>Na</p></details></div>',
+        $section('T', $item('K', '<p>1 &lt; 2 is waar</p><p>Na</p>')),
+    ],
+    'iframe fallback text is kept' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><iframe src="https://player.mediadelivery.net/play/1/abc">Video</iframe></details></div>',
+        $section('T', $item('K', '<iframe src="https://player.mediadelivery.net/play/1/abc">Video</iframe>')),
+    ],
+    'comments inside an item are dropped' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><!-- <b>noot</b> --><p>A</p></details></div>',
+        $section('T', $item('K', '<p>A</p>')),
+    ],
+    'unclosed paragraphs and list items are closed' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>Een<p>Twee<ul><li>a<li>b</ul></details></div>',
+        $section('T', $item('K', '<p>Een</p><p>Twee</p><ul><li>a</li><li>b</li></ul>')),
+    ],
+    'boolean and unquoted attributes are serialized' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><iframe src=https://player.mediadelivery.net/play/1/abc allowfullscreen></iframe><img src=x.jpg alt=\'Foto "1"\'></details></div>',
+        $section('T', $item('K', '<iframe src="https://player.mediadelivery.net/play/1/abc" allowfullscreen></iframe><img src="x.jpg" alt="Foto &quot;1&quot;">')),
+    ],
+    'section inside a quote ends with the quote' => [
+        '<blockquote><div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A</details></blockquote><p>Na</p>',
+        '<blockquote>' . $section('T', $item('K', 'A')) . '</blockquote><p>Na</p>',
+    ],
+    'markup the parser does not support is left unchanged' => $same('<p><b>x</p><b>y</b><div class="collapsible"><h1 class="collapsible-title">T</h1><details class="collapsible-item"><summary>K</summary>A</details></div>'),
+    'unterminated tag after a section is dropped' => [
+        $section('T', $item('K', 'A')) . '<div',
+        $section('T', $item('K', 'A')),
+    ],
+    'surrounding markup is serialized canonically' => [
+        "<p class='intro'>Voor&nbsp;</p><div class=\"collapsible\"><h3 class=\"collapsible-title\">T</h3><details class=\"collapsible-item\"><summary>K</summary>A</details></div>",
+        '<p class="intro">Voor' . "\u{00A0}" . '</p>' . $section('T', $item('K', 'A')),
+    ],
+    'content mentioning collapsible without a section is untouched' => $same("<p class='x'>Een collapsible boot</p>"),
+    'summary of a nested details does not become the heading' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><details><summary>Binnen</summary>x</details><summary>Echt</summary>b</details><details class="collapsible-item"><summary>K</summary>A</details></div>',
+        $section('T', $item('K', 'A')) . $nl . $nl . 'Binnen' . $nl . $nl . 'x' . $nl . $nl . 'Echt' . $nl . $nl . 'b',
+    ],
+    'content without sections is untouched' => $same('<h1>Gewoon</h1><details><summary>x</summary>y</details>'),
 ];
 
 $flattenCases = [
@@ -92,6 +141,8 @@ $flattenCases = [
         '<details class="collapsible-item" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="collapsible-item"><summary>Twee</summary><p>B</p></details>',
         '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
     ],
+    'item whose summary is not the first child is left alone' => $same('<details class="collapsible-item"><details>x</details><summary>S</summary>b</details>'),
+    'item without a summary is left alone' => $same('<details class="collapsible-item"><p>A</p></details>'),
     'unrelated details element next to an item' => [
         '<details class="collapsible-item"><summary>K</summary><p>A</p></details><details><summary>Ander</summary><p>Blijft</p></details>',
         '<h4>K</h4><p>A</p><details><summary>Ander</summary><p>Blijft</p></details>',

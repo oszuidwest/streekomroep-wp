@@ -1,15 +1,12 @@
 #!/bin/sh
 
-# Checks the private TinyMCE toolbar contract.
+# Checks the bundled WordPress TinyMCE toolbar contract.
 set -eu
 
-wordpress_image=${WORDPRESS_TEST_IMAGE:-wordpress:latest}
-
-docker run --rm --pull=always --entrypoint sh "$wordpress_image" -eu -c '
-plugin=/usr/src/wordpress/wp-includes/js/tinymce/plugins/wordpress/plugin.js
+plugin="$(dirname "$0")/../vendor/roots/wordpress-no-content/wp-includes/js/tinymce/plugins/wordpress/plugin.js"
 
 if [ ! -f "$plugin" ]; then
-    echo "WordPress TinyMCE plugin source not found: $plugin" >&2
+    echo "WordPress TinyMCE plugin source not found (run composer install): $plugin" >&2
     exit 1
 fi
 
@@ -29,4 +26,3 @@ require_contract "currentSelection[[:space:]]*=[[:space:]]*args[.]selection[[:sp
 require_contract "toolbar[.]bottom[[:space:]]*=[[:space:]]*bottom" "bottom toolbar positioning"
 
 echo "OK: WordPress provides the TinyMCE floating-toolbar contract"
-'

@@ -2,50 +2,52 @@
 
 namespace Streekomroep;
 
+use WP_HTML_Processor;
+
 /**
- * Normalizes collapsible sections without changing unrelated post content.
- *
- * Canonical sections contain an h3 title and details items with plain-text
- * summaries. Unsupported block markup becomes paragraphs or moves after the
- * section.
+ * Normalizes collapsible sections and serializes surrounding HTML canonically.
  */
 final class CollapsibleNormalizer
 {
     /** Tags allowed in item content. */
-    private const BODY_TAGS = ['p', 'br', 'ul', 'ol', 'li', 'a', 'strong', 'b', 'em', 'i', 'img', 'iframe'];
+    private const BODY_TAGS = ['P', 'BR', 'UL', 'OL', 'LI', 'A', 'STRONG', 'B', 'EM', 'I', 'IMG', 'IFRAME'];
 
     /** Block-level tags converted to paragraph breaks. */
     private const BLOCK_TAGS = [
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
-        'div', 'details', 'summary', 'section', 'article', 'aside', 'figure', 'figcaption', 'hr', 'dl', 'dt', 'dd',
+        'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH',
+        'DIV', 'DETAILS', 'SUMMARY', 'SECTION', 'ARTICLE', 'ASIDE', 'FIGURE', 'FIGCAPTION', 'HR', 'DL', 'DT', 'DD',
     ];
 
-    /** Matches empty paragraphs produced by the editor. */
-    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?(?:&nbsp;|\x{00A0})+(?:\s*</p>)?(?=\s|$)';
+    /** Text blocks accepted as section titles and item headings. */
+    private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
+
+    /** Matches empty paragraphs produced by the editor; the serializer emits non-breaking spaces raw. */
+    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?\x{00A0}+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
     {
-        $tokens = preg_split('#(<[^>]+>)#', $content, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-        if ($tokens === false) {
+        if (!str_contains($content, 'collapsible')) {
             return $content;
         }
 
+        $processor = WP_HTML_Processor::create_fragment($content);
         $output = '';
-        $count = count($tokens);
-        $i = 0;
-
-        while ($i < $count) {
-            $token = $tokens[$i];
-            if (self::isOpening($token, 'div') && self::hasClass($token, 'collapsible')) {
-                [$html, $i] = self::section($tokens, $i + 1);
-                $output .= $html;
+        $changed = false;
+        while ($processor->next_token()) {
+            if (self::opens($processor, 'DIV') && $processor->has_class('collapsible')) {
+                $output .= self::section($processor);
+                $changed = true;
                 continue;
             }
-            $output .= $token;
-            $i++;
+
+            $output .= $processor->serialize_token();
         }
 
-        // Remove editor-generated empty paragraphs next to sections in linear time.
+        if (!$changed || $processor->get_last_error() !== null) {
+            return $content;
+        }
+
+        // Remove editor-generated empty paragraphs next to sections.
         $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
 
         return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output) ?? $output;
@@ -61,40 +63,29 @@ final class CollapsibleNormalizer
         ) ?? $content;
     }
 
-    /** @return array{0: string, 1: int} Section HTML and the next token index. */
-    private static function section(array $tokens, int $i): array
+    /** Advances to the next token, unless that token closes the element that was current at the given depth. */
+    private static function nextInside(WP_HTML_Processor $processor, int $depth): bool
+    {
+        return $processor->next_token() && $processor->get_current_depth() >= $depth;
+    }
+
+    /** Consumes the current section and returns its canonical HTML. */
+    private static function section(WP_HTML_Processor $processor): string
     {
         $title = '';
         $items = [];
         $stray = '';
-        $divDepth = 0;
-        $count = count($tokens);
+        $depth = $processor->get_current_depth();
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-
-            if (self::isOpening($token, 'div')) {
-                // Flatten nested block content.
-                $divDepth++;
-                $i++;
+        while (self::nextInside($processor, $depth)) {
+            if ($title === '' && self::opens($processor, ...self::TEXT_BLOCK_TAGS) && $processor->has_class('collapsible-title')) {
+                $title = self::textUntil($processor);
                 continue;
             }
-            if (self::isClosing($token, 'div')) {
-                $i++;
-                if ($divDepth === 0) {
-                    break;
-                }
-                $divDepth--;
-                continue;
-            }
-            if ($title === '' && self::hasClass($token, 'collapsible-title') && self::isTextBlock($token)) {
-                [$title, $i] = self::textUntil($tokens, $i + 1, $token);
-                continue;
-            }
-            if (self::isOpening($token, 'details')) {
-                [$item, $i] = self::item($tokens, $i + 1, (bool) preg_match('#\sopen\b#i', $token));
+            if (self::opens($processor, 'DETAILS')) {
+                $item = self::item($processor);
                 if ($item['heading'] === '') {
-                    // Move content without a heading outside the section.
+                    // Headingless content does not belong in a disclosure item.
                     $stray .= "\n\n" . $item['body'];
                 } else {
                     $items[] = $item;
@@ -102,8 +93,7 @@ final class CollapsibleNormalizer
                 continue;
             }
 
-            $stray .= self::isTag($token) ? self::bodyTag($token) : self::text($token);
-            $i++;
+            $stray .= self::token($processor);
         }
 
         $stray = self::tidy($stray);
@@ -125,103 +115,59 @@ final class CollapsibleNormalizer
             $html .= ($html === '' ? '' : "\n\n") . $stray;
         }
 
-        return [$html, $i];
+        return $html;
     }
 
-    /** @return array{0: array{heading: string, body: string, open: bool}, 1: int} */
-    private static function item(array $tokens, int $i, bool $open): array
+    /** @return array{heading: string, body: string, open: bool} */
+    private static function item(WP_HTML_Processor $processor): array
     {
+        $open = $processor->get_attribute('open') !== null;
         $heading = '';
         $body = '';
-        // Track each tag type independently to tolerate malformed nesting.
-        $detailsDepth = 0;
-        $divDepth = 0;
-        $count = count($tokens);
+        $depth = $processor->get_current_depth();
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-
-            if (!self::isTag($token)) {
-                $body .= self::text($token);
-                $i++;
+        while (self::nextInside($processor, $depth)) {
+            // A direct child text block may replace a missing summary.
+            if (
+                $heading === '' && trim($body) === ''
+                && $processor->get_current_depth() === $depth + 1
+                && self::opens($processor, 'SUMMARY', ...self::TEXT_BLOCK_TAGS)
+            ) {
+                $heading = self::textUntil($processor);
+                $body = '';
                 continue;
             }
-            if (self::isClosing($token, 'details')) {
-                if ($detailsDepth === 0) {
-                    $i++;
-                    break;
-                }
-                $detailsDepth--;
-                $body .= "\n\n";
-                $i++;
-                continue;
-            }
-            if (self::isClosing($token, 'div')) {
-                if ($divDepth === 0) {
-                    // The section closes the unclosed item.
-                    break;
-                }
-                $divDepth--;
-                $body .= "\n\n";
-                $i++;
-                continue;
-            }
-            if (self::isOpening($token, 'details')) {
-                $detailsDepth++;
-            } elseif (self::isOpening($token, 'div')) {
-                $divDepth++;
-            }
-            if ($heading === '' && trim($body) === '' && $detailsDepth === 0) {
-                // Accept a text block when the summary tag is missing.
-                if (self::isOpening($token, 'summary') || self::isTextBlock($token)) {
-                    [$heading, $i] = self::textUntil($tokens, $i + 1, $token);
-                    $body = '';
-                    continue;
-                }
-            }
 
-            $body .= self::bodyTag($token);
-            $i++;
+            $body .= self::token($processor);
         }
 
-        return [['heading' => $heading, 'body' => self::tidy($body), 'open' => $open], $i];
+        return ['heading' => $heading, 'body' => self::tidy($body), 'open' => $open];
     }
 
-    /** Collects plain text up to the matching closing tag. */
-    private static function textUntil(array $tokens, int $i, string $opening): array
+    /** Collects plain text up to the end of the current element. */
+    private static function textUntil(WP_HTML_Processor $processor): string
     {
-        $tag = self::tagName($opening);
+        $depth = $processor->get_current_depth();
         $text = '';
-        $count = count($tokens);
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-            $i++;
-            if (self::isClosing($token, $tag)) {
-                break;
-            }
-            if (!self::isTag($token)) {
-                $text .= $token;
+        while (self::nextInside($processor, $depth)) {
+            if ($processor->get_token_type() === '#text') {
+                $text .= $processor->serialize_token();
             }
         }
 
-        return [trim(preg_replace('#\s+#', ' ', $text) ?? $text), $i];
+        return trim(preg_replace('#\s+#', ' ', $text) ?? $text);
     }
 
-    private static function bodyTag(string $token): string
+    /** Serializes supported section content from the current token. */
+    private static function token(WP_HTML_Processor $processor): string
     {
-        $name = self::tagName($token);
-        if (in_array($name, self::BODY_TAGS, true)) {
-            return $token;
+        $name = $processor->get_token_name();
+        if ($name === '#text' || in_array($name, self::BODY_TAGS, true)) {
+            return $processor->serialize_token();
         }
 
         return in_array($name, self::BLOCK_TAGS, true) ? "\n\n" : '';
-    }
-
-    /** Normalizes line endings in section text. */
-    private static function text(string $token): string
-    {
-        return str_replace("\r", '', $token);
     }
 
     private static function tidy(string $html): string
@@ -231,34 +177,9 @@ final class CollapsibleNormalizer
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
-    private static function isTag(string $token): bool
+    /** Checks whether the current token opens one of the given tags. */
+    private static function opens(WP_HTML_Processor $processor, string ...$tags): bool
     {
-        return $token[0] === '<';
-    }
-
-    private static function tagName(string $token): string
-    {
-        return preg_match('#^</?([a-zA-Z][a-zA-Z0-9]*)#', $token, $match) ? strtolower($match[1]) : '';
-    }
-
-    /** Checks for text blocks accepted as section headings. */
-    private static function isTextBlock(string $token): bool
-    {
-        return (bool) preg_match('#^<(h[1-6]|p)[\s/>]#i', $token);
-    }
-
-    private static function isOpening(string $token, string $tag): bool
-    {
-        return (bool) preg_match('#^<' . $tag . '[\s/>]#i', $token);
-    }
-
-    private static function isClosing(string $token, string $tag): bool
-    {
-        return (bool) preg_match('#^</' . $tag . '\s*>#i', $token);
-    }
-
-    private static function hasClass(string $token, string $class): bool
-    {
-        return (bool) preg_match('#^<[^>]*\sclass=(["\'])[^"\']*(?<![\w-])' . preg_quote($class, '#') . '(?![\w-])[^"\']*\1#i', $token);
+        return !$processor->is_tag_closer() && in_array($processor->get_token_name(), $tags, true);
     }
 }

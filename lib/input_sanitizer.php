@@ -3,20 +3,15 @@
 use Streekomroep\CollapsibleNormalizer;
 
 /**
- * Sanitizes post content to remove unwanted HTML elements.
- *
- * This function is designed to ensure that only allowed HTML elements and
- * attributes are included in post content, removing any arbitrary HTML added
- * by editors.
+ * Sanitizes post content against the theme's HTML allowlist.
  *
  * @param array $data An array of slashed, sanitized, and processed post data.
  * @param array $postarr An array of sanitized (and slashed) but otherwise unmodified post data.
  *
- * @return array Sanitized data with only allowed HTML elements.
+ * @return array Sanitized post data.
  */
 function zw_sanitize_post_content(array $data, array $postarr): array
 {
-    // Define allowed HTML elements and attributes.
     $allowed_elements = [
         'a'          => [
             'href'   => true,
@@ -63,12 +58,9 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'ul'         => [],
     ];
 
-    // Normalize collapsible markup before applying the allowlist.
+    // Normalize first so the allowlist receives canonical markup.
     if (isset($data['post_content'])) {
-        $content = wp_unslash($data['post_content']);
-        if (str_contains($content, 'collapsible')) {
-            $content = CollapsibleNormalizer::normalize($content);
-        }
+        $content = CollapsibleNormalizer::normalize(wp_unslash($data['post_content']));
         $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
 
