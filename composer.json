@@ -48,6 +48,7 @@
   },
   "require-dev": {
     "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "roots/wordpress-no-content": "~7.1.0",
     "vincentlanglet/twig-cs-fixer": "^4.0",
     "wp-coding-standards/wpcs": "^3.0"
   },

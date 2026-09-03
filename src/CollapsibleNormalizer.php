@@ -7,43 +7,59 @@ namespace Streekomroep;
  *
  * Canonical sections contain an h3 title and details items with plain-text
  * summaries. Unsupported block markup becomes paragraphs or moves after the
- * section.
+ * section. Sections are located with the WordPress HTML API and replaced in
+ * place, so bytes outside a section are copied untouched.
  */
 final class CollapsibleNormalizer
 {
     /** Tags allowed in item content. */
-    private const BODY_TAGS = ['p', 'br', 'ul', 'ol', 'li', 'a', 'strong', 'b', 'em', 'i', 'img', 'iframe'];
+    private const BODY_TAGS = ['P', 'BR', 'UL', 'OL', 'LI', 'A', 'STRONG', 'B', 'EM', 'I', 'IMG', 'IFRAME'];
 
     /** Block-level tags converted to paragraph breaks. */
     private const BLOCK_TAGS = [
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
-        'div', 'details', 'summary', 'section', 'article', 'aside', 'figure', 'figcaption', 'hr', 'dl', 'dt', 'dd',
+        'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH',
+        'DIV', 'DETAILS', 'SUMMARY', 'SECTION', 'ARTICLE', 'ASIDE', 'FIGURE', 'FIGCAPTION', 'HR', 'DL', 'DT', 'DD',
     ];
+
+    /** Tags without content or closing tag. */
+    private const VOID_TAGS = ['BR', 'IMG'];
+
+    /** Text blocks accepted as section titles and item headings. */
+    private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
 
     /** Matches empty paragraphs produced by the editor. */
     private const EMPTY_PARAGRAPH = '(?:<p>\s*)?(?:&nbsp;|\x{00A0})+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
     {
-        $tokens = preg_split('#(<[^>]+>)#', $content, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-        if ($tokens === false) {
+        $processor = HtmlProcessor::create_fragment($content);
+        if ($processor === null) {
             return $content;
         }
 
         $output = '';
-        $count = count($tokens);
-        $i = 0;
+        $cursor = 0;
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-            if (self::isOpening($token, 'div') && self::hasClass($token, 'collapsible')) {
-                [$html, $i] = self::section($tokens, $i + 1);
-                $output .= $html;
+        while ($processor->next_token()) {
+            if (!self::isOpening($processor, 'DIV') || !$processor->has_class('collapsible')) {
                 continue;
             }
-            $output .= $token;
-            $i++;
+            $span = $processor->sourceSpan();
+            if ($span === null) {
+                continue;
+            }
+
+            [$html, $end] = self::section($processor);
+            $output .= substr($content, $cursor, $span[0] - $cursor) . $html;
+            $cursor = $end;
         }
+
+        // The parser stops at markup it does not support; leave the content alone rather than truncating it.
+        if ($processor->get_last_error() !== null) {
+            return $content;
+        }
+
+        $output .= substr($content, $cursor);
 
         // Remove editor-generated empty paragraphs next to sections in linear time.
         $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
@@ -54,45 +70,112 @@ final class CollapsibleNormalizer
     /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
-        return preg_replace(
-            '#<details\b[^>]*\bcollapsible-item\b[^>]*>\s*<summary>(.*?)</summary>(.*?)</details>#is',
-            '<h4>$1</h4>$2',
-            $content
-        ) ?? $content;
+        $processor = HtmlProcessor::create_fragment($content);
+        if ($processor === null) {
+            return $content;
+        }
+
+        $output = '';
+        $cursor = 0;
+
+        while ($processor->next_token()) {
+            if (!self::isOpening($processor, 'DETAILS') || !$processor->has_class('collapsible-item')) {
+                continue;
+            }
+            $start = $processor->sourceSpan();
+            $item = self::flattenItem($processor);
+            if ($start === null || $item === null) {
+                continue;
+            }
+
+            $output .= substr($content, $cursor, $start[0] - $cursor)
+            . '<h4>' . substr($content, $item['summary'][0], $item['summary'][1] - $item['summary'][0]) . '</h4>'
+            . substr($content, $item['body'][0], $item['body'][1] - $item['body'][0]);
+            $cursor = $item['end'];
+        }
+
+        if ($processor->get_last_error() !== null) {
+            return $content;
+        }
+
+        return $output . substr($content, $cursor);
     }
 
-    /** @return array{0: string, 1: int} Section HTML and the next token index. */
-    private static function section(array $tokens, int $i): array
+    /**
+     * Locates the summary and body of a canonical item in the source text.
+     *
+     * @return array{summary: array{0: int, 1: int}, body: array{0: int, 1: int}, end: int}|null
+     */
+    private static function flattenItem(HtmlProcessor $processor): ?array
+    {
+        $summary = null;
+        $body = null;
+        $depth = 0;
+
+        while ($processor->next_token()) {
+            if (self::isOpening($processor, 'DETAILS')) {
+                $depth++;
+            } elseif (self::isClosing($processor, 'DETAILS')) {
+                if ($depth > 0) {
+                    $depth--;
+                    continue;
+                }
+                $span = $processor->sourceSpan();
+                if ($span === null || $body === null) {
+                    return null;
+                }
+
+                return ['summary' => $summary, 'body' => [$body, $span[0]], 'end' => $span[1]];
+            } elseif ($depth === 0 && $summary === null) {
+                // The summary must be the first child; whitespace before it is dropped.
+                if (self::isText($processor) && trim((string) $processor->sourceText()) === '') {
+                    continue;
+                }
+                $span = self::isOpening($processor, 'SUMMARY') ? $processor->sourceSpan() : null;
+                if ($span === null) {
+                    return null;
+                }
+                $summary = [$span[1], $span[1]];
+            } elseif ($depth === 0 && $body === null && self::isClosing($processor, 'SUMMARY')) {
+                $span = $processor->sourceSpan();
+                if ($span === null) {
+                    return null;
+                }
+                $summary[1] = $span[0];
+                $body = $span[1];
+            }
+        }
+
+        return null;
+    }
+
+    /** @return array{0: string, 1: int} Section HTML and the offset just past the section in the source. */
+    private static function section(HtmlProcessor $processor): array
     {
         $title = '';
         $items = [];
         $stray = '';
         $divDepth = 0;
-        $count = count($tokens);
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-
-            if (self::isOpening($token, 'div')) {
+        while ($processor->next_token()) {
+            if (self::isOpening($processor, 'DIV')) {
                 // Flatten nested block content.
                 $divDepth++;
-                $i++;
                 continue;
             }
-            if (self::isClosing($token, 'div')) {
-                $i++;
+            if (self::isClosing($processor, 'DIV')) {
                 if ($divDepth === 0) {
                     break;
                 }
                 $divDepth--;
                 continue;
             }
-            if ($title === '' && self::hasClass($token, 'collapsible-title') && self::isTextBlock($token)) {
-                [$title, $i] = self::textUntil($tokens, $i + 1, $token);
+            if ($title === '' && self::isTextBlock($processor) && $processor->has_class('collapsible-title')) {
+                $title = self::textUntil($processor);
                 continue;
             }
-            if (self::isOpening($token, 'details')) {
-                [$item, $i] = self::item($tokens, $i + 1, (bool) preg_match('#\sopen\b#i', $token));
+            if (self::isOpening($processor, 'DETAILS')) {
+                $item = self::item($processor, $processor->get_attribute('open') !== null);
                 if ($item['heading'] === '') {
                     // Move content without a heading outside the section.
                     $stray .= "\n\n" . $item['body'];
@@ -102,8 +185,7 @@ final class CollapsibleNormalizer
                 continue;
             }
 
-            $stray .= self::isTag($token) ? self::bodyTag($token) : self::text($token);
-            $i++;
+            $stray .= self::isTag($processor) ? self::bodyTag($processor) : self::text($processor);
         }
 
         $stray = self::tidy($stray);
@@ -125,103 +207,102 @@ final class CollapsibleNormalizer
             $html .= ($html === '' ? '' : "\n\n") . $stray;
         }
 
-        return [$html, $i];
+        // A section closed by its own tag ends there; one closed implicitly ends at its last token.
+        return [$html, $processor->sourceEnd()];
     }
 
-    /** @return array{0: array{heading: string, body: string, open: bool}, 1: int} */
-    private static function item(array $tokens, int $i, bool $open): array
+    /** @return array{heading: string, body: string, open: bool} */
+    private static function item(HtmlProcessor $processor, bool $open): array
     {
         $heading = '';
         $body = '';
-        // Track each tag type independently to tolerate malformed nesting.
-        $detailsDepth = 0;
-        $divDepth = 0;
-        $count = count($tokens);
+        $depth = 0;
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-
-            if (!self::isTag($token)) {
-                $body .= self::text($token);
-                $i++;
+        while ($processor->next_token()) {
+            if (!self::isTag($processor)) {
+                $body .= self::text($processor);
                 continue;
             }
-            if (self::isClosing($token, 'details')) {
-                if ($detailsDepth === 0) {
-                    $i++;
+            if (self::isClosing($processor, 'DETAILS')) {
+                // The parser closes an unclosed item when its section ends.
+                if ($depth === 0) {
                     break;
                 }
-                $detailsDepth--;
+                $depth--;
                 $body .= "\n\n";
-                $i++;
                 continue;
             }
-            if (self::isClosing($token, 'div')) {
-                if ($divDepth === 0) {
-                    // The section closes the unclosed item.
-                    break;
-                }
-                $divDepth--;
-                $body .= "\n\n";
-                $i++;
-                continue;
+            if (self::isOpening($processor, 'DETAILS')) {
+                $depth++;
             }
-            if (self::isOpening($token, 'details')) {
-                $detailsDepth++;
-            } elseif (self::isOpening($token, 'div')) {
-                $divDepth++;
-            }
-            if ($heading === '' && trim($body) === '' && $detailsDepth === 0) {
+            if ($heading === '' && trim($body) === '' && $depth === 0) {
                 // Accept a text block when the summary tag is missing.
-                if (self::isOpening($token, 'summary') || self::isTextBlock($token)) {
-                    [$heading, $i] = self::textUntil($tokens, $i + 1, $token);
+                if (self::isOpening($processor, 'SUMMARY') || self::isTextBlock($processor)) {
+                    $heading = self::textUntil($processor);
                     $body = '';
                     continue;
                 }
             }
 
-            $body .= self::bodyTag($token);
-            $i++;
+            $body .= self::bodyTag($processor);
         }
 
-        return [['heading' => $heading, 'body' => self::tidy($body), 'open' => $open], $i];
+        return ['heading' => $heading, 'body' => self::tidy($body), 'open' => $open];
     }
 
-    /** Collects plain text up to the matching closing tag. */
-    private static function textUntil(array $tokens, int $i, string $opening): array
+    /** Collects plain text up to the closing tag of the current element. */
+    private static function textUntil(HtmlProcessor $processor): string
     {
-        $tag = self::tagName($opening);
+        $tag = $processor->get_tag();
         $text = '';
-        $count = count($tokens);
 
-        while ($i < $count) {
-            $token = $tokens[$i];
-            $i++;
-            if (self::isClosing($token, $tag)) {
+        while ($processor->next_token()) {
+            if (self::isClosing($processor, $tag)) {
                 break;
             }
-            if (!self::isTag($token)) {
-                $text .= $token;
+            if (self::isText($processor)) {
+                $text .= $processor->sourceText();
             }
         }
 
-        return [trim(preg_replace('#\s+#', ' ', $text) ?? $text), $i];
+        return trim(preg_replace('#\s+#', ' ', $text) ?? $text);
     }
 
-    private static function bodyTag(string $token): string
+    /** Serializes allowed tags from their parsed attributes so odd source quoting cannot leak through. */
+    private static function bodyTag(HtmlProcessor $processor): string
     {
-        $name = self::tagName($token);
-        if (in_array($name, self::BODY_TAGS, true)) {
-            return $token;
+        $tag = $processor->get_tag();
+        if (!in_array($tag, self::BODY_TAGS, true)) {
+            return in_array($tag, self::BLOCK_TAGS, true) ? "\n\n" : '';
         }
 
-        return in_array($name, self::BLOCK_TAGS, true) ? "\n\n" : '';
+        $name = strtolower($tag);
+        if ($processor->is_tag_closer()) {
+            return '</' . $name . '>';
+        }
+
+        $html = '<' . $name;
+        foreach ($processor->get_attribute_names_with_prefix('') ?? [] as $attribute) {
+            $value = $processor->get_attribute($attribute);
+            $html .= ' ' . $attribute;
+            if ($value !== true) {
+                $html .= '="' . htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8') . '"';
+            }
+        }
+
+        $html .= '>';
+        // Raw text elements such as iframe swallow their closing tag; their content is not article text.
+        if (!in_array($tag, self::VOID_TAGS, true) && !$processor->expects_closer()) {
+            $html .= '</' . $name . '>';
+        }
+
+        return $html;
     }
 
-    /** Normalizes line endings in section text. */
-    private static function text(string $token): string
+    /** Returns section text with normalized line endings; comments and other non-text carry nothing. */
+    private static function text(HtmlProcessor $processor): string
     {
-        return str_replace("\r", '', $token);
+        return self::isText($processor) ? str_replace("\r", '', (string) $processor->sourceText()) : '';
     }
 
     private static function tidy(string $html): string
@@ -231,34 +312,29 @@ final class CollapsibleNormalizer
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
-    private static function isTag(string $token): bool
+    private static function isTag(HtmlProcessor $processor): bool
     {
-        return $token[0] === '<';
+        return $processor->get_token_type() === '#tag';
     }
 
-    private static function tagName(string $token): string
+    private static function isText(HtmlProcessor $processor): bool
     {
-        return preg_match('#^</?([a-zA-Z][a-zA-Z0-9]*)#', $token, $match) ? strtolower($match[1]) : '';
+        return $processor->get_token_type() === '#text';
     }
 
-    /** Checks for text blocks accepted as section headings. */
-    private static function isTextBlock(string $token): bool
+    private static function isTextBlock(HtmlProcessor $processor): bool
     {
-        return (bool) preg_match('#^<(h[1-6]|p)[\s/>]#i', $token);
+        return self::isTag($processor) && !$processor->is_tag_closer()
+        && in_array($processor->get_tag(), self::TEXT_BLOCK_TAGS, true);
     }
 
-    private static function isOpening(string $token, string $tag): bool
+    private static function isOpening(HtmlProcessor $processor, string $tag): bool
     {
-        return (bool) preg_match('#^<' . $tag . '[\s/>]#i', $token);
+        return self::isTag($processor) && !$processor->is_tag_closer() && $processor->get_tag() === $tag;
     }
 
-    private static function isClosing(string $token, string $tag): bool
+    private static function isClosing(HtmlProcessor $processor, string $tag): bool
     {
-        return (bool) preg_match('#^</' . $tag . '\s*>#i', $token);
-    }
-
-    private static function hasClass(string $token, string $class): bool
-    {
-        return (bool) preg_match('#^<[^>]*\sclass=(["\'])[^"\']*(?<![\w-])' . preg_quote($class, '#') . '(?![\w-])[^"\']*\1#i', $token);
+        return self::isTag($processor) && $processor->is_tag_closer() && $processor->get_tag() === $tag;
     }
 }

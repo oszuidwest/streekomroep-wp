@@ -5,6 +5,7 @@
  */
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/bootstrap-html-api.php';
 
 use Streekomroep\CollapsibleNormalizer;
 
@@ -80,6 +81,38 @@ $normalizeCases = [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A' . "\xFF" . '</details></div>',
         $section('T', $item('K', 'A' . "\xFF")),
     ],
+    'greater-than inside an attribute value is re-escaped' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>Zie <a href="https://example.com/?q=a>b" target="_blank">link</a></p></details></div>',
+        $section('T', $item('K', '<p>Zie <a href="https://example.com/?q=a&gt;b" target="_blank">link</a></p>')),
+    ],
+    'stray less-than in text is kept' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>1 < 2 is waar</p><p>Na</p></details></div>',
+        $section('T', $item('K', '<p>1 < 2 is waar</p><p>Na</p>')),
+    ],
+    'comments inside an item are dropped' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><!-- <b>noot</b> --><p>A</p></details></div>',
+        $section('T', $item('K', '<p>A</p>')),
+    ],
+    'unclosed paragraphs and list items are closed' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>Een<p>Twee<ul><li>a<li>b</ul></details></div>',
+        $section('T', $item('K', '<p>Een</p><p>Twee</p><ul><li>a</li><li>b</li></ul>')),
+    ],
+    'boolean and unquoted attributes are serialized' => [
+        '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><iframe src=https://player.mediadelivery.net/play/1/abc allowfullscreen></iframe><img src=x.jpg alt=\'Foto "1"\'></details></div>',
+        $section('T', $item('K', '<iframe src="https://player.mediadelivery.net/play/1/abc" allowfullscreen></iframe><img src="x.jpg" alt="Foto &quot;1&quot;">')),
+    ],
+    'section inside a quote ends with the quote' => [
+        '<blockquote><div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A</details></blockquote><p>Na</p>',
+        '<blockquote>' . $section('T', $item('K', 'A')) . '</blockquote><p>Na</p>',
+    ],
+    'markup the parser does not support is left unchanged' => [
+        '<p><b>x</p><b>y</b><div class="collapsible"><h1 class="collapsible-title">T</h1><details class="collapsible-item"><summary>K</summary>A</details></div>',
+        '<p><b>x</p><b>y</b><div class="collapsible"><h1 class="collapsible-title">T</h1><details class="collapsible-item"><summary>K</summary>A</details></div>',
+    ],
+    'unterminated tag after a section is kept' => [
+        $section('T', $item('K', 'A')) . '<div',
+        $section('T', $item('K', 'A')) . '<div',
+    ],
     'content without sections is untouched' => ['<h1>Gewoon</h1><details><summary>x</summary>y</details>', '<h1>Gewoon</h1><details><summary>x</summary>y</details>'],
 ];
 
@@ -91,6 +124,14 @@ $flattenCases = [
     'open item with inline markup in the heading' => [
         '<details class="collapsible-item" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="collapsible-item"><summary>Twee</summary><p>B</p></details>',
         '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
+    ],
+    'nested details inside an item stays in the body' => [
+        '<details class="collapsible-item"><summary>A</summary><details><summary>B</summary>x</details>y</details><p>Z</p>',
+        '<h4>A</h4><details><summary>B</summary>x</details>y<p>Z</p>',
+    ],
+    'item without a summary is left alone' => [
+        '<details class="collapsible-item"><p>A</p></details>',
+        '<details class="collapsible-item"><p>A</p></details>',
     ],
     'unrelated details element next to an item' => [
         '<details class="collapsible-item"><summary>K</summary><p>A</p></details><details><summary>Ander</summary><p>Blijft</p></details>',
