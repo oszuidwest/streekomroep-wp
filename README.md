@@ -4,7 +4,7 @@ The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/),
 
 ## Requirements
 
-- WordPress 7.0+
+- WordPress 7.1+
 - PHP 8.3+
 - Secure Custom Fields 6.9+ or Advanced Custom Fields Pro 6.8+
 - Yoast SEO 27.7+ (free or Premium)
