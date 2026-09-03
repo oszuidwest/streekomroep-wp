@@ -2,8 +2,10 @@
 
 namespace Streekomroep;
 
+use WP_HTML_Processor;
+
 /**
- * Normalizes collapsible sections without changing surrounding content.
+ * Normalizes collapsible sections and serializes surrounding HTML canonically.
  */
 final class CollapsibleNormalizer
 {
@@ -28,7 +30,26 @@ final class CollapsibleNormalizer
             return $content;
         }
 
-        $output = self::replaceElements($content, 'div', 'collapsible', [self::class, 'section']);
+        $processor = WP_HTML_Processor::create_fragment($content);
+        if ($processor === null) {
+            return $content;
+        }
+
+        $output = '';
+        $changed = false;
+        while ($processor->next_token()) {
+            if (self::isOpening($processor, 'DIV') && $processor->has_class('collapsible')) {
+                $output .= self::section($processor);
+                $changed = true;
+                continue;
+            }
+
+            $output .= $processor->serialize_token();
+        }
+
+        if (!$changed || $processor->get_last_error() !== null) {
+            return $content;
+        }
 
         // Remove editor-generated empty paragraphs next to sections.
         $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
@@ -39,92 +60,21 @@ final class CollapsibleNormalizer
     /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
-        if (!str_contains($content, 'collapsible-item')) {
-            return $content;
-        }
-
-        return self::replaceElements($content, 'details', 'collapsible-item', function (HtmlProcessor $processor) use ($content): ?string {
-            // Only a first-child summary defines the feed heading.
-            do {
-                if (!$processor->next_token()) {
-                    return null;
-                }
-            } while (self::isText($processor) && trim((string) $processor->sourceText()) === '');
-
-            if (!self::isOpening($processor, 'SUMMARY')) {
-                return null;
-            }
-            [, $summaryStart] = $processor->sourceSpan();
-            $summaryCloser = self::closerSpan($processor);
-            $closer = $summaryCloser === null ? null : self::closerSpan($processor);
-            if ($closer === null) {
-                return null;
-            }
-
-            return '<h4>' . substr($content, $summaryStart, $summaryCloser[0] - $summaryStart) . '</h4>'
-                . substr($content, $summaryCloser[1], $closer[0] - $summaryCloser[1]);
-        });
-    }
-
-    /**
-     * Replaces matching elements without reserializing surrounding content.
-     *
-     * @param callable(HtmlProcessor): ?string $replace Consumes the element at the processor's position and
-     *        returns its replacement, or null to leave the element alone.
-     */
-    private static function replaceElements(string $content, string $tag, string $class, callable $replace): string
-    {
-        $processor = HtmlProcessor::create_fragment($content);
-        if ($processor === null) {
-            return $content;
-        }
-
-        $output = '';
-        $cursor = 0;
-
-        while ($processor->next_tag(['tag_name' => $tag, 'class_name' => $class])) {
-            [$start] = $processor->sourceSpan();
-            $html = $replace($processor);
-            if ($html === null) {
-                continue;
-            }
-
-            // Implicit closing tags have no source span, so use the last source token.
-            $output .= substr($content, $cursor, $start - $cursor) . $html;
-            $cursor = $processor->sourceEnd();
-        }
-
-        // Avoid partial output when parsing fails.
-        if ($processor->get_last_error() !== null) {
-            return $content;
-        }
-
-        return $output . substr($content, $cursor);
+        return preg_replace(
+            '#<details\b[^>]*\bcollapsible-item\b[^>]*>\s*<summary>(.*?)</summary>(.*?)</details>#is',
+            '<h4>$1</h4>$2',
+            $content
+        ) ?? $content;
     }
 
     /** Advances to the next token, unless that token closes the element that was current at the given depth. */
-    private static function nextInside(HtmlProcessor $processor, int $depth): bool
+    private static function nextInside(WP_HTML_Processor $processor, int $depth): bool
     {
         return $processor->next_token() && $processor->get_current_depth() >= $depth;
     }
 
-    /**
-     * Advances past the current element.
-     *
-     * @return array{0: int, 1: int}|null The source span of its closing tag, or null when that is implied or missing.
-     */
-    private static function closerSpan(HtmlProcessor $processor): ?array
-    {
-        $depth = $processor->get_current_depth();
-        while (self::nextInside($processor, $depth)) {
-            continue;
-        }
-
-        return $processor->get_current_depth() < $depth ? $processor->sourceSpan() : null;
-    }
-
     /** Consumes the current section and returns its canonical HTML. */
-    private static function section(HtmlProcessor $processor): string
+    private static function section(WP_HTML_Processor $processor): string
     {
         $title = '';
         $items = [];
@@ -173,7 +123,7 @@ final class CollapsibleNormalizer
     }
 
     /** @return array{heading: string, body: string, open: bool} */
-    private static function item(HtmlProcessor $processor, bool $open): array
+    private static function item(WP_HTML_Processor $processor, bool $open): array
     {
         $heading = '';
         $body = '';
@@ -198,14 +148,14 @@ final class CollapsibleNormalizer
     }
 
     /** Collects plain text up to the end of the current element. */
-    private static function textUntil(HtmlProcessor $processor): string
+    private static function textUntil(WP_HTML_Processor $processor): string
     {
         $depth = $processor->get_current_depth();
         $text = '';
 
         while (self::nextInside($processor, $depth)) {
             if (self::isText($processor)) {
-                $text .= $processor->sourceText();
+                $text .= $processor->serialize_token();
             }
         }
 
@@ -213,10 +163,10 @@ final class CollapsibleNormalizer
     }
 
     /** Serializes supported section content from the current token. */
-    private static function token(HtmlProcessor $processor): string
+    private static function token(WP_HTML_Processor $processor): string
     {
         if (self::isText($processor)) {
-            return str_replace("\r", '', (string) $processor->sourceText());
+            return $processor->serialize_token();
         }
         if (!self::isTag($processor)) {
             return '';
@@ -237,23 +187,23 @@ final class CollapsibleNormalizer
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
-    private static function isTag(HtmlProcessor $processor): bool
+    private static function isTag(WP_HTML_Processor $processor): bool
     {
         return $processor->get_token_type() === '#tag';
     }
 
-    private static function isText(HtmlProcessor $processor): bool
+    private static function isText(WP_HTML_Processor $processor): bool
     {
         return $processor->get_token_type() === '#text';
     }
 
-    private static function isTextBlock(HtmlProcessor $processor): bool
+    private static function isTextBlock(WP_HTML_Processor $processor): bool
     {
         return self::isTag($processor) && !$processor->is_tag_closer()
         && in_array($processor->get_tag(), self::TEXT_BLOCK_TAGS, true);
     }
 
-    private static function isOpening(HtmlProcessor $processor, string $tag): bool
+    private static function isOpening(WP_HTML_Processor $processor, string $tag): bool
     {
         return self::isTag($processor) && !$processor->is_tag_closer() && $processor->get_tag() === $tag;
     }

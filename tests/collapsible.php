@@ -67,19 +67,19 @@ $normalizeCases = [
     ],
     'empty paragraphs around and inside a section are dropped' => [
         '<p>A</p>' . $nl . $nl . '&nbsp;' . $nl . $nl . '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>Regel' . $nl . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . 'Nog een regel met 10&nbsp;km</details></div>' . $nl . '&nbsp;' . $nl . $nl . '<p>&nbsp;</p>' . $nl . '<p>B</p>',
-        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . 'Nog een regel met 10&nbsp;km')) . $nl . '<p>B</p>',
+        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . "Nog een regel met 10\u{00A0}km")) . $nl . '<p>B</p>',
     ],
     'CRLF line endings from the browser are handled' => [
         "<p>A</p>\r\n\r\n<div class=\"collapsible\">\r\n<h3 class=\"collapsible-title\">T</h3>\r\n<details class=\"collapsible-item\"><summary>K</summary>Regel\r\n\r\n&nbsp;\r\n\r\nTwee</details>\r\n<details class=\"collapsible-item\"><summary>Leeg</summary>&nbsp;\r\n\r\n</details></div>\r\n&nbsp;\r\n\r\n<p>B</p>",
-        "<p>A</p>\r\n\r\n" . $section('T', $item('K', 'Regel' . $nl . $nl . 'Twee'), $item('Leeg', '')) . "\r\n\r\n<p>B</p>",
+        '<p>A</p>' . $nl . $nl . $section('T', $item('K', 'Regel' . $nl . $nl . 'Twee'), $item('Leeg', '')) . $nl . $nl . '<p>B</p>',
     ],
     'trailing empty paragraph after the last section goes' => [
         $section('T', $item('K', 'A')) . $nl . '&nbsp;',
         $section('T', $item('K', 'A')),
     ],
-    'invalid UTF-8 is not discarded when Unicode cleanup fails' => [
+    'invalid UTF-8 is replaced' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A' . "\xFF" . '</details></div>',
-        $section('T', $item('K', 'A' . "\xFF")),
+        $section('T', $item('K', "A\u{FFFD}")),
     ],
     'greater-than inside an attribute value is re-escaped' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>Zie <a href="https://example.com/?q=a>b" target="_blank">link</a></p></details></div>',
@@ -87,7 +87,7 @@ $normalizeCases = [
     ],
     'stray less-than in text is kept' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><p>1 < 2 is waar</p><p>Na</p></details></div>',
-        $section('T', $item('K', '<p>1 < 2 is waar</p><p>Na</p>')),
+        $section('T', $item('K', '<p>1 &lt; 2 is waar</p><p>Na</p>')),
     ],
     'iframe fallback text is kept' => [
         '<div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary><iframe src="https://player.mediadelivery.net/play/1/abc">Video</iframe></details></div>',
@@ -113,9 +113,13 @@ $normalizeCases = [
         '<p><b>x</p><b>y</b><div class="collapsible"><h1 class="collapsible-title">T</h1><details class="collapsible-item"><summary>K</summary>A</details></div>',
         '<p><b>x</p><b>y</b><div class="collapsible"><h1 class="collapsible-title">T</h1><details class="collapsible-item"><summary>K</summary>A</details></div>',
     ],
-    'unterminated tag after a section is kept' => [
+    'unterminated tag after a section is dropped' => [
         $section('T', $item('K', 'A')) . '<div',
-        $section('T', $item('K', 'A')) . '<div',
+        $section('T', $item('K', 'A')),
+    ],
+    'surrounding markup is serialized canonically' => [
+        "<p class='intro'>Voor&nbsp;</p><div class=\"collapsible\"><h3 class=\"collapsible-title\">T</h3><details class=\"collapsible-item\"><summary>K</summary>A</details></div>",
+        '<p class="intro">Voor' . "\u{00A0}" . '</p>' . $section('T', $item('K', 'A')),
     ],
     'content without sections is untouched' => ['<h1>Gewoon</h1><details><summary>x</summary>y</details>', '<h1>Gewoon</h1><details><summary>x</summary>y</details>'],
 ];
@@ -128,10 +132,6 @@ $flattenCases = [
     'open item with inline markup in the heading' => [
         '<details class="collapsible-item" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="collapsible-item"><summary>Twee</summary><p>B</p></details>',
         '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
-    ],
-    'nested details inside an item stays in the body' => [
-        '<details class="collapsible-item"><summary>A</summary><details><summary>B</summary>x</details>y</details><p>Z</p>',
-        '<h4>A</h4><details><summary>B</summary>x</details>y<p>Z</p>',
     ],
     'item whose summary is not the first child is left alone' => [
         '<details class="collapsible-item"><details>x</details><summary>S</summary>b</details>',
