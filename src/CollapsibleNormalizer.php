@@ -43,14 +43,18 @@ final class CollapsibleNormalizer
             $output .= $processor->serialize_token();
         }
 
+        // Content without sections, or that the parser cannot handle, is stored byte for byte.
         if (!$changed || $processor->get_last_error() !== null) {
             return $content;
         }
 
-        // Remove editor-generated empty paragraphs next to sections.
-        $output = preg_replace('#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++#u', '$1', $output) ?? $output;
-
-        return preg_replace('#(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u', '', $output) ?? $output;
+        // Remove editor-generated empty paragraphs next to sections; (*SKIP)(*FAIL) keeps the scan linear.
+        return preg_replace(
+            '#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++'
+            . '|(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u',
+            '$1',
+            $output
+        ) ?? $output;
     }
 
     /** Replaces disclosure items with headings for feed readers. */
@@ -134,7 +138,6 @@ final class CollapsibleNormalizer
                 && self::opens($processor, 'SUMMARY', ...self::TEXT_BLOCK_TAGS)
             ) {
                 $heading = self::textUntil($processor);
-                $body = '';
                 continue;
             }
 
@@ -151,7 +154,7 @@ final class CollapsibleNormalizer
         $text = '';
 
         while (self::nextInside($processor, $depth)) {
-            if ($processor->get_token_type() === '#text') {
+            if ($processor->get_token_name() === '#text') {
                 $text .= $processor->serialize_token();
             }
         }
