@@ -3,13 +3,12 @@
 /**
  * Regression coverage for explicit escaping in frontend templates.
  *
- * Timber autoescaping is disabled, so every covered sink must escape plain text itself.
+ * Timber autoescaping is disabled; covered sinks must escape their own text.
  */
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Mirrors WP's protocol allowlist so `javascript:` assertions prove the template calls esc_url;
-// they exercise this stub, not WP itself.
+// Mirror WP's protocol allowlist so javascript: assertions exercise esc_url().
 function esc_url(string $url): string
 {
     $scheme = parse_url($url, PHP_URL_SCHEME);
@@ -25,7 +24,7 @@ function get_post_type_archive_link(string $post_type): string
     return 'https://example.test/' . $post_type;
 }
 
-// base.twig pulls in the full site chrome; the page under test only needs its content block.
+// The test only needs base.twig's content block.
 $loader = new \Twig\Loader\ChainLoader([
     new \Twig\Loader\ArrayLoader(['base.twig' => '{% block content %}{% endblock %}']),
     new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates'),
@@ -86,7 +85,7 @@ $check_byline = function (string $label, string $html, array $names) use ($xpath
         }
     }
 
-    // Commas must attach to the preceding name; the flex gap already provides the space after.
+    // The flex gap supplies the space after each attached comma.
     if (preg_match('/\s,/', $xpath->document->textContent)) {
         $failures[] = sprintf('%s: whitespace precedes a comma separator', $label);
     }
@@ -208,7 +207,7 @@ $check(
     ['&lt;img src=x', '&lt;script&gt;']
 );
 
-// Populate every live-page broadcast sink; the encoded title also catches double encoding.
+// Cover every broadcast sink and detect double encoding.
 $show = [
     'title' => $text_payload,
     'link' => 'https://example.test/show',
@@ -249,7 +248,7 @@ $fm_page_context = [
     ],
 ];
 
-// `has_stream` swaps the now-playing sinks between static copy and broadcast data, so cover both branches.
+// Cover both now-playing branches selected by has_stream.
 $fm_page_html = [];
 foreach (['stream' => [['url' => 'https://example.test/live.mp3', 'type' => 'audio/mpeg']], 'no stream' => []] as $label => $sources) {
     $fm_page_html[$label] = $twig->render('page-fm-player.twig', ['stream_sources' => $sources] + $fm_page_context);
@@ -262,7 +261,7 @@ foreach (['stream' => [['url' => 'https://example.test/live.mp3', 'type' => 'aud
     );
 }
 
-// setupVolume() in static/fm-live.js queries all five; they only render alongside a stream.
+// setupVolume() expects all five controls when a stream exists.
 $check_hooks(
     'page-fm-player.twig (volume)',
     $fm_page_html['stream'],

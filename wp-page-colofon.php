@@ -25,7 +25,7 @@ if ($user_ids) {
             $initials .= mb_substr(end($name_parts), 0, 1);
         }
 
-        // Yoast SEO Premium stores the profile field "Functienaam" as jobTitle in wpseo_user_schema.
+        // Yoast stores "Functienaam" as jobTitle in wpseo_user_schema.
         $yoast_schema = get_user_meta($user_id, 'wpseo_user_schema', true);
         $job_title = is_array($yoast_schema) ? trim((string)($yoast_schema['jobTitle'] ?? '')) : '';
 

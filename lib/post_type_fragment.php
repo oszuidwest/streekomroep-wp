@@ -1,5 +1,4 @@
 <?php
-// Register Fragment Post Type
 $labels = [
     'name'                  => 'Fragmenten',
     'singular_name'         => 'Fragment',

@@ -1,5 +1,4 @@
 <?php
-// Register Dossier Taxonomy
 $labels = [
     'name'                       => 'Dossiers',
     'singular_name'              => 'Dossier',

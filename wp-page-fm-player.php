@@ -29,11 +29,8 @@ if ($current?->show) {
 
 $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $schedule->getUpcomingRadioBroadcasts(2));
 
-// The browser walks these in order and moves to the next candidate when one will not load, so
-// each stream has to be announced with the type the server actually sends. Icecast serves the AAC
-// mount as raw ADTS (Content-Type: audio/aac); calling that audio/mp4 makes a browser accept bytes
-// it then hands to an MP4 demuxer, which strands devices that are strict about it on a dead source
-// instead of letting them fall through to MP3.
+// Browser fallback needs accurate types. Icecast serves raw ADTS as audio/aac;
+// labeling it audio/mp4 can prevent fallback to MP3.
 $streamTypes = [
     'radio_webplayer_aac_stream' => 'audio/aac',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
@@ -72,8 +69,7 @@ foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) 
         continue;
     }
 
-    // Editors sometimes type "Kanaal 914" or "105.8 FM" despite the field asking for the number
-    // only; the group heading already names the medium, so drop that decoration.
+    // The group heading already supplies labels such as "Kanaal" and "FM".
     $value = trim((string)($row['radio_frequenties_frequentie'] ?? ''));
     $value = trim(preg_replace('/^\s*kanaal\s+|\s*fm\s*$/i', '', $value) ?? $value);
     if ($value === '') {

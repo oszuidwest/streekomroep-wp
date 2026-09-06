@@ -51,7 +51,7 @@ class Gallery
     }
 
     /**
-     * Replaces the default WordPress gallery shortcode with a theme-native tiled gallery.
+     * Replaces the default gallery shortcode with the theme's tiled gallery.
      */
     public static function renderShortcode($output, array $attributes): string
     {

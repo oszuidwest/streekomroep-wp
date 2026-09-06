@@ -142,7 +142,7 @@ require_once 'lib/search.php';
 require_once 'lib/collapsible.php';
 require_once 'lib/tinymce.php';
 
-// TODO: Remove this loader and migration_fm_makers.php after the FM-maker migration.
+// TODO: Remove this loader and migration after rollout.
 if (is_admin()) {
     require_once 'lib/migration_fm_makers.php';
 }
@@ -416,7 +416,7 @@ function zw_get_avatar_url($url, $id_or_email, $args)
  * when the Co-Authors Plus plugin is inactive (this branch then never matches).
  *
  * @param string   $class Timber user class.
- * @param \WP_User $user  User being built; wraps the Co-Authors Plus record for guest authors.
+ * @param \WP_User $user User wrapping the Co-Authors Plus record.
  * @return string User class.
  */
 function zw_timber_user_class($class, $user)
@@ -425,7 +425,7 @@ function zw_timber_user_class($class, $user)
         return $class;
     }
 
-    // Read data directly: `$user->type` triggers WP_User::__isset() and a user-meta lookup.
+    // Avoid the user-meta lookup triggered by WP_User::__isset().
     if (($user->data->type ?? null) === 'guest-author') {
         return \Streekomroep\GuestAuthor::class;
     }
@@ -664,7 +664,7 @@ add_action('save_post_tv', function () {
 foreach (['added_option', 'updated_option', 'deleted_option'] as $zw_option_hook) {
     add_action($zw_option_hook, function ($option) {
         if (is_string($option) && str_starts_with($option, \Streekomroep\BroadcastSchedule::OPTION_PREFIX)) {
-            // ACF writes hundreds of repeater options in one request; invalidate once after the save.
+            // Invalidate once after ACF writes the repeater options.
             add_action('shutdown', [\Streekomroep\BroadcastSchedule::class, 'invalidateCache']);
         }
     });
@@ -941,7 +941,7 @@ function zw_get_imgproxy_setting($option, $constant)
 }
 
 /**
- * @return array{key: string, salt: string, host: string} Empty strings represent unset values.
+ * @return array{key: string, salt: string, host: string} Credentials.
  */
 function zw_imgproxy_settings(): array
 {
@@ -1144,7 +1144,7 @@ function zw_imgproxy($src, $width, $height)
 
     $encodedUrl = zw_base64url($src);
 
-    // @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.ContainsVar
+    // phpcs:ignore Squiz.Strings.DoubleQuoteUsage.ContainsVar -- Clearer interpolated.
     $path = "/rs:{$resize}:{$width}:{$height}:{$enlarge}/g:{$gravity}/{$encodedUrl}.{$extension}";
 
     $keyBin = pack('H*', $key);

@@ -12,7 +12,7 @@
     @apply brightness-100 transition-[filter] group-hover:brightness-110;
 }
 
-/* Prose component styles */
+/* Prose. */
 .zw-prose p:first-child {
     @apply font-bold;
 }
@@ -122,7 +122,7 @@
     margin-inline: 1rem;
 }
 
-/* Contact Form 7 styles */
+/* Contact Form 7. */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-300 rounded-sm;
     @apply focus:outline-hidden focus:border-blauw;

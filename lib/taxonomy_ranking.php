@@ -1,5 +1,4 @@
 <?php
-// Register Ranking Taxonomy
 $labels = [
     'name'                       => 'Rankings',
     'singular_name'              => 'Ranking',
@@ -37,7 +36,7 @@ $args = [
 register_taxonomy('ranking', ['post'], $args);
 
 /**
- * Sanitize ranking checkbox input for the admin edit screen.
+ * Sanitizes ranking checkbox input for the admin edit screen.
  *
  * Because meta_box_cb is false (custom UI), WordPress defaults to the
  * tag/input sanitizer instead of the checkbox sanitizer. This callback
@@ -61,7 +60,6 @@ function zw_ranking_sanitize_cb($taxonomy, $terms)
     return $terms;
 }
 
-// Render ranking inside the Publish metabox, matching Status/Visibility style
 add_action('post_submitbox_misc_actions', function () {
     $post = get_post();
     if (!$post || $post->post_type !== 'post') {
@@ -143,7 +141,7 @@ add_action('post_submitbox_misc_actions', function () {
 });
 
 /**
- * Re-assign the default ranking term if a post ends up with none.
+ * Restores the default ranking term if a post has none.
  *
  * Guards:
  * - Skips posts being deleted (flagged via before_delete_post) to avoid
@@ -201,13 +199,11 @@ add_action('deleted_term_relationships', function ($object_id, $tt_ids, $taxonom
     zw_enforce_ranking_default($object_id, $taxonomy);
 }, 10, 3);
 
-// Disable Yoast SEO primary term picker for this taxonomy
 add_filter('wpseo_primary_term_taxonomies', function ($taxonomies) {
     unset($taxonomies['ranking']);
     return $taxonomies;
 });
 
-// Seed ranking terms if they don't exist (skipped when already seeded)
 add_action('init', function () {
     if (get_transient('zw_ranking_terms_seeded')) {
         return;

@@ -35,7 +35,7 @@ final class BroadcastDataController
 
     public function get_item($request): WP_REST_Response
     {
-        // A short transient reduces duplicate rebuilds when clients poll at slot boundaries.
+        // Avoid duplicate rebuilds when clients poll at slot boundaries.
         $payload = get_transient(self::TRANSIENT);
         if (!is_array($payload)) {
             $payload = $this->build();
@@ -57,7 +57,7 @@ final class BroadcastDataController
         return $response;
     }
 
-    /** Preserves the legacy `fm.now`, `fm.next` and `tv` fields alongside the live-page schedule. */
+    /** Preserves legacy fields beside the live-page schedule. */
     private function build(): array
     {
         $schedule = new BroadcastSchedule();

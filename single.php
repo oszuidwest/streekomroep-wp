@@ -72,8 +72,7 @@ if ($timber_post->post_type == 'tv') {
     $videos = \Streekomroep\VideoCollection::forTvShow($timber_post->ID);
 
     if (isset($_GET['v'])) {
-        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-        $videoId = wp_unslash($_GET['v']);
+        $videoId = is_string($_GET['v']) ? sanitize_text_field(wp_unslash($_GET['v'])) : '';
         /** @var \Streekomroep\Video $video */
         $video = null;
         $newerVideo = null;

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Prevents an article and its attached fragment from appearing as separate search results.
+ * Deduplicates articles and their attached fragments in search results.
  *
- * A fragment remains searchable when no article containing it matches the search term.
+ * Standalone fragment matches remain visible.
  */
 function zw_exclude_linked_fragments_from_search(WP_Query $query): void
 {
@@ -39,7 +39,7 @@ function zw_exclude_linked_fragments_from_search(WP_Query $query): void
 
     global $wpdb;
     $placeholders = implode(',', array_fill(0, count($articles->posts), '%d'));
-    // Fetch only this key; priming the meta cache would load every meta row of every matched article.
+    // Avoid priming every meta row for each matched article.
     // phpcs:disable WordPress.DB.PreparedSQL -- table name comes from $wpdb, values go through placeholders.
     $meta_values = $wpdb->get_col($wpdb->prepare(
         'SELECT meta_value FROM ' . $wpdb->postmeta

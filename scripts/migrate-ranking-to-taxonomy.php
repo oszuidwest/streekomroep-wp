@@ -26,14 +26,12 @@ $value_to_slug = [
     '6' => 'achterkant',
 ];
 
-// Verify all target terms exist
 foreach ($value_to_slug as $slug) {
     if (!term_exists($slug, 'ranking')) {
         WP_CLI::error('Term \'' . $slug . '\' does not exist in taxonomy \'ranking\'. Register the taxonomy first.');
     }
 }
 
-// Get all posts that have post_ranking meta
 global $wpdb;
 $results = $wpdb->get_results(
     $wpdb->prepare(
@@ -92,7 +90,6 @@ foreach ($results as $row) {
 
 $progress->finish();
 
-// Handle posts without any ranking meta
 $orphan_ids = $wpdb->get_col(
     $wpdb->prepare(
         'SELECT ID FROM ' . $wpdb->posts .

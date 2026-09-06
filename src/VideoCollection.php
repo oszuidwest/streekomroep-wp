@@ -20,7 +20,7 @@ class VideoCollection
     }
 
     /**
-     * Pre-extract broadcast date and description from a single video's YAML front-matter.
+     * Pre-extracts broadcast data from one video's YAML front matter.
      * Sets _broadcastDate (ISO 8601 string or null), _broadcastTimestamp (int or null),
      * and _description on the object.
      */
@@ -69,13 +69,12 @@ class VideoCollection
             $rawVideo->_broadcastDate = $date->format('c');
             $rawVideo->_broadcastTimestamp = $date->getTimestamp();
         } catch (\Exception $e) {
-            // Ignore unparseable dates
+            // Unparseable dates remain unavailable.
         }
     }
 
     /**
-     * Pre-extract broadcast dates for an array of raw video objects.
-     * Called during cron before storing in post meta.
+     * Pre-extracts broadcast dates before cron stores raw videos in post meta.
      */
     public static function preprocess(array $rawVideos): void
     {
@@ -85,9 +84,7 @@ class VideoCollection
     }
 
     /**
-     * Sort and filter raw video data into Video objects.
-     * Filters to available videos with a broadcast date in the past.
-     * Returns newest first.
+     * Returns available Video objects in reverse chronological order.
      */
     public static function sortAndFilter(BunnyCredentials $credentials, array $rawVideos): array
     {
@@ -148,7 +145,7 @@ class VideoCollection
     }
 
     /**
-     * Load and sort episodes for a TV show from post meta.
+     * Loads and sorts TV episodes from post meta.
      *
      * @return Video[]
      */

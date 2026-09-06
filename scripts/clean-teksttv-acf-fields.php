@@ -107,7 +107,7 @@ $legacy_option_names = [
 ];
 
 /**
- * Add ACF reference keys for field names.
+ * Adds ACF reference keys for field names.
  *
  * @param array<string> $fields Field names.
  * @return array<string>
@@ -125,7 +125,7 @@ function zw_teksttv_cleaner_with_reference_keys(array $fields): array
 }
 
 /**
- * Abort when the last database read failed.
+ * Aborts when the last database read failed.
  *
  * @param string $context Description of the read operation.
  * @return void
@@ -140,7 +140,7 @@ function zw_teksttv_cleaner_check_database_error(string $context): void
 }
 
 /**
- * Find row counts grouped by exact metadata key.
+ * Finds row counts grouped by exact metadata key.
  *
  * @param string        $table Table name.
  * @param array<string> $keys  Metadata keys.
@@ -175,7 +175,7 @@ function zw_teksttv_cleaner_get_meta_matches(string $table, array $keys): array
 }
 
 /**
- * Delete metadata rows by exact key through the WordPress metadata API.
+ * Deletes metadata rows by exact key through the WordPress metadata API.
  *
  * @param string        $meta_type Metadata type.
  * @param array<string> $keys      Keys to delete.
@@ -189,7 +189,7 @@ function zw_teksttv_cleaner_delete_metadata(string $meta_type, array $keys): voi
 }
 
 /**
- * Find option names matching old ACF patterns or exact legacy names.
+ * Finds option names matching old ACF patterns or exact legacy names.
  *
  * @param array<string> $patterns    LIKE patterns.
  * @param array<string> $exact_names Exact option names.
@@ -231,7 +231,7 @@ function zw_teksttv_cleaner_get_option_names(array $patterns, array $exact_names
 }
 
 /**
- * Delete option rows through the WordPress Options API.
+ * Deletes option rows through the WordPress Options API.
  *
  * @param array<string> $option_names Option names.
  * @return void
@@ -244,7 +244,7 @@ function zw_teksttv_cleaner_delete_options(array $option_names): void
 }
 
 /**
- * Find ACF posts for known keys, including WordPress' __trashed slug variants.
+ * Finds ACF posts for known keys, including WordPress' __trashed slugs.
  *
  * @param string        $post_type ACF post type.
  * @param array<string> $keys      ACF keys.
@@ -281,7 +281,7 @@ function zw_teksttv_cleaner_get_acf_posts_for_keys(string $post_type, array $key
 }
 
 /**
- * Add all child ACF field posts to a set of matched posts.
+ * Adds child ACF field posts to the matched posts.
  *
  * @param array<int, array<string, int|string>> $posts Initial ACF posts.
  * @return array<int, array<string, int|string>>
@@ -329,7 +329,7 @@ function zw_teksttv_cleaner_collect_child_acf_posts(array $posts): array
 }
 
 /**
- * Get ACF field group and field posts for known keys.
+ * Gets ACF field group and field posts for known keys.
  *
  * @param array<string> $field_group_keys Field group keys.
  * @param array<string> $field_keys       Field keys.
@@ -346,7 +346,7 @@ function zw_teksttv_cleaner_get_acf_posts(array $field_group_keys, array $field_
 }
 
 /**
- * Find which previously targeted ACF post IDs still exist.
+ * Finds previously targeted ACF posts that still exist.
  *
  * @param array<int> $post_ids Post IDs.
  * @return array<int, array<string, int|string>>
@@ -374,7 +374,7 @@ function zw_teksttv_cleaner_get_acf_posts_by_id(array $post_ids): array
 }
 
 /**
- * Calculate an ACF field's depth in the selected post tree.
+ * Calculates an ACF field's depth in the selected post tree.
  *
  * @param array<string, int|string>                     $post        ACF post.
  * @param array<int, array<string, int|string>>         $posts_by_id ACF posts keyed by ID.
@@ -394,7 +394,7 @@ function zw_teksttv_cleaner_get_acf_post_depth(array $post, array $posts_by_id):
 }
 
 /**
- * Delete ACF fields child-first and field groups through ACF's APIs.
+ * Deletes ACF fields child-first and field groups through ACF's APIs.
  *
  * @param array<int, array<string, int|string>> $posts ACF posts.
  * @return array<string>
@@ -446,7 +446,7 @@ function zw_teksttv_cleaner_delete_acf_posts(array $posts): array
 }
 
 /**
- * Log all rows selected for cleanup without exposing stored values.
+ * Logs cleanup targets without exposing stored values.
  *
  * @param array<int, array<string, int|string>> $acf_posts        ACF posts.
  * @param array<string, int>                    $post_meta_matches Postmeta keys and counts.

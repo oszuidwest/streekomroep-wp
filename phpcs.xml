@@ -14,9 +14,6 @@
     <exclude-pattern>*/vendor/*\.php$</exclude-pattern>
     <exclude-pattern>*/bin/*\.php$</exclude-pattern>
 
-    <!-- Fix crash on PHP 8 -->
-    <ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED"/>
-
     <rule ref="Generic.Files.EndFileNewline"/>
 
     <rule ref="PSR12">
@@ -61,6 +58,7 @@
     <rule ref="WordPress.Utils.I18nTextDomainFixer"/>
     <rule ref="WordPress.PHP">
         <exclude name="WordPress.PHP.YodaConditions"/>
+        <exclude name="WordPress.PHP.POSIXFunctions"/>
         <exclude name="Universal.Operators.DisallowShortTernary"/>
     </rule>
     <rule ref="WordPress.WP">

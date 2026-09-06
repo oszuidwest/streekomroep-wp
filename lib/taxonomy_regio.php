@@ -1,5 +1,4 @@
 <?php
-// Register Regio Taxonomy
 $labels = [
     'name'                       => 'Regio\'s',
     'singular_name'              => 'Regio',

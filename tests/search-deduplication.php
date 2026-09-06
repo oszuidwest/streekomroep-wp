@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Regression coverage for deduplicating articles and their attached fragments in search.
+ * Covers search deduplication for articles and attached fragments.
  *
  * Run with: composer test:search
  */
@@ -66,7 +66,7 @@ function is_admin(): bool
 }
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace, WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress core test double.
-// ACF stores the relationship as a serialized array in postmeta; the double serves it like MySQL would.
+// Serve ACF's serialized relationship as MySQL would.
 $wpdb = new class {
     public string $postmeta = 'wp_postmeta';
     private array $requested_ids = [];
@@ -94,7 +94,7 @@ $wpdb = new class {
 };
 // phpcs:enable
 
-// The $wpdb double always serves serialize() output, so no not-serialized fallback is needed.
+// The $wpdb double always returns serialized data.
 function maybe_unserialize($data)
 {
     return unserialize((string) $data);

@@ -1,5 +1,4 @@
 <?php
-// Register FM Shows Post Type
 $labels = [
     'name'                  => 'FM programma\'s',
     'singular_name'         => 'FM programma',

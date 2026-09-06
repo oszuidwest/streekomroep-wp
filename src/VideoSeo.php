@@ -65,8 +65,7 @@ class VideoSeo
 
         $videos = VideoCollection::forTvShow(get_the_ID());
 
-        // @phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-        $videoId = wp_unslash($_GET['v']);
+        $videoId = is_string($_GET['v']) ? sanitize_text_field(wp_unslash($_GET['v'])) : '';
         $video = null;
         foreach ($videos as $item) {
             if ($item->getId() == $videoId) {

@@ -256,7 +256,7 @@ class BroadcastSchedule
     }
 
     /**
-     * Returns the next programmed broadcasts, skipping filler such as non-stop music.
+     * Returns upcoming programmed broadcasts without filler.
      *
      * @return RadioBroadcast[]
      */
@@ -265,7 +265,7 @@ class BroadcastSchedule
         $now = Carbon::now(wp_timezone());
         $upcoming = [];
 
-        // Direct appends preserve JSON list semantics and stop work at the requested limit.
+        // Direct appends preserve JSON list semantics.
         foreach ($this->getRadioBroadcasts() as $broadcast) {
             if (count($upcoming) === $limit) {
                 break;
@@ -297,7 +297,7 @@ class BroadcastSchedule
         return self::refreshAfter($current?->end->getTimestamp());
     }
 
-    /** Returns the broadcast immediately following this show's current or next slot. */
+    /** Returns the broadcast after this show's current or next slot. */
     public function getFollowingRadioBroadcast(int $showId)
     {
         $now = Carbon::now(wp_timezone());
