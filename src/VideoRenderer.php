@@ -5,7 +5,7 @@ namespace Streekomroep;
 class VideoRenderer
 {
     /**
-     * Render a VideoJS player for a Video object.
+     * Renders a VideoJS player.
      *
      * @param Video       $video
      * @param string|null $posterUrl Optional poster override; falls back to the Video's thumbnail when empty.
@@ -31,7 +31,7 @@ class VideoRenderer
     }
 
     /**
-     * Resolve a Bunny player URL to a Video object.
+     * Resolves a Bunny player URL to a Video object.
      */
     public static function resolveVideo(string $url): ?Video
     {
@@ -57,7 +57,7 @@ class VideoRenderer
     }
 
     /**
-     * Fetch a video from a Bunny URL and render its player.
+     * Fetches a Bunny video and renders its player.
      *
      * @param string      $url
      * @param string|null $posterUrl Optional poster override forwarded to renderPlayer().

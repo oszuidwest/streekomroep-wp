@@ -6,7 +6,7 @@ use Streekomroep\CollapsibleNormalizer;
  * Sanitizes post content against the theme's HTML allowlist.
  *
  * @param array $data An array of slashed, sanitized, and processed post data.
- * @param array $postarr An array of sanitized (and slashed) but otherwise unmodified post data.
+ * @param array $postarr Sanitized, slashed, otherwise unmodified post data.
  *
  * @return array Sanitized post data.
  */

@@ -1,6 +1,6 @@
 <?php
 
-// After save
+/** Updates fragment metadata and downloads its thumbnail after an ACF save. */
 function zw_bunny_save_thumbnail($post_ID)
 {
     if (!is_int($post_ID)) {
@@ -27,7 +27,6 @@ function zw_bunny_save_thumbnail($post_ID)
 
     $thumbnail_id = get_post_thumbnail_id($post_ID);
     if ($thumbnail_id != 0) {
-        // This fragment already has a thumbnail
         return;
     }
 

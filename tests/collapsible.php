@@ -6,7 +6,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// The HTML API relies on core's UTF-8 helpers; the html-api classes are classmapped in composer.json.
+// The HTML API needs core's UTF-8 helpers; Composer classmaps its classes.
 $core = __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes';
 require $core . '/compat-utf8.php';
 require $core . '/utf8.php';

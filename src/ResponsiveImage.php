@@ -23,7 +23,7 @@ final class ResponsiveImage
     }
 
     /**
-     * Builds imgproxy candidates at explicit widths and the supplied aspect ratio.
+     * Builds imgproxy candidates at explicit widths and an aspect ratio.
      *
      * @param \Timber\ImageInterface|string|null $src Image source accepted by zw_imgproxy().
      * @param int[]                              $widths Candidate widths.

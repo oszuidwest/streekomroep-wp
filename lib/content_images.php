@@ -1,6 +1,6 @@
 <?php
 
-/** Routes eligible JPEG content images through imgproxy with article-column sizing. */
+/** Routes article JPEGs through imgproxy. */
 
 use Streekomroep\Layout;
 use Streekomroep\ResponsiveImage;

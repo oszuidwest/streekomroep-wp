@@ -15,7 +15,7 @@ class Video
     private BunnyCredentials $credentials;
 
     /**
-     * Expects preprocessed data with _broadcastDate and _description properties.
+     * Expects preprocessed _broadcastDate and _description properties.
      * Use VideoCollection::preprocessOne() before constructing.
      */
     public function __construct(BunnyCredentials $credentials, object $data)

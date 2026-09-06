@@ -1,5 +1,4 @@
 <?php
-// Register TV Shows Post Type
 $labels = [
     'name'                  => 'TV programma\'s',
     'singular_name'         => 'TV programma',

@@ -3,17 +3,14 @@ set -e
 
 # Run WordPress setup in background after Apache starts
 (
-    # Wait for WordPress files to be ready
     while [ ! -f /var/www/html/wp-includes/version.php ]; do
         sleep 2
     done
 
-    # Create directories
     mkdir -p /var/www/html/wp-content/uploads
     mkdir -p /var/www/html/wp-content/plugins
     mkdir -p /var/www/html/wp-content/upgrade
 
-    # Install dependencies and build theme assets
     THEME_DIR=/var/www/html/wp-content/themes/streekomroep
     echo "Installing Composer dependencies..."
     composer install --no-dev --no-interaction --working-dir="$THEME_DIR"
@@ -37,10 +34,6 @@ set -e
         fi
     }
 
-    # Wait for database
-    sleep 3
-
-    # Install WordPress if not already installed
     WORDPRESS_WAS_INSTALLED=1
     if ! wp core is-installed --allow-root 2>/dev/null; then
         WORDPRESS_WAS_INSTALLED=0
@@ -63,29 +56,22 @@ set -e
         echo "Installing Yoast SEO Premium ${YOAST_SEO_VERSION}..."
         wp plugin install "https://yoast.com/app/uploads/2026/05/wordpress-seo-premium-${YOAST_SEO_VERSION}.zip" --activate --allow-root || echo "Failed to install Yoast SEO Premium"
 
-        # Secure Custom Fields provides the ACF-compatible APIs the theme needs.
-        # It MUST be installed before the theme is activated: functions.php returns
-        # early (registering no menus/post types) when the ACF API is missing, which
-        # would make the "wp menu location assign" calls below fail on a fresh install.
+        # The theme needs SCF active before it registers the menu locations below.
         install_secure_custom_fields
 
         echo "Installing Classic Editor..."
         wp plugin install classic-editor --activate --allow-root
 
-        # Install Dutch language pack and set as default
         wp language core install nl_NL --allow-root
         wp site switch-language nl_NL --allow-root
 
-        # Activate theme if exists
         wp theme activate streekomroep --allow-root 2>/dev/null || true
 
-        # Configure Yoast social profiles
         echo "Configuring social profiles..."
         wp option patch update wpseo_social facebook_site 'https://www.facebook.com/ZuidWestUpdate' --allow-root
         wp option patch update wpseo_social twitter_site 'zwupdate' --allow-root
         wp option patch update wpseo_social other_social_urls --format=json '["https://www.instagram.com/zuidwestupdate/","https://www.tiktok.com/@zuidwestupdate"]' --allow-root
 
-        # Create top menu (icons for Radio, TV, Search)
         echo "Creating top menu..."
         wp menu create "Top" --allow-root
         wp menu location assign Top top --allow-root
@@ -93,7 +79,6 @@ set -e
         wp menu item add-custom Top "TV" "http://localhost:8080/tv/" --classes="icon-tv" --allow-root
         wp menu item add-custom Top "Zoeken" "http://localhost:8080/zoeken/" --classes="icon-search" --allow-root
 
-        # Create main menu
         echo "Creating main menu..."
         wp menu create "Main" --allow-root
         wp menu location assign Main main --allow-root
@@ -104,12 +89,10 @@ set -e
         wp menu item add-custom Main "Economie" "http://localhost:8080/economie/" --allow-root
         wp menu item add-custom Main "Politiek" "http://localhost:8080/politiek/" --allow-root
 
-        # Create footer menu
         echo "Creating footer menu..."
         wp menu create "Footer" --allow-root
         wp menu location assign Footer footer --allow-root
 
-        # Over ons section
         wp menu item add-custom Footer "Over ons" "#" --allow-root
         OVER_ONS=$(wp menu item list Footer --fields=db_id --format=csv --allow-root | tail -1)
         wp menu item add-custom Footer "Algemene informatie" "http://localhost:8080/algemene-info/" --parent-id=$OVER_ONS --allow-root
@@ -119,14 +102,12 @@ set -e
         wp menu item add-custom Footer "Managementteam" "http://localhost:8080/management-team/" --parent-id=$OVER_ONS --allow-root
         wp menu item add-custom Footer "Colofon" "http://localhost:8080/colofon/" --parent-id=$OVER_ONS --allow-root
 
-        # Adverteren section
         wp menu item add-custom Footer "Adverteren" "#" --allow-root
         ADVERTEREN=$(wp menu item list Footer --fields=db_id --format=csv --allow-root | tail -1)
         wp menu item add-custom Footer "Reclame" "http://localhost:8080/reclame/" --parent-id=$ADVERTEREN --allow-root
         wp menu item add-custom Footer "Videoproducties" "http://localhost:8080/video-producties/" --parent-id=$ADVERTEREN --allow-root
         wp menu item add-custom Footer "Webinars" "http://localhost:8080/webinars/" --parent-id=$ADVERTEREN --allow-root
 
-        # Contact section
         wp menu item add-custom Footer "Contact" "#" --allow-root
         CONTACT=$(wp menu item list Footer --fields=db_id --format=csv --allow-root | tail -1)
         wp menu item add-custom Footer "Tip de redactie" "http://localhost:8080/tip-de-redactie/" --parent-id=$CONTACT --allow-root
@@ -134,7 +115,6 @@ set -e
         wp menu item add-custom Footer "Klachtenprocedure" "http://localhost:8080/klachtenprocedure/" --parent-id=$CONTACT --allow-root
         wp menu item add-custom Footer "Storing melden" "http://localhost:8080/storing-melden/" --parent-id=$CONTACT --allow-root
 
-        # Nieuws section (regional links)
         wp menu item add-custom Footer "Nieuws" "#" --allow-root
         NIEUWS=$(wp menu item list Footer --fields=db_id --format=csv --allow-root | tail -1)
         wp menu item add-custom Footer "Roosendaal" "http://localhost:8080/regio/roosendaal/" --parent-id=$NIEUWS --allow-root
@@ -152,23 +132,21 @@ set -e
         echo "WordPress installed successfully!"
     fi
 
-    # On restarts of an existing install the block above is skipped, so (re)install
-    # SCF here too, ensuring existing installs pick up updates.
+    # Keep SCF current when WordPress was already installed.
     if [ "$WORDPRESS_WAS_INSTALLED" -eq 1 ]; then
         install_secure_custom_fields
     fi
 
-    # Fix permissions AFTER installation
+    # Fix permissions after installation.
     chown -R www-data:www-data /var/www/html/wp-content/uploads
     chown -R www-data:www-data /var/www/html/wp-content/plugins
     chown -R www-data:www-data /var/www/html/wp-content/upgrade
 
-    # Set default ACLs so new files/dirs are automatically owned by www-data
+    # Default ACLs keep new files and directories writable by www-data.
     setfacl -R -d -m u:www-data:rwX /var/www/html/wp-content/uploads
     setfacl -R -d -m u:www-data:rwX /var/www/html/wp-content/plugins
 
     echo "Permissions fixed!"
 ) &
 
-# Call original WordPress entrypoint
 exec docker-entrypoint.sh "$@"

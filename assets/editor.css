@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "./collapsible-icons.css";
 
-/* Load Tailwind config */
 @config "../tailwind.config.js";
 
 html {
@@ -13,13 +12,12 @@ body {
     box-sizing: content-box;
 }
 
-/* First paragraph bold (was .zw-prose) */
 body p:first-child {
     @apply font-bold;
 }
 
-/* Pullquote styles for editor */
-/* Using body instead of .prose because @apply prose doesn't add the class */
+/* Pullquotes. */
+/* @apply does not add the .prose class, so editor styles target body. */
 body blockquote {
     @apply border-0 font-round text-xl text-gray-600 dark:text-white;
     text-transform: none;
@@ -100,7 +98,7 @@ body details.collapsible-item > summary {
     @apply relative flex items-center gap-3 py-3 bg-gray-100 font-bold text-lg leading-snug text-black;
     /* Reserve space for the state control. */
     padding-right: 11rem;
-    /* Keep pseudo-elements available for labels. */
+    /* Reserve space for the expand icon. */
     padding-left: 3.25rem;
     background-image: var(--collapsible-icon-expand);
     background-repeat: no-repeat;

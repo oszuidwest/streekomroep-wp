@@ -25,7 +25,7 @@ npm run build:tailwind
 
 ## Development
 
-The Docker environment provides WordPress 7.0 on PHP 8.3, MariaDB, phpMyAdmin, WP-CLI, and the required development plugins.
+The Docker environment provides WordPress 7.1 on PHP 8.3, MariaDB, phpMyAdmin, WP-CLI, and the required development plugins.
 
 ```bash
 docker compose up -d

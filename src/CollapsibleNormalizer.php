@@ -9,19 +9,16 @@ use WP_HTML_Processor;
  */
 final class CollapsibleNormalizer
 {
-    /** Tags allowed in item content. */
     private const BODY_TAGS = ['P', 'BR', 'UL', 'OL', 'LI', 'A', 'STRONG', 'B', 'EM', 'I', 'IMG', 'IFRAME'];
 
-    /** Block-level tags converted to paragraph breaks. */
     private const BLOCK_TAGS = [
         'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH',
         'DIV', 'DETAILS', 'SUMMARY', 'SECTION', 'ARTICLE', 'ASIDE', 'FIGURE', 'FIGCAPTION', 'HR', 'DL', 'DT', 'DD',
     ];
 
-    /** Text blocks accepted as section titles and item headings. */
     private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
 
-    /** Matches empty paragraphs produced by the editor; the serializer emits non-breaking spaces raw. */
+    /** Matches editor-empty paragraphs and standalone non-breaking spaces. */
     private const EMPTY_PARAGRAPH = '(?:<p>\s*)?\x{00A0}+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
@@ -43,12 +40,12 @@ final class CollapsibleNormalizer
             $output .= $processor->serialize_token();
         }
 
-        // Content without sections, or that the parser cannot handle, is stored byte for byte.
+        // Preserve content byte-for-byte unless a section was parsed completely.
         if (!$changed || $processor->get_last_error() !== null) {
             return $content;
         }
 
-        // Remove editor-generated empty paragraphs next to sections; (*SKIP)(*FAIL) keeps the scan linear.
+        // Remove empty paragraphs beside sections; (*SKIP)(*FAIL) keeps this linear.
         return preg_replace(
             '#(</details>\n</div>)(?:\s*' . self::EMPTY_PARAGRAPH . ')++'
             . '|(?:' . self::EMPTY_PARAGRAPH . '\s*)++(?:(?=<div class="collapsible">\n<h3)|(*SKIP)(*FAIL))#u',
@@ -83,9 +80,9 @@ final class CollapsibleNormalizer
     }
 
     /**
-     * Consumes a disclosure item and replaces its first-child summary with a heading.
+     * Replaces a disclosure item's first-child summary with a heading.
      *
-     * @return array{0: string, 1: bool} Serialized HTML and whether the item was flattened.
+     * @return array{0: string, 1: bool} HTML and whether it was flattened.
      */
     private static function flattenItem(WP_HTML_Processor $processor): array
     {
@@ -123,13 +120,12 @@ final class CollapsibleNormalizer
         return [$opening, false];
     }
 
-    /** Advances to the next token, unless that token closes the element that was current at the given depth. */
+    /** Advances unless the next token closes the element at the given depth. */
     private static function nextInside(WP_HTML_Processor $processor, int $depth): bool
     {
         return $processor->next_token() && $processor->get_current_depth() >= $depth;
     }
 
-    /** Consumes the current section and returns its canonical HTML. */
     private static function section(WP_HTML_Processor $processor): string
     {
         $title = '';
@@ -203,7 +199,6 @@ final class CollapsibleNormalizer
         return ['heading' => $heading, 'body' => self::tidy($body), 'open' => $open];
     }
 
-    /** Collects plain text up to the end of the current element. */
     private static function textUntil(WP_HTML_Processor $processor): string
     {
         $depth = $processor->get_current_depth();
@@ -218,7 +213,6 @@ final class CollapsibleNormalizer
         return trim(preg_replace('#\s+#', ' ', $text) ?? $text);
     }
 
-    /** Serializes supported section content from the current token. */
     private static function token(WP_HTML_Processor $processor): string
     {
         $name = $processor->get_token_name();
@@ -236,7 +230,6 @@ final class CollapsibleNormalizer
         return trim(preg_replace("#[ \t]*\n(?:[ \t]*\n)+#", "\n\n", $html) ?? $html);
     }
 
-    /** Checks whether the current token opens one of the given tags. */
     private static function opens(WP_HTML_Processor $processor, string ...$tags): bool
     {
         return !$processor->is_tag_closer() && in_array($processor->get_token_name(), $tags, true);

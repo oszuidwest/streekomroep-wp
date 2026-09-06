@@ -2,14 +2,14 @@
 
 This is a WordPress theme with some hard dependencies. You can't run it without these dependencies.
 
-1. Install WordPress 7.0+
+1. Install WordPress 7.1+
 2. Install and activate the hard dependencies
 3. Upload the theme to your `wp-content/themes`
 4. Switch to the `streekomroep` theme
 
 ## Requirements
 
-- WordPress 7.0 or higher
+- WordPress 7.1 or higher
 - PHP 8.3 or higher
 
 ## Hard dependencies
