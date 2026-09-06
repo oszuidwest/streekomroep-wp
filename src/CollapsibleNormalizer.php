@@ -60,11 +60,67 @@ final class CollapsibleNormalizer
     /** Replaces disclosure items with headings for feed readers. */
     public static function flatten(string $content): string
     {
-        return preg_replace(
-            '#<details\b[^>]*\bcollapsible-item\b[^>]*>\s*<summary>(.*?)</summary>(.*?)</details>#is',
-            '<h4>$1</h4>$2',
-            $content
-        ) ?? $content;
+        if (!str_contains($content, 'collapsible-item')) {
+            return $content;
+        }
+
+        $processor = WP_HTML_Processor::create_fragment($content);
+        $output = '';
+        $changed = false;
+
+        while ($processor->next_token()) {
+            if (self::opens($processor, 'DETAILS') && $processor->has_class('collapsible-item')) {
+                [$html, $flattened] = self::flattenItem($processor);
+                $output .= $html;
+                $changed = $changed || $flattened;
+                continue;
+            }
+
+            $output .= $processor->serialize_token();
+        }
+
+        return $changed && $processor->get_last_error() === null ? $output : $content;
+    }
+
+    /**
+     * Consumes a disclosure item and replaces its first-child summary with a heading.
+     *
+     * @return array{0: string, 1: bool} Serialized HTML and whether the item was flattened.
+     */
+    private static function flattenItem(WP_HTML_Processor $processor): array
+    {
+        $depth = $processor->get_current_depth();
+        $opening = $processor->serialize_token();
+
+        while (self::nextInside($processor, $depth)) {
+            $token = $processor->serialize_token();
+            if ($processor->get_token_name() === '#text' && trim($token) === '') {
+                $opening .= $token;
+                continue;
+            }
+            if ($processor->get_current_depth() !== $depth + 1 || !self::opens($processor, 'SUMMARY')) {
+                return [$opening . $token, false];
+            }
+
+            $heading = '';
+            $summaryDepth = $processor->get_current_depth();
+            while (self::nextInside($processor, $summaryDepth)) {
+                $heading .= $processor->serialize_token();
+            }
+
+            $body = '';
+            while (self::nextInside($processor, $depth)) {
+                $body .= $processor->serialize_token();
+            }
+
+            return ['<h4>' . $heading . '</h4>' . $body, true];
+        }
+
+        if ($processor->is_tag_closer() && $processor->get_token_name() === 'DETAILS') {
+            $opening .= $processor->serialize_token();
+        }
+
+        return [$opening, false];
     }
 
     /** Advances to the next token, unless that token closes the element that was current at the given depth. */

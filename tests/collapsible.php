@@ -141,6 +141,10 @@ $flattenCases = [
         '<details class="collapsible-item" open><summary>Kop <em>x</em></summary><p>A</p></details><details class="collapsible-item"><summary>Twee</summary><p>B</p></details>',
         '<h4>Kop <em>x</em></h4><p>A</p><h4>Twee</h4><p>B</p>',
     ],
+    'item body with nested details' => [
+        '<details class="collapsible-item"><summary>Buiten</summary><p>Voor</p><details><summary>Binnen</summary><p>Inhoud</p></details><p>Na</p></details><p>Slot</p>',
+        '<h4>Buiten</h4><p>Voor</p><details><summary>Binnen</summary><p>Inhoud</p></details><p>Na</p><p>Slot</p>',
+    ],
     'item whose summary is not the first child is left alone' => $same('<details class="collapsible-item"><details>x</details><summary>S</summary>b</details>'),
     'item without a summary is left alone' => $same('<details class="collapsible-item"><p>A</p></details>'),
     'unrelated details element next to an item' => [
