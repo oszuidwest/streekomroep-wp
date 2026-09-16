@@ -1,6 +1,8 @@
 <?php
 /**
  * Template Name: Colofon
+ *
+ * @package Streekomroep
  */
 
 $context = Timber::context();
@@ -17,7 +19,7 @@ if ($user_ids) {
     foreach ($users as $user) {
         $user_id = $user->ID;
 
-        // count_many_users_posts() skips the get_usernumposts filter Co-Authors Plus uses to count co-authored posts.
+        // Include co-authored posts when deciding whether to link the profile.
         $has_published_posts = ($post_counts[$user_id] ?? 0) > 0 || count_user_posts($user_id, 'post', true) > 0;
 
         $photo_id = get_field('gebruiker_profielfoto', 'user_' . $user_id);
