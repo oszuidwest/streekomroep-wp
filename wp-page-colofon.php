@@ -17,22 +17,8 @@ if ($user_ids) {
     foreach ($users as $user) {
         $user_id = $user->ID;
 
-        $has_published_posts = ($post_counts[$user_id] ?? 0) > 0;
-        if (!$has_published_posts) {
-            // count_many_users_posts() ignores Co-Authors Plus taxonomy assignments.
-            $author_query = new WP_Query([
-                'author_name' => $user->user_nicename,
-                'post_type' => 'post',
-                'post_status' => 'publish',
-                'posts_per_page' => 1,
-                'fields' => 'ids',
-                'no_found_rows' => true,
-                'ignore_sticky_posts' => true,
-                'update_post_meta_cache' => false,
-                'update_post_term_cache' => false,
-            ]);
-            $has_published_posts = !empty($author_query->posts);
-        }
+        // count_many_users_posts() skips the get_usernumposts filter Co-Authors Plus uses to count co-authored posts.
+        $has_published_posts = ($post_counts[$user_id] ?? 0) > 0 || count_user_posts($user_id, 'post', true) > 0;
 
         $photo_id = get_field('gebruiker_profielfoto', 'user_' . $user_id);
 
