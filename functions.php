@@ -142,11 +142,6 @@ require_once 'lib/search.php';
 require_once 'lib/collapsible.php';
 require_once 'lib/tinymce.php';
 
-// TODO: Remove this loader and migration after rollout.
-if (is_admin()) {
-    require_once 'lib/migration_fm_makers.php';
-}
-
 add_filter('timber/post/classmap', function ($base) {
     $custom = [
         'post' => \Streekomroep\Post::class,
