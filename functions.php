@@ -985,17 +985,26 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
-/** Enqueues the dependency-free FM live player. */
+/** Enqueues the FM live player and its HLS adapter. */
 function zw_enqueue_fm_live_assets()
 {
     if (!is_page_template('wp-page-fm-player.php')) {
         return;
     }
 
+    $hlsjsVersion = '1.7.3';
+    wp_enqueue_script(
+        'hls-js',
+        'https://cdn.jsdelivr.net/npm/hls.js@' . $hlsjsVersion . '/dist/hls.min.js',
+        [],
+        $hlsjsVersion,
+        ['strategy' => 'defer', 'in_footer' => true]
+    );
+
     wp_enqueue_script(
         'zw-fm-live',
         get_theme_file_uri('static/fm-live.js'),
-        [],
+        ['hls-js'],
         wp_get_theme()->get('Version'),
         ['strategy' => 'defer', 'in_footer' => true]
     );
