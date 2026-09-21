@@ -32,10 +32,11 @@ $context['upcoming'] = array_map(fn ($broadcast) => $broadcast->toArray(), $sche
 // Browser fallback needs accurate types. Icecast serves raw ADTS as audio/aac;
 // labeling it audio/mp4 can prevent fallback to MP3.
 $streamTypes = [
+    // Prefer HLS in the web player: its timed ID3 metadata shares the audio timeline.
+    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
     'radio_webplayer_aac_stream' => 'audio/aac',
     'radio_webplayer_mp3_stream' => 'audio/mpeg',
     'radio_webplayer_ogg_stream' => 'audio/ogg',
-    'radio_webplayer_hls_stream' => 'application/x-mpegURL',
 ];
 
 $context['stream_sources'] = [];

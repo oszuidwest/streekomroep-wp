@@ -55,7 +55,7 @@
             "label": "HLS Stream",
             "name": "radio_webplayer_hls_stream",
             "type": "url",
-            "instructions": "",
+            "instructions": "Voorkeursstream voor de webplayer. Timed ID3 houdt de titel gelijk met de audio; AAC, MP3 en OGG blijven fallbacks.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -84,5 +84,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1786006704
+    "modified": 1789945024
 }
