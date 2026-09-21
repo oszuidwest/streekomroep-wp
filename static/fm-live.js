@@ -27,8 +27,6 @@
     let isPlaying = false;
     let hls = null;
     let hlsMetadataActive = false;
-    let timedMetadataTimer = null;
-    const timedMetadataCues = [];
 
     function updateMediaSession() {
         if (!('mediaSession' in navigator)) {
@@ -59,68 +57,6 @@
         return title && artist ? {title: title, artist: artist} : null;
     }
 
-    function readSyncSafeInteger(bytes, offset) {
-        return ((bytes[offset] & 0x7f) << 21)
-            | ((bytes[offset + 1] & 0x7f) << 14)
-            | ((bytes[offset + 2] & 0x7f) << 7)
-            | (bytes[offset + 3] & 0x7f);
-    }
-
-    function readUnsignedInteger(bytes, offset) {
-        return ((bytes[offset] << 24) >>> 0)
-            + (bytes[offset + 1] << 16)
-            + (bytes[offset + 2] << 8)
-            + bytes[offset + 3];
-    }
-
-    function decodeId3Text(bytes) {
-        if (!bytes.length) {
-            return '';
-        }
-
-        const encodings = ['windows-1252', 'utf-16', 'utf-16be', 'utf-8'];
-        const encoding = encodings[bytes[0]] || 'utf-8';
-        return new TextDecoder(encoding)
-            .decode(bytes.slice(1))
-            .replaceAll('\u0000', '')
-            .trim();
-    }
-
-    function readId3Track(data) {
-        const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-        if (bytes.length < 10 || String.fromCharCode(...bytes.slice(0, 3)) !== 'ID3') {
-            return null;
-        }
-
-        const version = bytes[3];
-        const tagEnd = Math.min(bytes.length, 10 + readSyncSafeInteger(bytes, 6));
-        const values = {};
-        let offset = 10;
-
-        while (offset + 10 <= tagEnd) {
-            const frame = String.fromCharCode(...bytes.slice(offset, offset + 4));
-            if (!/^[A-Z0-9]{4}$/.test(frame)) {
-                break;
-            }
-
-            const size = version === 4
-                ? readSyncSafeInteger(bytes, offset + 4)
-                : readUnsignedInteger(bytes, offset + 4);
-            const valueStart = offset + 10;
-            const valueEnd = valueStart + size;
-            if (size <= 0 || valueEnd > tagEnd) {
-                break;
-            }
-
-            if (frame === 'TIT2' || frame === 'TPE1') {
-                values[frame] = decodeId3Text(bytes.slice(valueStart, valueEnd));
-            }
-            offset = valueEnd;
-        }
-
-        return readTrack({title: values.TIT2, artist: values.TPE1});
-    }
-
     let expiryTimer = null;
     function renderNow(track) {
         const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
@@ -148,47 +84,6 @@
         renderNow(null);
     }
 
-    function renderTimedTrack(track) {
-        clearTimeout(expiryTimer);
-        expiryTimer = null;
-        renderNow(track);
-    }
-
-    function queueTimedMetadata(sample) {
-        const track = readId3Track(sample.data);
-        if (!track || !Number.isFinite(sample.pts)) {
-            return;
-        }
-
-        timedMetadataCues.push({pts: sample.pts, track: track});
-        timedMetadataCues.sort((left, right) => left.pts - right.pts);
-    }
-
-    function syncTimedMetadata() {
-        if (!hlsMetadataActive || !streamElement) {
-            return;
-        }
-
-        let due = null;
-        while (timedMetadataCues.length && timedMetadataCues[0].pts <= streamElement.currentTime + 0.05) {
-            due = timedMetadataCues.shift();
-        }
-        if (due) {
-            renderTimedTrack(due.track);
-        }
-    }
-
-    function startTimedMetadata() {
-        clearInterval(timedMetadataTimer);
-        syncTimedMetadata();
-        timedMetadataTimer = setInterval(syncTimedMetadata, 100);
-    }
-
-    function stopTimedMetadata() {
-        clearInterval(timedMetadataTimer);
-        timedMetadataTimer = null;
-    }
-
     function trackIsCurrent(expiresAt) {
         clearTimeout(expiryTimer);
         const remaining = Date.parse(expiresAt) - Date.now();
@@ -211,9 +106,6 @@
 
     function scheduleReconnect() {
         clearTimeout(reconnectTimer);
-        if (hlsMetadataActive) {
-            return;
-        }
         // A hidden tab cannot show the metadata, but the lock screen still can while playing.
         if (document.hidden && !isPlaying) {
             return;
@@ -274,7 +166,7 @@
     }
 
     function resumeFeeds() {
-        if (!hlsMetadataActive && (!socket || socket.readyState >= WebSocket.CLOSING)) {
+        if (!socket || socket.readyState >= WebSocket.CLOSING) {
             connectMetadata();
         }
 
@@ -575,28 +467,31 @@
         renderVolume();
     }
 
-    function useNativeTimedMetadata() {
-        const readCue = function (cue) {
-            const value = cue.value;
-            if (value instanceof ArrayBuffer) {
-                return readId3Track(value);
-            }
-            if (ArrayBuffer.isView(value)) {
-                return readId3Track(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength));
-            }
-            return null;
-        };
-
+    // hls.js and Safari's native HLS both surface timed ID3 as cues on a hidden metadata track,
+    // one frame per cue with value {key, data}. The browser fires cuechange on the audio clock,
+    // so the title flips when the listener hears the change.
+    function watchTimedMetadata() {
         const watchTrack = function (track) {
             if (track.kind !== 'metadata') {
                 return;
             }
             track.mode = 'hidden';
             track.addEventListener('cuechange', function () {
-                const cues = Array.from(track.activeCues || []);
-                const timedTrack = cues.map(readCue).find(Boolean);
+                // After a fallback the socket owns the display, even if Safari re-selects HLS natively.
+                if (!hlsMetadataActive) {
+                    return;
+                }
+
+                const frames = {};
+                for (const cue of track.activeCues || []) {
+                    if (cue.value?.key) {
+                        frames[cue.value.key] = cue.value.data;
+                    }
+                }
+
+                const timedTrack = readTrack({title: frames.TIT2, artist: frames.TPE1});
                 if (timedTrack) {
-                    renderTimedTrack(timedTrack);
+                    renderNow(timedTrack);
                 }
             });
         };
@@ -607,16 +502,10 @@
 
     function useIcecastFallback() {
         const resume = isPlaying;
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-
-        stopTimedMetadata();
-        timedMetadataCues.length = 0;
+        // destroy() drops the blob src and reloads the element, so the <source> list applies again.
+        hls.destroy();
+        hls = null;
         hlsMetadataActive = false;
-        streamElement.removeAttribute('src');
-        streamElement.load();
         renderFallback();
         connectMetadata();
 
@@ -632,11 +521,7 @@
 
         const Hls = window.Hls;
         if (Hls?.isSupported()) {
-            hlsMetadataActive = true;
             hls = new Hls({autoStartLoad: false});
-            hls.on(Hls.Events.FRAG_PARSING_METADATA, function (_event, data) {
-                data.samples.forEach(queueTimedMetadata);
-            });
             hls.on(Hls.Events.ERROR, function (_event, data) {
                 if (data.fatal) {
                     useIcecastFallback();
@@ -644,14 +529,13 @@
             });
             hls.loadSource(hlsSource.src);
             hls.attachMedia(streamElement);
+        } else if (!streamElement.canPlayType(hlsSource.type)) {
+            // No MSE and no native HLS: the browser walks on to the Icecast sources.
             return;
         }
 
-        // Safari can expose native HLS timed ID3 as metadata text-track cues.
-        if (streamElement.canPlayType(hlsSource.type)) {
-            hlsMetadataActive = true;
-            useNativeTimedMetadata();
-        }
+        hlsMetadataActive = true;
+        watchTimedMetadata();
     }
 
     function setupPlayer() {
@@ -702,16 +586,8 @@
             resumeFeeds();
         };
 
-        streamElement.addEventListener('playing', function () {
-            setPlaying(true);
-            if (hlsMetadataActive) {
-                startTimedMetadata();
-            }
-        });
-        streamElement.addEventListener('pause', function () {
-            setPlaying(false);
-            stopTimedMetadata();
-        });
+        streamElement.addEventListener('playing', () => setPlaying(true));
+        streamElement.addEventListener('pause', () => setPlaying(false));
         // Fires for a source that dies after it was already selected, such as a mid-stream decode
         // failure. Running out of candidates does not reach this handler.
         streamElement.addEventListener('error', () => setPlaying(false));
