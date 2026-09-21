@@ -12,6 +12,9 @@
     const radioPage = document.querySelector('[data-radio-live]');
     const streamElement = document.getElementById('zw-fm-stream');
     const hlsSource = streamElement?.querySelector('source[type="application/x-mpegURL"]');
+    const icecastSources = streamElement
+        ? Array.from(streamElement.querySelectorAll('source:not([type="application/x-mpegURL"])'), (source) => source.cloneNode())
+        : [];
     const titleNode = document.querySelector('[data-now-title]');
     const artistNode = document.querySelector('[data-now-artist]');
     let fallbackTitle = titleNode ? titleNode.textContent : '';
@@ -26,7 +29,10 @@
     let currentTrack = null;
     let isPlaying = false;
     let hls = null;
+    let hlsSetup = false;
     let hlsMetadataActive = false;
+    let hlsMediaErrorRecovered = false;
+    let hlsRecovering = false;
 
     function updateMediaSession() {
         if (!('mediaSession' in navigator)) {
@@ -107,7 +113,7 @@
     function scheduleReconnect() {
         clearTimeout(reconnectTimer);
         // A hidden tab cannot show the metadata, but the lock screen still can while playing.
-        if (document.hidden && !isPlaying) {
+        if (hlsMetadataActive || (document.hidden && !isPlaying)) {
             return;
         }
 
@@ -116,7 +122,14 @@
     }
 
     function connectMetadata() {
-        if (hlsMetadataActive || !radioPage || !radioPage.dataset.metadataUrl || !('WebSocket' in window)) {
+        if (
+            hlsMetadataActive
+            || (document.hidden && !isPlaying)
+            || !radioPage
+            || !radioPage.dataset.metadataUrl
+            || !('WebSocket' in window)
+            || (socket && socket.readyState < WebSocket.CLOSING)
+        ) {
             return;
         }
 
@@ -134,6 +147,10 @@
         });
 
         socket.addEventListener('message', function (event) {
+            if (hlsMetadataActive) {
+                return;
+            }
+
             let payload;
             try {
                 payload = JSON.parse(event.data);
@@ -163,6 +180,30 @@
 
         // Reconnect from `close` so failed and clean disconnects share one path.
         socket.addEventListener('close', scheduleReconnect);
+    }
+
+    function setHlsMetadataActive(active) {
+        if (hlsMetadataActive === active) {
+            if (!active) {
+                connectMetadata();
+            }
+            return;
+        }
+
+        hlsMetadataActive = active;
+        if (!active) {
+            connectMetadata();
+            return;
+        }
+
+        clearTimeout(expiryTimer);
+        expiryTimer = null;
+        clearTimeout(reconnectTimer);
+        if (socket) {
+            socket.removeEventListener('close', scheduleReconnect);
+            socket.close();
+            socket = null;
+        }
     }
 
     function resumeFeeds() {
@@ -477,7 +518,7 @@
             }
             track.mode = 'hidden';
             track.addEventListener('cuechange', function () {
-                // After a fallback the socket owns the display, even if Safari re-selects HLS natively.
+                // Ignore stale cues while the socket or an Icecast source owns the display.
                 if (!hlsMetadataActive) {
                     return;
                 }
@@ -489,10 +530,7 @@
                     }
                 }
 
-                const timedTrack = readTrack({title: frames.TIT2, artist: frames.TPE1});
-                if (timedTrack) {
-                    renderNow(timedTrack);
-                }
+                renderNow(readTrack({title: frames.TIT2, artist: frames.TPE1}));
             });
         };
 
@@ -502,12 +540,18 @@
 
     function useIcecastFallback() {
         const resume = isPlaying;
-        // destroy() drops the blob src and reloads the element, so the <source> list applies again.
+        hlsRecovering = false;
         hls.destroy();
         hls = null;
-        hlsMetadataActive = false;
+
+        // ManagedMediaSource removes every source child, including the Icecast fallbacks.
+        if (!streamElement.querySelector('source:not([type="application/x-mpegURL"])')) {
+            icecastSources.forEach((source) => streamElement.appendChild(source.cloneNode()));
+        }
+
         renderFallback();
-        connectMetadata();
+        setHlsMetadataActive(false);
+        streamElement.load();
 
         if (resume) {
             streamElement.play()?.catch(() => {});
@@ -515,17 +559,28 @@
     }
 
     function setupHls() {
-        if (!hlsSource) {
+        if (hlsSetup || !hlsSource) {
             return;
         }
+        hlsSetup = true;
 
         const Hls = window.Hls;
         if (Hls?.isSupported()) {
             hls = new Hls({autoStartLoad: false});
             hls.on(Hls.Events.ERROR, function (_event, data) {
-                if (data.fatal) {
-                    useIcecastFallback();
+                if (!data.fatal) {
+                    return;
                 }
+
+                if (data.type === Hls.ErrorTypes.MEDIA_ERROR && !hlsMediaErrorRecovered) {
+                    hlsMediaErrorRecovered = true;
+                    hlsRecovering = true;
+                    hls.recoverMediaError();
+                    streamElement.play()?.catch(() => {});
+                    return;
+                }
+
+                useIcecastFallback();
             });
             hls.loadSource(hlsSource.src);
             hls.attachMedia(streamElement);
@@ -534,7 +589,6 @@
             return;
         }
 
-        hlsMetadataActive = true;
         watchTimedMetadata();
     }
 
@@ -568,12 +622,16 @@
         };
 
         const startPlayback = function () {
+            hlsRecovering = false;
+            setupHls();
             if (hls) {
+                hls.once(window.Hls.Events.LEVEL_UPDATED, function () {
+                    const livePosition = hls?.liveSyncPosition;
+                    if (Number.isFinite(livePosition) && livePosition - streamElement.currentTime > 2) {
+                        streamElement.currentTime = livePosition;
+                    }
+                });
                 hls.startLoad(-1);
-                const livePosition = hls.liveSyncPosition;
-                if (Number.isFinite(livePosition) && livePosition - streamElement.currentTime > 2) {
-                    streamElement.currentTime = livePosition;
-                }
             } else {
                 // Reload native sources before playing so a live stream resumes at its edge.
                 streamElement.load();
@@ -586,8 +644,21 @@
             resumeFeeds();
         };
 
-        streamElement.addEventListener('playing', () => setPlaying(true));
-        streamElement.addEventListener('pause', () => setPlaying(false));
+        streamElement.addEventListener('playing', function () {
+            hlsRecovering = false;
+            setHlsMetadataActive(Boolean(hls || (hlsSource && streamElement.currentSrc === hlsSource.src)));
+            setPlaying(true);
+        });
+        streamElement.addEventListener('pause', function () {
+            if (hlsRecovering) {
+                return;
+            }
+
+            setPlaying(false);
+            renderFallback();
+            hls?.stopLoad();
+            setHlsMetadataActive(false);
+        });
         // Fires for a source that dies after it was already selected, such as a mid-stream decode
         // failure. Running out of candidates does not reach this handler.
         streamElement.addEventListener('error', () => setPlaying(false));
@@ -596,7 +667,12 @@
         // the element itself, so the button would sit on "Pauzeer" forever after a failed start.
         // Each rejected candidate fires its own error, which capture picks up on the way down, and
         // the network state settles one task later.
-        streamElement.addEventListener('error', function () {
+        streamElement.addEventListener('error', function (event) {
+            if (event.target === hlsSource) {
+                renderFallback();
+                setHlsMetadataActive(false);
+            }
+
             setTimeout(function () {
                 if (streamElement.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                     setPlaying(false);
@@ -627,8 +703,6 @@
         if (volumeGroup) {
             setupVolume(streamElement, volumeGroup);
         }
-
-        setupHls();
     }
 
     startProgress();
