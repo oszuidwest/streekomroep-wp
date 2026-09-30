@@ -1,94 +1,49 @@
 <?php
 
 /**
- * Adds the media file of fragments to feeds as an RSS enclosure.
+ * Stores the media file of fragments as core `enclosure` meta, which
+ * WordPress prints in RSS and Atom feeds.
  */
 
 use Streekomroep\Fragment;
-use Streekomroep\VideoRenderer;
-
-const ZW_FRAGMENT_ENCLOSURE_META = '_zw_fragment_enclosure';
+use Timber\Timber;
 
 /**
- * Returns the cached enclosure of a fragment: the Bunny MP4 for video, the
- * linked MP3 for audio.
- *
- * Resolving hits the Bunny API and the media host, so results are stored in
- * post meta per source URL. Failures (e.g. a video that is still encoding) are
- * retried after a short delay.
- *
- * @return array{source: string, url: string, length: int, type: string}|null
+ * Resolves the enclosure off the feed request: it costs a Bunny API call and a
+ * HEAD request. Unavailable media (e.g. a video still encoding) clears it.
  */
-function zw_fragment_enclosure(int $post_id): ?array
+function zw_fragment_update_enclosure(Fragment $fragment): void
 {
-    $fragment_type = get_field('fragment_type', $post_id);
-    if (!in_array($fragment_type, [Fragment::TYPE_VIDEO, Fragment::TYPE_AUDIO], true)) {
-        return null;
-    }
-
-    $source = trim((string) get_field('fragment_url', $post_id, false));
-    if ($source === '') {
-        return null;
-    }
-
-    $cached = get_post_meta($post_id, ZW_FRAGMENT_ENCLOSURE_META, true);
-    if (is_array($cached) && ($cached['source'] ?? null) === $source) {
-        return $cached;
-    }
-
-    $retry_key = 'zw_fragment_enclosure_retry_' . md5($source);
-    if (get_transient($retry_key)) {
-        return null;
-    }
-
-    $url = null;
-    $mime_type = 'audio/mpeg';
-    if ($fragment_type === Fragment::TYPE_VIDEO) {
-        $video = VideoRenderer::resolveVideo($source);
-        if ($video && $video->isAvailable()) {
-            $url = $video->getMP4Url();
-            $mime_type = 'video/mp4';
-        }
-    } elseif (wp_http_validate_url($source)) {
-        $url = $source;
-    }
-
-    $enclosure = null;
-    if ($url) {
-        $response = wp_safe_remote_head($url, ['timeout' => 10, 'redirection' => 5]);
+    $source = $fragment->getSources()[0] ?? null;
+    if ($source) {
+        $response = wp_safe_remote_head($source['src'], ['timeout' => 10, 'redirection' => 5]);
         $length = (int) wp_remote_retrieve_header($response, 'content-length');
         if (wp_remote_retrieve_response_code($response) === 200 && $length > 0) {
-            $enclosure = ['source' => $source, 'url' => $url, 'length' => $length, 'type' => $mime_type];
+            update_post_meta($fragment->ID, 'enclosure', implode("\n", [$source['src'], $length, $source['type']]));
+            return;
         }
     }
 
-    if (!$enclosure) {
-        set_transient($retry_key, 1, 10 * MINUTE_IN_SECONDS);
-        return null;
-    }
-
-    update_post_meta($post_id, ZW_FRAGMENT_ENCLOSURE_META, $enclosure);
-
-    return $enclosure;
+    delete_post_meta($fragment->ID, 'enclosure');
 }
 
-function zw_fragment_feed_enclosure(): void
-{
-    if (get_post_type() !== 'fragment') {
-        return;
+add_action('acf/save_post', function ($post_id) {
+    if (is_int($post_id) && get_post_type($post_id) === 'fragment') {
+        zw_fragment_update_enclosure(Timber::get_post($post_id));
     }
+});
 
-    $enclosure = zw_fragment_enclosure(get_the_ID());
-    if (!$enclosure) {
-        return;
+// Retry feed items without an enclosure, e.g. videos that finished encoding.
+add_action('zw_10mins', function () {
+    $fragments = Timber::get_posts([
+        'post_type' => 'fragment',
+        'posts_per_page' => get_option('posts_per_rss'),
+        'ignore_sticky_posts' => true,
+    ]);
+
+    foreach ($fragments as $fragment) {
+        if (!get_post_meta($fragment->ID, 'enclosure', true)) {
+            zw_fragment_update_enclosure($fragment);
+        }
     }
-
-    printf(
-        "<enclosure url=\"%s\" length=\"%d\" type=\"%s\" />\n",
-        esc_url($enclosure['url']),
-        $enclosure['length'],
-        esc_attr($enclosure['type'])
-    );
-}
-
-add_action('rss2_item', 'zw_fragment_feed_enclosure');
+});

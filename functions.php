@@ -295,20 +295,7 @@ function zw_rest_api_init()
         'sources',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $type = get_field('fragment_type', $post_arr['id']);
-                if ($type === \Streekomroep\Fragment::TYPE_VIDEO) {
-                    $url = get_field('fragment_url', $post_arr['id'], false);
-                    $video = \Streekomroep\VideoRenderer::resolveVideo($url);
-                    if ($video && $video->isAvailable()) {
-                        return $video->getSources();
-                    }
-                } elseif ($type === \Streekomroep\Fragment::TYPE_AUDIO) {
-                    return [
-                        ['type' => 'audio/mpeg', 'src' => get_field('fragment_url', $post_arr['id'], false)]
-                    ];
-                }
-
-                return [];
+                return Timber::get_post($post_arr['id'])->getSources();
             },
         ]
     );
