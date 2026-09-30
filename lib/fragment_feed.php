@@ -14,7 +14,13 @@ use Timber\Timber;
  */
 function zw_fragment_update_enclosure(Fragment $fragment): void
 {
-    $source = $fragment->getSources()[0] ?? null;
+    try {
+        $source = $fragment->getSources()[0] ?? null;
+    } catch (Throwable $error) {
+        error_log('Failed to resolve enclosure for fragment ' . $fragment->ID . ': ' . $error->getMessage());
+        $source = null;
+    }
+
     if ($source) {
         $response = wp_safe_remote_head($source['src'], ['timeout' => 10, 'redirection' => 5]);
         $length = (int) wp_remote_retrieve_header($response, 'content-length');
@@ -35,15 +41,19 @@ add_action('acf/save_post', function ($post_id) {
 
 // Retry feed items without an enclosure, e.g. videos that finished encoding.
 add_action('zw_10mins', function () {
+    $batch_size = (int) get_option('posts_per_rss');
+    $page = (int) get_option('zw_fragment_enclosure_page', 1);
     $fragments = Timber::get_posts([
         'post_type' => 'fragment',
-        'posts_per_page' => get_option('posts_per_rss'),
-        'ignore_sticky_posts' => true,
+        'posts_per_page' => $batch_size,
+        'paged' => $page,
+        'no_found_rows' => true,
+        'meta_key' => 'enclosure',
+        'meta_compare' => 'NOT EXISTS',
     ]);
 
+    update_option('zw_fragment_enclosure_page', count($fragments) < $batch_size ? 1 : $page + 1, false);
     foreach ($fragments as $fragment) {
-        if (!get_post_meta($fragment->ID, 'enclosure', true)) {
-            zw_fragment_update_enclosure($fragment);
-        }
+        zw_fragment_update_enclosure($fragment);
     }
 });
