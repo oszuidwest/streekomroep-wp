@@ -33,6 +33,8 @@
     let hlsMetadataActive = false;
     let hlsMediaErrorRecovered = false;
     let hlsRecovering = false;
+    let playbackRequested = false;
+    let playbackAttempt = 0;
 
     function updateMediaSession() {
         if (!('mediaSession' in navigator)) {
@@ -518,11 +520,6 @@
             }
             track.mode = 'hidden';
             track.addEventListener('cuechange', function () {
-                // Ignore stale cues while the socket or an Icecast source owns the display.
-                if (!hlsMetadataActive) {
-                    return;
-                }
-
                 const frames = {};
                 for (const cue of track.activeCues || []) {
                     if (cue.value?.key) {
@@ -530,7 +527,15 @@
                     }
                 }
 
-                renderNow(readTrack({title: frames.TIT2, artist: frames.TPE1}));
+                const trackData = readTrack({title: frames.TIT2, artist: frames.TPE1});
+                if (!trackData) {
+                    return;
+                }
+
+                // Native HLS support does not guarantee timed-metadata support. Keep the socket
+                // alive until a browser proves it can provide a complete ID3 track itself.
+                setHlsMetadataActive(true);
+                renderNow(trackData);
             });
         };
 
@@ -539,21 +544,28 @@
     }
 
     function useIcecastFallback() {
-        const resume = isPlaying;
+        const resume = playbackRequested;
+        const replaceHlsMetadata = hlsMetadataActive;
         hlsRecovering = false;
-        hls.destroy();
+        hls?.destroy();
         hls = null;
 
-        // ManagedMediaSource removes every source child, including the Icecast fallbacks.
-        if (!streamElement.querySelector('source:not([type="application/x-mpegURL"])')) {
-            icecastSources.forEach((source) => streamElement.appendChild(source.cloneNode()));
-        }
+        // hls.js can leave its revoked blob URL on the media element when a <source> child wins
+        // mediaSrc detection. Remove both that URL and HLS itself before native source selection;
+        // otherwise load() picks the dead blob or retries HLS instead of reaching Icecast.
+        streamElement.removeAttribute('src');
+        streamElement.replaceChildren(...icecastSources.map((source) => source.cloneNode()));
 
-        renderFallback();
+        // Preserve a current WebSocket title when HLS fails before its first usable ID3 cue.
+        // Once HLS owned the display, clear its now-stale title while the socket reconnects.
+        if (replaceHlsMetadata) {
+            renderFallback();
+        }
         setHlsMetadataActive(false);
         streamElement.load();
 
         if (resume) {
+            playbackAttempt++;
             streamElement.play()?.catch(() => {});
         }
     }
@@ -574,9 +586,15 @@
 
                 if (data.type === Hls.ErrorTypes.MEDIA_ERROR && !hlsMediaErrorRecovered) {
                     hlsMediaErrorRecovered = true;
-                    hlsRecovering = true;
+                    hlsRecovering = playbackRequested;
                     hls.recoverMediaError();
-                    streamElement.play()?.catch(() => {});
+                    // hls.js stops loading before emitting a terminal error. recoverMediaError()
+                    // only restarts a previously active instance, so resume it explicitly.
+                    if (playbackRequested) {
+                        hls.startLoad(-1);
+                        playbackAttempt++;
+                        streamElement.play()?.catch(() => {});
+                    }
                     return;
                 }
 
@@ -620,9 +638,14 @@
                 navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
             }
         };
+        const stopPlayback = function () {
+            playbackRequested = false;
+            playbackAttempt++;
+            streamElement.pause();
+        };
 
         const startPlayback = function () {
-            hlsRecovering = false;
+            playbackRequested = true;
             setupHls();
             if (hls) {
                 hls.once(window.Hls.Events.LEVEL_UPDATED, function () {
@@ -636,7 +659,16 @@
                 // Reload native sources before playing so a live stream resumes at its edge.
                 streamElement.load();
             }
-            streamElement.play()?.catch(() => setPlaying(false));
+            const attempt = ++playbackAttempt;
+            streamElement.play()?.catch(() => {
+                // A newer play or pause request owns the state. In particular, hls.js recovery
+                // can abort an older play() promise after its replacement is already running.
+                if (attempt !== playbackAttempt) {
+                    return;
+                }
+                playbackRequested = false;
+                setPlaying(false);
+            });
             setPlaying(true);
             updateMediaSession();
 
@@ -646,22 +678,35 @@
 
         streamElement.addEventListener('playing', function () {
             hlsRecovering = false;
-            setHlsMetadataActive(Boolean(hls || (hlsSource && streamElement.currentSrc === hlsSource.src)));
             setPlaying(true);
         });
         streamElement.addEventListener('pause', function () {
-            if (hlsRecovering) {
+            // Some engines briefly pause the media element while hls.js swaps codecs during
+            // recovery. Only suppress that internal pause: a user action clears the requested
+            // state before pause() and must still stop loading immediately.
+            if (hlsRecovering && playbackRequested) {
                 return;
             }
 
+            hlsRecovering = false;
+            // A browser can pause playback itself after lost audio focus, unplugged headphones,
+            // or an incoming call. Treat that exactly like an explicit stop so a later HLS error
+            // cannot unexpectedly resume audio through recovery or the Icecast fallback.
+            if (playbackRequested) {
+                playbackRequested = false;
+                playbackAttempt++;
+            }
             setPlaying(false);
-            renderFallback();
             hls?.stopLoad();
             setHlsMetadataActive(false);
         });
         // Fires for a source that dies after it was already selected, such as a mid-stream decode
         // failure. Running out of candidates does not reach this handler.
-        streamElement.addEventListener('error', () => setPlaying(false));
+        streamElement.addEventListener('error', function () {
+            playbackRequested = false;
+            playbackAttempt++;
+            setPlaying(false);
+        });
 
         // Exhausting every <source> leaves the element in NETWORK_NO_SOURCE and fires no error on
         // the element itself, so the button would sit on "Pauzeer" forever after a failed start.
@@ -669,7 +714,11 @@
         // the network state settles one task later.
         streamElement.addEventListener('error', function (event) {
             if (event.target === hlsSource) {
-                renderFallback();
+                // A browser without HLS support can reject this candidate while the WebSocket
+                // already shows a valid track. Only discard metadata that actually came from HLS.
+                if (hlsMetadataActive) {
+                    renderFallback();
+                }
                 setHlsMetadataActive(false);
             }
 
@@ -682,7 +731,7 @@
 
         button.addEventListener('click', function () {
             if (!streamElement.paused) {
-                streamElement.pause();
+                stopPlayback();
                 return;
             }
 
@@ -691,9 +740,9 @@
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.setActionHandler('play', startPlayback);
-            navigator.mediaSession.setActionHandler('pause', () => streamElement.pause());
+            navigator.mediaSession.setActionHandler('pause', stopPlayback);
             try {
-                navigator.mediaSession.setActionHandler('stop', () => streamElement.pause());
+                navigator.mediaSession.setActionHandler('stop', stopPlayback);
             } catch (error) {
                 // Some browsers expose Media Session without the `stop` action.
             }
