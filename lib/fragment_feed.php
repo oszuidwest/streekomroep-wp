@@ -14,11 +14,17 @@ use Timber\Timber;
  */
 function zw_fragment_update_enclosure(Fragment $fragment): void
 {
+    $source_url = $fragment->meta('fragment_url', ['format_value' => false]);
     try {
         $source = $fragment->getSources()[0] ?? null;
     } catch (Throwable $error) {
         error_log('Failed to resolve enclosure for fragment ' . $fragment->ID . ': ' . $error->getMessage());
         $source = null;
+    }
+
+    wp_cache_delete($fragment->ID, 'post_meta');
+    if ($source_url !== get_post_meta($fragment->ID, 'fragment_url', true)) {
+        return;
     }
 
     if ($source) {
@@ -35,6 +41,7 @@ function zw_fragment_update_enclosure(Fragment $fragment): void
 
 add_action('acf/save_post', function ($post_id) {
     if (is_int($post_id) && get_post_type($post_id) === 'fragment') {
+        delete_post_meta($post_id, 'enclosure');
         zw_fragment_update_enclosure(Timber::get_post($post_id));
     }
 });
