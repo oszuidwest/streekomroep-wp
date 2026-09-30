@@ -1,17 +1,14 @@
 <?php
 
 /**
- * Stores the media file of fragments as core `enclosure` meta, which
- * WordPress prints in RSS and Atom feeds.
+ * Stores the media file of fragments as core `enclosure` meta, which WordPress
+ * prints in RSS and Atom feeds. Resolving costs a Bunny API call and a HEAD
+ * request, so it runs off the feed request. Unavailable media clears it.
  */
 
 use Streekomroep\Fragment;
 use Timber\Timber;
 
-/**
- * Resolves the enclosure off the feed request: it costs a Bunny API call and a
- * HEAD request. Unavailable media (e.g. a video still encoding) clears it.
- */
 function zw_fragment_update_enclosure(Fragment $fragment): void
 {
     $source_url = $fragment->meta('fragment_url', ['format_value' => false]);
@@ -22,25 +19,27 @@ function zw_fragment_update_enclosure(Fragment $fragment): void
         $source = null;
     }
 
+    $enclosure = null;
+    if ($source) {
+        $response = wp_safe_remote_head($source['src'], ['timeout' => 10, 'redirection' => 5]);
+        $length = (int) wp_remote_retrieve_header($response, 'content-length');
+        if (wp_remote_retrieve_response_code($response) === 200 && $length > 0) {
+            $enclosure = implode("\n", [$source['src'], $length, $source['type']]);
+        }
+    }
+
+    // Never write a result for a URL an editor replaced while we were resolving.
     wp_cache_delete($fragment->ID, 'post_meta');
     if ($source_url !== get_post_meta($fragment->ID, 'fragment_url', true)) {
         return;
     }
 
-    if ($source) {
-        $response = wp_safe_remote_head($source['src'], ['timeout' => 10, 'redirection' => 5]);
-        $length = (int) wp_remote_retrieve_header($response, 'content-length');
-        if (wp_remote_retrieve_response_code($response) === 200 && $length > 0) {
-            update_post_meta($fragment->ID, 'enclosure', implode("\n", [$source['src'], $length, $source['type']]));
-            return;
-        }
-    }
-
-    delete_post_meta($fragment->ID, 'enclosure');
+    $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
 }
 
 add_action('acf/save_post', function ($post_id) {
-    if (is_int($post_id) && get_post_type($post_id) === 'fragment') {
+    if (get_post_type($post_id) === 'fragment') {
+        // Drop the old URL's enclosure even if the updater bails or the request dies.
         delete_post_meta($post_id, 'enclosure');
         zw_fragment_update_enclosure(Timber::get_post($post_id));
     }

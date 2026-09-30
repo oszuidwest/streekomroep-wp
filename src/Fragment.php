@@ -39,13 +39,12 @@ class Fragment extends Post
             return [];
         }
 
-        if ($this->meta('fragment_type') === self::TYPE_VIDEO) {
-            $video = VideoRenderer::resolveVideo($url);
-            return $video && $video->isAvailable() ? $video->getSources() : [];
-        } elseif ($this->meta('fragment_type') === self::TYPE_AUDIO) {
+        $type = $this->meta('fragment_type');
+        if ($type === self::TYPE_AUDIO) {
             return [['type' => 'audio/mpeg', 'src' => $url]];
         }
 
-        return [];
+        $video = $type === self::TYPE_VIDEO ? VideoRenderer::resolveVideo($url) : null;
+        return $video?->isAvailable() ? $video->getSources() : [];
     }
 }
