@@ -55,7 +55,7 @@ function zw_fragment_enclosure(int $post_id): ?array
 
     $enclosure = null;
     if ($url) {
-        $response = wp_remote_head($url, ['timeout' => 10, 'redirection' => 5]);
+        $response = wp_safe_remote_head($url, ['timeout' => 10, 'redirection' => 5]);
         $length = (int) wp_remote_retrieve_header($response, 'content-length');
         if (wp_remote_retrieve_response_code($response) === 200 && $length > 0) {
             $enclosure = ['source' => $source, 'url' => $url, 'length' => $length, 'type' => $mime_type];
