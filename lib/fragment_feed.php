@@ -9,8 +9,13 @@
 use Streekomroep\Fragment;
 use Timber\Timber;
 
-function zw_fragment_update_enclosure(Fragment $fragment): void
+function zw_fragment_update_enclosure(int $post_id): void
 {
+    $fragment = Timber::get_post($post_id);
+    if (!$fragment instanceof Fragment) {
+        return;
+    }
+
     $source_url = $fragment->meta('fragment_url', ['format_value' => false]);
     try {
         $source = $fragment->getSources()[0] ?? null;
@@ -37,11 +42,12 @@ function zw_fragment_update_enclosure(Fragment $fragment): void
     $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
 }
 
+add_action('zw_fragment_update_enclosure', 'zw_fragment_update_enclosure');
+
 add_action('acf/save_post', function ($post_id) {
     if (get_post_type($post_id) === 'fragment') {
-        // Drop the old URL's enclosure even if the updater bails or the request dies.
         delete_post_meta($post_id, 'enclosure');
-        zw_fragment_update_enclosure(Timber::get_post($post_id));
+        wp_schedule_single_event(time(), 'zw_fragment_update_enclosure', [(int) $post_id]);
     }
 });
 
@@ -60,6 +66,6 @@ add_action('zw_10mins', function () {
 
     update_option('zw_fragment_enclosure_page', count($fragments) < $batch_size ? 1 : $page + 1, false);
     foreach ($fragments as $fragment) {
-        zw_fragment_update_enclosure($fragment);
+        zw_fragment_update_enclosure($fragment->ID);
     }
 });
