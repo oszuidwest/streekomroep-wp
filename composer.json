@@ -46,18 +46,27 @@
     ]
   },
   "require": {
+    "php": ">=8.4",
     "ext-dom": "*",
     "ext-fileinfo": "*",
     "ext-json": "*",
-    "php": ">=8.3",
     "league/commonmark": "^2.4",
     "nesbot/carbon": "^3.11",
-    "symfony/yaml": "^7.4",
+    "symfony/yaml": "^8.0",
     "timber/timber": "~2.5.1",
     "twig/markdown-extra": "^3.7"
   },
+  "replace": {
+    "symfony/polyfill-php80": "*",
+    "symfony/polyfill-php81": "*",
+    "symfony/polyfill-php82": "*",
+    "symfony/polyfill-php83": "*",
+    "symfony/polyfill-php84": "*"
+  },
   "require-dev": {
-    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpcompatibility/php-compatibility": "^10.0@alpha",
+    "phpcompatibility/phpcompatibility-paragonie": "^2.0@alpha",
+    "phpcompatibility/phpcompatibility-wp": "^3.0@alpha",
     "roots/wordpress-no-content": "~7.1.0",
     "vincentlanglet/twig-cs-fixer": "^4.0",
     "wp-coding-standards/wpcs": "^3.0"
@@ -69,7 +78,7 @@
       "dealerdirect/phpcodesniffer-composer-installer": true
     },
     "platform": {
-      "php": "8.3"
+      "php": "8.4"
     }
   }
 }

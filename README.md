@@ -5,7 +5,7 @@ The WordPress theme for [Streekomroep ZuidWest](https://www.zuidwestupdate.nl/),
 ## Requirements
 
 - WordPress 7.1+
-- PHP 8.3+
+- PHP 8.4+ (8.4 and 8.5 are supported)
 - Secure Custom Fields 6.9+ or Advanced Custom Fields Pro 6.8+
 - Yoast SEO 27.7+ (free or Premium)
 
@@ -25,10 +25,13 @@ npm run build:tailwind
 
 ## Development
 
-The Docker environment provides WordPress 7.1 on PHP 8.3, MariaDB, phpMyAdmin, WP-CLI, and the required development plugins.
+The Docker environment provides WordPress 7.1 on PHP 8.5 (set `PHP_VERSION=8.4` to test the minimum), MariaDB, phpMyAdmin, WP-CLI, and the required development plugins.
 
 ```bash
 docker compose up -d
+
+# Test against the minimum supported PHP version
+PHP_VERSION=8.4 docker compose up -d --build
 ```
 
 On first startup it installs WordPress, builds the theme, creates the default menus, and activates the theme.

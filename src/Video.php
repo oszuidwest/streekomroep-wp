@@ -104,7 +104,7 @@ class Video
         $allSizes = array_map(function ($size) {
             preg_match('/^(\d+)p$/', $size, $m);
             return intval($m[1] ?? 0);
-        }, explode(',', $this->data->availableResolutions));
+        }, explode(',', (string) ($this->data->availableResolutions ?? '')));
 
         $sizes = array_filter($allSizes, function ($size) {
             return $size <= 720;

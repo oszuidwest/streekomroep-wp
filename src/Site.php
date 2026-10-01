@@ -133,6 +133,8 @@ class Site extends \Timber\Site
     {
         static $cache = [];
 
+        $name = (string) $name;
+
         if (array_key_exists($name, $cache)) {
             return $cache[$name];
         }

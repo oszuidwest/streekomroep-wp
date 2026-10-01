@@ -285,7 +285,7 @@ function zw_rest_api_init()
         'fragment_type',
         [
             'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                return strtolower(get_field('fragment_type', $post_arr['id']));
+                return strtolower((string) get_field('fragment_type', $post_arr['id']));
             },
         ]
     );
