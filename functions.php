@@ -35,7 +35,7 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
 }
 
 
-add_filter('pre_oembed_result', fn ($default, $url, $args) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: $default, 10, 3);
+add_filter('pre_oembed_result', fn ($default, $url) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: $default, 10, 2);
 add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
 add_filter('content_save_pre', 'zw_normalize_bunny_url');
 
@@ -267,10 +267,7 @@ function zw_rest_api_init()
         'fragment',
         'posts',
         [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $posts = fragment_get_posts($post_arr['id']);
-                return array_map(fn ($post) => $post->id, $posts->to_array());
-            },
+            'get_callback' => fn ($post_arr) => array_map(fn ($post) => $post->id, fragment_get_posts($post_arr['id'])->to_array()),
         ]
     );
 
@@ -278,7 +275,7 @@ function zw_rest_api_init()
         'fragment',
         'fragment_type',
         [
-            'get_callback' => fn ($post_arr, $attr, $request, $object_type) => strtolower((string) get_field('fragment_type', $post_arr['id'])),
+            'get_callback' => fn ($post_arr) => strtolower((string) get_field('fragment_type', $post_arr['id'])),
         ]
     );
 
@@ -286,7 +283,7 @@ function zw_rest_api_init()
         'fragment',
         'sources',
         [
-            'get_callback' => fn ($post_arr, $attr, $request, $object_type) => Timber::get_post($post_arr['id'])->getSources(),
+            'get_callback' => fn ($post_arr) => Timber::get_post($post_arr['id'])->getSources(),
         ]
     );
 
@@ -518,7 +515,7 @@ function zw_get_socials()
 wp_embed_register_handler(
     'zw-bunny',
     '#^https://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"]+$#i',
-    fn ($matches, $attr, $url, $rawattr) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: ''
+    fn ($matches, $attr, $url) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: ''
 );
 wp_embed_register_handler('zw-readmore', '#^(.*)$#', 'zw_embed_handler');
 

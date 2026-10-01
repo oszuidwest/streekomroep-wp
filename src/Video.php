@@ -8,7 +8,6 @@ use Exception;
 class Video
 {
     public const int STATUS_FINISHED = 4;
-    private string $description = '';
     private ?DateTimeImmutable $broadcastDate = null;
 
     /**
@@ -17,11 +16,7 @@ class Video
      */
     public function __construct(private readonly BunnyCredentials $credentials, private readonly object $data)
     {
-        if (isset($this->data->_description)) {
-            $this->description = $this->data->_description;
-        }
-
-        if (isset($this->data->_broadcastDate) && $this->data->_broadcastDate !== null) {
+        if (isset($this->data->_broadcastDate)) {
             try {
                 $this->broadcastDate = new DateTimeImmutable($this->data->_broadcastDate);
             } catch (Exception) {
@@ -72,7 +67,7 @@ class Video
 
     public function getDescription()
     {
-        return $this->description;
+        return $this->data->_description ?? '';
     }
 
     public function getDuration()

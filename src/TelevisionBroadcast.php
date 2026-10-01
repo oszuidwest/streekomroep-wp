@@ -4,15 +4,10 @@ namespace Streekomroep;
 
 class TelevisionBroadcast
 {
-    public $name = null;
+    public $name;
 
     public function __construct(public $show, $name, public $times)
     {
-        $name = trim($name);
-        if (!empty($name)) {
-            $this->name = $name;
-        } else {
-            $this->name = $this->show->post_title;
-        }
+        $this->name = trim($name) ?: $show->post_title;
     }
 }

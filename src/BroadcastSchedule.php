@@ -19,7 +19,7 @@ class BroadcastSchedule
     private static ?string $cacheVersion = null;
 
     /** Prefix for ACF's tv_week option keys. */
-    public const OPTION_PREFIX = 'options_tv_week';
+    public const string OPTION_PREFIX = 'options_tv_week';
 
     /** @var BroadcastDay[] */
     public $days;

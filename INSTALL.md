@@ -10,7 +10,7 @@ This is a WordPress theme with some hard dependencies. You can't run it without 
 ## Requirements
 
 - WordPress 7.1 or higher
-- PHP 8.4 or higher (8.4 and 8.5 are supported)
+- PHP 8.4 or higher
 
 ## Hard dependencies
 

@@ -42,8 +42,7 @@ class Post extends \Timber\Post
      */
     public function schedule(): array
     {
-        $this->_schedule ??= \zw_fm_schedule_rows($this->meta('fm_show_programmatie'));
-        return $this->_schedule;
+        return $this->_schedule ??= \zw_fm_schedule_rows($this->meta('fm_show_programmatie'));
     }
 
     public function topic()

@@ -63,10 +63,8 @@ class VideoSeo
             return;
         }
 
-        $videos = VideoCollection::forTvShow(get_the_ID());
-
         $videoId = is_string($_GET['v']) ? sanitize_text_field(wp_unslash($_GET['v'])) : '';
-        $video = array_find($videos, fn ($item) => $item->getId() == $videoId);
+        $video = VideoCollection::findVideo(get_the_ID(), $videoId);
 
         if (!$video) {
             return;
@@ -74,7 +72,7 @@ class VideoSeo
 
         $canonical = fn ($url) => $url . '?v=' . $video->getId();
 
-        $title = fn ($a) => $video->getName();
+        $title = fn () => $video->getName();
 
         $description = fn () => $video->getDescription();
 

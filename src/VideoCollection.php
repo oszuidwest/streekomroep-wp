@@ -34,13 +34,7 @@ class VideoCollection
         $rawVideo->_broadcastTimestamp = null;
         $rawVideo->_description = '';
 
-        $description = null;
-        foreach ($rawVideo->metaTags as $meta) {
-            if ($meta->property === 'description') {
-                $description = $meta->value;
-                break;
-            }
-        }
+        $description = array_find($rawVideo->metaTags, fn ($meta) => $meta->property === 'description')?->value;
 
         if (!$description) {
             return;
@@ -50,7 +44,7 @@ class VideoCollection
             $result = self::getParser()->parse($description);
             $yaml = $result->getFrontMatter();
             $rawVideo->_description = $result->getContent();
-        } catch (InvalidFrontMatterException $e) {
+        } catch (InvalidFrontMatterException) {
             $rawVideo->_description = $description;
             return;
         }
