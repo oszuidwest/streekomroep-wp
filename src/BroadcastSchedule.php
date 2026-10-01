@@ -10,11 +10,11 @@ use Timber\Timber;
 class BroadcastSchedule
 {
     /** Retry interval when no current slot supplies a refresh boundary. */
-    private const REFRESH_FALLBACK = 30;
+    private const int REFRESH_FALLBACK = 30;
 
-    private const TV_SCHEDULE_CACHE_PREFIX = 'zw_tv_schedule_';
+    private const string TV_SCHEDULE_CACHE_PREFIX = 'zw_tv_schedule_';
 
-    private const TV_SCHEDULE_VERSION = 'zw_tv_schedule_version';
+    private const string TV_SCHEDULE_VERSION = 'zw_tv_schedule_version';
 
     private static ?string $cacheVersion = null;
 
@@ -136,8 +136,8 @@ class BroadcastSchedule
                         continue;
                     }
 
-                    $start = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_starttijd']);
-                    $end = (new Carbon($day->date))->setTimeFromTimeString($rule['fm_show_eindtijd']);
+                    $start = new Carbon($day->date)->setTimeFromTimeString($rule['fm_show_starttijd']);
+                    $end = new Carbon($day->date)->setTimeFromTimeString($rule['fm_show_eindtijd']);
                     $day->addRadio(new RadioBroadcast($show, $start, $end));
                 }
             }
@@ -145,7 +145,7 @@ class BroadcastSchedule
 
         $fillerTitle = get_field('radio_geen_programma_naam', 'option') ?: 'Non-stop';
         foreach ($this->days as $day) {
-            $time = (new Carbon($day->date))->setTime(0, 0, 0);
+            $time = new Carbon($day->date)->setTime(0, 0, 0);
             $newBroadcasts = [];
             foreach ($day->radio as $broadcast) {
                 if ($broadcast->start != $time) {

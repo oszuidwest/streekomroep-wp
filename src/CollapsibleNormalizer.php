@@ -9,17 +9,17 @@ use WP_HTML_Processor;
  */
 final class CollapsibleNormalizer
 {
-    private const BODY_TAGS = ['P', 'BR', 'UL', 'OL', 'LI', 'A', 'STRONG', 'B', 'EM', 'I', 'IMG', 'IFRAME'];
+    private const array BODY_TAGS = ['P', 'BR', 'UL', 'OL', 'LI', 'A', 'STRONG', 'B', 'EM', 'I', 'IMG', 'IFRAME'];
 
-    private const BLOCK_TAGS = [
+    private const array BLOCK_TAGS = [
         'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH',
         'DIV', 'DETAILS', 'SUMMARY', 'SECTION', 'ARTICLE', 'ASIDE', 'FIGURE', 'FIGCAPTION', 'HR', 'DL', 'DT', 'DD',
     ];
 
-    private const TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
+    private const array TEXT_BLOCK_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P'];
 
     /** Matches editor-empty paragraphs and standalone non-breaking spaces. */
-    private const EMPTY_PARAGRAPH = '(?:<p>\s*)?\x{00A0}+(?:\s*</p>)?(?=\s|$)';
+    private const string EMPTY_PARAGRAPH = '(?:<p>\s*)?\x{00A0}+(?:\s*</p>)?(?=\s|$)';
 
     public static function normalize(string $content): string
     {

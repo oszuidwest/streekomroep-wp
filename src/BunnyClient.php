@@ -7,8 +7,6 @@ use WP_Error;
 
 class BunnyClient
 {
-    private BunnyCredentials $credentials;
-
     private static array $credentialsCache = [];
 
     private const array LIBRARY_FIELDS = [
@@ -16,9 +14,8 @@ class BunnyClient
         'fragmenten' => ['bunny_cdn_library_id_fragmenten', 'bunny_cdn_hostname_fragmenten', 'bunny_cdn_api_key_fragmenten'],
     ];
 
-    public function __construct(BunnyCredentials $credentials)
+    public function __construct(private readonly BunnyCredentials $credentials)
     {
-        $this->credentials = $credentials;
     }
 
     public static function getCredentials(int $libraryId): ?BunnyCredentials

@@ -224,13 +224,7 @@ add_action('init', function () {
     }
 
     // Only cache when all required slugs actually exist
-    $all_exist = true;
-    foreach (array_keys($terms) as $slug) {
-        if (!get_term_by('slug', $slug, 'ranking')) {
-            $all_exist = false;
-            break;
-        }
-    }
+    $all_exist = array_all(array_keys($terms), fn ($slug) => get_term_by('slug', $slug, 'ranking'));
 
     if ($all_exist) {
         set_transient('zw_ranking_terms_seeded', 1, DAY_IN_SECONDS);

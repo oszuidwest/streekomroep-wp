@@ -32,23 +32,21 @@ if ($timber_post->post_type == 'fragment') {
     }
 }
 
-$relatedPosts = function (string $taxonomy, int $termId, string $postType, bool $includeChildren = true) use ($timber_post) {
-    return Timber::get_posts(
-        [
-            'post__not_in' => [$timber_post->id],
-            'posts_per_page' => 4,
-            'post_type' => $postType,
-            'ignore_sticky_posts' => true,
-            'tax_query' => [
-                [
-                    'taxonomy' => $taxonomy,
-                    'include_children' => $includeChildren,
-                    'terms' => $termId,
-                ]
+$relatedPosts = fn (string $taxonomy, int $termId, string $postType, bool $includeChildren = true) => Timber::get_posts(
+    [
+        'post__not_in' => [$timber_post->id],
+        'posts_per_page' => 4,
+        'post_type' => $postType,
+        'ignore_sticky_posts' => true,
+        'tax_query' => [
+            [
+                'taxonomy' => $taxonomy,
+                'include_children' => $includeChildren,
+                'terms' => $termId,
             ]
         ]
-    );
-};
+    ]
+);
 
 $topic = $timber_post->topic();
 $region = $timber_post->region();
@@ -202,7 +200,7 @@ if ($timber_post->post_type == 'fm') {
 
     // Only build the full schedule when this published show can have a
     // successor.
-    $context['following_show'] = $published && $rules ? (new \Streekomroep\BroadcastSchedule())
+    $context['following_show'] = $published && $rules ? new \Streekomroep\BroadcastSchedule()
         ->getFollowingRadioBroadcast($show->ID) : null;
 
     $context['programmatie'] = $rules;

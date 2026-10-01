@@ -66,29 +66,17 @@ class VideoSeo
         $videos = VideoCollection::forTvShow(get_the_ID());
 
         $videoId = is_string($_GET['v']) ? sanitize_text_field(wp_unslash($_GET['v'])) : '';
-        $video = null;
-        foreach ($videos as $item) {
-            if ($item->getId() == $videoId) {
-                $video = $item;
-                break;
-            }
-        }
+        $video = array_find($videos, fn ($item) => $item->getId() == $videoId);
 
         if (!$video) {
             return;
         }
 
-        $canonical = function ($url) use ($video) {
-            return $url . '?v=' . $video->getId();
-        };
+        $canonical = fn ($url) => $url . '?v=' . $video->getId();
 
-        $title = function ($a) use ($video) {
-            return $video->getName();
-        };
+        $title = fn ($a) => $video->getName();
 
-        $description = function () use ($video) {
-            return $video->getDescription();
-        };
+        $description = fn () => $video->getDescription();
 
         // Resolve the social image once; all image-related hooks below must share this
         // value so the default Yoast image is only replaced when a valid one exists.
@@ -109,9 +97,7 @@ class VideoSeo
 
         add_filter('wpseo_opengraph_title', $title);
         add_filter('wpseo_opengraph_desc', $description);
-        add_filter('wpseo_opengraph_type', function () {
-            return 'video.episode';
-        });
+        add_filter('wpseo_opengraph_type', fn () => 'video.episode');
         add_action('wpseo_add_opengraph_images', function ($images) use ($socialImageUrl) {
             if ($socialImageUrl === null) {
                 return;
@@ -127,9 +113,7 @@ class VideoSeo
 
         add_filter('wpseo_twitter_title', $title);
         add_filter('wpseo_twitter_description', $description);
-        add_filter('wpseo_twitter_image', function ($image) use ($socialImageUrl) {
-            return $socialImageUrl ?? $image;
-        });
+        add_filter('wpseo_twitter_image', fn ($image) => $socialImageUrl ?? $image);
 
         $broadcastDateIso = $video->getBroadcastDate()?->format('c');
 

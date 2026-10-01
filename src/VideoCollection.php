@@ -68,7 +68,7 @@ class VideoCollection
             $date = new DateTime($broadcastDate, wp_timezone());
             $rawVideo->_broadcastDate = $date->format('c');
             $rawVideo->_broadcastTimestamp = $date->getTimestamp();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Unparseable dates remain unavailable.
         }
     }
@@ -90,17 +90,11 @@ class VideoCollection
     {
         $nowTimestamp = time();
 
-        $filtered = array_filter($rawVideos, function ($video) use ($nowTimestamp) {
-            return self::isAvailable($video, $nowTimestamp);
-        });
+        $filtered = array_filter($rawVideos, fn ($video) => self::isAvailable($video, $nowTimestamp));
 
-        usort($filtered, function ($left, $right) {
-            return $right->_broadcastTimestamp <=> $left->_broadcastTimestamp;
-        });
+        usort($filtered, fn ($left, $right) => $right->_broadcastTimestamp <=> $left->_broadcastTimestamp);
 
-        return array_map(function ($raw) use ($credentials) {
-            return new Video($credentials, $raw);
-        }, $filtered);
+        return array_map(fn ($raw) => new Video($credentials, $raw), $filtered);
     }
 
     /** Checks whether a finished episode has reached its broadcast date. */
