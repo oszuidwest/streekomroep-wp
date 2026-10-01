@@ -11,7 +11,7 @@
 
     const radioPage = document.querySelector('[data-radio-live]');
     const streamElement = document.getElementById('zw-fm-stream');
-    const hlsSource = streamElement?.querySelector('source[type="application/x-mpegURL"]');
+    let hlsSource = streamElement?.querySelector('source[type="application/x-mpegURL"]');
     const icecastSources = streamElement
         ? Array.from(streamElement.querySelectorAll('source:not([type="application/x-mpegURL"])'), (source) => source.cloneNode())
         : [];
@@ -549,6 +549,7 @@
         hlsRecovering = false;
         hls?.destroy();
         hls = null;
+        hlsSource = null;
 
         // hls.js can leave its revoked blob URL on the media element when a <source> child wins
         // mediaSrc detection. Remove both that URL and HLS itself before native source selection;
@@ -703,6 +704,10 @@
         // Fires for a source that dies after it was already selected, such as a mid-stream decode
         // failure. Running out of candidates does not reach this handler.
         streamElement.addEventListener('error', function () {
+            if (!hls && streamElement.currentSrc === hlsSource?.src) {
+                useIcecastFallback();
+                return;
+            }
             playbackRequested = false;
             playbackAttempt++;
             setPlaying(false);

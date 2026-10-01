@@ -350,7 +350,7 @@ test('fatal HLS errors replace owned ID3 metadata and reconnect the WebSocket', 
     assert.equal(harness.artist.textContent, 'Nieuwe artiest');
 });
 
-test('native HLS keeps WebSocket metadata until a valid ID3 cue exists', () => {
+test('native HLS takes over valid ID3 metadata and falls back on playback errors', () => {
     const harness = createHarness({withHls: false});
     harness.button.click();
     harness.audio.currentSrc = 'https://radio.example/live.m3u8';
@@ -380,6 +380,13 @@ test('native HLS keeps WebSocket metadata until a valid ID3 cue exists', () => {
     assert.equal(socket.closed, true);
     assert.equal(harness.title.textContent, 'Testtitel');
     assert.equal(harness.artist.textContent, 'Testartiest');
+
+    harness.audio.dispatch('error');
+
+    assert.deepEqual(harness.audio.sources.map((source) => source.type), ['audio/aac', 'audio/mpeg']);
+    assert.equal(harness.audio.playCalls, 2);
+    assert.equal(harness.audio.paused, false);
+    assert.equal(harness.button.attributes.get('aria-label'), 'Pauzeer');
 });
 
 test('fatal media recovery ignores an internal pause and still honours a user pause', () => {

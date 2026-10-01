@@ -1004,6 +1004,13 @@ function zw_enqueue_fm_live_assets()
             $hlsjsVersion,
             ['strategy' => 'defer', 'in_footer' => true]
         );
+        add_filter('wp_script_attributes', function ($attributes) {
+            if (($attributes['id'] ?? '') === 'hls-js-js') {
+                $attributes['integrity'] = 'sha384-y8wQxRLtNclrHbMBLBLTEkgUrdFu6uWzZiobE1wBE09nt2wHIZlBPvPepdZU4+MM';
+                $attributes['crossorigin'] = 'anonymous';
+            }
+            return $attributes;
+        });
         $dependencies[] = 'hls-js';
     }
 
