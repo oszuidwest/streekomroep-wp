@@ -7,9 +7,9 @@ use Timber\Timber;
 /** Caches front-page catch-up candidates by block configuration. */
 class TvGemistCache
 {
-    private const PREFIX = 'zw_tv_gemist_';
-    private const VERSION_KEY = 'zw_tv_gemist_version';
-    private const TTL = 10 * MINUTE_IN_SECONDS;
+    private const string PREFIX = 'zw_tv_gemist_';
+    private const string VERSION_KEY = 'zw_tv_gemist_version';
+    private const int TTL = 10 * MINUTE_IN_SECONDS;
 
     private static ?string $version = null;
 
