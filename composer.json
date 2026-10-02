@@ -16,6 +16,7 @@
       "@test:responsive-images",
       "@test:search",
       "@test:collapsible",
+      "@test:video-collection",
       "@test:wordpress-toolbar",
       "@test:fm-live"
     ],
@@ -25,6 +26,7 @@
     "test:templates": "php tests/template-escaping.php",
     "test:responsive-images": "php tests/responsive-images.php",
     "test:collapsible": "php tests/collapsible.php",
+    "test:video-collection": "php tests/video-collection.php",
     "test:wordpress-toolbar": "sh tests/wordpress-toolbar-contract.sh",
     "test:fm-live": "node --test tests/fm-live-player.mjs"
   },

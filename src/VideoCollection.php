@@ -34,7 +34,7 @@ class VideoCollection
         $rawVideo->_broadcastTimestamp = null;
         $rawVideo->_description = '';
 
-        $description = array_find($rawVideo->metaTags, fn ($meta) => $meta->property === 'description')?->value;
+        $description = array_find($rawVideo->metaTags ?? [], fn ($meta) => $meta->property === 'description')?->value;
 
         if (!$description) {
             return;
