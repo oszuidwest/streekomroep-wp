@@ -527,15 +527,16 @@
                     }
                 }
 
-                const trackData = readTrack({title: frames.TIT2, artist: frames.TPE1});
-                if (!trackData) {
+                if (!String(frames.TIT2 || '').trim()) {
                     return;
                 }
 
-                // Native HLS support does not guarantee timed-metadata support. Keep the socket
-                // alive until a browser proves it can provide a complete ID3 track itself.
+                // Transfer metadata ownership to HLS only after timed ID3 provides a title.
                 setHlsMetadataActive(true);
-                renderNow(trackData);
+
+                // Liquidsoap sends title-only programme or news metadata; treat it as the end of
+                // the current track.
+                renderNow(readTrack({title: frames.TIT2, artist: frames.TPE1}));
             });
         };
 

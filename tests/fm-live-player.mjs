@@ -303,6 +303,16 @@ function createHarness({deferFirstPlay = false, pauseDuringRecovery = false, wit
     return {audio, artist, button, FakeHls, FakeWebSocket, mediaSession, title};
 }
 
+function addMetadataTrack(harness) {
+    const track = new FakeEventTarget();
+    track.kind = 'metadata';
+    harness.audio.textTracks.add(track);
+    return (frames) => {
+        track.activeCues = Object.entries(frames).map(([key, data]) => ({value: {key, data}}));
+        track.dispatch('cuechange');
+    };
+}
+
 test('fatal HLS errors select Icecast and preserve WebSocket metadata', () => {
     const harness = createHarness();
     harness.FakeWebSocket.instances[0].message({
@@ -327,14 +337,8 @@ test('fatal HLS errors replace owned ID3 metadata and reconnect the WebSocket', 
     const harness = createHarness();
     harness.button.click();
     const hls = harness.FakeHls.instances[0];
-    const metadataTrack = new FakeEventTarget();
-    metadataTrack.kind = 'metadata';
-    harness.audio.textTracks.add(metadataTrack);
-    metadataTrack.activeCues = [
-        {value: {key: 'TIT2', data: 'HLS-titel'}},
-        {value: {key: 'TPE1', data: 'HLS-artiest'}}
-    ];
-    metadataTrack.dispatch('cuechange');
+    const cue = addMetadataTrack(harness);
+    cue({TIT2: 'HLS-titel', TPE1: 'HLS-artiest'});
 
     assert.equal(harness.FakeWebSocket.instances[0].closed, true);
 
@@ -360,22 +364,14 @@ test('native HLS takes over valid ID3 metadata and falls back on playback errors
 
     assert.equal(socket.closed, false);
 
-    const metadataTrack = new FakeEventTarget();
-    metadataTrack.kind = 'metadata';
-    harness.audio.textTracks.add(metadataTrack);
-
-    metadataTrack.activeCues = [{value: {key: 'TIT2', data: 'Onvolledige ID3-titel'}}];
-    metadataTrack.dispatch('cuechange');
+    const cue = addMetadataTrack(harness);
+    cue({TPE1: 'ID3 zonder titel'});
 
     assert.equal(socket.closed, false);
     assert.equal(harness.title.textContent, 'WebSocket-titel');
     assert.equal(harness.artist.textContent, 'WebSocket-artiest');
 
-    metadataTrack.activeCues = [
-        {value: {key: 'TIT2', data: 'Testtitel'}},
-        {value: {key: 'TPE1', data: 'Testartiest'}}
-    ];
-    metadataTrack.dispatch('cuechange');
+    cue({TIT2: 'Testtitel', TPE1: 'Testartiest'});
 
     assert.equal(socket.closed, true);
     assert.equal(harness.title.textContent, 'Testtitel');
@@ -387,6 +383,36 @@ test('native HLS takes over valid ID3 metadata and falls back on playback errors
     assert.equal(harness.audio.playCalls, 2);
     assert.equal(harness.audio.paused, false);
     assert.equal(harness.button.attributes.get('aria-label'), 'Pauzeer');
+});
+
+test('an ID3 title without artist ends the current track', () => {
+    const harness = createHarness();
+    harness.button.click();
+    const cue = addMetadataTrack(harness);
+    cue({TIT2: 'HLS-titel', TPE1: 'HLS-artiest'});
+
+    assert.equal(harness.title.textContent, 'HLS-titel');
+
+    cue({TIT2: 'Nu: Testprogramma'});
+
+    assert.equal(harness.title.textContent, 'ZuidWest FM');
+    assert.equal(harness.artist.textContent, 'In heel West-Brabant');
+    assert.equal(harness.mediaSession.metadata.title, 'ZuidWest FM');
+    assert.equal(harness.mediaSession.metadata.artist, 'In heel West-Brabant');
+    assert.equal(harness.FakeWebSocket.instances.length, 1);
+});
+
+test('a title-only ID3 cue takes over from WebSocket metadata', () => {
+    const harness = createHarness();
+    harness.button.click();
+    const socket = harness.FakeWebSocket.instances[0];
+    socket.message({artist: 'WebSocket-artiest', title: 'WebSocket-titel'});
+    const cue = addMetadataTrack(harness);
+    cue({TIT2: 'Nu: Testprogramma'});
+
+    assert.equal(socket.closed, true);
+    assert.equal(harness.title.textContent, 'ZuidWest FM');
+    assert.equal(harness.artist.textContent, 'In heel West-Brabant');
 });
 
 test('fatal media recovery ignores an internal pause and still honours a user pause', () => {
@@ -534,14 +560,8 @@ test('a second fatal media error falls back to Icecast', () => {
 test('pausing after HLS metadata reconnects WebSocket metadata', () => {
     const harness = createHarness();
     harness.button.click();
-    const metadataTrack = new FakeEventTarget();
-    metadataTrack.kind = 'metadata';
-    harness.audio.textTracks.add(metadataTrack);
-    metadataTrack.activeCues = [
-        {value: {key: 'TIT2', data: 'HLS-titel'}},
-        {value: {key: 'TPE1', data: 'HLS-artiest'}}
-    ];
-    metadataTrack.dispatch('cuechange');
+    const cue = addMetadataTrack(harness);
+    cue({TIT2: 'HLS-titel', TPE1: 'HLS-artiest'});
 
     harness.button.click();
 
