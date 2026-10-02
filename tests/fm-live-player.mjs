@@ -364,7 +364,7 @@ test('native HLS takes over valid ID3 metadata and falls back on playback errors
     metadataTrack.kind = 'metadata';
     harness.audio.textTracks.add(metadataTrack);
 
-    metadataTrack.activeCues = [{value: {key: 'TIT2', data: 'Onvolledige ID3-titel'}}];
+    metadataTrack.activeCues = [{value: {key: 'TPE1', data: 'ID3 zonder titel'}}];
     metadataTrack.dispatch('cuechange');
 
     assert.equal(socket.closed, false);
@@ -387,6 +387,47 @@ test('native HLS takes over valid ID3 metadata and falls back on playback errors
     assert.equal(harness.audio.playCalls, 2);
     assert.equal(harness.audio.paused, false);
     assert.equal(harness.button.attributes.get('aria-label'), 'Pauzeer');
+});
+
+test('an ID3 title without artist ends the current track', () => {
+    const harness = createHarness();
+    harness.button.click();
+    const metadataTrack = new FakeEventTarget();
+    metadataTrack.kind = 'metadata';
+    harness.audio.textTracks.add(metadataTrack);
+    metadataTrack.activeCues = [
+        {value: {key: 'TIT2', data: 'HLS-titel'}},
+        {value: {key: 'TPE1', data: 'HLS-artiest'}}
+    ];
+    metadataTrack.dispatch('cuechange');
+
+    assert.equal(harness.title.textContent, 'HLS-titel');
+
+    metadataTrack.activeCues = [{value: {key: 'TIT2', data: 'Nu: Testprogramma'}}];
+    metadataTrack.dispatch('cuechange');
+
+    assert.equal(harness.title.textContent, 'ZuidWest FM');
+    assert.equal(harness.artist.textContent, 'In heel West-Brabant');
+    assert.equal(harness.mediaSession.metadata.title, 'ZuidWest FM');
+    assert.equal(harness.mediaSession.metadata.artist, 'In heel West-Brabant');
+    assert.equal(harness.FakeWebSocket.instances.length, 1);
+    assert.equal(harness.FakeWebSocket.instances[0].closed, true);
+});
+
+test('a title-only ID3 cue takes over from WebSocket metadata', () => {
+    const harness = createHarness();
+    harness.button.click();
+    const socket = harness.FakeWebSocket.instances[0];
+    socket.message({artist: 'WebSocket-artiest', title: 'WebSocket-titel'});
+    const metadataTrack = new FakeEventTarget();
+    metadataTrack.kind = 'metadata';
+    harness.audio.textTracks.add(metadataTrack);
+    metadataTrack.activeCues = [{value: {key: 'TIT2', data: 'Nu: Testprogramma'}}];
+    metadataTrack.dispatch('cuechange');
+
+    assert.equal(socket.closed, true);
+    assert.equal(harness.title.textContent, 'ZuidWest FM');
+    assert.equal(harness.artist.textContent, 'In heel West-Brabant');
 });
 
 test('fatal media recovery ignores an internal pause and still honours a user pause', () => {
