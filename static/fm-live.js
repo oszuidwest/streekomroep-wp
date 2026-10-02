@@ -537,12 +537,7 @@
 
                 // Liquidsoap omits the artist for non-track items such as the news, when the
                 // metadata server falls back to programme or station text. That ends the track.
-                const trackData = readTrack({title: frames.TIT2, artist: frames.TPE1});
-                if (trackData) {
-                    renderNow(trackData);
-                } else {
-                    renderFallback();
-                }
+                renderNow(readTrack({title: frames.TIT2, artist: frames.TPE1}));
             });
         };
 
