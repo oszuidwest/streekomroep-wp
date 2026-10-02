@@ -531,12 +531,11 @@
                     return;
                 }
 
-                // Native HLS support does not guarantee timed-metadata support. Keep the socket
-                // alive until a browser proves it can provide an ID3 title itself.
+                // Transfer metadata ownership to HLS only after timed ID3 provides a title.
                 setHlsMetadataActive(true);
 
-                // Liquidsoap omits the artist for non-track items such as the news, when the
-                // metadata server falls back to programme or station text. That ends the track.
+                // Liquidsoap sends title-only programme or news metadata; treat it as the end of
+                // the current track.
                 renderNow(readTrack({title: frames.TIT2, artist: frames.TPE1}));
             });
         };
