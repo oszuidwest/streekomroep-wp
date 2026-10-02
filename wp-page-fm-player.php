@@ -65,7 +65,7 @@ $groups = [
 ];
 
 foreach (zw_acf_rows($context['options']['radio_frequenties'] ?? null) as $row) {
-    $medium = $row['radio_frequenties_medium'] ?? null;
+    $medium = $row['radio_frequenties_medium'] ?? '';
     if (!isset($groups[$medium])) {
         continue;
     }
