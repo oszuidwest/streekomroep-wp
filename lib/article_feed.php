@@ -19,10 +19,10 @@ function zw_article_fragment_enclosure(): void
         return;
     }
 
-    // Cached as "url\nlength\ntype" once the fragment feed resolved the media.
     $enclosure = explode("\n", get_post_meta($fragment_id, 'enclosure', true));
-    if (isset($enclosure[2])) {
-        printf('<enclosure url="%s" length="%d" type="%s" />' . "\n", esc_url($enclosure[0]), $enclosure[1], esc_attr($enclosure[2]));
+    $url = esc_url(trim($enclosure[0]));
+    if (isset($enclosure[2]) && (int) $enclosure[1] > 0 && $url !== '') {
+        printf('<enclosure url="%s" length="%d" type="%s" />' . "\n", $url, $enclosure[1], esc_attr($enclosure[2]));
     }
 }
 
