@@ -20,7 +20,7 @@ function zw_article_fragment_enclosure(): void
     }
 
     // Cached as "url\nlength\ntype" once the fragment feed resolved the media.
-    $enclosure = explode("\n", (string) get_post_meta($fragment_id, 'enclosure', true));
+    $enclosure = explode("\n", get_post_meta($fragment_id, 'enclosure', true));
     if (isset($enclosure[2])) {
         printf('<enclosure url="%s" length="%d" type="%s" />' . "\n", esc_url($enclosure[0]), $enclosure[1], esc_attr($enclosure[2]));
     }

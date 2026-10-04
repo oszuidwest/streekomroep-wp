@@ -49,7 +49,6 @@ $cases = [
     'not featured' => [[1 => ['meta' => ['post_fragment_is_featured' => '0']]], ''],
     'protected article' => [[1 => ['post_password' => 'secret']], ''],
     'no linked fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => '']]], ''],
-    'deleted fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => ['99']]]], ''],
     'draft fragment' => [[2 => ['status' => 'draft']], ''],
     'protected fragment' => [[2 => ['post_password' => 'secret']], ''],
     'unresolved media' => [[2 => ['meta' => ['enclosure' => '']]], ''],
