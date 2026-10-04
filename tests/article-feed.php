@@ -12,15 +12,16 @@ $statuses = [2 => 'publish'];
 $passwords = [];
 $hooks = [];
 $filters = [];
+$current = 1;
 
 function get_the_ID(): int
 {
-    return 1;
+    return $GLOBALS['current'];
 }
 
-function get_post_type(int $id): string
+function get_post_type(?int $id = null): string
 {
-    return $GLOBALS['types'][$id] ?? '';
+    return $GLOBALS['types'][$id ?? get_the_ID()] ?? '';
 }
 
 function get_post_status(int $id): string
@@ -129,7 +130,7 @@ foreach ($cases as $name => [$overrides, $expected]) {
         $meta[$override_id] = array_replace($meta[$override_id], $fields);
     }
     $item = render_enclosures();
-    if (enclosure_urls($item) !== ($expected ? [$featured_url] : $native_urls)) {
+    if (enclosure_urls($item) !== ($expected ? [$featured_url] : [])) {
         throw new \RuntimeException($name . ': unexpected enclosures: ' . $item->asXML());
     }
     if ($expected && ((string) $item->enclosure['length'] !== '12345' || (string) $item->enclosure['type'] !== 'video/mp4')) {
@@ -139,15 +140,26 @@ foreach ($cases as $name => [$overrides, $expected]) {
 $meta = $valid_meta;
 foreach (['draft', 'private', 'trash'] as $fragment_status) {
     $statuses[2] = $fragment_status;
-    if (enclosure_urls(render_enclosures()) !== $native_urls) {
+    if (enclosure_urls(render_enclosures()) !== []) {
         throw new \RuntimeException('Non-public fragment exposed: ' . $fragment_status);
     }
 }
 $statuses[2] = 'publish';
 foreach ([1, 2] as $protected_id) {
     $passwords = [$protected_id => 'secret'];
-    if (enclosure_urls(render_enclosures()) !== $native_urls) {
+    if (enclosure_urls(render_enclosures()) !== []) {
         throw new \RuntimeException('Password-protected media exposed');
     }
+}
+$passwords = [];
+
+// Fragment items keep the enclosure the fragment feed cached for them.
+$current = 2;
+if (enclosure_urls(render_enclosures()) !== $native_urls || $filters['atom_enclosure']('<link />') !== '<link />') {
+    throw new \RuntimeException('Fragment enclosure hidden');
+}
+$current = 1;
+if ($filters['atom_enclosure']('<link />') !== '') {
+    throw new \RuntimeException('Inline article media exposed in Atom');
 }
 echo "Article RSS enclosure tests passed.\n";
