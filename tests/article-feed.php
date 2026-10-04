@@ -13,6 +13,7 @@ namespace {
     $statuses = [2 => 'publish'];
     $passwords = [];
     $hooks = [];
+    $filters = [];
 
     function get_the_ID(): int
     {
@@ -49,7 +50,38 @@ namespace {
         $GLOBALS['hooks'][$hook] = $callback;
     }
 
+    function add_filter(string $hook, callable $callback): void
+    {
+        $GLOBALS['filters'][$hook] = $callback;
+    }
+
+    function apply_filters(string $hook, mixed $value): mixed
+    {
+        return isset($GLOBALS['filters'][$hook]) ? $GLOBALS['filters'][$hook]($value) : $value;
+    }
+
+    function get_post_custom(): array
+    {
+        return ['enclosure' => ["https://cdn.example/old.mp4\n999\nvideo/mp4"]];
+    }
+
+    function post_password_required(): bool
+    {
+        return false;
+    }
+
+    function absint(mixed $number): int
+    {
+        return abs((int) $number);
+    }
+
+    function esc_attr(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_XML1);
+    }
+
     require __DIR__ . '/../lib/article_feed.php';
+    require __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes/feed.php';
 
     $valid_meta = [
         1 => ['post_fragment_is_featured' => '1', 'post_gekoppeld_fragment' => ['2']],
@@ -80,21 +112,29 @@ namespace {
             throw new \RuntimeException($name . ': unexpected enclosure: ' . $output);
         }
         if ($expected) {
+            ob_start();
+            rss_enclosure();
+            $hooks['rss2_item']();
+            $output = ob_get_clean();
             $xml = simplexml_load_string('<item>' . $output . '</item>');
             if (
-                (string) $xml->enclosure['url'] !== 'https://cdn.example/video.mp4?a=1&b=2'
+                count($xml->enclosure) !== 1
+                || (string) $xml->enclosure['url'] !== 'https://cdn.example/video.mp4?a=1&b=2'
                 || (string) $xml->enclosure['length'] !== '12345'
                 || (string) $xml->enclosure['type'] !== 'video/mp4'
             ) {
                 throw new \RuntimeException('Incorrect RSS enclosure attributes');
             }
         }
+        if (!$expected && $filters['rss_enclosure']('native enclosure') !== 'native enclosure') {
+            throw new \RuntimeException('Native enclosure suppressed without a featured video');
+        }
     }
     $meta = $valid_meta;
     foreach (['draft', 'private', 'trash'] as $fragment_status) {
         $statuses[2] = $fragment_status;
         ob_start();
-        zw_article_video_enclosure();
+        $hooks['rss2_item']();
         if (ob_get_clean() !== '') {
             throw new \RuntimeException('Non-public fragment exposed: ' . $fragment_status);
         }
@@ -103,7 +143,7 @@ namespace {
     foreach ([1, 2] as $protected_id) {
         $passwords = [$protected_id => 'secret'];
         ob_start();
-        zw_article_video_enclosure();
+        $hooks['rss2_item']();
         if (ob_get_clean() !== '') {
             throw new \RuntimeException('Password-protected media exposed');
         }

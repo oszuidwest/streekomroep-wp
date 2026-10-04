@@ -39,7 +39,12 @@ function zw_fragment_update_enclosure(int $post_id): void
         return;
     }
 
-    $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
+    $changed = $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
+    if ($changed) {
+        // WordPress derives feed HTTP validators from published post timestamps.
+        // Resolving media later must invalidate a reader's previous 304 response.
+        wp_update_post(['ID' => $fragment->ID]);
+    }
 }
 
 add_action('zw_fragment_update_enclosure', 'zw_fragment_update_enclosure');
