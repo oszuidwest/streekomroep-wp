@@ -4,6 +4,9 @@
  * Exposes an article's featured video in RSS using the fragment's cached file.
  * Feed requests never resolve Bunny videos or download media metadata.
  */
+
+use Streekomroep\Fragment;
+
 function zw_article_video_enclosure(): string
 {
     $post_id = get_the_ID();
@@ -20,7 +23,7 @@ function zw_article_video_enclosure(): string
         get_post_type($fragment_id) !== 'fragment'
         || get_post_status($fragment_id) !== 'publish'
         || get_post_field('post_password', $fragment_id) !== ''
-        || get_post_meta($fragment_id, 'fragment_type', true) !== \Streekomroep\Fragment::TYPE_VIDEO
+        || get_post_meta($fragment_id, 'fragment_type', true) !== Fragment::TYPE_VIDEO
     ) {
         return '';
     }
@@ -34,7 +37,7 @@ function zw_article_video_enclosure(): string
         return '';
     }
 
-    return sprintf('<enclosure url="%s" length="%d" type="video/mp4" />' . "\n", $url, (int) $enclosure[1]);
+    return sprintf('<enclosure url="%s" length="%d" type="video/mp4" />' . "\n", $url, $enclosure[1]);
 }
 
 // Core prints native enclosures before rss2_item; prefer only the featured video.
