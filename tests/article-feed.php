@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Covers the RSS enclosure for articles with a featured video fragment.
+ * Covers the RSS enclosure for articles with a featured fragment.
  */
 
 $fixtures = [];
@@ -30,6 +30,11 @@ function get_post_meta(int $id, string $key, bool $single): mixed
 function esc_url(string $url): string
 {
     return htmlspecialchars($url, ENT_QUOTES | ENT_XML1);
+}
+
+function esc_attr(string $text): string
+{
+    return htmlspecialchars($text, ENT_QUOTES | ENT_XML1);
 }
 
 function add_action(string $hook, callable $callback): void
@@ -63,8 +68,11 @@ $cases = [
     'deleted fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => ['99']]]], []],
     'draft fragment' => [[2 => ['status' => 'draft']], []],
     'protected fragment' => [[2 => ['post_password' => 'secret']], []],
-    'unresolved video' => [[2 => ['meta' => ['enclosure' => '']]], []],
-    'audio fragment' => [[2 => ['meta' => ['enclosure' => "https://cdn.example/audio.mp3\n123\naudio/mpeg"]]], []],
+    'unresolved media' => [[2 => ['meta' => ['enclosure' => '']]], []],
+    'featured audio' => [
+        [2 => ['meta' => ['enclosure' => "https://cdn.example/audio.mp3\n123\naudio/mpeg"]]],
+        [['url' => 'https://cdn.example/audio.mp3', 'length' => '123', 'type' => 'audio/mpeg']],
+    ],
 ];
 foreach ($cases as $name => [$overrides, $expected]) {
     $fixtures = array_replace_recursive($valid, $overrides);
