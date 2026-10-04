@@ -44,40 +44,38 @@ function add_action(string $hook, callable $callback): void
 
 require __DIR__ . '/../lib/article_feed.php';
 
-function enclosures(): array
+function rss_item(): string
 {
     ob_start();
     $GLOBALS['hooks']['rss2_item']();
-    $enclosures = [];
-    foreach (simplexml_load_string('<item>' . ob_get_clean() . '</item>')->enclosure as $enclosure) {
-        $enclosures[] = ((array) $enclosure->attributes())['@attributes'];
-    }
-    return $enclosures;
+    return ob_get_clean();
 }
 
 $valid = [
     1 => ['status' => 'publish', 'meta' => ['post_fragment_is_featured' => '1', 'post_gekoppeld_fragment' => ['2']]],
     2 => ['status' => 'publish', 'meta' => ['enclosure' => "https://cdn.example/video.mp4?a=1&b=2\n12345\nvideo/mp4"]],
 ];
-$featured = [['url' => 'https://cdn.example/video.mp4?a=1&b=2', 'length' => '12345', 'type' => 'video/mp4']];
 $cases = [
-    'featured video' => [[], $featured],
-    'not featured' => [[1 => ['meta' => ['post_fragment_is_featured' => '0']]], []],
-    'protected article' => [[1 => ['post_password' => 'secret']], []],
-    'no linked fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => '']]], []],
-    'deleted fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => ['99']]]], []],
-    'draft fragment' => [[2 => ['status' => 'draft']], []],
-    'protected fragment' => [[2 => ['post_password' => 'secret']], []],
-    'unresolved media' => [[2 => ['meta' => ['enclosure' => '']]], []],
+    'featured video' => [[], '<enclosure url="https://cdn.example/video.mp4?a=1&amp;b=2" length="12345" type="video/mp4" />' . "\n"],
+    'not featured' => [[1 => ['meta' => ['post_fragment_is_featured' => '0']]], ''],
+    'protected article' => [[1 => ['post_password' => 'secret']], ''],
+    'no linked fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => '']]], ''],
+    'deleted fragment' => [[1 => ['meta' => ['post_gekoppeld_fragment' => ['99']]]], ''],
+    'draft fragment' => [[2 => ['status' => 'draft']], ''],
+    'protected fragment' => [[2 => ['post_password' => 'secret']], ''],
+    'unresolved media' => [[2 => ['meta' => ['enclosure' => '']]], ''],
     'featured audio' => [
         [2 => ['meta' => ['enclosure' => "https://cdn.example/audio.mp3\n123\naudio/mpeg"]]],
-        [['url' => 'https://cdn.example/audio.mp3', 'length' => '123', 'type' => 'audio/mpeg']],
+        '<enclosure url="https://cdn.example/audio.mp3" length="123" type="audio/mpeg" />' . "\n",
     ],
 ];
 foreach ($cases as $name => [$overrides, $expected]) {
     $fixtures = array_replace_recursive($valid, $overrides);
-    if (enclosures() !== $expected) {
-        throw new \RuntimeException($name . ': unexpected enclosures ' . json_encode(enclosures()));
+    $actual = rss_item();
+    if ($actual !== $expected) {
+        fwrite(STDERR, $name . ': unexpected RSS item output ' . var_export($actual, true) . PHP_EOL);
+        exit(1);
     }
 }
-echo "Article RSS enclosure tests passed.\n";
+
+echo 'OK: articles expose only their featured fragment as an RSS enclosure' . PHP_EOL;
