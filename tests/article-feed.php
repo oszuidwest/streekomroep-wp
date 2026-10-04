@@ -4,8 +4,9 @@
  * Covers the RSS enclosure for articles with a featured fragment.
  */
 
+require __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes/plugin.php';
+
 $fixtures = [];
-$hooks = [];
 
 function get_the_ID(): int
 {
@@ -37,22 +38,10 @@ function esc_attr(string $text): string
     return htmlspecialchars($text, ENT_QUOTES | ENT_XML1);
 }
 
-function add_action(string $hook, callable $callback): void
-{
-    $GLOBALS['hooks'][$hook] = $callback;
-}
-
 require __DIR__ . '/../lib/article_feed.php';
 
-function rss_item(): string
-{
-    ob_start();
-    $GLOBALS['hooks']['rss2_item']();
-    return ob_get_clean();
-}
-
 $valid = [
-    1 => ['status' => 'publish', 'meta' => ['post_fragment_is_featured' => '1', 'post_gekoppeld_fragment' => ['2']]],
+    1 => ['meta' => ['post_fragment_is_featured' => '1', 'post_gekoppeld_fragment' => ['2']]],
     2 => ['status' => 'publish', 'meta' => ['enclosure' => "https://cdn.example/video.mp4?a=1&b=2\n12345\nvideo/mp4"]],
 ];
 $cases = [
@@ -71,7 +60,9 @@ $cases = [
 ];
 foreach ($cases as $name => [$overrides, $expected]) {
     $fixtures = array_replace_recursive($valid, $overrides);
-    $actual = rss_item();
+    ob_start();
+    do_action('rss2_item');
+    $actual = ob_get_clean();
     if ($actual !== $expected) {
         fwrite(STDERR, $name . ': unexpected RSS item output ' . var_export($actual, true) . PHP_EOL);
         exit(1);
