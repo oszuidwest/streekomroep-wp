@@ -150,8 +150,8 @@ namespace {
         zw_fragment_update_enclosure(2);
     } catch (\RuntimeException $error) {
     }
-    if (!$kses) {
-        throw new \RuntimeException('kses must be restored when the update throws');
+    if (!isset($error) || $error->getMessage() !== 'save hook failed' || !$kses) {
+        throw new \RuntimeException('Expected save hook failure with kses restored');
     }
     echo "Fragment enclosure cache tests passed.\n";
 }
