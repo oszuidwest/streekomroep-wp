@@ -39,21 +39,7 @@ function zw_fragment_update_enclosure(int $post_id): void
         return;
     }
 
-    $changed = $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
-    if ($changed) {
-        // WordPress derives feed HTTP validators from published post timestamps.
-        // Resolving media later must invalidate a reader's previous 304 response.
-        // WP-Cron runs without unfiltered_html, so kses would strip embeds the editor saved.
-        $kses = has_filter('content_save_pre', 'wp_filter_post_kses');
-        kses_remove_filters();
-        try {
-            wp_update_post(['ID' => $fragment->ID]);
-        } finally {
-            if ($kses) {
-                kses_init_filters();
-            }
-        }
-    }
+    $enclosure ? update_post_meta($fragment->ID, 'enclosure', $enclosure) : delete_post_meta($fragment->ID, 'enclosure');
 }
 
 add_action('zw_fragment_update_enclosure', 'zw_fragment_update_enclosure');
