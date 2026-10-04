@@ -33,6 +33,8 @@ namespace {
     $meta = ['fragment_url' => 'https://player.example/123'];
     $sources = [['src' => 'https://cdn.example/video.mp4', 'type' => 'video/mp4']];
     $touches = [];
+    // WP-Cron runs without a user, so core's kses filters are active.
+    $kses = true;
 
     function add_action(string $hook, callable $callback): void
     {
@@ -78,8 +80,26 @@ namespace {
         return 200;
     }
 
+    function has_filter(string $hook, string $callback): bool
+    {
+        return $GLOBALS['kses'];
+    }
+
+    function kses_remove_filters(): void
+    {
+        $GLOBALS['kses'] = false;
+    }
+
+    function kses_init_filters(): void
+    {
+        $GLOBALS['kses'] = true;
+    }
+
     function wp_update_post(array $post_data): int
     {
+        if ($GLOBALS['kses']) {
+            throw new \RuntimeException('kses would strip embeds from the touched content');
+        }
         $GLOBALS['touches'][] = $post_data['ID'];
         return $post_data['ID'];
     }
@@ -89,6 +109,9 @@ namespace {
     zw_fragment_update_enclosure(2);
     if ($meta['enclosure'] !== "https://cdn.example/video.mp4\n12345\nvideo/mp4" || $touches !== [2]) {
         throw new \RuntimeException('New enclosure must update the post timestamp for feed validators');
+    }
+    if (!$kses) {
+        throw new \RuntimeException('kses must be restored after the update');
     }
     zw_fragment_update_enclosure(2);
     if ($touches !== [2]) {
@@ -107,6 +130,13 @@ namespace {
     zw_fragment_update_enclosure(2);
     if ($touches !== [2, 2, 2]) {
         throw new \RuntimeException('Still unavailable media must not refresh validators');
+    }
+    // WP-CLI without --user removes kses itself; the update must not switch it back on.
+    $kses = false;
+    $sources = [['src' => 'https://cdn.example/video.mp4', 'type' => 'video/mp4']];
+    zw_fragment_update_enclosure(2);
+    if ($touches !== [2, 2, 2, 2] || $kses) {
+        throw new \RuntimeException('kses must stay off when it was off before the update');
     }
     echo "Fragment enclosure cache tests passed.\n";
 }
