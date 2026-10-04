@@ -35,6 +35,7 @@ namespace {
     $touches = [];
     // WP-Cron runs without a user, so core's kses filters are active.
     $kses = true;
+    $failing_save_hook = false;
 
     function add_action(string $hook, callable $callback): void
     {
@@ -100,6 +101,9 @@ namespace {
         if ($GLOBALS['kses']) {
             throw new \RuntimeException('kses would strip embeds from the touched content');
         }
+        if ($GLOBALS['failing_save_hook']) {
+            throw new \RuntimeException('save hook failed');
+        }
         $GLOBALS['touches'][] = $post_data['ID'];
         return $post_data['ID'];
     }
@@ -137,6 +141,17 @@ namespace {
     zw_fragment_update_enclosure(2);
     if ($touches !== [2, 2, 2, 2] || $kses) {
         throw new \RuntimeException('kses must stay off when it was off before the update');
+    }
+    // A failing save hook must not leave kses off for the rest of the cron request.
+    $kses = true;
+    $failing_save_hook = true;
+    $sources[0]['src'] = 'https://cdn.example/after-failure.mp4';
+    try {
+        zw_fragment_update_enclosure(2);
+    } catch (\RuntimeException $error) {
+    }
+    if (!$kses) {
+        throw new \RuntimeException('kses must be restored when the update throws');
     }
     echo "Fragment enclosure cache tests passed.\n";
 }
