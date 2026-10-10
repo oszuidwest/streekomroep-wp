@@ -34,7 +34,8 @@ class VideoCollection
         $rawVideo->_broadcastTimestamp = null;
         $rawVideo->_description = '';
 
-        $description = array_find($rawVideo->metaTags ?? [], fn ($meta) => $meta->property === 'description')?->value;
+        $metaTags = is_array($rawVideo->metaTags ?? null) ? $rawVideo->metaTags : [];
+        $description = array_find($metaTags, fn ($meta) => ($meta->property ?? null) === 'description')?->value;
 
         if (!$description) {
             return;
@@ -121,15 +122,13 @@ class VideoCollection
             return null;
         }
 
-        foreach (self::rawForTvShow($postId) as $raw) {
-            if (!is_object($raw) || ($raw->guid ?? null) !== $guid) {
-                continue;
-            }
+        // Skip unavailable duplicates so this matches the episode list on single.php.
+        $raw = array_find(
+            self::rawForTvShow($postId),
+            fn ($raw) => is_object($raw) && ($raw->guid ?? null) === $guid && self::isAvailable($raw, time())
+        );
 
-            return self::isAvailable($raw, time()) ? new Video($credentials, $raw) : null;
-        }
-
-        return null;
+        return $raw ? new Video($credentials, $raw) : null;
     }
 
     /**

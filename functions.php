@@ -6,6 +6,14 @@ use Timber\Timber;
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 
+// Composer's platform check would fatal every request, wp-admin included, so bail out first.
+// Keep this file parseable on PHP < 8.4 for this guard to run.
+if (PHP_VERSION_ID < 80400) {
+    add_action('admin_notices', fn () => print '<div class="error"><p>Streekomroep requires PHP 8.4 or higher.</p></div>');
+    add_action('template_redirect', fn () => wp_die('Streekomroep requires PHP 8.4 or higher.', '', ['response' => 503]));
+    return;
+}
+
 require __DIR__ . '/vendor/autoload.php';
 
 Timber::init();
@@ -239,7 +247,7 @@ add_action('rest_api_init', 'zw_rest_api_init');
 
 function zw_rest_api_init()
 {
-    new \Streekomroep\BroadcastDataController()->register_routes();
+    (new \Streekomroep\BroadcastDataController())->register_routes();
 
     $fields = [
         'image_wide' => 'dossier_afbeelding_breed',
