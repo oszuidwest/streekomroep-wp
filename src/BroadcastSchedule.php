@@ -89,7 +89,7 @@ class BroadcastSchedule
                         continue;
                     }
 
-                    $name = trim((string) $entry['naam_override']);
+                    $name = $entry['naam_override'];
                     $show = $entry['show'] ? ($tvShows[$entry['show']] ?? null) : null;
 
                     // Override-only rows are valid for generic schedule entries such as reruns.

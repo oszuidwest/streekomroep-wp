@@ -101,11 +101,7 @@ class Video
             return null;
         }
 
-        $sizes = array_filter($allSizes, fn ($size) => $size <= 720);
-
-        if (empty($sizes)) {
-            $sizes = $allSizes;
-        }
+        $sizes = array_filter($allSizes, fn ($size) => $size <= 720) ?: $allSizes;
 
         return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
     }

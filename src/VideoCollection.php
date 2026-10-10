@@ -123,9 +123,10 @@ class VideoCollection
         }
 
         // Skip unavailable duplicates so this matches the episode list on single.php.
+        $now = time();
         $raw = array_find(
             self::rawForTvShow($postId),
-            fn ($raw) => is_object($raw) && ($raw->guid ?? null) === $guid && self::isAvailable($raw, time())
+            fn ($raw) => is_object($raw) && ($raw->guid ?? null) === $guid && self::isAvailable($raw, $now)
         );
 
         return $raw ? new Video($credentials, $raw) : null;
