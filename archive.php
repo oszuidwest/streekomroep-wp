@@ -38,9 +38,7 @@ if (is_post_type_archive() && get_post_type() === 'tv') {
         $show->lastBroadcast = isset($videos[0]) ? $videos[0]->getBroadcastDate() : null;
     }
 
-    usort($context['posts'], function ($lhs, $rhs) {
-        return $rhs->lastBroadcast <=> $lhs->lastBroadcast;
-    });
+    usort($context['posts'], fn ($lhs, $rhs) => $rhs->lastBroadcast <=> $lhs->lastBroadcast);
 }
 
 if (is_post_type_archive('fm')) {

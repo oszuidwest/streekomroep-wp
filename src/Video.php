@@ -8,29 +8,18 @@ use Exception;
 class Video
 {
     public const int STATUS_FINISHED = 4;
-
-    private object $data;
-    private string $description = '';
     private ?DateTimeImmutable $broadcastDate = null;
-    private BunnyCredentials $credentials;
 
     /**
      * Expects preprocessed _broadcastDate and _description properties.
      * Use VideoCollection::preprocessOne() before constructing.
      */
-    public function __construct(BunnyCredentials $credentials, object $data)
+    public function __construct(private readonly BunnyCredentials $credentials, private readonly object $data)
     {
-        $this->credentials = $credentials;
-        $this->data = $data;
-
-        if (isset($this->data->_description)) {
-            $this->description = $this->data->_description;
-        }
-
-        if (isset($this->data->_broadcastDate) && $this->data->_broadcastDate !== null) {
+        if (isset($this->data->_broadcastDate)) {
             try {
                 $this->broadcastDate = new DateTimeImmutable($this->data->_broadcastDate);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 error_log('Failed to parse date for video with id: ' . $this->data->guid);
             }
         }
@@ -78,7 +67,7 @@ class Video
 
     public function getDescription()
     {
-        return $this->description;
+        return $this->data->_description ?? '';
     }
 
     public function getDuration()
@@ -88,8 +77,9 @@ class Video
 
     public function getSources(): array
     {
+        $mp4 = $this->getMP4Url();
         return [
-            ['src' => $this->getMP4Url(), 'type' => 'video/mp4'],
+            ...($mp4 ? [['src' => $mp4, 'type' => 'video/mp4']] : []),
             ['src' => $this->getPlaylistUrl(), 'type' => 'application/x-mpegURL'],
         ];
     }
@@ -99,20 +89,19 @@ class Video
         return sprintf('%s/%s/playlist.m3u8', $this->credentials->hostname, $this->data->guid);
     }
 
-    public function getMP4Url()
+    /** Returns the largest MP4 rendition up to 720p, or null when Bunny lists none. */
+    public function getMP4Url(): ?string
     {
-        $allSizes = array_map(function ($size) {
+        $allSizes = array_filter(array_map(function ($size) {
             preg_match('/^(\d+)p$/', $size, $m);
             return intval($m[1] ?? 0);
-        }, explode(',', $this->data->availableResolutions));
+        }, explode(',', (string) ($this->data->availableResolutions ?? ''))));
 
-        $sizes = array_filter($allSizes, function ($size) {
-            return $size <= 720;
-        });
-
-        if (empty($sizes)) {
-            $sizes = $allSizes;
+        if (!$allSizes) {
+            return null;
         }
+
+        $sizes = array_filter($allSizes, fn ($size) => $size <= 720) ?: $allSizes;
 
         return sprintf('%s/%s/play_%dp.mp4', $this->credentials->hostname, $this->data->guid, max($sizes));
     }

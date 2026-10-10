@@ -1,6 +1,8 @@
+ARG PHP_VERSION=8.5
+
 FROM composer:latest AS composer
 FROM node:lts-slim AS node
-FROM wordpress:7.1-php8.3-apache
+FROM wordpress:7.1-php${PHP_VERSION}-apache
 
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
     && chmod +x wp-cli.phar \

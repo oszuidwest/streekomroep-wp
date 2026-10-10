@@ -7,13 +7,13 @@ use WP_REST_Server;
 
 final class BroadcastDataController
 {
-    private const REST_NAMESPACE = 'zw/v1';
-    private const REST_BASE = 'broadcast_data';
+    private const string REST_NAMESPACE = 'zw/v1';
+    private const string REST_BASE = 'broadcast_data';
 
-    private const TRANSIENT = 'zw_broadcast_data';
+    private const string TRANSIENT = 'zw_broadcast_data';
 
     /** Maximum time schedule edits can remain hidden by this cache. */
-    private const CACHE_TTL_MAX = 60;
+    private const int CACHE_TTL_MAX = 60;
 
     public static function url(): string
     {

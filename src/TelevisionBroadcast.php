@@ -4,21 +4,11 @@ namespace Streekomroep;
 
 class TelevisionBroadcast
 {
-    public $show;
-    public $name = null;
-    public $times;
+    public $name;
 
-    public function __construct($programme, $name, $times)
+    public function __construct(public $show, $name, public $times)
     {
-        $this->show = $programme;
-
-        $name = trim($name);
-        if (!empty($name)) {
-            $this->name = $name;
-        } else {
-            $this->name = $this->show->post_title;
-        }
-
-        $this->times = $times;
+        // getTvWeeks() already trims the override and skips rows with neither name nor show.
+        $this->name = $name ?: $show->post_title;
     }
 }

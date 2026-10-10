@@ -34,13 +34,8 @@ class VideoCollection
         $rawVideo->_broadcastTimestamp = null;
         $rawVideo->_description = '';
 
-        $description = null;
-        foreach ($rawVideo->metaTags as $meta) {
-            if ($meta->property === 'description') {
-                $description = $meta->value;
-                break;
-            }
-        }
+        $metaTags = is_array($rawVideo->metaTags ?? null) ? $rawVideo->metaTags : [];
+        $description = array_find($metaTags, fn ($meta) => ($meta->property ?? null) === 'description')?->value;
 
         if (!$description) {
             return;
@@ -50,7 +45,7 @@ class VideoCollection
             $result = self::getParser()->parse($description);
             $yaml = $result->getFrontMatter();
             $rawVideo->_description = $result->getContent();
-        } catch (InvalidFrontMatterException $e) {
+        } catch (InvalidFrontMatterException) {
             $rawVideo->_description = $description;
             return;
         }
@@ -68,7 +63,7 @@ class VideoCollection
             $date = new DateTime($broadcastDate, wp_timezone());
             $rawVideo->_broadcastDate = $date->format('c');
             $rawVideo->_broadcastTimestamp = $date->getTimestamp();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Unparseable dates remain unavailable.
         }
     }
@@ -90,17 +85,11 @@ class VideoCollection
     {
         $nowTimestamp = time();
 
-        $filtered = array_filter($rawVideos, function ($video) use ($nowTimestamp) {
-            return self::isAvailable($video, $nowTimestamp);
-        });
+        $filtered = array_filter($rawVideos, fn ($video) => self::isAvailable($video, $nowTimestamp));
 
-        usort($filtered, function ($left, $right) {
-            return $right->_broadcastTimestamp <=> $left->_broadcastTimestamp;
-        });
+        usort($filtered, fn ($left, $right) => $right->_broadcastTimestamp <=> $left->_broadcastTimestamp);
 
-        return array_map(function ($raw) use ($credentials) {
-            return new Video($credentials, $raw);
-        }, $filtered);
+        return array_map(fn ($raw) => new Video($credentials, $raw), $filtered);
     }
 
     /** Checks whether a finished episode has reached its broadcast date. */
@@ -125,23 +114,10 @@ class VideoCollection
         return self::$rawVideos[$postId];
     }
 
-    /** Loads one available episode by GUID. */
+    /** Loads one available episode by GUID, picking the same duplicate as the sorted episode list. */
     public static function findVideo(int $postId, string $guid): ?Video
     {
-        $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
-        if (!$credentials) {
-            return null;
-        }
-
-        foreach (self::rawForTvShow($postId) as $raw) {
-            if (!is_object($raw) || ($raw->guid ?? null) !== $guid) {
-                continue;
-            }
-
-            return self::isAvailable($raw, time()) ? new Video($credentials, $raw) : null;
-        }
-
-        return null;
+        return array_find(self::forTvShow($postId), fn ($video) => $video->getId() === $guid);
     }
 
     /**

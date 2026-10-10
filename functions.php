@@ -6,6 +6,14 @@ use Timber\Timber;
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 
+// Composer's platform check would fatal every request, wp-admin included, so bail out first.
+// Keep this file parseable on PHP < 8.4 for this guard to run.
+if (PHP_VERSION_ID < 80400) {
+    add_action('admin_notices', fn () => print '<div class="error"><p>Streekomroep requires PHP 8.4 or higher.</p></div>');
+    add_action('template_redirect', fn () => wp_die('Streekomroep requires PHP 8.4 or higher.', '', ['response' => 503]));
+    return;
+}
+
 require __DIR__ . '/vendor/autoload.php';
 
 Timber::init();
@@ -35,9 +43,7 @@ if (!class_exists('Yoast\WP\SEO\Main')) {
 }
 
 
-add_filter('pre_oembed_result', function ($default, $url, $args) {
-    return \Streekomroep\VideoRenderer::renderFromUrl($url) ?: $default;
-}, 10, 3);
+add_filter('pre_oembed_result', fn ($default, $url) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: $default, 10, 2);
 add_filter('acf/update_value/name=fragment_url', 'zw_normalize_bunny_url');
 add_filter('content_save_pre', 'zw_normalize_bunny_url');
 
@@ -57,7 +63,7 @@ function zw_normalize_bunny_url($value)
  */
 function zw_acf_rows($value): array
 {
-    return is_array($value) ? array_values(array_filter($value, 'is_array')) : [];
+    return is_array($value) ? array_values(array_filter($value, is_array(...))) : [];
 }
 
 /**
@@ -124,9 +130,7 @@ function zw_fm_shows_in_broadcast_order(array $shows): array
         $keyed[] = [$slots ? min($slots) : [PHP_INT_MAX, ''], zw_plain_text($show->title()), $show];
     }
 
-    usort($keyed, function ($lhs, $rhs) {
-        return $lhs[0] <=> $rhs[0] ?: strnatcasecmp($lhs[1], $rhs[1]);
-    });
+    usort($keyed, fn ($lhs, $rhs) => $lhs[0] <=> $rhs[0] ?: strnatcasecmp($lhs[1], $rhs[1]));
 
     return array_column($keyed, 2);
 }
@@ -272,12 +276,7 @@ function zw_rest_api_init()
         'fragment',
         'posts',
         [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                $posts = fragment_get_posts($post_arr['id']);
-                return array_map(function ($post) {
-                    return $post->id;
-                }, $posts->to_array());
-            },
+            'get_callback' => fn ($post_arr) => array_map(fn ($post) => $post->id, fragment_get_posts($post_arr['id'])->to_array()),
         ]
     );
 
@@ -285,9 +284,7 @@ function zw_rest_api_init()
         'fragment',
         'fragment_type',
         [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                return strtolower(get_field('fragment_type', $post_arr['id']));
-            },
+            'get_callback' => fn ($post_arr) => strtolower((string) get_field('fragment_type', $post_arr['id'])),
         ]
     );
 
@@ -295,9 +292,7 @@ function zw_rest_api_init()
         'fragment',
         'sources',
         [
-            'get_callback' => function ($post_arr, $attr, $request, $object_type) {
-                return Timber::get_post($post_arr['id'])->getSources();
-            },
+            'get_callback' => fn ($post_arr) => Timber::get_post($post_arr['id'])->getSources(),
         ]
     );
 
@@ -328,9 +323,7 @@ function zw_rest_api_init()
         'tv',
         'active',
         [
-            'get_callback' => function ($post_arr) {
-                return get_field('tv_show_actief', $post_arr['id']);
-            }
+            'get_callback' => fn ($post_arr) => get_field('tv_show_actief', $post_arr['id'])
         ]
     );
 
@@ -339,9 +332,7 @@ function zw_rest_api_init()
         'tv',
         'presenters',
         [
-            'get_callback' => function ($post_arr) {
-                return get_field('tv_show_presentator', $post_arr['id']) ?: [];
-            }
+            'get_callback' => fn ($post_arr) => get_field('tv_show_presentator', $post_arr['id']) ?: []
         ]
     );
 
@@ -350,15 +341,11 @@ function zw_rest_api_init()
         'fm',
         'presenters',
         [
-            'get_callback' => function ($post_arr) {
-                return array_values(array_map(function ($maker) {
-                    return [
-                        'naam' => (string) ($maker['fm_show_maker_naam'] ?? ''),
-                        'bio' => (string) ($maker['fm_show_maker_bio'] ?? ''),
-                        'foto' => empty($maker['fm_show_maker_foto']) ? null : (string) $maker['fm_show_maker_foto'],
-                    ];
-                }, zw_acf_rows(get_field('fm_show_makers', $post_arr['id']))));
-            }
+            'get_callback' => fn ($post_arr) => array_values(array_map(fn ($maker) => [
+                'naam' => (string) ($maker['fm_show_maker_naam'] ?? ''),
+                'bio' => (string) ($maker['fm_show_maker_bio'] ?? ''),
+                'foto' => empty($maker['fm_show_maker_foto']) ? null : (string) $maker['fm_show_maker_foto'],
+            ], zw_acf_rows(get_field('fm_show_makers', $post_arr['id']))))
         ]
     );
 }
@@ -534,9 +521,11 @@ function zw_get_socials()
     return $out;
 }
 
-wp_embed_register_handler('zw-bunny', '#^https://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"]+$#i', function ($matches, $attr, $url, $rawattr) {
-    return \Streekomroep\VideoRenderer::renderFromUrl($url) ?: '';
-});
+wp_embed_register_handler(
+    'zw-bunny',
+    '#^https://(?:iframe|player)\.mediadelivery\.net/play/[^\s<>"]+$#i',
+    fn ($matches, $attr, $url) => \Streekomroep\VideoRenderer::renderFromUrl($url) ?: ''
+);
 wp_embed_register_handler('zw-readmore', '#^(.*)$#', 'zw_embed_handler');
 
 function zw_embed_handler($matches, $attr, $url, $rawattr)
