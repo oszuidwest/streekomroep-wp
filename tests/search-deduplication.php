@@ -22,7 +22,7 @@ class WP_Query
         global $article_ids, $secondary_query_args;
         $this->is_main = $this->query_vars === [];
 
-        if ($this->query_vars !== []) {
+        if (!$this->is_main) {
             $secondary_query_args = $this->query_vars;
             $this->posts = $article_ids;
         }
