@@ -145,6 +145,7 @@ require_once 'lib/push_adapter.php';
 require_once 'lib/search.php';
 require_once 'lib/collapsible.php';
 require_once 'lib/fragment_feed.php';
+require_once 'lib/article_feed.php';
 require_once 'lib/tinymce.php';
 
 add_filter('timber/post/classmap', function ($base) {
