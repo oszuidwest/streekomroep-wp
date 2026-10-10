@@ -76,7 +76,7 @@ if ($timber_post->post_type == 'tv') {
         $newerVideo = null;
         $olderVideo = null;
         foreach ($videos as $i => $item) {
-            if ($item->getId() == $videoId) {
+            if ($item->getId() === $videoId) {
                 $video = $item;
                 $newerVideo = $videos[$i - 1] ?? null;
                 $olderVideo = $videos[$i + 1] ?? null;

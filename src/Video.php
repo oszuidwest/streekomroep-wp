@@ -77,8 +77,9 @@ class Video
 
     public function getSources(): array
     {
+        $mp4 = $this->getMP4Url();
         return [
-            ['src' => $this->getMP4Url(), 'type' => 'video/mp4'],
+            ...($mp4 ? [['src' => $mp4, 'type' => 'video/mp4']] : []),
             ['src' => $this->getPlaylistUrl(), 'type' => 'application/x-mpegURL'],
         ];
     }
@@ -88,12 +89,17 @@ class Video
         return sprintf('%s/%s/playlist.m3u8', $this->credentials->hostname, $this->data->guid);
     }
 
-    public function getMP4Url()
+    /** Returns the largest MP4 rendition up to 720p, or null when Bunny lists none. */
+    public function getMP4Url(): ?string
     {
-        $allSizes = array_map(function ($size) {
+        $allSizes = array_filter(array_map(function ($size) {
             preg_match('/^(\d+)p$/', $size, $m);
             return intval($m[1] ?? 0);
-        }, explode(',', (string) ($this->data->availableResolutions ?? '')));
+        }, explode(',', (string) ($this->data->availableResolutions ?? ''))));
+
+        if (!$allSizes) {
+            return null;
+        }
 
         $sizes = array_filter($allSizes, fn ($size) => $size <= 720);
 

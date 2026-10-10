@@ -14,7 +14,7 @@ class Options implements \ArrayAccess
 
     public function offsetGet(mixed $offset): mixed
     {
-        $key = (string) $offset;
+        $key = $offset ?? '';
         if (!array_key_exists($key, $this->cache)) {
             $this->cache[$key] = get_field($key, 'option');
         }
@@ -24,11 +24,11 @@ class Options implements \ArrayAccess
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->cache[(string) $offset] = $value;
+        $this->cache[$offset ?? ''] = $value;
     }
 
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->cache[(string) $offset]);
+        unset($this->cache[$offset ?? '']);
     }
 }
