@@ -114,22 +114,10 @@ class VideoCollection
         return self::$rawVideos[$postId];
     }
 
-    /** Loads one available episode by GUID. */
+    /** Loads one available episode by GUID, picking the same duplicate as the sorted episode list. */
     public static function findVideo(int $postId, string $guid): ?Video
     {
-        $credentials = BunnyClient::getCredentials(ZW_BUNNY_LIBRARY_TV);
-        if (!$credentials) {
-            return null;
-        }
-
-        // Skip unavailable duplicates so this matches the episode list on single.php.
-        $now = time();
-        $raw = array_find(
-            self::rawForTvShow($postId),
-            fn ($raw) => is_object($raw) && ($raw->guid ?? null) === $guid && self::isAvailable($raw, $now)
-        );
-
-        return $raw ? new Video($credentials, $raw) : null;
+        return array_find(self::forTvShow($postId), fn ($video) => $video->getId() === $guid);
     }
 
     /**
