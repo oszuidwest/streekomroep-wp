@@ -18,12 +18,11 @@ $cases = [
     'plain description' => [(object) ['metaTags' => [(object) ['property' => 'description', 'value' => 'Tekst']]], 'Tekst'],
 ];
 
-$failed = 0;
+$failures = [];
 foreach ($cases as $name => [$video, $expected]) {
     VideoCollection::preprocessOne($video);
     if ($video->_description !== $expected || $video->_broadcastTimestamp !== null) {
-        echo 'FAIL: ' . $name . PHP_EOL;
-        $failed++;
+        $failures[] = sprintf('%s: expected description %s, got %s', $name, json_encode($expected), json_encode($video->_description));
     }
 }
 
@@ -40,12 +39,12 @@ foreach ($mp4Cases as $name => [$resolutions, $expected]) {
     $video = new Video($credentials, (object) ['guid' => 'g', 'availableResolutions' => $resolutions]);
     $types = array_column($video->getSources(), 'type');
     if ($video->getMP4Url() !== $expected || in_array('video/mp4', $types, true) !== ($expected !== null)) {
-        echo 'FAIL: ' . $name . PHP_EOL;
-        $failed++;
+        $failures[] = sprintf('%s: expected %s, got %s with sources %s', $name, json_encode($expected), json_encode($video->getMP4Url()), json_encode($types));
     }
 }
 
-if ($failed) {
+if ($failures) {
+    fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);
 }
 

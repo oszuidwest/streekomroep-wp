@@ -276,7 +276,7 @@ function zw_rest_api_init()
         'fragment',
         'posts',
         [
-            'get_callback' => fn ($post_arr) => array_map(fn ($post) => $post->id, fragment_get_posts($post_arr['id'])->to_array()),
+            'get_callback' => fn ($post_arr) => array_column(fragment_get_posts($post_arr['id'])->to_array(), 'id'),
         ]
     );
 
@@ -341,11 +341,11 @@ function zw_rest_api_init()
         'fm',
         'presenters',
         [
-            'get_callback' => fn ($post_arr) => array_values(array_map(fn ($maker) => [
+            'get_callback' => fn ($post_arr) => array_map(fn ($maker) => [
                 'naam' => (string) ($maker['fm_show_maker_naam'] ?? ''),
                 'bio' => (string) ($maker['fm_show_maker_bio'] ?? ''),
                 'foto' => empty($maker['fm_show_maker_foto']) ? null : (string) $maker['fm_show_maker_foto'],
-            ], zw_acf_rows(get_field('fm_show_makers', $post_arr['id']))))
+            ], zw_acf_rows(get_field('fm_show_makers', $post_arr['id'])))
         ]
     );
 }

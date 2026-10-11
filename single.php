@@ -200,8 +200,7 @@ if ($timber_post->post_type == 'fm') {
 
     // Only build the full schedule when this published show can have a
     // successor.
-    $context['following_show'] = $published && $rules ? new \Streekomroep\BroadcastSchedule()
-        ->getFollowingRadioBroadcast($show->ID) : null;
+    $context['following_show'] = $published && $rules ? new \Streekomroep\BroadcastSchedule()->getFollowingRadioBroadcast($show->ID) : null;
 
     $context['programmatie'] = $rules;
     $context['schedule_days'] = $rules ? array_merge(...array_column($rules, 'fm_show_dagen')) : [];

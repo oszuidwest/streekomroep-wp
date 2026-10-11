@@ -1,6 +1,5 @@
 <?php
 
-use Streekomroep\TelevisionBroadcast;
 use Streekomroep\TvGemistCache;
 
 /** Primes front-page attachment caches to avoid per-image database queries. */
@@ -28,7 +27,7 @@ function zw_prime_front_page_caches(array $blocks): void
         }
     }
 
-    $attachments = array_unique(array_filter(array_map(intval(...), $attachments)));
+    $attachments = array_filter(wp_parse_id_list($attachments));
     if ($attachments) {
         _prime_post_caches($attachments, false, true);
 
@@ -190,7 +189,7 @@ foreach ($blocks as &$block) {
         case 'blok_nu_op_fmtv':
             $schedule = new \Streekomroep\BroadcastSchedule();
             $block['fm'] = $schedule->getCurrentRadioBroadcast();
-            $block['tv'] = array_map(fn (TelevisionBroadcast $item) => $item->name, $schedule->getToday()->television);
+            $block['tv'] = array_column($schedule->getToday()->television, 'name');
             $block['links'] = [
                 'fm' => zw_get_page_by_template('wp-page-fm-player.php'),
                 'tv' => zw_get_page_by_template('wp-page-tv-player.php')
