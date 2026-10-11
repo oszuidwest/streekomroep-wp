@@ -100,19 +100,8 @@ class VideoCollection
         && $rawVideo->_broadcastTimestamp <= $nowTimestamp;
     }
 
-    /** @var array<int, array> */
-    private static array $rawVideos = [];
-
-    /** Returns raw video metadata cached for the current request. */
-    private static function rawForTvShow(int $postId): array
-    {
-        if (!array_key_exists($postId, self::$rawVideos)) {
-            $videos = get_post_meta($postId, ZW_TV_META_VIDEOS, true);
-            self::$rawVideos[$postId] = is_array($videos) ? $videos : [];
-        }
-
-        return self::$rawVideos[$postId];
-    }
+    /** @var array<int, Video[]> */
+    private static array $videos = [];
 
     /** Loads one available episode by GUID, picking the same duplicate as the sorted episode list. */
     public static function findVideo(int $postId, string $guid): ?Video
@@ -121,7 +110,7 @@ class VideoCollection
     }
 
     /**
-     * Loads and sorts TV episodes from post meta.
+     * Loads and sorts TV episodes from post meta, cached for the current request.
      *
      * @return Video[]
      */
@@ -132,6 +121,11 @@ class VideoCollection
             return [];
         }
 
-        return self::sortAndFilter($credentials, self::rawForTvShow($postId));
+        if (!array_key_exists($postId, self::$videos)) {
+            $rawVideos = get_post_meta($postId, ZW_TV_META_VIDEOS, true);
+            self::$videos[$postId] = self::sortAndFilter($credentials, is_array($rawVideos) ? $rawVideos : []);
+        }
+
+        return self::$videos[$postId];
     }
 }
