@@ -1,6 +1,5 @@
 <?php
 
-use Streekomroep\TelevisionBroadcast;
 use Streekomroep\TvGemistCache;
 
 /** Primes front-page attachment caches to avoid per-image database queries. */
@@ -28,12 +27,12 @@ function zw_prime_front_page_caches(array $blocks): void
         }
     }
 
-    $attachments = array_unique(array_filter(array_map('intval', $attachments)));
+    $attachments = array_filter(wp_parse_id_list($attachments));
     if ($attachments) {
         _prime_post_caches($attachments, false, true);
 
         // ACF image formatting resolves attachment parent permalinks.
-        $parents = array_unique(array_filter(array_map('wp_get_post_parent_id', $attachments)));
+        $parents = array_unique(array_filter(array_map(wp_get_post_parent_id(...), $attachments)));
         if ($parents) {
             _prime_post_caches($parents, true, true);
         }
@@ -141,9 +140,7 @@ foreach ($blocks as &$block) {
             ]);
 
             $minCount = 2;
-            $terms = array_filter($terms, function ($term) use ($minCount) {
-                return $term->count >= $minCount;
-            });
+            $terms = array_filter($terms, fn ($term) => $term->count >= $minCount);
 
             // Order dossiers without loading their individual posts.
             global $wpdb;
@@ -184,9 +181,7 @@ foreach ($blocks as &$block) {
                 }
             }
 
-            usort($terms, function ($lhs, $rhs) use ($latestByTerm) {
-                return strcmp($latestByTerm[$rhs->id] ?? '', $latestByTerm[$lhs->id] ?? '');
-            });
+            usort($terms, fn ($lhs, $rhs) => strcmp($latestByTerm[$rhs->id] ?? '', $latestByTerm[$lhs->id] ?? ''));
 
             $block['terms'] = $terms;
             break;
@@ -194,9 +189,7 @@ foreach ($blocks as &$block) {
         case 'blok_nu_op_fmtv':
             $schedule = new \Streekomroep\BroadcastSchedule();
             $block['fm'] = $schedule->getCurrentRadioBroadcast();
-            $block['tv'] = array_map(function (TelevisionBroadcast $item) {
-                return $item->name;
-            }, $schedule->getToday()->television);
+            $block['tv'] = array_column($schedule->getToday()->television, 'name');
             $block['links'] = [
                 'fm' => zw_get_page_by_template('wp-page-fm-player.php'),
                 'tv' => zw_get_page_by_template('wp-page-tv-player.php')

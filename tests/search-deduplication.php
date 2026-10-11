@@ -15,18 +15,15 @@ $registered_actions = [];
 class WP_Query
 {
     public array $posts = [];
-    private array $query_vars;
-    private bool $is_main;
+    private readonly bool $is_main;
 
-    public function __construct(array $query_vars = [])
+    public function __construct(private array $query_vars = [])
     {
         global $article_ids, $secondary_query_args;
+        $this->is_main = $this->query_vars === [];
 
-        $this->query_vars = $query_vars;
-        $this->is_main = $query_vars === [];
-
-        if ($query_vars !== []) {
-            $secondary_query_args = $query_vars;
+        if (!$this->is_main) {
+            $secondary_query_args = $this->query_vars;
             $this->posts = $article_ids;
         }
     }

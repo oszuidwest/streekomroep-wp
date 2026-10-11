@@ -23,7 +23,10 @@ class VideoRenderer
         $out .= ' data-vjs-src="' . esc_url($video->getPlaylistUrl()) . '"';
         $out .= ' data-vjs-type="application/x-mpegURL"';
         $out .= '>';
-        $out .= '<source src="' . esc_url($video->getMP4Url()) . '" type="video/mp4">';
+        $mp4 = $video->getMP4Url();
+        if ($mp4) {
+            $out .= '<source src="' . esc_url($mp4) . '" type="video/mp4">';
+        }
         $out .= '</video>';
         $out .= '</div>';
 

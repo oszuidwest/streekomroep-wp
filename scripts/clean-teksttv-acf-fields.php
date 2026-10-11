@@ -227,7 +227,7 @@ function zw_teksttv_cleaner_get_option_names(array $patterns, array $exact_names
     );
     zw_teksttv_cleaner_check_database_error('reading matching option names');
 
-    return array_values(array_unique(array_map('strval', $option_names)));
+    return array_values(array_unique(array_map(strval(...), $option_names)));
 }
 
 /**
@@ -533,7 +533,7 @@ zw_teksttv_cleaner_delete_metadata('post', array_keys($post_meta_matches));
 zw_teksttv_cleaner_delete_metadata('term', array_keys($term_meta_matches));
 zw_teksttv_cleaner_delete_options($option_names);
 
-$remaining_acf_posts = zw_teksttv_cleaner_get_acf_posts_by_id(array_map('intval', array_column($acf_posts, 'ID')));
+$remaining_acf_posts = zw_teksttv_cleaner_get_acf_posts_by_id(array_map(intval(...), array_column($acf_posts, 'ID')));
 $remaining_post_meta = zw_teksttv_cleaner_get_meta_matches($wpdb->postmeta, $post_meta_keys);
 $remaining_term_meta = zw_teksttv_cleaner_get_meta_matches($wpdb->termmeta, $term_meta_keys);
 $remaining_options = zw_teksttv_cleaner_get_option_names([], $option_names);

@@ -18,7 +18,8 @@ function zw_fragment_update_enclosure(int $post_id): void
 
     $source_url = $fragment->meta('fragment_url', ['format_value' => false]);
     try {
-        $source = $fragment->getSources()[0] ?? null;
+        // Feed readers cannot play HLS, so only a direct media file qualifies.
+        $source = array_find($fragment->getSources(), fn ($source) => $source['type'] !== 'application/x-mpegURL');
     } catch (Throwable $error) {
         error_log('Failed to resolve enclosure for fragment ' . $fragment->ID . ': ' . $error->getMessage());
         $source = null;
