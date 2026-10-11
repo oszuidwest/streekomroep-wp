@@ -92,7 +92,10 @@ class Video
         return sprintf('%s/%s/playlist.m3u8', $this->credentials->hostname, $this->data->guid);
     }
 
-    /** Returns the largest MP4 rendition up to 720p, or null when Bunny lists none. */
+    /**
+     * Returns the largest MP4 rendition up to 720p, or the largest one when all are above 720p.
+     * Returns null when Bunny lists none.
+     */
     public function getMP4Url(): ?string
     {
         $resolutions = explode(',', (string) ($this->data->availableResolutions ?? ''));

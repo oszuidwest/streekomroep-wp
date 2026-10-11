@@ -85,7 +85,8 @@ class VideoCollection
     {
         $nowTimestamp = time();
 
-        $filtered = array_filter($rawVideos, fn ($video) => self::isAvailable($video, $nowTimestamp));
+        // Skip malformed stored rows instead of failing the whole show.
+        $filtered = array_filter($rawVideos, fn ($video) => is_object($video) && self::isAvailable($video, $nowTimestamp));
 
         usort($filtered, fn ($left, $right) => $right->_broadcastTimestamp <=> $left->_broadcastTimestamp);
 

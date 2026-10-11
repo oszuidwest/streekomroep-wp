@@ -97,7 +97,7 @@ class BroadcastSchedule
                         continue;
                     }
 
-                    $day->addTelevision(new TelevisionBroadcast($show, $name ?: $show->post_title, $entry['starttijden']));
+                    $day->addTelevision(new TelevisionBroadcast($show, $name !== '' ? $name : $show->post_title, $entry['starttijden']));
                 }
 
                 $date->add(new \DateInterval('P1D'));
