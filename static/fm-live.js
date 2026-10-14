@@ -172,7 +172,7 @@
 
     // Reconnect from `close` so failed and clean disconnects share one path.
     function handleSocketClose(event) {
-        // A superseded socket can finish closing after its replacement connected.
+        // A suspended or superseded socket can finish closing after it was let go.
         if (event.target !== socket) {
             return;
         }
@@ -181,7 +181,8 @@
         scheduleReconnect();
     }
 
-    // Failed reconnects close again, so only the first close of an outage starts the timer.
+    // Every connect and every close calls this, so only the first one since the last report
+    // starts the countdown.
     function startStaleTimer() {
         if (staleTimer === null) {
             staleTimer = setTimeout(renderFallback, METADATA_STALE_AFTER);
@@ -197,28 +198,18 @@
     function suspendMetadata() {
         clearTimeout(reconnectTimer);
         clearStaleTimer();
-        if (socket) {
-            socket.removeEventListener('close', handleSocketClose);
-            socket.close();
-            socket = null;
-        }
+        const suspended = socket;
+        socket = null;
+        suspended?.close();
     }
 
     function setHlsMetadataActive(active) {
-        if (hlsMetadataActive === active) {
-            if (!active) {
-                connectMetadata();
-            }
-            return;
-        }
-
         hlsMetadataActive = active;
-        if (!active) {
+        if (active) {
+            suspendMetadata();
+        } else {
             connectMetadata();
-            return;
         }
-
-        suspendMetadata();
     }
 
     function resumeFeeds() {
