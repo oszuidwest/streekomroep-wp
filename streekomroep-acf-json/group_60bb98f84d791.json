@@ -71,7 +71,7 @@
             },
             "default_value": "",
             "maxlength": "",
-            "placeholder": "Voor bestanden als \"2023-12-01_23\" gebruik je \"Y-m-d_H\"",
+            "placeholder": "Voor bestanden als \"2026-04-30-22\" gebruik je \"Y-m-d-H\"",
             "prepend": "",
             "append": ""
         },
@@ -124,5 +124,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1683049212
+    "modified": 1792004649
 }
