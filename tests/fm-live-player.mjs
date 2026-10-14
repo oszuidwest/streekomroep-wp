@@ -320,7 +320,7 @@ function createHarness({deferFirstPlay = false, pauseDuringRecovery = false, wit
         window
     });
 
-    return {advance, audio, artist, button, FakeHls, FakeWebSocket, mediaSession, title};
+    return {advance, audio, artist, button, document, FakeHls, FakeWebSocket, mediaSession, title};
 }
 
 function addMetadataTrack(harness) {
@@ -643,6 +643,8 @@ test('a connected WebSocket keeps its track after expires_at passes', () => {
 
     assert.equal(harness.title.textContent, 'Testtitel');
     assert.equal(harness.artist.textContent, 'Testartiest');
+    assert.equal(harness.mediaSession.metadata.title, 'Testtitel');
+    assert.equal(harness.mediaSession.metadata.artist, 'Testartiest');
 });
 
 test('a WebSocket outage clears the track once it outlasts the grace period', () => {
@@ -680,4 +682,31 @@ test('reconnecting within the grace period keeps the current track', () => {
     assert.equal(harness.FakeWebSocket.instances.length, 2);
     assert.equal(harness.title.textContent, 'Testtitel');
     assert.equal(harness.artist.textContent, 'Testartiest');
+    assert.equal(harness.mediaSession.metadata.title, 'Testtitel');
+});
+
+test('background playback keeps the lock screen on the WebSocket and clears it after an outage', () => {
+    const harness = createHarness({withHls: false, withHlsSource: false});
+    harness.button.click();
+    harness.audio.dispatch('playing');
+    harness.FakeWebSocket.instances[0].message({artist: 'Testartiest', title: 'Testtitel'});
+    harness.document.hidden = true;
+    harness.document.dispatch('visibilitychange');
+
+    assert.equal(harness.FakeWebSocket.instances[0].closed, false);
+
+    harness.FakeWebSocket.instances[0].close();
+    harness.advance(1000);
+    harness.FakeWebSocket.instances[1].message({artist: 'Volgende artiest', title: 'Volgende titel'});
+
+    assert.equal(harness.mediaSession.metadata.title, 'Volgende titel');
+    assert.equal(harness.mediaSession.metadata.album, 'Testprogramma · ZuidWest FM');
+    assert.equal(harness.mediaSession.playbackState, 'playing');
+
+    harness.FakeWebSocket.instances[1].close();
+    harness.advance(60000);
+
+    assert.ok(harness.FakeWebSocket.instances.length > 2);
+    assert.equal(harness.mediaSession.metadata.title, 'ZuidWest FM');
+    assert.equal(harness.mediaSession.metadata.artist, 'In heel West-Brabant');
 });
