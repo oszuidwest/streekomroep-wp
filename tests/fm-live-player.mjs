@@ -269,6 +269,23 @@ function createHarness({deferFirstPlay = false, pauseDuringRecovery = false, wit
         window.Hls = FakeHls;
     }
 
+    const timers = new Map();
+    let clock = 0;
+    let nextTimer = 1;
+    const advance = (ms) => {
+        const until = clock + ms;
+        for (;;) {
+            const [id, timer] = [...timers].sort((a, b) => a[1].at - b[1].at)[0] || [];
+            if (!timer || timer.at > until) {
+                break;
+            }
+            timers.delete(id);
+            clock = timer.at;
+            timer.callback();
+        }
+        clock = until;
+    };
+
     const mediaSession = {
         actions: new Map(),
         setActionHandler(action, handler) {
@@ -291,16 +308,19 @@ function createHarness({deferFirstPlay = false, pauseDuringRecovery = false, wit
         String,
         WebSocket: FakeWebSocket,
         clearInterval() {},
-        clearTimeout() {},
+        clearTimeout: (id) => timers.delete(id),
         document,
         fetch: async () => ({ok: false}),
         navigator: {mediaSession},
         setInterval: () => 1,
-        setTimeout: () => 1,
+        setTimeout(callback, ms = 0) {
+            timers.set(nextTimer, {at: clock + ms, callback});
+            return nextTimer++;
+        },
         window
     });
 
-    return {audio, artist, button, FakeHls, FakeWebSocket, mediaSession, title};
+    return {advance, audio, artist, button, FakeHls, FakeWebSocket, mediaSession, title};
 }
 
 function addMetadataTrack(harness) {
@@ -606,4 +626,58 @@ test('pausing an Icecast stream preserves the current metadata', () => {
     assert.equal(harness.title.textContent, 'Testtitel');
     assert.equal(harness.artist.textContent, 'Testartiest');
     assert.equal(harness.button.attributes.get('aria-label'), 'Pauzeer');
+});
+
+test('a connected WebSocket keeps its track after expires_at passes', () => {
+    const harness = createHarness();
+    harness.FakeWebSocket.instances[0].message({
+        artist: 'Testartiest',
+        expires_at: new Date(Date.now() - 1000).toISOString(),
+        title: 'Testtitel',
+        type: 'metadata_update'
+    });
+
+    assert.equal(harness.title.textContent, 'Testtitel');
+
+    harness.advance(10 * 60 * 1000);
+
+    assert.equal(harness.title.textContent, 'Testtitel');
+    assert.equal(harness.artist.textContent, 'Testartiest');
+});
+
+test('a WebSocket outage clears the track once it outlasts the grace period', () => {
+    const harness = createHarness();
+    harness.FakeWebSocket.instances[0].message({artist: 'Testartiest', title: 'Testtitel'});
+    const failOpenSockets = () => harness.FakeWebSocket.instances
+        .filter((socket) => !socket.closed)
+        .forEach((socket) => socket.close());
+
+    for (let elapsed = 0; elapsed < 55000; elapsed += 1000) {
+        failOpenSockets();
+        harness.advance(1000);
+    }
+
+    assert.ok(harness.FakeWebSocket.instances.length > 2);
+    assert.equal(harness.title.textContent, 'Testtitel');
+
+    failOpenSockets();
+    harness.advance(10000);
+
+    assert.equal(harness.title.textContent, 'ZuidWest FM');
+    assert.equal(harness.artist.textContent, 'In heel West-Brabant');
+    assert.equal(harness.mediaSession.metadata.title, 'ZuidWest FM');
+});
+
+test('reconnecting within the grace period keeps the current track', () => {
+    const harness = createHarness();
+    harness.FakeWebSocket.instances[0].message({artist: 'Testartiest', title: 'Testtitel'});
+
+    harness.FakeWebSocket.instances[0].close();
+    harness.advance(1000);
+    harness.FakeWebSocket.instances[1].message({artist: 'Testartiest', title: 'Testtitel'});
+    harness.advance(10 * 60 * 1000);
+
+    assert.equal(harness.FakeWebSocket.instances.length, 2);
+    assert.equal(harness.title.textContent, 'Testtitel');
+    assert.equal(harness.artist.textContent, 'Testartiest');
 });

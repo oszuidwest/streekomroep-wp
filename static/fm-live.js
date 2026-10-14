@@ -1,6 +1,8 @@
 (function () {
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
+    // Without a socket the server cannot end the current track, so clear it after this long.
+    const METADATA_STALE_AFTER = 60000;
     const PROGRESS_INTERVAL = 30000;
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
     const SCHEDULE_RETRY_SECONDS = 30;
@@ -91,6 +93,7 @@
 
     let reconnectDelay = RECONNECT_START;
     let reconnectTimer = null;
+    let staleTimer = null;
     let socket = null;
 
     function scheduleReconnect() {
@@ -145,6 +148,8 @@
                 return;
             }
 
+            clearStaleTimer();
+
             // The server owns track timing: it delays updates to match the stream and
             // only sends a fallback when no next track arrived within that window.
             // A local timer on expires_at would run ahead of the stream and flap between songs.
@@ -160,8 +165,26 @@
             renderNow(track);
         });
 
-        // Reconnect from `close` so failed and clean disconnects share one path.
-        socket.addEventListener('close', scheduleReconnect);
+        socket.addEventListener('close', handleSocketClose);
+    }
+
+    // Reconnect from `close` so failed and clean disconnects share one path.
+    function handleSocketClose(event) {
+        // A superseded socket can finish closing after its replacement connected.
+        if (event.target !== socket) {
+            return;
+        }
+
+        // Failed reconnects close again, so only the first close of an outage starts the timer.
+        if (staleTimer === null) {
+            staleTimer = setTimeout(renderFallback, METADATA_STALE_AFTER);
+        }
+        scheduleReconnect();
+    }
+
+    function clearStaleTimer() {
+        clearTimeout(staleTimer);
+        staleTimer = null;
     }
 
     function setHlsMetadataActive(active) {
@@ -179,8 +202,9 @@
         }
 
         clearTimeout(reconnectTimer);
+        clearStaleTimer();
         if (socket) {
-            socket.removeEventListener('close', scheduleReconnect);
+            socket.removeEventListener('close', handleSocketClose);
             socket.close();
             socket = null;
         }
