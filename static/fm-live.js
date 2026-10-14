@@ -1,6 +1,9 @@
 (function () {
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
+    // Without a working socket the server cannot end the current track, so clear it after this long.
+    // Several reconnect attempts fit in this window, so brief drops never show the fallback.
+    const METADATA_STALE_AFTER = 60000;
     const PROGRESS_INTERVAL = 30000;
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
     const SCHEDULE_RETRY_SECONDS = 30;
@@ -65,7 +68,6 @@
         return title && artist ? {title: title, artist: artist} : null;
     }
 
-    let expiryTimer = null;
     function renderNow(track) {
         const changed = track?.title !== currentTrack?.title || track?.artist !== currentTrack?.artist;
         currentTrack = track;
@@ -87,29 +89,12 @@
     }
 
     function renderFallback() {
-        clearTimeout(expiryTimer);
-        expiryTimer = null;
         renderNow(null);
-    }
-
-    function trackIsCurrent(expiresAt) {
-        clearTimeout(expiryTimer);
-        const remaining = Date.parse(expiresAt) - Date.now();
-        if (!Number.isFinite(remaining)) {
-            return true;
-        }
-
-        if (remaining <= 0) {
-            renderFallback();
-            return false;
-        }
-
-        expiryTimer = setTimeout(renderFallback, remaining);
-        return true;
     }
 
     let reconnectDelay = RECONNECT_START;
     let reconnectTimer = null;
+    let staleTimer = null;
     let socket = null;
 
     function scheduleReconnect() {
@@ -136,6 +121,8 @@
         }
 
         clearTimeout(reconnectTimer);
+        // A new socket can fail to open or stay silent, so the shown track expires unless it reports.
+        startStaleTimer();
 
         try {
             socket = new WebSocket(radioPage.dataset.metadataUrl);
@@ -164,47 +151,64 @@
                 return;
             }
 
+            clearStaleTimer();
+
+            // The server owns track expiry and delays updates to match the stream; expires_at
+            // excludes that delay, so a local timer on it would flap between songs.
             const track = readTrack(payload);
             if (!track) {
-                // An empty metadata update ends the current track.
+                // A track-less update (programme name or station text) ends the current track.
                 if (!payload.type || payload.type === 'metadata_update') {
                     renderFallback();
                 }
                 return;
             }
 
-            if (!trackIsCurrent(payload.expires_at)) {
-                return;
-            }
-
             renderNow(track);
         });
 
-        // Reconnect from `close` so failed and clean disconnects share one path.
-        socket.addEventListener('close', scheduleReconnect);
+        socket.addEventListener('close', handleSocketClose);
+    }
+
+    // Reconnect from `close` so failed and clean disconnects share one path.
+    function handleSocketClose(event) {
+        // A suspended or superseded socket can finish closing after it was let go.
+        if (event.target !== socket) {
+            return;
+        }
+
+        startStaleTimer();
+        scheduleReconnect();
+    }
+
+    // Every connect and every close calls this, so only the first one since the last report
+    // starts the countdown.
+    function startStaleTimer() {
+        if (staleTimer === null) {
+            staleTimer = setTimeout(renderFallback, METADATA_STALE_AFTER);
+        }
+    }
+
+    function clearStaleTimer() {
+        clearTimeout(staleTimer);
+        staleTimer = null;
+    }
+
+    // An intentional close is not an outage, so it neither reconnects nor expires the track.
+    function suspendMetadata() {
+        clearTimeout(reconnectTimer);
+        clearStaleTimer();
+        const suspended = socket;
+        socket = null;
+        suspended?.close();
     }
 
     function setHlsMetadataActive(active) {
-        if (hlsMetadataActive === active) {
-            if (!active) {
-                connectMetadata();
-            }
-            return;
-        }
-
         hlsMetadataActive = active;
-        if (!active) {
+        if (active) {
+            suspendMetadata();
+        } else {
             connectMetadata();
-            return;
-        }
-
-        clearTimeout(expiryTimer);
-        expiryTimer = null;
-        clearTimeout(reconnectTimer);
-        if (socket) {
-            socket.removeEventListener('close', scheduleReconnect);
-            socket.close();
-            socket = null;
         }
     }
 
@@ -223,8 +227,7 @@
         if (document.hidden) {
             if (!isPlaying) {
                 // Suspend the idle metadata socket while the page is hidden.
-                clearTimeout(reconnectTimer);
-                socket?.close();
+                suspendMetadata();
             }
             return;
         }
