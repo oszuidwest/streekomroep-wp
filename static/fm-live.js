@@ -1,7 +1,7 @@
 (function () {
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
-    // Without a socket the server cannot end the current track, so clear it after this long.
+    // Without a working socket the server cannot end the current track, so clear it after this long.
     // Several reconnect attempts fit in this window, so brief drops never show the fallback.
     const METADATA_STALE_AFTER = 60000;
     const PROGRESS_INTERVAL = 30000;
@@ -121,6 +121,8 @@
         }
 
         clearTimeout(reconnectTimer);
+        // A new socket can fail to open or stay silent, so the shown track expires unless it reports.
+        startStaleTimer();
 
         try {
             socket = new WebSocket(radioPage.dataset.metadataUrl);
@@ -175,16 +177,31 @@
             return;
         }
 
-        // Failed reconnects close again, so only the first close of an outage starts the timer.
+        startStaleTimer();
+        scheduleReconnect();
+    }
+
+    // Failed reconnects close again, so only the first close of an outage starts the timer.
+    function startStaleTimer() {
         if (staleTimer === null) {
             staleTimer = setTimeout(renderFallback, METADATA_STALE_AFTER);
         }
-        scheduleReconnect();
     }
 
     function clearStaleTimer() {
         clearTimeout(staleTimer);
         staleTimer = null;
+    }
+
+    // An intentional close is not an outage, so it neither reconnects nor expires the track.
+    function suspendMetadata() {
+        clearTimeout(reconnectTimer);
+        clearStaleTimer();
+        if (socket) {
+            socket.removeEventListener('close', handleSocketClose);
+            socket.close();
+            socket = null;
+        }
     }
 
     function setHlsMetadataActive(active) {
@@ -201,13 +218,7 @@
             return;
         }
 
-        clearTimeout(reconnectTimer);
-        clearStaleTimer();
-        if (socket) {
-            socket.removeEventListener('close', handleSocketClose);
-            socket.close();
-            socket = null;
-        }
+        suspendMetadata();
     }
 
     function resumeFeeds() {
@@ -225,8 +236,7 @@
         if (document.hidden) {
             if (!isPlaying) {
                 // Suspend the idle metadata socket while the page is hidden.
-                clearTimeout(reconnectTimer);
-                socket?.close();
+                suspendMetadata();
             }
             return;
         }
