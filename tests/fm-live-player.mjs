@@ -269,6 +269,8 @@ function createHarness({deferFirstPlay = false, pauseDuringRecovery = false, wit
         window.Hls = FakeHls;
     }
 
+    // Step to each due timer so reconnect backoff chains fire within one advance();
+    // node:test's mock.timers.tick() jumps to the end and runs a chain only once.
     const timers = new Map();
     let clock = 0;
     let nextTimer = 1;
@@ -632,7 +634,7 @@ test('a connected WebSocket keeps its track after expires_at passes', () => {
     const harness = createHarness();
     harness.FakeWebSocket.instances[0].message({
         artist: 'Testartiest',
-        expires_at: new Date(Date.now() - 1000).toISOString(),
+        expires_at: '2000-01-01T00:00:00Z',
         title: 'Testtitel',
         type: 'metadata_update'
     });
@@ -709,4 +711,20 @@ test('background playback keeps the lock screen on the WebSocket and clears it a
     assert.ok(harness.FakeWebSocket.instances.length > 2);
     assert.equal(harness.mediaSession.metadata.title, 'ZuidWest FM');
     assert.equal(harness.mediaSession.metadata.artist, 'In heel West-Brabant');
+});
+
+test('a superseded socket closing late does not start an outage', () => {
+    const harness = createHarness();
+    const oldSocket = harness.FakeWebSocket.instances[0];
+    oldSocket.readyState = 2;
+    harness.document.dispatch('visibilitychange');
+    harness.FakeWebSocket.instances[1].message({artist: 'Testartiest', title: 'Testtitel'});
+
+    oldSocket.readyState = 3;
+    oldSocket.dispatch('close');
+    harness.advance(10 * 60 * 1000);
+
+    assert.equal(harness.FakeWebSocket.instances.length, 2);
+    assert.equal(harness.title.textContent, 'Testtitel');
+    assert.equal(harness.mediaSession.metadata.title, 'Testtitel');
 });

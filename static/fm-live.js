@@ -2,6 +2,7 @@
     const RECONNECT_START = 1000;
     const RECONNECT_MAX = 30000;
     // Without a socket the server cannot end the current track, so clear it after this long.
+    // Several reconnect attempts fit in this window, so brief drops never show the fallback.
     const METADATA_STALE_AFTER = 60000;
     const PROGRESS_INTERVAL = 30000;
     const FRESH_PERIOD_MAX = 15 * 60 * 1000;
@@ -150,9 +151,8 @@
 
             clearStaleTimer();
 
-            // The server owns track timing: it delays updates to match the stream and
-            // only sends a fallback when no next track arrived within that window.
-            // A local timer on expires_at would run ahead of the stream and flap between songs.
+            // The server owns track expiry and delays updates to match the stream; expires_at
+            // excludes that delay, so a local timer on it would flap between songs.
             const track = readTrack(payload);
             if (!track) {
                 // A track-less update (programme name or station text) ends the current track.
