@@ -121,6 +121,12 @@ Sections are stored as plain HTML and rendered with native `<details>` elements,
 
 The title and item headings are plain text and item bodies allow paragraph-level formatting only (paragraphs, lists, links, emphasis, images, embeds). The editor blocks other formatting there, and saving rewrites each section into that canonical form before the theme's content allowlist runs: stray content inside a section moves after it, headings and quotes inside an item become paragraphs, nested sections dissolve. Feeds receive headings and text instead of the disclosure widgets.
 
+### Raw HTML
+
+Saving a post runs it through the theme's HTML allowlist (`lib/input_sanitizer.php`) to strip pasted HTML. Classic Editor content is filtered as a whole. In block editor content only Custom HTML and Shortcode blocks are filtered, also when nested: the allowlist would break the markup of every other block, so HTML inside other blocks (for example pasted block markup) is saved as is.
+
+The block editor hides its raw HTML tools for everyone: the Custom HTML and Shortcode blocks in the inserter, the code editor and "Edit as HTML". Shortcodes still work inside a paragraph. An invalid block can still be converted to a Custom HTML block; its content is filtered on save like any other.
+
 ## Integrations
 
 ### imgproxy
