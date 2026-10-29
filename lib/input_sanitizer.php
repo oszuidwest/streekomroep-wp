@@ -58,20 +58,13 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'ul'         => [],
     ];
 
-    if (!isset($data['post_content'])) {
-        return $data;
-    }
-
-    $content = wp_unslash($data['post_content']);
-
     // Block editor content is saved as is: the allowlist would strip the markup
     // the editor generates (<p>, <figure>, classes) and invalidate every block.
-    if (has_blocks($content)) {
-        return $data;
+    if (isset($data['post_content']) && !has_blocks($data['post_content'])) {
+        // Normalize first so the allowlist receives canonical markup.
+        $content = CollapsibleNormalizer::normalize(wp_unslash($data['post_content']));
+        $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
-
-    // Normalize first so the allowlist receives canonical markup.
-    $data['post_content'] = wp_slash(wp_kses(CollapsibleNormalizer::normalize($content), $allowed_elements));
 
     return $data;
 }

@@ -22,7 +22,9 @@ foreach (
 add_filter('pre_option_blog_charset', fn () => 'UTF-8');
 require __DIR__ . '/../lib/input_sanitizer.php';
 
-$sanitize = fn (string $slashed): string => zw_sanitize_post_content(['post_content' => $slashed], [])['post_content'];
+// Other post fields must pass through untouched.
+$postData = fn (string $content): array => ['post_title' => 'T', 'post_content' => wp_slash($content)];
+$sanitize = fn (string $content): array => zw_sanitize_post_content($postData($content), []);
 
 $classic = implode("\n\n", [
     '<p class="x">Intro <strong>vet</strong> <s>weg</s></p>',
@@ -35,14 +37,41 @@ $classicExpected = implode("\n\n", [
     'Slot \\ &quot;x&quot;<iframe src="https://e.nl/v" style="border: none"></iframe>',
 ]);
 
-// Block editor output, serialized by @wordpress/blocks (WordPress 7.1), including
-// Custom HTML blocks with <p style>, <script> and onclick.
-$blocks = wp_slash(file_get_contents(__DIR__ . '/fixtures/block-content.html'));
+// Hand-written, modelled on block editor output: blocks the allowlist would
+// strip, including escaped JSON attributes and a Custom HTML block with <p style>,
+// <script>, onclick and a collapsible.
+$blocks = <<<'HTML'
+<!-- wp:heading {"anchor":"a\u002d\u002db","className":"Zeg \u0022hoi\u0022 \u002d\u002d en \u003cb\u003e \u0026 \u005c ’ é 🎉 \u002d\u002d\u003e \u003c!\u002d\u002d x"} -->
+<h2 class="wp-block-heading Zeg &quot;hoi&quot; -- en &lt;b&gt; &amp; \ ’ é 🎉 --&gt; &lt;!-- x" id="a--b">Met anker</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":123,"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="https://e.nl/a.jpg" alt="Zeg &quot;hoi&quot; -- en &lt;b&gt; &amp; \ ’ é 🎉 --&gt; &lt;!-- x" class="wp-image-123"/><figcaption class="wp-element-caption">Foto: <em>ANP</em> "x" --</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:embed {"url":"https://www.youtube.com/watch?v=abc\u0026t=1","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://www.youtube.com/watch?v=abc&amp;t=1
+</div></figure>
+<!-- /wp:embed -->
+
+<!-- wp:shortcode -->
+[zw_embed url="https://x.nl/?a=1&b=2" titel="é -- 'q'"]
+<!-- /wp:shortcode -->
+
+<!-- wp:html -->
+<p style="color:red">rood</p><script>alert(1)</script><b onclick="x()">vet</b><s>doorgehaald</s><div class="collapsible"><h3 class="collapsible-title">T</h3><details class="collapsible-item"><summary>K</summary>A</details></div><iframe src="https://e.nl" allowfullscreen></iframe>
+<!-- /wp:html -->
+HTML;
+
+// The editor saves a Classic block as plain HTML without block comments.
+$mixed = "<p>Losse <s>klassieke</s> tekst</p>\n\n<!-- wp:paragraph -->\n<p class=\"x\">Blok \\ \"x\"</p>\n<!-- /wp:paragraph -->";
 
 $cases = [
-    'classic content is filtered through the allowlist' => [wp_slash($classicExpected), $sanitize(wp_slash($classic))],
-    'block content is saved as submitted' => [$blocks, $sanitize($blocks)],
-    'posts without content stay without content' => [[], zw_sanitize_post_content([], [])],
+    'classic content is filtered through the allowlist' => [$postData($classicExpected), $sanitize($classic)],
+    'block content is saved as submitted' => [$postData($blocks), $sanitize($blocks)],
+    'a classic block beside blocks is saved as submitted' => [$postData($mixed), $sanitize($mixed)],
+    'posts without content stay without content' => [['post_title' => 'T'], zw_sanitize_post_content(['post_title' => 'T'], [])],
 ];
 
 $failures = [];
