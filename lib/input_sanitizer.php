@@ -3,7 +3,7 @@
 use Streekomroep\CollapsibleNormalizer;
 
 /**
- * Sanitizes post content against the theme's HTML allowlist.
+ * Sanitizes classic post content against the theme's HTML allowlist.
  *
  * @param array $data An array of slashed, sanitized, and processed post data.
  * @param array $postarr Sanitized, slashed, otherwise unmodified post data.
@@ -58,8 +58,10 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'ul'         => [],
     ];
 
-    // Normalize first so the allowlist receives canonical markup.
-    if (isset($data['post_content'])) {
+    // Block editor content is saved as is: the allowlist would strip the markup
+    // the editor generates (<p>, <figure>, classes) and invalidate every block.
+    if (isset($data['post_content']) && !has_blocks($data['post_content'])) {
+        // Normalize first so the allowlist receives canonical markup.
         $content = CollapsibleNormalizer::normalize(wp_unslash($data['post_content']));
         $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
     }
