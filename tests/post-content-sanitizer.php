@@ -22,9 +22,21 @@ foreach (
 add_filter('pre_option_blog_charset', fn () => 'UTF-8');
 require __DIR__ . '/../lib/input_sanitizer.php';
 
+// Stand-ins for core lookups that need registered post types and the database.
+// Post 1 is a fragment, post 2 an oEmbed cache entry.
+function is_post_type_viewable(string|false $postType): bool
+{
+    return in_array($postType, ['post', 'fragment'], true);
+}
+
+function get_post_type(int $post): string
+{
+    return [1 => 'fragment', 2 => 'oembed_cache'][$post];
+}
+
 // Other post fields must pass through untouched.
-$postData = fn (string $content): array => ['post_title' => 'T', 'post_content' => wp_slash($content)];
-$sanitize = fn (string $content): array => zw_sanitize_post_content($postData($content), []);
+$postData = fn (string $content, string $type = 'post', int $parent = 0): array => ['post_title' => 'T', 'post_type' => $type, 'post_parent' => $parent, 'post_content' => wp_slash($content)];
+$sanitize = fn (string $content, string $type = 'post', int $parent = 0): array => zw_sanitize_post_content($postData($content, $type, $parent), []);
 
 $classic = implode("\n\n", [
     '<p class="x">Intro <strong>vet</strong> <s>weg</s></p>',
@@ -71,7 +83,10 @@ $cases = [
     'classic content is filtered through the allowlist' => [$postData($classicExpected), $sanitize($classic)],
     'block content is saved as submitted' => [$postData($blocks), $sanitize($blocks)],
     'a classic block beside blocks is saved as submitted' => [$postData($mixed), $sanitize($mixed)],
-    'posts without content stay without content' => [['post_title' => 'T'], zw_sanitize_post_content(['post_title' => 'T'], [])],
+    'posts without content stay without content' => [['post_title' => 'T', 'post_type' => 'post'], zw_sanitize_post_content(['post_title' => 'T', 'post_type' => 'post'], [])],
+    'other post types are saved as submitted' => [$postData($classic, 'oembed_cache'), $sanitize($classic, 'oembed_cache')],
+    'revisions of articles are filtered' => [$postData($classicExpected, 'revision', 1), $sanitize($classic, 'revision', 1)],
+    'revisions of other post types are saved as submitted' => [$postData($classic, 'revision', 2), $sanitize($classic, 'revision', 2)],
 ];
 
 $failures = [];

@@ -12,6 +12,13 @@ use Streekomroep\CollapsibleNormalizer;
  */
 function zw_sanitize_post_content(array $data, array $postarr): array
 {
+    // Only viewable content is filtered. Other post types keep CSS, JSON or serialized
+    // data in post_content, which kses would corrupt. Revisions follow their parent.
+    $post_type = $data['post_type'] === 'revision' ? get_post_type($data['post_parent']) : $data['post_type'];
+    if (!is_post_type_viewable($post_type)) {
+        return $data;
+    }
+
     $allowed_elements = [
         'a'          => [
             'href'   => true,
