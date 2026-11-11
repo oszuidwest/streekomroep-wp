@@ -965,7 +965,8 @@ add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
 /**
  * Tables are styled as prose (assets/style.css). Core's table CSS adds cell borders,
- * stripes and colour rules on top, so don't load it, in the editor either.
+ * stripes and colour rules on top, so don't load it. This only works on the front end:
+ * the editor loads all block CSS at once, so assets/editor.css undoes it there.
  */
 function zw_drop_core_table_style(array $args, string $name): array
 {

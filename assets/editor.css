@@ -87,17 +87,31 @@ body figcaption {
     @apply m-0 text-sm text-gray-500 text-center pt-2;
 }
 
-/* Table block. Prose styles the table; core's table CSS isn't loaded (functions.php). */
-body .wp-block-table {
-    overflow-x: auto;
+/* Table block. The editor always loads core's table CSS, whose cell borders,
+   3px rules and padding outrank prose. Put prose's values back, as on the front end. */
+body .wp-block-table thead {
+    border-bottom: 1px solid var(--tw-prose-th-borders);
 }
 
-body .wp-block-table .has-fixed-layout {
-    table-layout: fixed;
+body .wp-block-table tfoot {
+    border-top: 1px solid var(--tw-prose-th-borders);
 }
 
-body .wp-block-table .has-fixed-layout :is(th, td) {
-    overflow-wrap: break-word;
+body .wp-block-table :is(th, td) {
+    border: 0;
+    padding: 0.5714286em;
+}
+
+body .wp-block-table th {
+    padding-top: 0;
+}
+
+body .wp-block-table :is(th, td):first-child {
+    padding-inline-start: 0;
+}
+
+body .wp-block-table :is(th, td):last-child {
+    padding-inline-end: 0;
 }
 
 /* Details block. Consecutive ones share one frame. */
