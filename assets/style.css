@@ -17,7 +17,8 @@
     @apply font-bold;
 }
 
-.prose blockquote {
+/* Pullquote block. The figure is the box; the inner blockquote is reset. */
+.prose .wp-block-pullquote {
     @apply border-none font-round text-xl text-gray-600 dark:text-white;
     text-transform: none;
     text-align: center;
@@ -27,98 +28,120 @@
     font-style: normal;
     margin-top: 1em;
     margin-bottom: 1em;
+    quotes: "\201C" "\201D";
+
+    &::before,
+    &::after {
+        display: block;
+        position: absolute;
+        text-align: center;
+        left: 0;
+        right: 0;
+        @apply text-groen font-round;
+        font-size: 4.5em;
+        line-height: 1;
+    }
+
+    &::before {
+        content: open-quote;
+        top: 0;
+    }
+
+    &::after {
+        content: close-quote;
+    }
+
+    & blockquote {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-style: inherit;
+        quotes: none;
+    }
+
+    & p {
+        font-size: 1.3em;
+        line-height: 1.3;
+        margin: 0;
+    }
+
+    & p::before,
+    & p::after {
+        content: none;
+    }
+
+    & cite {
+        @apply block mt-2 text-sm not-italic text-gray-500 dark:text-gray-300;
+    }
 }
 
-.prose blockquote p:first-of-type::before,
-.prose blockquote p:last-of-type::after {
-    content: none;
+/* Captions of any block (image, table, embed). The typography plugin's image
+   margins would push the caption away from the image. */
+.prose figure:has(> figcaption) img {
+    margin-block: 0;
 }
 
-.prose blockquote:before,
-.prose blockquote:after {
+/* Core makes the link inline-block, which adds a line box gap below the image. */
+.prose .wp-block-image a {
     display: block;
-    position: absolute;
-    text-align: center;
-    left: 0;
-    right: 0;
-    @apply text-groen font-round;
-    font-size: 4.5em;
-    line-height: 1;
 }
 
-.prose blockquote:before {
-    content: open-quote;
-    top: 0;
+.prose figcaption {
+    @apply m-0 text-sm text-gray-500 text-center pt-2;
 }
 
-.prose blockquote:after {
-    content: close-quote;
+/* Table block. Prose styles the table; core's table CSS isn't loaded (functions.php). */
+.prose .wp-block-table {
+    overflow-x: auto;
 }
 
-.prose blockquote p {
-    font-size: 1.3em;
-    line-height: 1.3;
-    margin: 0;
+.prose .wp-block-table .has-fixed-layout {
+    table-layout: fixed;
 }
 
-.prose .wp-caption * {
-    margin: 0;
-}
-
-.prose .wp-caption-text,
-.prose .wp-caption-dd {
-    @apply text-sm text-gray-500 text-center pt-2;
+.prose .wp-block-table .has-fixed-layout :is(th, td) {
+    overflow-wrap: break-word;
 }
 
 .prose .video-js video {
     margin: 0;
 }
 
-/* Collapsible sections. */
-.prose .collapsible {
+/* Details block. Consecutive ones share one frame. */
+.prose details.wp-block-details {
     @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
 }
 
-/* Overlap the frame border with the title bar. */
-.prose .collapsible > .collapsible-title {
-    @apply -mx-px -mt-px mb-0 px-4 py-3 bg-gray-800 dark:bg-gray-900 font-bold text-xl leading-snug text-white;
+.prose details.wp-block-details + details.wp-block-details {
+    @apply -mt-8 rounded-t-none border-t-0;
 }
 
-.prose .collapsible > .collapsible-title:empty {
-    display: none;
+.prose details.wp-block-details:has(+ details.wp-block-details) {
+    @apply rounded-b-none;
 }
 
-.prose details.collapsible-item {
-    @apply m-0 border-t border-gray-300 dark:border-gray-600;
-}
-
-/* Avoid a divider directly below the title. */
-.prose .collapsible > .collapsible-title + details.collapsible-item {
-    @apply border-t-0;
-}
-
-.prose details.collapsible-item > summary {
+.prose details.wp-block-details > summary {
     @apply flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer select-none font-bold text-lg leading-snug text-black dark:text-white;
 
     list-style: none;
 }
 
-.prose details.collapsible-item > summary::-webkit-details-marker {
+.prose details.wp-block-details > summary::-webkit-details-marker {
     display: none;
 }
 
-.prose details.collapsible-item > summary::before {
+.prose details.wp-block-details > summary::before {
     content: '';
     @apply shrink-0 w-6 h-6 bg-groen;
 
     mask: var(--collapsible-icon-expand) center / contain no-repeat;
 }
 
-.prose details.collapsible-item[open] > summary::before {
+.prose details.wp-block-details[open] > summary::before {
     mask-image: var(--collapsible-icon-collapse);
 }
 
-.prose details.collapsible-item > summary ~ * {
+.prose details.wp-block-details > summary ~ * {
     margin-inline: 1rem;
 }
 
