@@ -963,6 +963,22 @@ function zw_enqueue_theme_assets()
 
 add_action('wp_enqueue_scripts', 'zw_enqueue_theme_assets');
 
+/**
+ * Tables are styled as prose (assets/style.css). Core's table CSS adds cell borders,
+ * stripes and colour rules on top, so don't load it. This only works on the front end:
+ * the editor loads all block CSS at once, so assets/editor.css undoes it there.
+ */
+function zw_drop_core_table_style(array $args, string $name): array
+{
+    if ($name === 'core/table') {
+        $args['style_handles'] = [];
+    }
+
+    return $args;
+}
+
+add_filter('register_block_type_args', 'zw_drop_core_table_style', 10, 2);
+
 /** Enqueues the FM live player, plus hls.js when an HLS stream is configured. */
 function zw_enqueue_fm_live_assets()
 {
