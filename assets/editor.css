@@ -69,11 +69,6 @@ body .wp-block-pullquote p {
     margin: 0;
 }
 
-body .wp-block-pullquote p::before,
-body .wp-block-pullquote p::after {
-    content: none;
-}
-
 body .wp-block-pullquote cite {
     @apply block mt-2 text-sm not-italic text-gray-500;
 }
