@@ -78,6 +78,53 @@ body .wp-block-pullquote cite {
     @apply block mt-2 text-sm not-italic text-gray-500;
 }
 
+/* Classic pullquote: a bare blockquote in Classic Editor content. */
+body > blockquote:not([class]) {
+    @apply border-0 font-round text-xl text-gray-600 dark:text-white;
+    text-transform: none;
+    text-align: center;
+    line-height: 1em;
+    padding: 2em 1em;
+    position: relative;
+    font-style: normal;
+    font-weight: normal;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+body > blockquote:not([class]) p:first-of-type::before,
+body > blockquote:not([class]) p:last-of-type::after {
+    content: none;
+}
+
+body > blockquote:not([class])::before,
+body > blockquote:not([class])::after {
+    display: block;
+    position: absolute;
+    text-align: center;
+    left: 0;
+    right: 0;
+    @apply text-groen font-round;
+    font-size: 4.5em;
+    line-height: 1;
+    pointer-events: none;
+}
+
+body > blockquote:not([class])::before {
+    content: open-quote;
+    top: 0;
+}
+
+body > blockquote:not([class])::after {
+    content: close-quote;
+}
+
+body > blockquote:not([class]) p {
+    font-size: 1.3em;
+    line-height: 1.3;
+    margin: 0;
+}
+
 /* Captions of any block. */
 body figure:has(> figcaption) img {
     margin-block: 0;
