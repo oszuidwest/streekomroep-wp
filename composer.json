@@ -15,16 +15,19 @@
       "@test:templates",
       "@test:responsive-images",
       "@test:search",
+      "@test:pagination",
       "@test:article-feed",
       "@test:collapsible",
       "@test:post-content-sanitizer",
       "@test:video-collection",
       "@test:wordpress-toolbar",
+      "@test:contact-form",
       "@test:fm-live"
     ],
     "lint:twig": "twig-cs-fixer lint",
     "fix:twig": "twig-cs-fixer lint --fix",
     "test:search": "php tests/search-deduplication.php",
+    "test:pagination": "php tests/pagination.php",
     "test:article-feed": "php tests/article-feed.php",
     "test:templates": "php tests/template-escaping.php",
     "test:responsive-images": "php tests/responsive-images.php",
@@ -32,6 +35,7 @@
     "test:post-content-sanitizer": "php tests/post-content-sanitizer.php",
     "test:video-collection": "php tests/video-collection.php",
     "test:wordpress-toolbar": "sh tests/wordpress-toolbar-contract.sh",
+    "test:contact-form": "php tests/contact-form-autocomplete.php",
     "test:fm-live": "node --test tests/fm-live-player.mjs"
   },
   "repositories": [
