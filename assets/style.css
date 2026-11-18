@@ -122,14 +122,14 @@
     margin-inline: 1rem;
 }
 
-/* Contact Form 7. */
+/* Contact Form 7: fields match the search field, the button matches the other buttons. */
 .wpcf7-form-control {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-sm;
-    @apply focus:outline-hidden focus:border-blauw;
+    @apply w-full px-3 py-2 border border-gray-400 dark:border-gray-600 rounded-md transition;
+    @apply focus:outline-hidden focus:ring-3 focus:ring-blauw/20 focus:border-blauw;
 }
 
 .wpcf7-submit {
-    @apply border-none;
-    @apply bg-blauw text-white px-4 py-3;
-    @apply focus:outline-hidden;
+    @apply border-none rounded-sm;
+    @apply bg-blauw text-white px-4 py-3 hover:brightness-110 cursor-pointer;
+    @apply focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blauw;
 }
