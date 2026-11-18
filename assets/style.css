@@ -125,11 +125,11 @@
 /* Contact Form 7. */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-300 rounded-sm;
-    @apply focus:outline-hidden focus:border-blauw;
+    @apply focus:border-blauw;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 dark:focus-visible:outline-sky-300;
 }
 
 .wpcf7-submit {
     @apply border-none;
     @apply bg-blauw text-gray-900 px-4 py-3;
-    @apply focus:outline-hidden;
 }
