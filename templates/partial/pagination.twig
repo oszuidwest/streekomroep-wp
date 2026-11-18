@@ -7,13 +7,13 @@
 
             <li class="flex-none">
                 {% if pagination.prev %}
-                    <a class="{{ tile_class }} gap-1 pl-2 pr-4" href="{{ pagination.prev.link }}">{{ icon('icon-chevron_left') }}Vorige</a>
+                    <a class="{{ tile_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-2 sm:pr-4" href="{{ pagination.prev.link }}">{{ icon('icon-chevron_left') }}<span class="sr-only sm:not-sr-only">Vorige</span></a>
                 {% else %}
-                    <button class="{{ tile_disabled_class }} gap-1 pl-2 pr-4" disabled>{{ icon('icon-chevron_left') }}Vorige</button>
+                    <button class="{{ tile_disabled_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-2 sm:pr-4" disabled>{{ icon('icon-chevron_left') }}<span class="sr-only sm:not-sr-only">Vorige</span></button>
                 {% endif %}
             </li>
 
-            <li class="sm:hidden px-1 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+            <li class="sm:hidden whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                 Pagina {{ pagination.current }} van {{ pagination.total }}
             </li>
 
@@ -31,9 +31,9 @@
 
             <li class="flex-none">
                 {% if pagination.next %}
-                    <a class="{{ tile_class }} gap-1 pl-4 pr-2" href="{{ pagination.next.link }}">Volgende{{ icon('icon-chevron_right') }}</a>
+                    <a class="{{ tile_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-4 sm:pr-2" href="{{ pagination.next.link }}"><span class="sr-only sm:not-sr-only">Volgende</span>{{ icon('icon-chevron_right') }}</a>
                 {% else %}
-                    <button class="{{ tile_disabled_class }} gap-1 pl-4 pr-2" disabled>Volgende{{ icon('icon-chevron_right') }}</button>
+                    <button class="{{ tile_disabled_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-4 sm:pr-2" disabled><span class="sr-only sm:not-sr-only">Volgende</span>{{ icon('icon-chevron_right') }}</button>
                 {% endif %}
             </li>
         </ul>
