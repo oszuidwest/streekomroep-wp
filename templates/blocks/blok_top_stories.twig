@@ -14,7 +14,8 @@
                 %}
                 {% set mobile_width = loop.first ? 640 : 320 %}
                 {% set mobile_sizes = loop.first ? '100vw' : 'calc((100vw - 0.125rem) / 2)' %}
-                <a class="group block relative overflow-hidden bg-gray-200 dark:bg-gray-800 {{ loop.first ? 'aspect-[16/10] sm:aspect-[6/5]' : 'aspect-[4/5] sm:aspect-auto sm:grow' }}" href="{{ post.link }}">
+                {# The aspect ratio is a minimum: overflow-clip, unlike overflow-hidden, lets the card grow with a long title instead of cropping it. #}
+                <a class="group relative flex flex-col justify-end overflow-clip bg-gray-200 dark:bg-gray-800 {{ loop.first ? 'aspect-[16/10] sm:aspect-[6/5]' : 'aspect-[4/5] grow sm:aspect-auto' }}" href="{{ post.link }}">
                     <picture>
                         {# Secondaries grow to the lead's 6/5 row height, so all desktop crops share it. #}
                         {{ responsive.source(
@@ -35,10 +36,10 @@
                             fetchpriority: loop.first ? 'high' : null,
                         ) }}
                     </picture>
-                    <div class="absolute inset-0 flex flex-col justify-end">
+                    <div class="relative">
                         <span class="block p-4 pt-14 bg-gradient-to-b from-transparent to-black/60">
                             {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
-                            <h2 class="block font-black text-white {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
+                            <h2 class="block font-black text-white break-words {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
                         </span>
                     </div>
                 </a>
