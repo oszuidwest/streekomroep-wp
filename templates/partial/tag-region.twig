@@ -2,8 +2,8 @@
 
 <div class="flex">
    {% if region %}
-       {{ badge.render(region.title, 'groen', (link is not defined or link) ? region.link : null) }}
+       {{ badge.render(region.title, 'groen', (link is not defined or link) ? region.link : null, 'wrap-anywhere') }}
    {% else %}
-       {{ badge.render(options.placeholder_geen_regio, 'groen') }}
+       {{ badge.render(options.placeholder_geen_regio, 'groen', null, 'wrap-anywhere') }}
    {% endif %}
 </div>
