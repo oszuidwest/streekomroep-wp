@@ -1,43 +1,39 @@
 {% if pagination.pages is not empty %}
-    <nav>
-        <ul class="flex justify-center items-center">
+    {% set tile_class = 'h-12 flex items-center rounded-sm bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 transition-colors [&>svg]:size-5' %}
+    {% set tile_disabled_class = 'h-12 flex items-center rounded-sm bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 [&>svg]:size-5' %}
 
-            <li class="p-2 flex-none">
+    <nav aria-label="Paginering" class="mt-6">
+        <ul class="flex justify-center items-center gap-2 py-2 tabular-nums">
+
+            <li class="flex-none">
                 {% if pagination.prev %}
-                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
-                       href="{{ pagination.prev.link }}">&lt; Vorige</a>
+                    <a class="{{ tile_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-2 sm:pr-4" href="{{ pagination.prev.link }}">{{ icon('icon-chevron_left') }}<span class="sr-only sm:not-sr-only">Vorige</span></a>
                 {% else %}
-                    <button class="min-w-12 h-12 px-4  flex justify-center items-center rounded-sm text-gray-400 dark:text-gray-500" disabled>
-                        &lt; Vorige
-                    </button>
+                    <button class="{{ tile_disabled_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-2 sm:pr-4" disabled>{{ icon('icon-chevron_left') }}<span class="sr-only sm:not-sr-only">Vorige</span></button>
                 {% endif %}
             </li>
 
-            <li class="sm:hidden text-center text-gray-600 dark:text-gray-400">
+            <li class="sm:hidden whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                 Pagina {{ pagination.current }} van {{ pagination.total }}
             </li>
 
             {% for page in pagination.pages %}
-                <li class="p-2 hidden sm:block">
+                <li class="hidden sm:block">
                     {% if page.link %}
-                        <a class="w-12 h-12 flex justify-center items-center rounded-sm border-2 border-gray-200 dark:border-gray-700 dark:text-gray-200"
-                           href="{{ page.link }}">{{ page.title }}</a>
+                        <a class="{{ tile_class }} w-12 justify-center" href="{{ page.link }}">{{ page.title }}</a>
                     {% elseif page.current %}
-                        <span class="w-12 h-12 flex justify-center items-center rounded-sm border-2 text-black dark:text-white border-groen {{ page.class }}">{{ page.title }}</span>
+                        <span aria-current="page" class="h-12 w-12 flex justify-center items-center rounded-sm bg-gray-800 text-white dark:bg-gray-200 dark:text-black {{ page.class }}">{{ page.title }}</span>
                     {% else %}
-                        <span class="h-12 flex justify-center items-center text-gray-600 dark:text-gray-400">...</span>
+                        <span class="w-6 h-12 flex justify-center items-center text-gray-600 dark:text-gray-400">&hellip;</span>
                     {% endif %}
                 </li>
             {% endfor %}
 
-            <li class="p-2 flex-none">
+            <li class="flex-none">
                 {% if pagination.next %}
-                    <a class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-800"
-                       href="{{ pagination.next.link }}">Volgende &gt;</a>
+                    <a class="{{ tile_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-4 sm:pr-2" href="{{ pagination.next.link }}"><span class="sr-only sm:not-sr-only">Volgende</span>{{ icon('icon-chevron_right') }}</a>
                 {% else %}
-                    <button class="min-w-12 h-12 px-4 flex justify-center items-center rounded-sm text-gray-400 dark:text-gray-500" disabled>
-                        Volgende &gt;
-                    </button>
+                    <button class="{{ tile_disabled_class }} w-12 justify-center gap-1 sm:w-auto sm:pl-4 sm:pr-2" disabled><span class="sr-only sm:not-sr-only">Volgende</span>{{ icon('icon-chevron_right') }}</button>
                 {% endif %}
             </li>
         </ul>
