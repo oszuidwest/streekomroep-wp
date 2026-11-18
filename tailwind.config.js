@@ -20,7 +20,6 @@ export default {
         blauw: {
           DEFAULT: '#009fe3',
         },
-        // Share buttons: DEFAULT has 4.5:1 contrast with white, dark has 4.5:1 on gray-800 and with gray-900 text.
         facebook: { DEFAULT: '#0D6FEE', dark: '#4391F4' },
         whatsapp: { DEFAULT: '#0F883B', dark: '#25D366' },
         linkedin: { DEFAULT: '#0A66C2', dark: '#3193F4' },
