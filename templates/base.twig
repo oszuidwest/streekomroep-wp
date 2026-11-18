@@ -32,7 +32,7 @@
                         <a class="flex-none flex items-center p-3 text-white hover:bg-gray-700 rounded-sm"
                            href="{{ item.link }}">
                             {{ icon }}
-                            <span class="hidden sm:block ml-2 text-sm font-round font-bold uppercase">{{ item.title }}</span>
+                            <span class="sr-only sm:not-sr-only sm:ml-2 text-sm font-round font-bold uppercase">{{ item.title }}</span>
                         </a>
                     {% else %}
                         <a class="flex-none flex items-center px-2 text-sm font-round font-bold uppercase"
