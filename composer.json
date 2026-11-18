@@ -20,6 +20,7 @@
       "@test:post-content-sanitizer",
       "@test:video-collection",
       "@test:wordpress-toolbar",
+      "@test:contact-form",
       "@test:fm-live"
     ],
     "lint:twig": "twig-cs-fixer lint",
@@ -32,6 +33,7 @@
     "test:post-content-sanitizer": "php tests/post-content-sanitizer.php",
     "test:video-collection": "php tests/video-collection.php",
     "test:wordpress-toolbar": "sh tests/wordpress-toolbar-contract.sh",
+    "test:contact-form": "php tests/contact-form-autocomplete.php",
     "test:fm-live": "node --test tests/fm-live-player.mjs"
   },
   "repositories": [
