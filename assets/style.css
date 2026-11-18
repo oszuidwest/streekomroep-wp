@@ -125,7 +125,7 @@
 /* Contact Form 7: fields match the search field, the button matches the other buttons. */
 .wpcf7-form-control {
     @apply w-full px-3 py-2 border border-gray-400 dark:border-gray-600 rounded-md transition;
-    @apply focus:outline-0 focus:ring-3 focus:ring-blauw/20 focus:border-blauw;
+    @apply focus:outline-hidden focus:ring-3 focus:ring-blauw/20 focus:border-blauw;
 }
 
 .wpcf7-submit {
