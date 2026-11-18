@@ -13,9 +13,9 @@
                 {% endif %}
             </li>
 
-            <p class="sm:hidden text-center text-gray-400">
+            <li class="sm:hidden text-center text-gray-600 dark:text-gray-400">
                 Pagina {{ pagination.current }} van {{ pagination.total }}
-            </p>
+            </li>
 
             {% for page in pagination.pages %}
                 <li class="p-2 hidden sm:block">
@@ -25,7 +25,7 @@
                     {% elseif page.current %}
                         <span class="w-12 h-12 flex justify-center items-center rounded-sm border-2 text-black dark:text-white border-groen {{ page.class }}">{{ page.title }}</span>
                     {% else %}
-                        <span class="h-12 flex justify-center items-center text-gray-400 dark:text-gray-500">...</span>
+                        <span class="h-12 flex justify-center items-center text-gray-600 dark:text-gray-400">...</span>
                     {% endif %}
                 </li>
             {% endfor %}
