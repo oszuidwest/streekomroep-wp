@@ -18,7 +18,7 @@
                         </div>
                         <div>
                             <p class="text-xs sm:text-sm font-bold text-gray-800 dark:text-white">Download de ZuidWest App</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Altijd het laatste nieuws bij de hand</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Altijd het laatste nieuws bij de hand</p>
                         </div>
                     </div>
                     <a href="{{ site.url }}/?pswutlzoq=install" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-groen text-gray-900 text-xs sm:text-sm font-bold rounded-md sm:rounded-lg hover:bg-groen/90 transition shrink-0">
@@ -29,7 +29,7 @@
             <ul class="text-sm pt-6 sm:grid sm:grid-cols-4">
                 {% for item in footer.items %}
                     <li>
-                        <p class="text-xs pt-2 mb-1 font-round font-bold text-gray-500 tracking-wider uppercase {{ item.classes|join(' ') }}">{{ item.title }}</p>
+                        <p class="text-xs pt-2 mb-1 font-round font-bold text-gray-600 dark:text-gray-400 tracking-wider uppercase {{ item.classes|join(' ') }}">{{ item.title }}</p>
                         <ul class="mb-4">
                             {% for child in item.children %}
                                 <li>
@@ -60,7 +60,7 @@
                             {% set icon_class = 'w-5 h-5' %}
                             {% set hover_class = social_hover_classes[social.name]|default('hover:text-gray-900 dark:hover:text-white') %}
 
-                            <a href="{{ social.link }}" target="_blank" rel="noopener" class="text-gray-500 {{ hover_class }} transition-colors" title="{{ social.name }}">
+                            <a href="{{ social.link }}" target="_blank" rel="noopener" class="text-gray-600 dark:text-gray-400 {{ hover_class }} transition-colors" title="{{ social.name }}">
                                 {% if social.name == 'Facebook' %}
                                     <svg class="{{ icon_class }}" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                 {% elseif social.name == 'X' %}
@@ -82,12 +82,12 @@
                     {% endif %}
 
                     <div class="flex items-center gap-3 pl-3 border-l border-gray-300 dark:border-gray-600">
-                        <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" id="themeDarkBtn" data-theme="dark" hidden title="Donkere modus">
+                        <button class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors" id="themeDarkBtn" data-theme="dark" hidden title="Donkere modus">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                             </svg>
                         </button>
-                        <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" id="themeLightBtn" data-theme="light" hidden title="Lichte modus">
+                        <button class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors" id="themeLightBtn" data-theme="light" hidden title="Lichte modus">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>

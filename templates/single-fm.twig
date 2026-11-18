@@ -5,7 +5,7 @@
     {% import 'partial/mail-link.twig' as mail_link %}
     {% set makers = post.meta('fm_show_makers')|rows %}
     {% set card = 'rounded-sm border border-gray-800/10 bg-gray-50 p-4 dark:border-gray-200/10 dark:bg-gray-700/40' %}
-    {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-400 uppercase' %}
+    {% set card_title = 'mb-3 font-round text-sm font-bold tracking-wide text-gray-600 dark:text-gray-400 uppercase' %}
     <article id="post-{{ post.id }}" class="{{ post.class }}">
         <header class="relative overflow-hidden bg-roze bg-gradient-to-r from-[#8f004e] via-[#c7006d] to-roze">
             {{ include('partial/fm-header-pattern.twig') }}
