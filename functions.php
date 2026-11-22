@@ -1004,55 +1004,41 @@ function zw_enqueue_fm_live_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets', 21);
 
 /**
- * Marks the request for VideoJS.
+ * Marks the request for a Video.js player preset ('video' or 'live-video').
  *
  * Late calls enqueue immediately because wp_enqueue_scripts already ran.
  */
-function zw_require_videojs()
+function zw_require_videojs(string $preset = 'video')
 {
-    $GLOBALS['zw_requires_videojs'] = true;
+    $GLOBALS['zw_videojs_presets'][$preset] = true;
 
     if (did_action('wp_enqueue_scripts')) {
-        zw_enqueue_videojs_assets();
+        zw_enqueue_videojs_assets($preset);
     }
 }
 
-function zw_enqueue_videojs_assets()
+function zw_enqueue_videojs_assets(string $preset)
 {
-    static $videojs_enqueued = false;
+    // All Video.js CDN files must come from the same release.
+    $base_url = 'https://cdn.jsdelivr.net/npm/@videojs/cdn@10.6.0/';
 
-    if ($videojs_enqueued) {
-        return;
-    }
-
-    $videojs_enqueued = true;
-    $videojs_version = '8.24.1';
-    $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
-
-    // TODO: Defer the render-blocking Video.js stylesheet.
-    wp_enqueue_style('video.js', $videojs_base_url . '/video-js.min.css', [], $videojs_version);
-    wp_enqueue_script('video.js', $videojs_base_url . '/video.min.js', [], $videojs_version, ['strategy' => 'defer']);
-    wp_enqueue_script('video.js.nl', $videojs_base_url . '/lang/nl.min.js', ['video.js'], $videojs_version, ['strategy' => 'defer']);
-    wp_enqueue_script(
-        'zw-videojs-init',
-        get_theme_file_uri('static/videojs-init.js'),
-        ['video.js', 'video.js.nl'],
-        wp_get_theme()->get('Version'),
-        true
-    );
+    wp_enqueue_style('videojs', $base_url . 'global.css', [], null);
+    // The locale loads before the player to avoid a flash of English labels.
+    wp_enqueue_script_module('videojs-nl', $base_url . 'locales/nl.js', [], null);
+    wp_enqueue_script_module('videojs-' . $preset, $base_url . $preset . '.js', [], null);
+    wp_enqueue_script_module('videojs-hlsjs-video', $base_url . 'media/hlsjs-video.js', [], null);
 }
 
 function zw_maybe_enqueue_videojs()
 {
     $post = get_post();
 
-    if (!empty($GLOBALS['zw_requires_videojs'])) {
-        zw_enqueue_videojs_assets();
-        return;
+    if (is_singular() && $post instanceof WP_Post && zw_post_content_contains_videojs_embed($post)) {
+        $GLOBALS['zw_videojs_presets']['video'] = true;
     }
 
-    if (is_singular() && $post instanceof WP_Post && zw_post_content_contains_videojs_embed($post)) {
-        zw_enqueue_videojs_assets();
+    foreach (array_keys($GLOBALS['zw_videojs_presets'] ?? []) as $preset) {
+        zw_enqueue_videojs_assets($preset);
     }
 }
 

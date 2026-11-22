@@ -5,7 +5,7 @@ namespace Streekomroep;
 class VideoRenderer
 {
     /**
-     * Renders a VideoJS player.
+     * Renders a Video.js player for the video's HLS playlist.
      *
      * @param Video       $video
      * @param string|null $posterUrl Optional poster override; falls back to the Video's thumbnail when empty.
@@ -15,22 +15,14 @@ class VideoRenderer
     {
         $posterUrl = $posterUrl ?: (string) $video->getThumbnail();
 
-        $out = sprintf('<div class="not-prose" style="aspect-ratio: %f;">', $video->getAspectRatio());
-        $out .= '<video class="video-js vjs-fill vjs-big-play-centered playsinline" controls';
-        if ($posterUrl !== '') {
-            $out .= ' poster="' . esc_url($posterUrl) . '"';
-        }
-        $out .= ' data-vjs-src="' . esc_url($video->getPlaylistUrl()) . '"';
-        $out .= ' data-vjs-type="application/x-mpegURL"';
-        $out .= '>';
-        $mp4 = $video->getMP4Url();
-        if ($mp4) {
-            $out .= '<source src="' . esc_url($mp4) . '" type="video/mp4">';
-        }
-        $out .= '</video>';
-        $out .= '</div>';
-
-        return $out;
+        return sprintf(
+            '<div class="not-prose" style="aspect-ratio: %f;"><media-i18n><video-player poster="%s">'
+            . '<video-skin class="block size-full"><hlsjs-video src="%s" playsinline></hlsjs-video></video-skin>'
+            . '</video-player></media-i18n></div>',
+            $video->getAspectRatio(),
+            esc_url($posterUrl),
+            esc_url($video->getPlaylistUrl())
+        );
     }
 
     /**

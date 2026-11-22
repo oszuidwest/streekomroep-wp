@@ -72,7 +72,7 @@ body .wp-caption-dd {
     @apply text-sm text-gray-500 text-center pt-2;
 }
 
-body .video-js video {
+body video-player video {
     margin: 0;
 }
 
