@@ -36,8 +36,9 @@
                             fetchpriority: loop.first ? 'high' : null,
                         ) }}
                     </picture>
-                    <div class="relative">
-                        <span class="block p-4 pt-14 bg-gradient-to-b from-transparent to-black/60">
+                    {# The scrim fades in from 2rem above the block over 5.5rem, so it is flat black/60 from the end of pt-14 down: the badge and every title line sit on it, whatever the title length. #}
+                    <div class="relative before:absolute before:inset-x-0 before:-top-8 before:bottom-0 before:bg-linear-to-b before:from-transparent before:to-black/60 before:to-[5.5rem]">
+                        <span class="relative block p-4 pt-14">
                             {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
                             <h2 class="block font-black text-white wrap-anywhere {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
                         </span>
