@@ -1026,7 +1026,7 @@ function zw_enqueue_videojs_assets()
     }
 
     $videojs_enqueued = true;
-    $videojs_version = '8.23.4';
+    $videojs_version = '8.24.1';
     $videojs_base_url = 'https://cdnjs.cloudflare.com/ajax/libs/video.js/' . $videojs_version;
 
     // TODO: Defer the render-blocking Video.js stylesheet.
