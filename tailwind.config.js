@@ -7,6 +7,15 @@ export default {
       fontFamily: {
         round: ['Nunito', 'sans-serif'],
       },
+      // Disable the automatic quote marks around blockquote paragraphs.
+      typography: {
+        DEFAULT: {
+          css: {
+            'blockquote p:first-of-type::before': { content: 'none' },
+            'blockquote p:last-of-type::after': { content: 'none' },
+          },
+        },
+      },
       maxWidth: {
         960: '60rem',
       },
