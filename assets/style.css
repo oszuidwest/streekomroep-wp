@@ -74,6 +74,12 @@
     margin: 0;
 }
 
+/* Match the player's corners to the rest of the site. */
+video-player,
+live-video-player {
+    --media-border-radius: var(--radius-sm);
+}
+
 /* Collapsible sections. */
 .prose .collapsible {
     @apply my-8 rounded-sm border border-gray-300 dark:border-gray-600 overflow-hidden;
