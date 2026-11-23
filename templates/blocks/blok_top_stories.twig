@@ -1,46 +1,49 @@
 {% import 'partial/responsive-image.twig' as responsive %}
 
-<div class="max-w-960 mx-auto my-4 mt-0 sm:mt-4 sm:px-4">
+<div class="max-w-960 mx-auto my-4 px-4">
     {# Fixed three-slot layout (one lead, two secondaries); keep posts_per_page in front-page.php in sync. #}
-    <div class="grid grid-cols-2 gap-0.5 sm:grid-cols-[1.8fr_1fr_1fr]">
+    {# The lead spans two columns, and from sm also both rows, with the secondaries stacked in the third column. Equal rows keep the two secondaries the same height when one title is longer. #}
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:grid-rows-2">
         {% for post in block.posts %}
-            <article class="flex flex-col {{ loop.first ? 'col-span-2 sm:col-span-1' }}" data-post-id="{{ post.id }}">
+            {% set lead = loop.first %}
+            <article class="flex flex-col {{ lead ? 'col-span-2 sm:row-span-2' }}" data-post-id="{{ post.id }}">
                 {% set thumbnail = post.thumbnail %}
-                {# 2.25rem = sm:px-4 plus two gap-0.5 gaps; 438px/243px are the column widths at the 960px container max. #}
-                {% set desktop_width = loop.first ? 440 : 244 %}
-                {% set desktop_sizes = loop.first
-                    ? '(min-width: 960px) 438px, calc((100vw - 2.25rem) * 1.8 / 3.8)'
-                    : '(min-width: 960px) 243px, calc((100vw - 2.25rem) / 3.8)'
+                {# At the 960px container max a column is 299px: 928px minus two gap-4 gaps, over three. The lead is two columns plus a gap wide and two 16:9 rows plus a gap (352px) high. 4rem = px-4 plus two gaps. #}
+                {% set desktop_width = lead ? 614 : 299 %}
+                {% set desktop_sizes = lead
+                    ? '(min-width: 960px) 614px, calc((100vw - 4rem) * 2 / 3 + 1rem)'
+                    : '(min-width: 960px) 299px, calc((100vw - 4rem) / 3)'
                 %}
-                {% set mobile_width = loop.first ? 640 : 320 %}
-                {% set mobile_sizes = loop.first ? '100vw' : 'calc((100vw - 0.125rem) / 2)' %}
+                {# Below sm the lead is full width and the secondaries share a row; 3rem = px-4 plus one gap. #}
+                {% set mobile_width = lead ? 608 : 296 %}
+                {% set mobile_sizes = lead ? 'calc(100vw - 2rem)' : 'calc((100vw - 3rem) / 2)' %}
+                {# Below sm the secondaries put the title under a 4:3 photo instead of on it, so the text never covers a small photo. #}
                 {# The aspect ratio is a minimum: overflow-clip, unlike overflow-hidden, lets the card grow with a long title instead of cropping it. #}
-                <a class="group relative flex flex-col justify-end overflow-clip bg-gray-200 dark:bg-gray-800 {{ loop.first ? 'aspect-[16/10] sm:aspect-[6/5] sm:grow' : 'aspect-[4/5] grow sm:aspect-auto' }}" href="{{ post.link }}">
+                <a class="group relative flex grow flex-col overflow-clip rounded-sm bg-gray-100 dark:bg-gray-700 {{ lead ? 'aspect-16/10 justify-end sm:aspect-auto' : 'sm:aspect-video sm:justify-end' }}" href="{{ post.link }}">
                     <picture>
-                        {# Secondaries grow to the lead's 6/5 row height, so all desktop crops share it. #}
                         {{ responsive.source(
                             src: thumbnail.src,
                             width: desktop_width,
-                            height: 440 / 6 * 5,
+                            height: lead ? 352 : desktop_width / 16 * 9,
                             sizes: desktop_sizes,
                             media: '(min-width: 640px)',
                         ) }}
                         {{ responsive.render(
                             src: thumbnail.src,
                             width: mobile_width,
-                            height: loop.first ? 640 / 16 * 10 : 320 / 4 * 5,
+                            height: lead ? mobile_width / 16 * 10 : mobile_width / 4 * 3,
                             sizes: mobile_sizes,
                             alt: thumbnail.alt|default(post.title),
-                            class: 'object-cover w-full h-full absolute inset-0 zw-thumb-hover',
+                            class: lead ? 'absolute inset-0 size-full object-cover zw-thumb-hover' : 'aspect-4/3 w-full object-cover sm:absolute sm:inset-0 sm:h-full zw-thumb-hover',
                             loading: 'eager',
-                            fetchpriority: loop.first ? 'high' : null,
+                            fetchpriority: lead ? 'high' : null,
                         ) }}
                     </picture>
-                    {# The scrim fades in from 2rem above the block over 5.5rem, so it is flat black/60 from the end of pt-14 down: the badge and every title line sit on it, whatever the title length. #}
-                    <div class="relative before:absolute before:inset-x-0 before:-top-8 before:bottom-0 before:bg-linear-to-b before:from-transparent before:to-black/60 before:to-[5.5rem]">
-                        <span class="relative block p-4 pt-14">
+                    {# The scrim fades in from 2rem above the block to the end of its top padding (pt-14, or pt-10 on the secondaries), so the badge and every title line sit on flat black/60, whatever the title length. #}
+                    <div class="relative before:absolute before:inset-x-0 before:-top-8 before:bottom-0 before:bg-linear-to-b before:from-transparent before:to-black/60 {{ lead ? 'before:to-[5.5rem]' : 'before:to-[4.5rem] max-sm:before:hidden' }}">
+                        <span class="relative block {{ lead ? 'p-4 pt-14' : 'p-3 sm:p-4 sm:pt-10' }}">
                             {{ include('partial/tag-region.twig', {region: post.region, link: false}) }}
-                            <h2 class="block font-black text-white wrap-anywhere {{ loop.first ? 'text-xl' : 'text-base' }}">{{ post.title }}</h2>
+                            <h2 class="mt-1 font-bold wrap-anywhere {{ lead ? 'text-xl text-white sm:text-2xl' : 'text-black dark:text-white sm:text-white' }}">{{ post.title }}</h2>
                         </span>
                     </div>
                 </a>
