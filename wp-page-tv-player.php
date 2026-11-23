@@ -14,5 +14,5 @@ $schedule = new BroadcastSchedule();
 $today = $schedule->getToday();
 $context['tv_today'] = $today->television;
 
-zw_require_videojs();
+zw_require_videojs('live-video');
 Timber::render(['page-tv-player.twig', 'page.twig'], $context);

@@ -25,12 +25,13 @@
     <div class="bg-black text-white">
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-video">
-                <div>
-                    <video class="video-js vjs-fluid vjs-big-play-centered" autoplay controls playsinline
-                        {% if post.meta('tv_webplayer_poster') %}poster="{{ post.meta('tv_webplayer_poster') }}"{% endif %}
-                        {% if post.meta('tv_webplayer_hls_stream') %}data-vjs-src="{{ post.meta('tv_webplayer_hls_stream') }}" data-vjs-type="application/x-mpegURL" data-vjs-live{% endif %}>
-                    </video>
-                </div>
+                <media-i18n>
+                    <live-video-player poster="{{ post.meta('tv_webplayer_poster') }}">
+                        <live-video-skin class="block size-full">
+                            <hlsjs-video autoplay playsinline{% if post.meta('tv_webplayer_hls_stream') %} src="{{ post.meta('tv_webplayer_hls_stream') }}"{% endif %}></hlsjs-video>
+                        </live-video-skin>
+                    </live-video-player>
+                </media-i18n>
             </div>
             {% if tv_channels|length > 1 %}
                 <nav class="flex justify-end bg-white/5 p-0.5 mt-1 rounded-sm gap-0.5">
