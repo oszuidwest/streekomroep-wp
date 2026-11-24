@@ -143,7 +143,6 @@ require_once 'lib/content_images.php';
 require_once 'lib/input_sanitizer.php';
 require_once 'lib/push_adapter.php';
 require_once 'lib/search.php';
-require_once 'lib/collapsible.php';
 require_once 'lib/fragment_feed.php';
 require_once 'lib/article_feed.php';
 require_once 'lib/tinymce.php';
@@ -776,8 +775,6 @@ function zw_register_imgproxy_media_settings()
             ['label_for' => $option, 'option' => $option] + $args
         );
     }
-
-    zw_backfill_imgproxy_media_settings();
 }
 
 function zw_render_imgproxy_settings_section()
@@ -855,64 +852,6 @@ function zw_sanitize_imgproxy_url($url)
     return $normalized;
 }
 
-function zw_get_imgproxy_constant($constant)
-{
-    if (!defined($constant)) {
-        return '';
-    }
-
-    $value = constant($constant);
-
-    if (!is_scalar($value)) {
-        return '';
-    }
-
-    return trim((string) $value);
-}
-
-function zw_backfill_imgproxy_setting($option, $constant, $sanitize_callback)
-{
-    if (!current_user_can('manage_options')) {
-        return;
-    }
-
-    if (trim((string) get_option($option, '')) !== '') {
-        return;
-    }
-
-    $value = zw_get_imgproxy_constant($constant);
-
-    if ($value === '') {
-        return;
-    }
-
-    $value = call_user_func($sanitize_callback, $value);
-
-    if ($value === '') {
-        return;
-    }
-
-    update_option($option, $value);
-}
-
-function zw_backfill_imgproxy_media_settings()
-{
-    zw_backfill_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY', 'sanitize_text_field');
-    zw_backfill_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT', 'sanitize_text_field');
-    zw_backfill_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL', 'zw_normalize_imgproxy_url');
-}
-
-function zw_get_imgproxy_setting($option, $constant)
-{
-    $value = trim((string) get_option($option, ''));
-
-    if ($value !== '') {
-        return $value;
-    }
-
-    return zw_get_imgproxy_constant($constant);
-}
-
 /**
  * @return array{key: string, salt: string, host: string} Credentials.
  */
@@ -922,9 +861,9 @@ function zw_imgproxy_settings(): array
     static $settings = null;
 
     return $settings ??= [
-        'key' => zw_get_imgproxy_setting('zw_imgproxy_key', 'IMGPROXY_KEY'),
-        'salt' => zw_get_imgproxy_setting('zw_imgproxy_salt', 'IMGPROXY_SALT'),
-        'host' => zw_normalize_imgproxy_url(zw_get_imgproxy_setting('zw_imgproxy_url', 'IMGPROXY_URL')),
+        'key' => trim((string) get_option('zw_imgproxy_key', '')),
+        'salt' => trim((string) get_option('zw_imgproxy_salt', '')),
+        'host' => zw_normalize_imgproxy_url(get_option('zw_imgproxy_url', '')),
     ];
 }
 

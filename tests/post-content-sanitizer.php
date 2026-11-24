@@ -45,8 +45,8 @@ $classic = implode("\n\n", [
 ]);
 $classicExpected = implode("\n\n", [
     'Intro <strong>vet</strong> weg',
-    implode("\n", ['<div class="collapsible">', '<h3 class="collapsible-title">T</h3>', '<details class="collapsible-item">', '<summary>K</summary>', 'A', '</details>', '</div>']),
-    'Slot \\ &quot;x&quot;<iframe src="https://e.nl/v" style="border: none"></iframe>',
+    '<h3>T</h3>KA',
+    'Slot \\ "x"<iframe src="https://e.nl/v" style="border: none"></iframe>',
 ]);
 
 // Hand-written, modelled on block editor output: blocks the allowlist would
