@@ -197,3 +197,47 @@
     @apply bg-blauw text-white px-4 py-3 hover:brightness-110 cursor-pointer;
     @apply focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blauw;
 }
+
+/* ZuidWest Poll: house style through the plugin's tokens. The plugin's stylesheet
+   loads after this one, so `body` is needed to override its defaults. */
+body .zw-poll {
+    --zw-poll-color: var(--color-gray-900);
+    --zw-poll-accent: var(--color-gray-800);
+    --zw-poll-accent-text-color: var(--color-gray-800);
+    --zw-poll-focus-color: var(--color-gray-800);
+    --zw-poll-surface: var(--color-white);
+    --zw-poll-line: var(--color-gray-300);
+    --zw-poll-soft: var(--color-gray-100);
+    --zw-poll-track: var(--color-gray-200);
+    --zw-poll-radius: var(--radius-sm);
+    --zw-poll-card-radius: var(--radius-sm);
+    --zw-poll-padding: 1rem;
+    --zw-poll-header-background: var(--color-gray-800);
+    --zw-poll-header-border-color: var(--color-gray-900);
+    --zw-poll-header-color: var(--color-white);
+    --zw-poll-header-icon-color: theme(colors.groen);
+    --zw-poll-header-font-family: Nunito, sans-serif;
+    --zw-poll-header-question-weight: 700;
+    --zw-poll-button-background: var(--color-gray-800);
+    --zw-poll-button-border-color: var(--color-gray-800);
+    --zw-poll-button-color: var(--color-white);
+    --zw-poll-button-radius: var(--radius-sm);
+    --zw-poll-button-font-family: Nunito, sans-serif;
+    --zw-poll-button-font-weight: 700;
+}
+
+.dark body .zw-poll {
+    --zw-poll-color: var(--color-white);
+    --zw-poll-accent: var(--color-gray-200);
+    --zw-poll-accent-text-color: var(--color-gray-200);
+    --zw-poll-focus-color: var(--color-gray-200);
+    --zw-poll-surface: var(--color-gray-800);
+    --zw-poll-line: var(--color-gray-600);
+    --zw-poll-soft: var(--color-gray-700);
+    --zw-poll-track: var(--color-gray-600);
+    --zw-poll-header-background: var(--color-gray-900);
+    --zw-poll-header-border-color: var(--color-gray-700);
+    --zw-poll-button-background: var(--color-gray-200);
+    --zw-poll-button-border-color: var(--color-gray-200);
+    --zw-poll-button-color: var(--color-gray-900);
+}
