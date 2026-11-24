@@ -73,15 +73,16 @@ jobs:
       - name: Prepare subdirectory for release
         if: env.RELEASE_NEEDED == 'true'
         run: |
-          mkdir -p release  # Ensure the directory is created
-          rsync -av --progress . ./release --exclude release --exclude .git --exclude .github --exclude node_modules --exclude .gitignore --exclude docker --exclude docker-compose.yml --exclude .dockerignore
+          mkdir -p release/streekomroep
+          rsync -av --progress . ./release/streekomroep --exclude '/.*' --exclude release --exclude .git --exclude .github --exclude node_modules --exclude .gitignore --exclude docker --exclude docker-compose.yml --exclude .dockerignore
 
-      - name: Compress release directory contents
+      # WordPress names the theme folder after the zip's only top-level folder.
+      - name: Compress release directory
         if: env.RELEASE_NEEDED == 'true'
         run: |
-          echo "Compressing contents of release directory..."
+          echo "Compressing release directory..."
           cd release
-          zip -r ../streekomroep-wp-theme-${{ env.VERSION }}.zip ./* 
+          zip -r ../streekomroep-wp-theme-${{ env.VERSION }}.zip streekomroep
 
       - name: Create GitHub Release and upload compressed file
         if: env.RELEASE_NEEDED == 'true'

@@ -13,7 +13,7 @@ Timber 2.5.x and other PHP libraries are bundled through Composer. An ACF-compat
 
 ## Installation
 
-For production, download the latest archive from [GitHub Releases](https://github.com/oszuidwest/streekomroep-wp/releases), install the required plugins, and upload the theme through WordPress or extract it to `wp-content/themes/streekomroep`. Release archives include Composer dependencies and compiled CSS.
+For production, download the latest archive from [GitHub Releases](https://github.com/oszuidwest/streekomroep-wp/releases), install the required plugins, and upload the theme through WordPress or extract it in `wp-content/themes`. The archive holds one `streekomroep` folder, with Composer dependencies and compiled CSS included. To update, upload the new archive and let WordPress replace the installed theme.
 
 To build the theme from source:
 
