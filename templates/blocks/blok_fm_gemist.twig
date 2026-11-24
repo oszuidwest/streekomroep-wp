@@ -1,0 +1,39 @@
+{% if block.broadcasts is not empty %}
+    <div class="bg-gray-800 text-white dark:border-t dark:border-gray-700/50">
+        <div class="mx-auto w-full max-w-960 p-4 [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-2 [&_a]:focus-visible:outline-blauw">
+            {% if block.tekst_boven_audio %}
+                <h2 class="pb-4 text-3xl font-bold">{{ block.tekst_boven_audio|e }}</h2>
+            {% endif %}
+
+            <ul class="grid gap-4 sm:grid-cols-2">
+                {% for broadcast in block.broadcasts %}
+                    <li class="flex items-center gap-4 rounded-sm bg-gray-700/50 p-4">
+                        {{ include('partial/fm-headshot.twig', {
+                            image: broadcast.show.meta('fm_show_makers')|rows|column('fm_show_maker_foto')|filter(foto => foto)|first,
+                            px: 80,
+                            size_class: 'size-20',
+                            surface_class: 'bg-roze text-white',
+                        }) }}
+                        <div class="min-w-0 flex-1">
+                            <p class="font-round text-xs font-bold tracking-wide text-gray-400 uppercase">{{ (broadcast.times|first).locale('nl').isoFormat('dddd D MMMM') }}</p>
+                            <h3 class="font-bold leading-snug">
+                                <a href="{{ function('esc_url', broadcast.show.link) }}">{{ broadcast.show.title|plain|e }}</a>
+                            </h3>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                {% for time in broadcast.times %}
+                                    {{ include('partial/fm-recording-link.twig') }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <a href="{{ function('get_post_type_archive_link', 'fm') }}"
+               class="mt-4 inline-flex items-center gap-1 rounded-sm bg-roze py-1 pr-1.5 pl-2 text-sm text-white">
+                <span>Alle radioprogramma's</span>
+                <span class="size-4 shrink-0 [&>svg]:size-full" aria-hidden="true">{{ icon('icon-chevron_right') }}</span>
+            </a>
+        </div>
+    </div>
+{% endif %}

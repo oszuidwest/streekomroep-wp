@@ -8,9 +8,9 @@
  * @since 1.10.0
  */
 
-use Carbon\Carbon;
 use Streekomroep\BroadcastDay;
 use Streekomroep\Fragment;
+use Streekomroep\RadioGemist;
 
 $context = Timber::context();
 
@@ -146,57 +146,18 @@ if ($timber_post->post_type == 'tv') {
 if ($timber_post->post_type == 'fm') {
     $show = $timber_post;
     $published = $show->post_status === 'publish';
-    $gemist = $published && (bool)get_field('radio_gemist_actief', 'option');
-
     $rules = $show->schedule();
+    $recordingDays = $published ? iterator_to_array(RadioGemist::days($rules)) : [];
     $retention = (int)get_field('radio_gemist_retentie', 'option');
-
-    $recordings = [];
-    if ($gemist) {
-        $hour = Carbon::now('Europe/Amsterdam')->startOfHour()->subHour();
-        $end = $hour->copy()->subDays($retention);
-
-        while ($hour->isAfter($end)) {
-            $dayname = BroadcastDay::WEEKDAY_NAMES[$hour->dayOfWeekIso];
-
-            foreach ($rules as $rule) {
-                if (!in_array($dayname, $rule['fm_show_dagen'])) {
-                    continue;
-                }
-
-                $ruleStart = $hour->copy()->setTimeFromTimeString($rule['fm_show_starttijd']);
-                $ruleEnd = $hour->copy()->setTimeFromTimeString($rule['fm_show_eindtijd']);
-
-
-                if (($hour->isAfter($ruleStart) || $hour->is($ruleStart)) && $hour->isBefore($ruleEnd)) {
-                    // Store a copy because the loop cursor is a mutable Carbon instance.
-                    $recordings[] = $hour->copy();
-                }
-            }
-
-            // Subtract an absolute hour so DST transitions cannot stall the loop.
-            $hour = $hour->subUTCHour();
-        }
-    }
-
-    usort($recordings, fn (Carbon $lhs, Carbon $rhs) => $lhs->isSameDay($rhs) ? $lhs <=> $rhs : $rhs <=> $lhs);
-
-    // Group hourly recording URLs into one card per broadcast day.
-    $recordingDays = [];
-    foreach ($recordings as $recording) {
-        $key = $recording->toDateString();
-        $recordingDays[$key] ??= ['date' => $recording->copy()->startOfDay(), 'times' => []];
-        $recordingDays[$key]['times'][] = $recording;
-    }
 
     // Prefer whole weeks in the listener-facing retention copy.
     $retentionLabel = null;
-    if ($retention > 0 && $recordings) {
+    if ($retention > 0 && $recordingDays) {
         $weeks = intdiv($retention, 7);
         $retentionLabel = $retention % 7 === 0 ? ($weeks === 1 ? '1 week' : $weeks . ' weken') : ($retention === 1 ? '1 dag' : $retention . ' dagen');
     }
 
-    $context['gemist'] = ['days' => array_values($recordingDays), 'retention_label' => $retentionLabel];
+    $context['gemist'] = ['days' => $recordingDays, 'retention_label' => $retentionLabel];
 
     // Only build the full schedule when this published show can have a
     // successor.

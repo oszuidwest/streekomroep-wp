@@ -63,11 +63,12 @@ Most blocks need something first:
 | Artikelen lijst | Articles. Those with the ranking Top story or Achterkant are left out. |
 | Nu op FM/TV | The FM Player and TV Player pages for the links, and both schedules |
 | Fragmenten carrousel | Fragments |
+| FM gemist | The audio logger under Radio instellingen, and radio shows with a schedule |
 | TV gemist | [Bunny Stream](#bunny-stream), and television shows with episodes |
 | Dossiers carrousel | Dossiers with at least two articles or fragments, and their tall image |
 | Dossier | A dossier chosen in the block, with articles and both images |
 
-Meest gelezen and FM gemist have no template and show nothing.
+Meest gelezen has no template and shows nothing.
 
 ### Bunny Stream
 
