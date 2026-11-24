@@ -1,7 +1,5 @@
 <?php
 
-use Streekomroep\CollapsibleNormalizer;
-
 /**
  * Sanitizes classic post content against the theme's HTML allowlist.
  *
@@ -28,11 +26,9 @@ function zw_sanitize_post_content(array $data, array $postarr): array
             'title'  => true,
         ],
         'blockquote' => ['cite' => true],
-        'details'    => ['class' => ['values' => ['collapsible-item']], 'open' => true],
-        'div'        => ['class' => ['values' => ['collapsible']]],
         'em'         => [],
         'h2'         => ['id' => true],
-        'h3'         => ['id' => true, 'class' => ['values' => ['collapsible-title']]],
+        'h3'         => ['id' => true],
         'iframe'     => [
             'src'             => true,
             'width'           => true,
@@ -54,7 +50,6 @@ function zw_sanitize_post_content(array $data, array $postarr): array
         'li'         => [],
         'ol'         => ['start' => true],
         'strong'     => [],
-        'summary'    => [],
         'table'      => [],
         'tbody'      => [],
         'td'         => [],
@@ -68,9 +63,7 @@ function zw_sanitize_post_content(array $data, array $postarr): array
     // Block editor content is saved as is: the allowlist would strip the markup
     // the editor generates (<p>, <figure>, classes) and invalidate every block.
     if (isset($data['post_content']) && !has_blocks($data['post_content'])) {
-        // Normalize first so the allowlist receives canonical markup.
-        $content = CollapsibleNormalizer::normalize(wp_unslash($data['post_content']));
-        $data['post_content'] = wp_slash(wp_kses($content, $allowed_elements));
+        $data['post_content'] = wp_slash(wp_kses(wp_unslash($data['post_content']), $allowed_elements));
     }
 
     return $data;
