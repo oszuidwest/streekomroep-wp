@@ -9,12 +9,13 @@ require __DIR__ . '/../vendor/autoload.php';
 const ZW_TV_META_VIDEOS = 'bunny_data';
 const ZW_BUNNY_LIBRARY_TV = -1;
 
+$settings = ['bunny_cdn_library_id' => 1, 'bunny_cdn_hostname' => 'https://cdn', 'bunny_cdn_api_key' => 'key'];
 $post_meta = [];
 $post_meta_reads = 0;
 
 function get_field(string $name, string $post_id): mixed
 {
-    return ['bunny_cdn_library_id' => 1, 'bunny_cdn_hostname' => 'https://cdn', 'bunny_cdn_api_key' => 'key'][$name] ?? null;
+    return $GLOBALS['settings'][$name] ?? null;
 }
 
 function get_post_meta(int $id, string $key, bool $single): mixed
@@ -24,6 +25,7 @@ function get_post_meta(int $id, string $key, bool $single): mixed
     return $post_meta[$id][$key] ?? '';
 }
 
+use Streekomroep\BunnyClient;
 use Streekomroep\BunnyCredentials;
 use Streekomroep\Video;
 use Streekomroep\VideoCollection;
@@ -41,6 +43,15 @@ foreach ($cases as $name => [$video, $expected]) {
     VideoCollection::preprocessOne($video);
     if ($video->_description !== $expected || $video->_broadcastTimestamp !== null) {
         $failures[] = sprintf('%s: expected description %s without timestamp, got %s with timestamp %s', $name, json_encode($expected), json_encode($video->_description), json_encode($video->_broadcastTimestamp));
+    }
+}
+
+// ID 0 matches an empty library ID. Each case needs its own ID, because lookups are cached.
+foreach ([[0, null, 'https://f', false], [2, 2, null, false], [3, 3, 'https://f', true]] as [$libraryId, $savedId, $hostname, $expected]) {
+    $settings['bunny_cdn_library_id_fragmenten'] = $savedId;
+    $settings['bunny_cdn_hostname_fragmenten'] = $hostname;
+    if ((BunnyClient::getCredentials($libraryId) !== null) !== $expected) {
+        $failures[] = sprintf('library %d: expected credentials %s', $libraryId, json_encode($expected));
     }
 }
 
