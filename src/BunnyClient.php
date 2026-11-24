@@ -36,11 +36,9 @@ class BunnyClient
             return null;
         }
 
-        $credentials = new BunnyCredentials(
-            get_field($fields[0], 'option'),
-            get_field($fields[1], 'option'),
-            get_field($fields[2], 'option')
-        );
+        [$id, $hostname, $apiKey] = array_map(fn ($field) => get_field($field, 'option'), $fields);
+        // Stored videos play without the API key; only requests to Bunny need it.
+        $credentials = $id && $hostname ? new BunnyCredentials($id, $hostname, (string) $apiKey) : null;
 
         self::$credentialsCache[$libraryId] = $credentials;
 
