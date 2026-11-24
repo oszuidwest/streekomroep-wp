@@ -1,0 +1,3 @@
+<a class="rounded-sm bg-gray-700 px-3 py-2 text-center text-xs font-bold text-white {{ link_class }}"
+   href="{{ function('esc_url', options.radio_gemist_baseurl|replace({'<date>': time.format(options.radio_gemist_file)})) }}"
+   target="_blank" rel="noopener">{{ time.format('H:i') }}</a>

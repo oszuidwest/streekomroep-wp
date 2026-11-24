@@ -1,5 +1,6 @@
 <?php
 
+use Streekomroep\RadioGemist;
 use Streekomroep\TvGemistCache;
 
 /** Primes front-page attachment caches to avoid per-image database queries. */
@@ -74,6 +75,10 @@ foreach ($blocks as &$block) {
             );
             $block['videos'] = $resolved['videos'];
             $block['shows'] = $resolved['shows'];
+            break;
+
+        case 'blok_fm_gemist':
+            $block['broadcasts'] = RadioGemist::latest(4);
             break;
 
         case 'blok_artikel_lijst':

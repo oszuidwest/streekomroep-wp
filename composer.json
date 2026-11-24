@@ -18,6 +18,7 @@
       "@test:article-feed",
       "@test:post-content-sanitizer",
       "@test:video-collection",
+      "@test:radio-gemist",
       "@test:fm-live"
     ],
     "lint:twig": "twig-cs-fixer lint",
@@ -28,6 +29,7 @@
     "test:responsive-images": "php tests/responsive-images.php",
     "test:post-content-sanitizer": "php tests/post-content-sanitizer.php",
     "test:video-collection": "php tests/video-collection.php",
+    "test:radio-gemist": "php tests/radio-gemist.php",
     "test:fm-live": "node --test tests/fm-live-player.mjs"
   },
   "repositories": [

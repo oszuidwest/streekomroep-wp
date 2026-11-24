@@ -35,6 +35,7 @@ $twig = new \Twig\Environment($loader, ['autoescape' => false, 'strict_variables
 $twig->addFunction(new \Twig\TwigFunction('function', fn ($name, ...$args) => $name(...$args)));
 $twig->addFunction(new \Twig\TwigFunction('icon', fn () => ''));
 $twig->addFilter(new \Twig\TwigFilter('plain', fn (?string $text) => html_entity_decode((string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+$twig->addFilter(new \Twig\TwigFilter('rows', fn ($value) => is_array($value) ? $value : []));
 $twig->addFilter(new \Twig\TwigFilter('imgproxy', fn ($src, $width, $height) => $src . '?w=' . $width . '&h=' . $height));
 
 $failures = [];
@@ -205,6 +206,19 @@ $check(
     ]),
     ['<img src=x', '<script>'],
     ['&lt;img src=x', '&lt;script&gt;']
+);
+
+$check(
+    'blok_fm_gemist.twig (text and attributes)',
+    $twig->render('blocks/blok_fm_gemist.twig', [
+        'options' => ['radio_gemist_baseurl' => 'https://example.test/<date>' . $attribute_payload, 'radio_gemist_file' => 'Y-m-d_H'],
+        'block' => [
+            'tekst_boven_audio' => $script_payload,
+            'broadcasts' => [['show' => ['title' => 'R&amp;B ' . $text_payload, 'link' => 'https://example.test/show' . $attribute_payload], 'times' => [\Carbon\CarbonImmutable::parse('2026-11-24 07:00')]]],
+        ],
+    ]),
+    ['<img src=x', '<script>', '" onerror="'],
+    ['R&amp;B &lt;img src=x', '&lt;script&gt;', 'https://example.test/2026-11-24_07', 'dinsdag 24 november']
 );
 
 // Cover every broadcast sink and detect double encoding.
