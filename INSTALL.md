@@ -49,7 +49,25 @@ The menu has three settings pages for administrators.
 
 Radio instellingen holds the live streams, frequencies, first day of the week, name for hours without a show, live track titles and the audio logger for listening back. The radio schedule itself comes from the radio shows.
 
-TV instellingen holds the weekly schedule and the Bunny Stream settings. Desking holds the blocks on the front page and the placeholder for articles without a region.
+TV instellingen holds the weekly schedule and the Bunny Stream settings. Desking holds the [front page blocks](#front-page) and the placeholder for articles without a region.
+
+### Front page
+
+Create an empty page and choose it as the homepage under Settings > Reading. With "Your latest posts", `/page/2/` repeats the front page. Then add blocks under Desking. Without blocks the front page is empty.
+
+Most blocks need something first:
+
+| Block | Needs |
+| --- | --- |
+| Top stories | Articles with the ranking Top story. It shows up to three, newest first. |
+| Artikelen lijst | Articles. Those with the ranking Top story or Achterkant are left out. |
+| Nu op FM/TV | The FM Player and TV Player pages for the links, and both schedules |
+| Fragmenten carrousel | Fragments |
+| TV gemist | [Bunny Stream](#bunny-stream), and television shows with episodes |
+| Dossiers carrousel | Dossiers with at least two articles or fragments, and their tall image |
+| Dossier | A dossier chosen in the block, with articles and both images |
+
+Meest gelezen and FM gemist have no template and show nothing.
 
 ### Bunny Stream
 
