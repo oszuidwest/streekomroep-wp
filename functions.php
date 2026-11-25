@@ -1027,6 +1027,10 @@ function zw_enqueue_videojs_assets(string $preset)
     wp_enqueue_script_module('videojs-nl', $base_url . 'locales/nl.js', [], null);
     wp_enqueue_script_module('videojs-' . $preset, $base_url . $preset . '.js', [], null);
     wp_enqueue_script_module('videojs-hlsjs-video', $base_url . 'media/hlsjs-video.js', [], null);
+
+    if ($preset === 'live-video') {
+        wp_enqueue_script_module('zw-videojs-live', get_theme_file_uri('static/videojs-live.js'), [], wp_get_theme()->get('Version'));
+    }
 }
 
 function zw_maybe_enqueue_videojs()

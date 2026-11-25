@@ -28,7 +28,7 @@
                 <media-i18n>
                     <live-video-player poster="{{ post.meta('tv_webplayer_poster') }}">
                         <live-video-skin class="block size-full">
-                            <hlsjs-video autoplay playsinline{% if post.meta('tv_webplayer_hls_stream') %} src="{{ post.meta('tv_webplayer_hls_stream') }}"{% endif %}></hlsjs-video>
+                            <hlsjs-video autoplay playsinline{% if post.meta('tv_webplayer_hls_stream') %} data-live-src="{{ post.meta('tv_webplayer_hls_stream')|e('html_attr') }}"{% endif %}></hlsjs-video>
                         </live-video-skin>
                     </live-video-player>
                 </media-i18n>
