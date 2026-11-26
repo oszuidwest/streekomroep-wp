@@ -17,7 +17,7 @@ class Fragment extends Post
                 return null;
             }
             return VideoRenderer::renderFromUrl($url, $posterUrl) ?: null;
-        } elseif ($this->meta('fragment_type') === self::TYPE_AUDIO) {
+        } elseif ($this->isAudio()) {
             return Timber::compile('partial/player-audio-fragment.twig', [
                 'fragment' => $this,
                 'poster_url' => $posterUrl,
@@ -25,6 +25,11 @@ class Fragment extends Post
         }
 
         return null;
+    }
+
+    public function isAudio(): bool
+    {
+        return $this->meta('fragment_type') === self::TYPE_AUDIO;
     }
 
     /**

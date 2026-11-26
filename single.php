@@ -28,7 +28,7 @@ if ($timber_post->post_type == 'fragment') {
     $context['posts'] = fragment_get_posts($timber_post->id);
     $context['embed'] = $timber_post->getEmbed();
     if ($context['embed']) {
-        zw_require_videojs();
+        zw_require_videojs(hls: !$timber_post->isAudio());
     }
 }
 
@@ -223,7 +223,7 @@ if ($timber_post->post_gekoppeld_fragment) {
 
         $context['embed'] = $fragment->getEmbed($posterUrl);
         if ($context['embed']) {
-            zw_require_videojs();
+            zw_require_videojs(hls: !$fragment->isAudio());
         }
     }
 }

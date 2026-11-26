@@ -4,9 +4,9 @@
 {% endif %}
 <div class="aspect-video">
     <media-i18n>
-        <video-player poster="{{ poster }}">
+        <video-player poster="{{ function('esc_url', poster|default('')) }}">
             <video-skin class="block size-full">
-                <video src="{{ fragment.meta('fragment_url', {format_value: false}) }}" autoplay playsinline></video>
+                <video src="{{ function('esc_url', fragment.meta('fragment_url', {format_value: false})|default('')) }}" autoplay playsinline></video>
             </video-skin>
         </video-player>
     </media-i18n>

@@ -268,6 +268,49 @@ $check_hooks(
     ['data-volume-control', 'data-volume-toggle', 'data-volume-panel', 'data-volume', 'data-volume-value']
 );
 
+// Player URLs come from page and fragment settings; both attribute and protocol payloads must be neutralised.
+$tv_post = new class ($attribute_payload) {
+    public string $title = 'Kanaal';
+
+    public function __construct(private string $payload)
+    {
+    }
+
+    public function meta(string $key): mixed
+    {
+        return [
+            'tv_webplayer_poster' => 'https://example.test/poster.jpg' . $this->payload,
+            'tv_webplayer_hls_stream' => 'https://example.test/live.m3u8' . $this->payload,
+            'tv_frequenties' => [],
+        ][$key] ?? null;
+    }
+};
+$check(
+    'page-tv-player.twig',
+    $twig->render('page-tv-player.twig', ['post' => $tv_post, 'tv_channels' => []]),
+    ['" onerror="'],
+    ['poster="https://example.test/poster.jpg', 'data-live-src="https://example.test/live.m3u8']
+);
+
+$audio_fragment = new class ($protocol_payload) {
+    public mixed $thumbnail = null;
+
+    public function __construct(private string $payload)
+    {
+    }
+
+    public function meta(string $key, array $options = []): mixed
+    {
+        return $key === 'fragment_url' ? $this->payload : null;
+    }
+};
+$check(
+    'partial/player-audio-fragment.twig',
+    $twig->render('partial/player-audio-fragment.twig', ['fragment' => $audio_fragment, 'poster_url' => 'https://example.test/poster.jpg' . $attribute_payload]),
+    ['javascript:', '" onerror="'],
+    ['poster="https://example.test/poster.jpg', '<video src=""']
+);
+
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);

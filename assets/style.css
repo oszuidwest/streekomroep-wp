@@ -70,10 +70,6 @@
     @apply text-sm text-gray-500 text-center pt-2;
 }
 
-.prose video-player video {
-    margin: 0;
-}
-
 /* Match the player's corners to the rest of the site. */
 video-player,
 live-video-player {

@@ -72,10 +72,6 @@ body .wp-caption-dd {
     @apply text-sm text-gray-500 text-center pt-2;
 }
 
-body video-player video {
-    margin: 0;
-}
-
 /* Collapsible editor styles. */
 body .collapsible {
     @apply my-6 outline-1 outline-dashed outline-gray-300;

@@ -1004,29 +1004,24 @@ function zw_enqueue_fm_live_assets()
 add_action('wp_enqueue_scripts', 'zw_enqueue_fm_live_assets', 21);
 
 /**
- * Marks the request for a Video.js player preset ('video' or 'live-video').
+ * Enqueues a Video.js player preset ('video' or 'live-video').
  *
- * Late calls enqueue immediately because wp_enqueue_scripts already ran.
+ * Players that only play a plain media file, such as audio fragments, pass $hls = false
+ * to skip the hls.js engine.
  */
-function zw_require_videojs(string $preset = 'video')
-{
-    $GLOBALS['zw_videojs_presets'][$preset] = true;
-
-    if (did_action('wp_enqueue_scripts')) {
-        zw_enqueue_videojs_assets($preset);
-    }
-}
-
-function zw_enqueue_videojs_assets(string $preset)
+function zw_require_videojs(string $preset = 'video', bool $hls = true)
 {
     // All Video.js CDN files must come from the same release.
-    $base_url = 'https://cdn.jsdelivr.net/npm/@videojs/cdn@10.6.0/';
+    $base_url = 'https://cdn.jsdelivr.net/npm/@videojs/cdn@10.7.0/';
 
     wp_enqueue_style('videojs', $base_url . 'global.css', [], null);
     // The locale loads before the player to avoid a flash of English labels.
     wp_enqueue_script_module('videojs-nl', $base_url . 'locales/nl.js', [], null);
     wp_enqueue_script_module('videojs-' . $preset, $base_url . $preset . '.js', [], null);
-    wp_enqueue_script_module('videojs-hlsjs-video', $base_url . 'media/hlsjs-video.js', [], null);
+
+    if ($hls) {
+        wp_enqueue_script_module('videojs-hlsjs-video', $base_url . 'media/hlsjs-video.js', [], null);
+    }
 
     if ($preset === 'live-video') {
         wp_enqueue_script_module('zw-videojs-live', get_theme_file_uri('static/videojs-live.js'), [], wp_get_theme()->get('Version'));
@@ -1038,11 +1033,7 @@ function zw_maybe_enqueue_videojs()
     $post = get_post();
 
     if (is_singular() && $post instanceof WP_Post && zw_post_content_contains_videojs_embed($post)) {
-        $GLOBALS['zw_videojs_presets']['video'] = true;
-    }
-
-    foreach (array_keys($GLOBALS['zw_videojs_presets'] ?? []) as $preset) {
-        zw_enqueue_videojs_assets($preset);
+        zw_require_videojs();
     }
 }
 
