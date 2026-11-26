@@ -11,11 +11,12 @@ class Fragment extends Post
 
     public function getEmbed(?string $posterUrl = null)
     {
+        $url = $this->meta('fragment_url', ['format_value' => false]);
+        if (!$url) {
+            return null;
+        }
+
         if ($this->meta('fragment_type') === self::TYPE_VIDEO) {
-            $url = $this->meta('fragment_url', ['format_value' => false]);
-            if (!$url) {
-                return null;
-            }
             return VideoRenderer::renderFromUrl($url, $posterUrl) ?: null;
         } elseif ($this->isAudio()) {
             return Timber::compile('partial/player-audio-fragment.twig', [

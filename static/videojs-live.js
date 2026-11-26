@@ -1,13 +1,15 @@
-// hls.js allows a live playlist only 2 retries, so a few seconds without network
-// stops playback for good (videojs/video.js#9296). 30 retries, backing off from 1 s
-// to at most 4 s, give each outage a budget of about two minutes. hls.js replaces
-// the whole policy instead of merging it, so the other values repeat its defaults.
+// hls.js gives a live playlist 2 retries before a fatal error, and Video.js 10 does
+// not recover from one (videojs/video.js#9296), so a few seconds of failed or hanging
+// playlist requests end playback until the page is reloaded. Retrying both forever,
+// backing off from 1 s to at most 4 s, lets the stream resume after an outage during
+// playback, as Video.js 8 did. hls.js replaces the whole policy instead of merging it,
+// so the load timeouts repeat its defaults.
 const playlistLoadPolicy = {
     default: {
         maxTimeToFirstByteMs: 10000,
         maxLoadTimeMs: 20000,
-        timeoutRetry: {maxNumRetry: 2, retryDelayMs: 0, maxRetryDelayMs: 0},
-        errorRetry: {maxNumRetry: 30, retryDelayMs: 1000, maxRetryDelayMs: 4000},
+        timeoutRetry: {maxNumRetry: Infinity, retryDelayMs: 1000, maxRetryDelayMs: 4000},
+        errorRetry: {maxNumRetry: Infinity, retryDelayMs: 1000, maxRetryDelayMs: 4000},
     },
 };
 

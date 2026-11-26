@@ -5,7 +5,7 @@ import test from 'node:test';
 const liveSource = readFileSync(new URL('../static/videojs-live.js', import.meta.url), 'utf8');
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-// Runs the module body against fake globals; defined() lets <hlsjs-video> register.
+// Runs the module body against fake globals; defined() resolves whenDefined('hlsjs-video').
 function load(players) {
     let defined;
     const definition = new Promise((resolve) => {
@@ -27,7 +27,7 @@ function load(players) {
     return {defined, done};
 }
 
-test('the live stream gets the playlist retry budget and an explicit HLS type', async () => {
+test('the live stream retries failed and hanging playlist loads forever and declares its HLS type', async () => {
     const player = {dataset: {liveSrc: 'https://example.test/live.m3u8'}};
     const {defined, done} = load([player]);
     defined();
@@ -40,8 +40,8 @@ test('the live stream gets the playlist retry budget and an explicit HLS type', 
         default: {
             maxTimeToFirstByteMs: 10000,
             maxLoadTimeMs: 20000,
-            timeoutRetry: {maxNumRetry: 2, retryDelayMs: 0, maxRetryDelayMs: 0},
-            errorRetry: {maxNumRetry: 30, retryDelayMs: 1000, maxRetryDelayMs: 4000},
+            timeoutRetry: {maxNumRetry: Infinity, retryDelayMs: 1000, maxRetryDelayMs: 4000},
+            errorRetry: {maxNumRetry: Infinity, retryDelayMs: 1000, maxRetryDelayMs: 4000},
         },
     });
 });

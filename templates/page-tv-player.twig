@@ -25,10 +25,11 @@
     <div class="bg-black text-white">
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-video">
+                {% set live_src = function('esc_url', post.meta('tv_webplayer_hls_stream')|default('')) %}
                 <media-i18n>
                     <live-video-player poster="{{ function('esc_url', post.meta('tv_webplayer_poster')|default('')) }}">
                         <live-video-skin class="block size-full">
-                            <hlsjs-video autoplay playsinline{% if post.meta('tv_webplayer_hls_stream') %} data-live-src="{{ function('esc_url', post.meta('tv_webplayer_hls_stream')) }}"{% endif %}></hlsjs-video>
+                            <hlsjs-video autoplay playsinline{% if live_src %} data-live-src="{{ live_src }}"{% endif %}></hlsjs-video>
                         </live-video-skin>
                     </live-video-player>
                 </media-i18n>

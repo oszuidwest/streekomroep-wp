@@ -24,6 +24,28 @@ function get_post_type_archive_link(string $post_type): string
     return 'https://example.test/' . $post_type;
 }
 
+// VideoRenderer picks its markup by request context; tests flip $is_feed.
+$is_feed = false;
+function is_feed(): bool
+{
+    return $GLOBALS['is_feed'];
+}
+
+function is_admin(): bool
+{
+    return false;
+}
+
+function wp_doing_ajax(): bool
+{
+    return false;
+}
+
+function wp_is_serving_rest_request(): bool
+{
+    return false;
+}
+
 // The test only needs base.twig's content block.
 $loader = new \Twig\Loader\ChainLoader([
     new \Twig\Loader\ArrayLoader(['base.twig' => '{% block content %}{% endblock %}']),
@@ -269,28 +291,38 @@ $check_hooks(
 );
 
 // Player URLs come from page and fragment settings; both attribute and protocol payloads must be neutralised.
-$tv_post = new class ($attribute_payload) {
+$tv_post = fn (array $meta) => new class ($meta) {
     public string $title = 'Kanaal';
 
-    public function __construct(private string $payload)
+    public function __construct(private array $meta)
     {
     }
 
     public function meta(string $key): mixed
     {
-        return [
-            'tv_webplayer_poster' => 'https://example.test/poster.jpg' . $this->payload,
-            'tv_webplayer_hls_stream' => 'https://example.test/live.m3u8' . $this->payload,
-            'tv_frequenties' => [],
-        ][$key] ?? null;
+        return $this->meta[$key] ?? null;
     }
 };
+$tv_meta = [
+    'tv_webplayer_poster' => 'https://example.test/poster.jpg' . $attribute_payload,
+    'tv_webplayer_hls_stream' => 'https://example.test/live.m3u8' . $attribute_payload,
+];
 $check(
     'page-tv-player.twig',
-    $twig->render('page-tv-player.twig', ['post' => $tv_post, 'tv_channels' => []]),
+    $twig->render('page-tv-player.twig', ['tv_channels' => [], 'post' => $tv_post($tv_meta)]),
     ['" onerror="'],
     ['poster="https://example.test/poster.jpg', 'data-live-src="https://example.test/live.m3u8']
 );
+
+// Without a usable stream URL the player gets no source at all, not an empty one.
+foreach (['no stream' => null, 'unsafe stream' => $protocol_payload] as $label => $stream) {
+    $check(
+        sprintf('page-tv-player.twig (%s)', $label),
+        $twig->render('page-tv-player.twig', ['tv_channels' => [], 'post' => $tv_post(['tv_webplayer_hls_stream' => $stream])]),
+        ['data-live-src', 'javascript:'],
+        ['<hlsjs-video autoplay playsinline>']
+    );
+}
 
 $audio_fragment = new class ($protocol_payload) {
     public mixed $thumbnail = null;
@@ -310,6 +342,38 @@ $check(
     ['javascript:', '" onerror="'],
     ['poster="https://example.test/poster.jpg', '<video src=""']
 );
+
+$bunny_video = new \Streekomroep\Video(
+    new \Streekomroep\BunnyCredentials(1, 'https://cdn.example.test', 'key'),
+    (object) [
+        'guid' => 'g',
+        'width' => 16,
+        'height' => 9,
+        'thumbnailFileName' => 't.jpg',
+        'availableResolutions' => '360p,720p,1080p',
+    ]
+);
+$check(
+    'VideoRenderer',
+    \Streekomroep\VideoRenderer::renderPlayer($bunny_video, 'https://example.test/poster.jpg' . $attribute_payload),
+    ['" onerror="', '<video controls'],
+    ['poster="https://example.test/poster.jpg', '<hlsjs-video src="https://cdn.example.test/g/playlist.m3u8"']
+);
+$check(
+    'VideoRenderer (thumbnail poster)',
+    \Streekomroep\VideoRenderer::renderPlayer($bunny_video),
+    [],
+    ['poster="https://cdn.example.test/g/t.jpg"']
+);
+
+$is_feed = true;
+$check(
+    'VideoRenderer (feed)',
+    \Streekomroep\VideoRenderer::renderPlayer($bunny_video),
+    ['<hlsjs-video', '<video-player'],
+    ['<video controls preload="none" poster="https://cdn.example.test/g/t.jpg" src="https://cdn.example.test/g/play_720p.mp4"']
+);
+$is_feed = false;
 
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);

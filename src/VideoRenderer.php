@@ -7,6 +7,9 @@ class VideoRenderer
     /**
      * Renders a Video.js player for the video's HLS playlist.
      *
+     * Feeds, the editor preview and REST clients run no JavaScript, so they get a native
+     * player with the MP4 instead.
+     *
      * @param Video       $video
      * @param string|null $posterUrl Optional poster override; falls back to the Video's thumbnail when empty.
      * @return string
@@ -14,6 +17,15 @@ class VideoRenderer
     public static function renderPlayer(Video $video, ?string $posterUrl = null): string
     {
         $posterUrl = $posterUrl ?: (string) $video->getThumbnail();
+
+        if (is_feed() || is_admin() || wp_doing_ajax() || wp_is_serving_rest_request()) {
+            return sprintf(
+                '<div class="not-prose" style="aspect-ratio: %f;"><video controls preload="none" poster="%s" src="%s" style="width: 100%%; height: 100%%;"></video></div>',
+                $video->getAspectRatio(),
+                esc_url($posterUrl),
+                esc_url($video->getMP4Url() ?: $video->getPlaylistUrl())
+            );
+        }
 
         return sprintf(
             '<div class="not-prose" style="aspect-ratio: %f;"><media-i18n><video-player poster="%s">'
