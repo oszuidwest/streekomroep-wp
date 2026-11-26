@@ -4,9 +4,11 @@
 {% endif %}
 <div class="aspect-video">
     <media-i18n>
-        <video-player poster="{{ function('esc_url', poster|default('')) }}">
+        {% set poster = function('esc_url', poster|default('')) %}
+        <video-player poster="{{ poster }}">
             <video-skin class="block size-full">
-                <video src="{{ function('esc_url', fragment.meta('fragment_url', {format_value: false})|default('')) }}" autoplay playsinline></video>
+                {# Native controls keep it playable where Video.js does not run. #}
+                <video src="{{ function('esc_url', fragment.meta('fragment_url', {format_value: false})|default('')) }}" poster="{{ poster }}" controls autoplay playsinline style="width: 100%; height: 100%;"></video>
             </video-skin>
         </video-player>
     </media-i18n>

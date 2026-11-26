@@ -311,7 +311,12 @@ $check(
     'page-tv-player.twig',
     $twig->render('page-tv-player.twig', ['tv_channels' => [], 'post' => $tv_post($tv_meta)]),
     ['" onerror="'],
-    ['poster="https://example.test/poster.jpg', 'data-live-src="https://example.test/live.m3u8']
+    [
+        'poster="https://example.test/poster.jpg',
+        'data-live-src="https://example.test/live.m3u8',
+        '<video slot="media" controls preload="none" playsinline poster="https://example.test/poster.jpg',
+        ' src="https://example.test/live.m3u8',
+    ]
 );
 
 // Without a usable stream URL the player gets no source at all, not an empty one.
@@ -319,8 +324,8 @@ foreach (['no stream' => null, 'unsafe stream' => $protocol_payload] as $label =
     $check(
         sprintf('page-tv-player.twig (%s)', $label),
         $twig->render('page-tv-player.twig', ['tv_channels' => [], 'post' => $tv_post(['tv_webplayer_hls_stream' => $stream])]),
-        ['data-live-src', 'javascript:'],
-        ['<hlsjs-video autoplay playsinline>']
+        ['data-live-src', 'javascript:', ' src="'],
+        ['<hlsjs-video autoplay playsinline>', '<video slot="media" controls']
     );
 }
 
@@ -340,7 +345,7 @@ $check(
     'partial/player-audio-fragment.twig',
     $twig->render('partial/player-audio-fragment.twig', ['fragment' => $audio_fragment, 'poster_url' => 'https://example.test/poster.jpg' . $attribute_payload]),
     ['javascript:', '" onerror="'],
-    ['poster="https://example.test/poster.jpg', '<video src=""']
+    ['poster="https://example.test/poster.jpg', '<video src=""', ' controls autoplay']
 );
 
 $bunny_video = new \Streekomroep\Video(
@@ -356,8 +361,12 @@ $bunny_video = new \Streekomroep\Video(
 $check(
     'VideoRenderer',
     \Streekomroep\VideoRenderer::renderPlayer($bunny_video, 'https://example.test/poster.jpg' . $attribute_payload),
-    ['" onerror="', '<video controls'],
-    ['poster="https://example.test/poster.jpg', '<hlsjs-video src="https://cdn.example.test/g/playlist.m3u8"']
+    ['" onerror="'],
+    [
+        'poster="https://example.test/poster.jpg',
+        '<hlsjs-video src="https://cdn.example.test/g/playlist.m3u8" playsinline><video slot="media" controls',
+        'src="https://cdn.example.test/g/play_720p.mp4"',
+    ]
 );
 $check(
     'VideoRenderer (thumbnail poster)',
@@ -371,7 +380,7 @@ $check(
     'VideoRenderer (feed)',
     \Streekomroep\VideoRenderer::renderPlayer($bunny_video),
     ['<hlsjs-video', '<video-player'],
-    ['<video controls preload="none" poster="https://cdn.example.test/g/t.jpg" src="https://cdn.example.test/g/play_720p.mp4"']
+    ['<video slot="media" controls preload="none" playsinline poster="https://cdn.example.test/g/t.jpg" src="https://cdn.example.test/g/play_720p.mp4"']
 );
 $is_feed = false;
 

@@ -26,10 +26,14 @@
         <div class="w-full mx-auto lg:max-w-960 lg:pt-12 lg:mb-12">
             <div class="aspect-video">
                 {% set live_src = function('esc_url', post.meta('tv_webplayer_hls_stream')|default('')) %}
+                {% set live_poster = function('esc_url', post.meta('tv_webplayer_poster')|default('')) %}
                 <media-i18n>
-                    <live-video-player poster="{{ function('esc_url', post.meta('tv_webplayer_poster')|default('')) }}">
+                    <live-video-player poster="{{ live_poster }}">
                         <live-video-skin class="block size-full">
-                            <hlsjs-video autoplay playsinline{% if live_src %} data-live-src="{{ live_src }}"{% endif %}></hlsjs-video>
+                            {# The native <video> plays the stream where Video.js does not run and the browser plays HLS itself. #}
+                            <hlsjs-video autoplay playsinline{% if live_src %} data-live-src="{{ live_src }}"{% endif %}>
+                                <video slot="media" controls preload="none" playsinline poster="{{ live_poster }}"{% if live_src %} src="{{ live_src }}"{% endif %} style="width: 100%; height: 100%;"></video>
+                            </hlsjs-video>
                         </live-video-skin>
                     </live-video-player>
                 </media-i18n>

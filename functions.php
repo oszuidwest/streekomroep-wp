@@ -1018,6 +1018,7 @@ function zw_require_videojs(string $preset = 'video', bool $hls = true)
     // The locale loads before the player to avoid a flash of English labels.
     wp_enqueue_script_module('videojs-nl', $base_url . 'locales/nl.js', [], null);
     wp_enqueue_script_module('videojs-' . $preset, $base_url . $preset . '.js', [], null);
+    wp_enqueue_script_module('zw-videojs-fallback', get_theme_file_uri('static/videojs-fallback.js'), [], wp_get_theme()->get('Version'));
 
     if ($hls) {
         wp_enqueue_script_module('videojs-hlsjs-video', $base_url . 'media/hlsjs-video.js', [], null);

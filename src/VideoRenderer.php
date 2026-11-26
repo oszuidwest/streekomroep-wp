@@ -7,8 +7,9 @@ class VideoRenderer
     /**
      * Renders a Video.js player for the video's HLS playlist.
      *
-     * Feeds, the editor preview and REST clients run no JavaScript, so they get a native
-     * player with the MP4 instead.
+     * The player wraps a native <video> with the MP4 that plays wherever Video.js does not run.
+     * Feeds, the editor preview and REST clients get only that native player, because feed
+     * readers drop unknown elements together with their content.
      *
      * @param Video       $video
      * @param string|null $posterUrl Optional poster override; falls back to the Video's thumbnail when empty.
@@ -16,24 +17,25 @@ class VideoRenderer
      */
     public static function renderPlayer(Video $video, ?string $posterUrl = null): string
     {
-        $posterUrl = $posterUrl ?: (string) $video->getThumbnail();
+        $posterUrl = esc_url($posterUrl ?: (string) $video->getThumbnail());
+        $native = sprintf(
+            '<video slot="media" controls preload="none" playsinline poster="%s" src="%s" style="width: 100%%; height: 100%%;"></video>',
+            $posterUrl,
+            esc_url($video->getMP4Url() ?: $video->getPlaylistUrl())
+        );
 
         if (is_feed() || is_admin() || wp_doing_ajax() || wp_is_serving_rest_request()) {
-            return sprintf(
-                '<div class="not-prose" style="aspect-ratio: %f;"><video controls preload="none" poster="%s" src="%s" style="width: 100%%; height: 100%%;"></video></div>',
-                $video->getAspectRatio(),
-                esc_url($posterUrl),
-                esc_url($video->getMP4Url() ?: $video->getPlaylistUrl())
-            );
+            return sprintf('<div class="not-prose" style="aspect-ratio: %f;">%s</div>', $video->getAspectRatio(), $native);
         }
 
         return sprintf(
             '<div class="not-prose" style="aspect-ratio: %f;"><media-i18n><video-player poster="%s">'
-            . '<video-skin class="block size-full"><hlsjs-video src="%s" playsinline></hlsjs-video></video-skin>'
+            . '<video-skin class="block size-full"><hlsjs-video src="%s" playsinline>%s</hlsjs-video></video-skin>'
             . '</video-player></media-i18n></div>',
             $video->getAspectRatio(),
-            esc_url($posterUrl),
-            esc_url($video->getPlaylistUrl())
+            $posterUrl,
+            esc_url($video->getPlaylistUrl()),
+            $native
         );
     }
 
