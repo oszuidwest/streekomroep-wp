@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Covers the RSS enclosure for articles with a featured fragment.
+ * Covers the RSS media tag for featured images and the enclosure for articles with a featured fragment.
  */
 
 define('ABSPATH', __DIR__ . '/../vendor/roots/wordpress-no-content/');
@@ -31,6 +31,17 @@ function get_post_field(string $field, int $id): string
 function get_post_meta(int $id, string $key, bool $single): mixed
 {
     return $GLOBALS['fixtures'][$id]['meta'][$key] ?? '';
+}
+
+// Post 1's featured image is attachment 3.
+function get_post_thumbnail_id(): int|false
+{
+    return isset($GLOBALS['fixtures'][3]) ? 3 : false;
+}
+
+function wp_get_attachment_image_src(int $id, string $size): array|false
+{
+    return $GLOBALS['fixtures'][$id]['large'] ?? false;
 }
 
 require __DIR__ . '/../lib/article_feed.php';
@@ -69,4 +80,25 @@ foreach ($cases as $name => [$overrides, $expected]) {
     }
 }
 
-echo 'OK: articles expose only their featured fragment as an RSS enclosure' . PHP_EOL;
+$media = fn (string $type, string $url): string => '<media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="' . $type . '" url="' . $url . '" width="1024" height="661" />' . "\n";
+$imageCases = [
+    'JPEG' => [['https://example.test/photo-1024x661.jpg', 1024, 661], $media('image/jpeg', 'https://example.test/photo-1024x661.jpg')],
+    'PNG' => [['https://example.test/chart-1024x661.png', 1024, 661], $media('image/png', 'https://example.test/chart-1024x661.png')],
+    'uppercase WebP' => [['https://example.test/still-1024x661.WEBP', 1024, 661], $media('image/webp', 'https://example.test/still-1024x661.WEBP')],
+    'escaped URL' => [['https://example.test/a&b-1024x661.jpg', 1024, 661], $media('image/jpeg', 'https://example.test/a&#038;b-1024x661.jpg')],
+    'missing file' => [false, ''],
+    'unknown type' => [['https://example.test/file-1024x661', 1024, 661], ''],
+    'rejected URL' => [['javascript:alert(1).jpg', 1024, 661], ''],
+];
+foreach ($imageCases as $name => [$large, $expected]) {
+    $fixtures = [3 => ['large' => $large]];
+    ob_start();
+    do_action('rss2_item');
+    $actual = ob_get_clean();
+    if ($actual !== $expected) {
+        fwrite(STDERR, $name . ': unexpected RSS media tag ' . var_export($actual, true) . PHP_EOL);
+        exit(1);
+    }
+}
+
+echo 'OK: articles expose their featured image with its real type and only their featured fragment as an RSS enclosure' . PHP_EOL;

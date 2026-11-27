@@ -1,9 +1,34 @@
 <?php
 
 /**
- * Adds an article's featured fragment to its RSS item, using the media file the
- * fragment feed cached for it. Feed requests never call Bunny.
+ * Adds an article's featured image and featured fragment to its RSS item. The fragment
+ * uses the media file the fragment feed cached for it, so feed requests never call Bunny.
  */
+
+function zw_article_featured_image_media(): void
+{
+    $image = wp_get_attachment_image_src((int) get_post_thumbnail_id(), 'large');
+    if (!$image) {
+        return;
+    }
+
+    // Take the type from the file the tag points to: a sub-size can have another format than the upload.
+    $type = wp_check_filetype($image[0], wp_get_mime_types())['type'];
+    $url = esc_url($image[0]);
+    if (!$type || $url === '') {
+        return;
+    }
+
+    printf(
+        '<media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="%s" url="%s" width="%d" height="%d" />' . "\n",
+        esc_attr($type),
+        $url,
+        $image[1],
+        $image[2]
+    );
+}
+
+add_action('rss2_item', 'zw_article_featured_image_media');
 
 function zw_article_fragment_enclosure(): void
 {
