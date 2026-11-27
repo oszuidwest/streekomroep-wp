@@ -1,13 +1,19 @@
 <?php
 
 /**
- * Adds an article's featured image and featured fragment to its RSS item. The fragment
+ * Adds an RSS item's featured image and, for articles, its featured fragment. The fragment
  * uses the media file the fragment feed cached for it, so feed requests never call Bunny.
  */
 
 function zw_article_featured_image_media(): void
 {
-    $image = wp_get_attachment_image_src((int) get_post_thumbnail_id(), 'large');
+    $post_id = get_the_ID();
+    // The password form on the site doesn't show the featured image either.
+    if (get_post_field('post_password', $post_id) !== '') {
+        return;
+    }
+
+    $image = wp_get_attachment_image_src(get_post_thumbnail_id($post_id), 'large');
     if (!$image) {
         return;
     }
