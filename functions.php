@@ -724,13 +724,6 @@ add_filter('wp_generate_animated_image_subsizes', '__return_false');
 // Let CSS control caption width.
 add_filter('img_caption_shortcode_width', '__return_false');
 
-// Keep the block editor from attaching inline images on save (WordPress 7.2+):
-// galleries without ids show every attached image, so they would pick these up.
-add_filter('block_editor_settings_all', function (array $settings): array {
-    $settings['autoAttachMediaEnabled'] = false;
-    return $settings;
-});
-
 // Turn off the /random/ redirect to a random post (WordPress 7.2+).
 add_filter('wp_enable_random_content_redirect', '__return_false');
 
