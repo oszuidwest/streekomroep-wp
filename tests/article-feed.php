@@ -10,6 +10,8 @@ foreach (['compat', 'plugin', 'functions', 'formatting', 'kses', 'utf8'] as $fil
     require ABSPATH . WPINC . '/' . $file . '.php';
 }
 add_filter('pre_option_blog_charset', fn () => 'UTF-8');
+// A warning must fail the test, whatever display_errors is set to.
+set_error_handler(fn (int $errno, string $message) => throw new ErrorException($message, 0, $errno));
 
 $fixtures = [];
 
@@ -41,7 +43,7 @@ function get_post_thumbnail_id(int $id): int
 
 function wp_get_attachment_image_src(int $id, string $size): array|false
 {
-    return $GLOBALS['fixtures'][$id]['large'] ?? false;
+    return $GLOBALS['fixtures'][$id][$size] ?? false;
 }
 
 require __DIR__ . '/../lib/article_feed.php';
@@ -72,7 +74,10 @@ $cases = [
         '<enclosure url="https://cdn.example/audio.mp3" length="123" type="audio/mpeg" />' . "\n",
     ],
     'JPEG image' => [$image('https://example.test/photo-1024x661.jpg'), $media('image/jpeg', 'https://example.test/photo-1024x661.jpg') . $video],
-    'PNG image' => [$image('https://example.test/chart-1024x661.png'), $media('image/png', 'https://example.test/chart-1024x661.png') . $video],
+    'PNG image without fragment' => [
+        $image('https://example.test/chart-1024x661.png') + [1 => ['meta' => ['post_fragment_is_featured' => '0']]],
+        $media('image/png', 'https://example.test/chart-1024x661.png'),
+    ],
     'uppercase WebP image' => [$image('https://example.test/still-1024x661.WEBP'), $media('image/webp', 'https://example.test/still-1024x661.WEBP') . $video],
     'escaped image URL' => [$image('https://example.test/a&b-1024x661.jpg'), $media('image/jpeg', 'https://example.test/a&#038;b-1024x661.jpg') . $video],
     'image of unknown type' => [$image('https://example.test/file-1024x661'), $video],

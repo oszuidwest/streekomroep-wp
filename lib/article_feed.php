@@ -8,7 +8,7 @@
 function zw_article_featured_image_media(): void
 {
     $post_id = get_the_ID();
-    // The password form on the site doesn't show the featured image either.
+    // Skip protected items, like the enclosure below: their page shows the password form until it is entered.
     if (get_post_field('post_password', $post_id) !== '') {
         return;
     }
