@@ -120,9 +120,11 @@ body > blockquote:not([class]) p {
     margin: 0;
 }
 
-body .size-full {
-    width: auto;
-    height: auto;
+@layer utilities {
+    body .size-full {
+        width: auto;
+        height: auto;
+    }
 }
 
 /* Captions of any block. */
