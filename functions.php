@@ -719,8 +719,6 @@ function zw_seo_article_add_region($data, $context)
 
 // Preserve originals; Timber and imgproxy generate renditions on demand.
 add_filter('big_image_size_threshold', '__return_false');
-// The theme serves imgproxy renditions of the original, so animated sub-sizes (WordPress 7.2+) only take up space.
-add_filter('wp_generate_animated_image_subsizes', '__return_false');
 // Let CSS control caption width.
 add_filter('img_caption_shortcode_width', '__return_false');
 
