@@ -1090,7 +1090,7 @@ function zw_imgproxy($src, $width, $height)
     $resize = 'fill';
     $gravity = 'ce'; // Imgproxy center gravity.
     $enlarge = 1;
-    $extension = 'jpeg';
+    $extension = \Streekomroep\Imgproxy::outputExtension($src);
 
     $width = (int)round($width);
     $height = (int)round($height);
