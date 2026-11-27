@@ -115,9 +115,7 @@
     margin: 0;
 }
 
-/* Captions of any block (image, table, embed). The typography plugin's image
-   margins would push the caption away from the image. */
-.prose figure:has(> figcaption):not(.not-prose *) img {
+.prose figure:not(.not-prose *) img {
     margin-block: 0;
 }
 
