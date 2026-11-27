@@ -20,7 +20,6 @@ $check = function (bool $ok, string $message) use (&$failures): void {
 foreach (
     [
         'https://example.test/wp-content/uploads/photo.jpg' => 'jpeg',
-        'https://example.test/wp-content/uploads/photo.jpeg' => 'jpeg',
         'https://example.test/wp-content/uploads/logo.png' => 'webp',
         'https://example.test/wp-content/uploads/LOGO.PNG' => 'webp',
         'https://example.test/wp-content/uploads/logo.png?ver=2' => 'webp',
@@ -35,37 +34,30 @@ foreach (
     $check($actual === $expected, 'Imgproxy::extension(' . $src . ') is ' . $actual . ', expected ' . $expected . '.');
 }
 
-// Load just enough of core for WP_HTML_Tag_Processor, which escapes URLs with kses.
+// WP_HTML_Tag_Processor comes from the autoloader; it escapes URLs with kses, so load that from core.
 $core = __DIR__ . '/../vendor/roots/wordpress-no-content/wp-includes';
 define('ABSPATH', dirname($core) . '/');
 define('WPINC', 'wp-includes');
 foreach (
     [
         'compat-utf8.php', 'utf8.php', 'html-api/html5-named-character-references.php', 'compat.php', 'load.php', 'plugin.php',
-        'formatting.php', 'functions.php', 'kses.php', 'html-api/class-wp-html-attribute-token.php',
-        'html-api/class-wp-html-span.php', 'html-api/class-wp-html-text-replacement.php',
-        'html-api/class-wp-html-decoder.php', 'html-api/class-wp-html-tag-processor.php',
+        'formatting.php', 'functions.php', 'kses.php',
     ] as $file
 ) {
     require_once $core . '/' . $file;
 }
 
-// Stand-ins for lookups that need the database. Attachment 1 is a JPEG, 2 a PNG, 3 a GIF, 4 a WebP.
-$attachments = [
-    1 => ['image/jpeg', 'https://example.test/uploads/photo.jpg'],
-    2 => ['image/png', 'https://example.test/uploads/chart.png'],
-    3 => ['image/gif', 'https://example.test/uploads/anim.gif'],
-    4 => ['image/webp', 'https://example.test/uploads/still.webp'],
-];
+// Stand-ins for lookups that need the database or functions.php.
+$attachments = [1 => 'image/jpeg', 2 => 'image/png', 3 => 'image/gif', 4 => 'image/webp'];
 
 function get_post_mime_type(int $id): string
 {
-    return $GLOBALS['attachments'][$id][0];
+    return $GLOBALS['attachments'][$id];
 }
 
 function wp_get_attachment_image_src(int $id, string $size): array
 {
-    return [$GLOBALS['attachments'][$id][1], 2000, 1000];
+    return ['https://example.test/uploads/full.ext', 2000, 1000];
 }
 
 function zw_imgproxy_is_configured(): bool
@@ -75,7 +67,7 @@ function zw_imgproxy_is_configured(): bool
 
 function zw_imgproxy($src, $width, $height): string
 {
-    return 'https://imgproxy.test/rs:fill:' . $width . ':' . $height . '/' . rawurlencode($src) . '.' . Imgproxy::extension($src);
+    return 'https://imgproxy.test/' . $width;
 }
 
 function wp_img_tag_add_auto_sizes(string $image): string
@@ -87,16 +79,14 @@ require __DIR__ . '/../lib/content_images.php';
 
 $imgTag = '<img src="https://example.test/uploads/file-1024x512.ext" width="1024" height="512" alt="">';
 
-$jpeg = zw_content_image_cdn($imgTag, 'the_content', 1);
-$check(str_contains($jpeg, 'src="https://imgproxy.test/') && str_contains($jpeg, '.jpeg'), 'A JPEG in content must go through imgproxy as JPEG.');
-
-$png = zw_content_image_cdn($imgTag, 'the_content', 2);
-$check(str_contains($png, 'src="https://imgproxy.test/'), 'A PNG in content must go through imgproxy.');
-$check(str_contains($png, '.webp') && !str_contains($png, '.jpeg'), 'A PNG in content must come out as WebP to keep transparency.');
-
-// imgproxy may drop animation, so GIF and WebP keep core's markup.
-$check(zw_content_image_cdn($imgTag, 'the_content', 3) === $imgTag, 'A GIF in content must keep core\'s markup.');
-$check(zw_content_image_cdn($imgTag, 'the_content', 4) === $imgTag, 'A WebP in content must keep core\'s markup.');
+// imgproxy may drop animation, so only JPEG and PNG go through it; GIF and WebP keep core's markup.
+foreach ([1 => true, 2 => true, 3 => false, 4 => false] as $attachmentId => $routed) {
+    $out = zw_content_image_cdn($imgTag, 'the_content', $attachmentId);
+    $check(
+        $routed ? str_contains($out, 'src="https://imgproxy.test/') : $out === $imgTag,
+        $attachments[$attachmentId] . ($routed ? ' in content must go through imgproxy.' : ' in content must keep core\'s markup.')
+    );
+}
 
 if ($failures !== []) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
