@@ -719,8 +719,20 @@ function zw_seo_article_add_region($data, $context)
 
 // Preserve originals; Timber and imgproxy generate renditions on demand.
 add_filter('big_image_size_threshold', '__return_false');
+// The theme serves imgproxy renditions of the original, so animated sub-sizes (WordPress 7.2+) only take up space.
+add_filter('wp_generate_animated_image_subsizes', '__return_false');
 // Let CSS control caption width.
 add_filter('img_caption_shortcode_width', '__return_false');
+
+// Keep the block editor from attaching inline images on save (WordPress 7.2+):
+// galleries without ids show every attached image, so they would pick these up.
+add_filter('block_editor_settings_all', function (array $settings): array {
+    $settings['autoAttachMediaEnabled'] = false;
+    return $settings;
+});
+
+// Turn off the /random/ redirect to a random post (WordPress 7.2+).
+add_filter('wp_enable_random_content_redirect', '__return_false');
 
 add_action('admin_init', 'zw_register_imgproxy_media_settings');
 
