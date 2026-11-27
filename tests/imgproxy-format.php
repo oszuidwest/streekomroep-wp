@@ -2,7 +2,7 @@
 
 /**
  * Tests the imgproxy output format per source and which article images go through imgproxy.
- * zw_imgproxy() itself is a stand-in here, so its call to Imgproxy::extension() is not covered.
+ * zw_imgproxy() itself is a stand-in here, so its call to Imgproxy::outputExtension() is not covered.
  */
 
 use Streekomroep\Imgproxy;
@@ -25,13 +25,13 @@ foreach (
         'https://example.test/wp-content/uploads/logo.png?ver=2' => 'webp',
         'https://example.test/wp-content/uploads/anim.gif' => 'webp',
         'https://example.test/wp-content/uploads/still.webp' => 'webp',
-        // Bunny thumbnails and other sources without an extension stay JPEG.
+        // Sources without an extension get JPEG.
         'https://example.test/thumbnail' => 'jpeg',
         'https://example.test/png/thumbnail' => 'jpeg',
     ] as $src => $expected
 ) {
-    $actual = Imgproxy::extension($src);
-    $check($actual === $expected, 'Imgproxy::extension(' . $src . ') is ' . $actual . ', expected ' . $expected . '.');
+    $actual = Imgproxy::outputExtension($src);
+    $check($actual === $expected, 'Imgproxy::outputExtension(' . $src . ') is ' . $actual . ', expected ' . $expected . '.');
 }
 
 // WP_HTML_Tag_Processor comes from the autoloader; it escapes URLs with kses, so load that from core.
@@ -75,6 +75,13 @@ function wp_img_tag_add_auto_sizes(string $image): string
     return $image;
 }
 
+$inFeed = false;
+
+function is_feed(): bool
+{
+    return $GLOBALS['inFeed'];
+}
+
 require __DIR__ . '/../lib/content_images.php';
 
 $imgTag = '<img src="https://example.test/uploads/file-1024x512.ext" width="1024" height="512" alt="">';
@@ -88,9 +95,14 @@ foreach ([1 => true, 2 => true, 3 => false, 4 => false] as $attachmentId => $rou
     );
 }
 
+// Feed readers and mail clients may not show WebP, so PNGs in feeds keep core's markup.
+$inFeed = true;
+$check(zw_content_image_cdn($imgTag, 'the_content', 2) === $imgTag, 'image/png in a feed must keep core\'s markup.');
+$check(str_contains(zw_content_image_cdn($imgTag, 'the_content', 1), 'src="https://imgproxy.test/'), 'image/jpeg in a feed must still go through imgproxy.');
+
 if ($failures !== []) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);
 }
 
-echo 'OK: imgproxy picks WebP for PNG, GIF and WebP sources and article PNGs go through it' . PHP_EOL;
+echo 'OK: imgproxy picks WebP for PNG, GIF and WebP sources and article PNGs go through it outside feeds' . PHP_EOL;
