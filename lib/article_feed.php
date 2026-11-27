@@ -19,7 +19,8 @@ function zw_article_featured_image_media(): void
     }
 
     // Take the type from the file the tag points to: a sub-size can have another format than the upload.
-    $type = wp_check_filetype($image[0], wp_get_mime_types())['type'];
+    // Match on the path, so a query string doesn't hide the extension.
+    $type = wp_check_filetype((string) parse_url($image[0], PHP_URL_PATH), wp_get_mime_types())['type'];
     $url = esc_url($image[0]);
     if (!$type || $url === '') {
         return;

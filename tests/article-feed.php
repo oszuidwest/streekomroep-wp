@@ -79,6 +79,7 @@ $cases = [
         $media('image/png', 'https://example.test/chart-1024x661.png'),
     ],
     'uppercase WebP image' => [$image('https://example.test/still-1024x661.WEBP'), $media('image/webp', 'https://example.test/still-1024x661.WEBP') . $video],
+    'image URL with query string' => [$image('https://example.test/photo-1024x661.jpg?v=2'), $media('image/jpeg', 'https://example.test/photo-1024x661.jpg?v=2') . $video],
     'escaped image URL' => [$image('https://example.test/a&b-1024x661.jpg'), $media('image/jpeg', 'https://example.test/a&#038;b-1024x661.jpg') . $video],
     'image of unknown type' => [$image('https://example.test/file-1024x661'), $video],
     'rejected image URL' => [$image('javascript:alert(1).jpg'), $video],
