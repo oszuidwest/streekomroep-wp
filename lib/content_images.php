@@ -1,6 +1,6 @@
 <?php
 
-/** Routes article JPEGs through imgproxy. */
+/** Routes article JPEGs and PNGs through imgproxy. */
 
 use Streekomroep\Layout;
 use Streekomroep\ResponsiveImage;
@@ -13,8 +13,10 @@ function zw_content_image_cdn($image, $context, $attachment_id)
         return $image;
     }
 
-    // Re-encoding other formats could discard transparency or animation.
-    if (get_post_mime_type($attachment_id) !== 'image/jpeg') {
+    // imgproxy turns PNGs into WebP to keep transparency (see Imgproxy::outputExtension()), which some feed readers
+    // and mail clients can't show. GIF and WebP stay out because imgproxy may drop their animation.
+    $mimeTypes = is_feed() ? ['image/jpeg'] : ['image/jpeg', 'image/png'];
+    if (!in_array(get_post_mime_type($attachment_id), $mimeTypes, true)) {
         return $image;
     }
 

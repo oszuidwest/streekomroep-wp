@@ -120,6 +120,13 @@ body > blockquote:not([class]) p {
     margin: 0;
 }
 
+@layer utilities {
+    body .size-full {
+        width: auto;
+        height: auto;
+    }
+}
+
 body figure img {
     margin-block: 0;
 }

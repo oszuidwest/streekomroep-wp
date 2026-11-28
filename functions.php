@@ -722,6 +722,9 @@ add_filter('big_image_size_threshold', '__return_false');
 // Let CSS control caption width.
 add_filter('img_caption_shortcode_width', '__return_false');
 
+// Turn off the /random/ redirect to a random post (WordPress 7.2+).
+add_filter('wp_enable_random_content_redirect', '__return_false');
+
 add_action('admin_init', 'zw_register_imgproxy_media_settings');
 
 function zw_register_imgproxy_media_settings()
@@ -1087,7 +1090,7 @@ function zw_imgproxy($src, $width, $height)
     $resize = 'fill';
     $gravity = 'ce'; // Imgproxy center gravity.
     $enlarge = 1;
-    $extension = 'jpeg';
+    $extension = \Streekomroep\Imgproxy::outputExtension($src);
 
     $width = (int)round($width);
     $height = (int)round($height);
