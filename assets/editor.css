@@ -127,11 +127,11 @@ body > blockquote:not([class]) p {
     }
 }
 
-/* Captions of any block. */
-body figure:has(> figcaption) img {
+body figure img {
     margin-block: 0;
 }
 
+/* Captions of any block. */
 body figcaption {
     @apply m-0 text-sm text-gray-500 text-center pt-2;
 }
