@@ -121,6 +121,13 @@
     margin-block: 0;
 }
 
+@layer utilities {
+    .prose .size-full:not(.not-prose *) {
+        width: auto;
+        height: auto;
+    }
+}
+
 /* Core makes the link inline-block, which adds a line box gap below the image. */
 .prose .wp-block-image > a {
     display: block;
